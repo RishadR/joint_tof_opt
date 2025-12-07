@@ -1,0 +1,36 @@
+# Matplotlib plotting configuration defaults
+# Load with: matplotlib.rcParams.update(yaml.safe_load(open('plot_config.yaml')))
+
+# Figure settings
+figure.dpi: 400
+savefig.dpi: 400
+
+# Font settings
+font.family: serif
+font.serif: ["Times New Roman", "Times", "serif"]
+font.size: 12
+
+# Text settings
+text.usetex: false
+
+# Axes settings
+axes.labelsize: 12
+axes.titlesize: 14
+
+# Legend settings
+legend.fontsize: 12
+
+# Xtick and Ytick settings
+xtick.labelsize: 12
+ytick.labelsize: 12
+
+# Save format settings
+savefig.format: "pdf"
+savefig.bbox: tight
+savefig.pad_inches: 0.1
+
+# SVG settings - store text as text instead of paths
+svg.fonttype: none
+
+# Default colormap
+image.cmap: Accent
