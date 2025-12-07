@@ -19,7 +19,7 @@ def read_parameter_mapping():
     return parameter_mapping
 
 
-if __name__ == "__main__":
+def main():
     ## Params
     filter_hw = 0.3  # Comb filter half-width in Hz
     lr_list = {"abs": 0.03, "m1": 0.01, "V": 0.002}  # Learning rates for different measurands
@@ -28,15 +28,10 @@ if __name__ == "__main__":
     results = []
     windows_data = {}  # Dictionary to store windows: {(measurand, depth): window_array}
     loss_history_data = {}  # Dictionary to store loss histories: {(measurand, depth): loss_array}
-    bin_edges = {}  # Dictionary to store timebin edges: {(measurand, depth): edges_array}
+    bin_edges_data = {}  # Dictionary to store timebin edges: {(measurand, depth): edges_array}
 
     for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
-
-        ## Logs
-        all_depths = []
-        all_optimized_sens = []
-        all_vanilla_sens = []
 
         ## Run experiments
         print(f"Starting sensitivity comparison for measurand: {measurand}")
@@ -74,7 +69,7 @@ if __name__ == "__main__":
             # More logging - since I am a lumberjack apparently
             windows_data[(measurand, depth)] = window.detach().cpu().numpy()
             loss_history_data[(measurand, depth)] = loss_history
-            bin_edges[(measurand, depth)] = np.load(tof_dataset_file)["bin_edges"]
+            bin_edges_data[(measurand, depth)] = np.load(tof_dataset_file)["bin_edges"]
 
             print(
                 f"Depth: {depth} mm |",
@@ -97,7 +92,7 @@ if __name__ == "__main__":
         key = f"{measurand}_depth_{depth}"
         windows_dict[key] = windows_data[(measurand, depth)]
         loss_history_dict[key] = np.array(loss_history_data[(measurand, depth)])
-        bin_edges_dict[key] = bin_edges[(measurand, depth)]
+        bin_edges_dict[key] = bin_edges_data[(measurand, depth)]
 
     np.savez("./results/optimized_windows.npz", **windows_dict)
     np.savez("./results/loss_histories.npz", **loss_history_dict)
@@ -105,3 +100,7 @@ if __name__ == "__main__":
     print("Windows saved to ./results/optimized_windows.npz")
     print("Loss histories saved to ./results/loss_histories.npz")
     print("Timebin edges saved to ./results/timebin_edges.npz")
+
+
+if __name__ == "__main__":
+    main()

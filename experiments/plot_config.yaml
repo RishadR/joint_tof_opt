@@ -36,4 +36,4 @@ svg.fonttype: none
 image.cmap: Accent
 
 # Color cycle for line plots (using Accent colormap colors)
-axes.prop_cycle: cycler('color', ['7fc97f', 'beaed4', 'fdc086', 'ffff99', '386cb0', 'f0027f', 'bf5b17', '666666'])
+axes.prop_cycle: cycler('color', ['7fc97f', 'beaed4', 'fdc086', '386cb0', 'f0027f', 'bf5b17', '666666'])
