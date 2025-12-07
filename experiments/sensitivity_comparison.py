@@ -1,51 +1,120 @@
 """
 Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
 """
+
 import yaml
+import pandas as pd
+import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
 from compute_sensitivity import compute_sensitivity
 from pathlib import Path
+from joint_tof_opt import named_moment_types
 import torch
 
+
 def read_parameter_mapping():
-    with open('./data/parameter_mapping.json', 'r') as f:
+    with open("./data/parameter_mapping.json", "r") as f:
         parameter_mapping = yaml.safe_load(f)
     return parameter_mapping
 
 
-
 if __name__ == "__main__":
     ## Params
-    measurand = 'V' # Change as needed - options are 'abs', 'V', 'm1'
     filter_hw = 0.3  # Comb filter half-width in Hz
-    
-    ## Logs
-    all_depths = []
-    all_optimized_sens = []
-    all_vanilla_sens = []
-    
-    ## Run experiments
-    print(f"Starting sensitivity comparison for measurand: {measurand}")
-    ppath_file_mapping = read_parameter_mapping()
-    experiments = ppath_file_mapping['experiments']
-    for experiment in experiments:
-        ppath_filename = experiment['filename']
-        derm_thickness_mm = experiment['sweep_parameters']['derm_thickness']['value']
-        ppath_file = Path('./data') / ppath_filename
-        tof_dataset_file = Path('./data') / f"generated_tof_set_{ppath_file.stem}.npz"
-        generate_tof(ppath_file, tof_dataset_file)
-        window, loss_history = main_optimize(tof_dataset_file, measurand, filter_hw=filter_hw)
-        vanilla_window = torch.ones_like(window)
-        optimized_sensitivity, _ = compute_sensitivity(tof_dataset_file, window, measurand, filter_hw=filter_hw)
-        vanilla_sensitivity, _ = compute_sensitivity(tof_dataset_file, vanilla_window, measurand, filter_hw=filter_hw)
-        all_depths.append(derm_thickness_mm)
-        all_optimized_sens.append(optimized_sensitivity)
-        all_vanilla_sens.append(vanilla_sensitivity)
-        improvement = (optimized_sensitivity - vanilla_sensitivity) / vanilla_sensitivity * 100
-        print(f"Derm Thickness: {derm_thickness_mm} mm |",
-              f"Optimized Sensitivity: {optimized_sensitivity:.3e} |",
-              f"Vanilla Sensitivity: {vanilla_sensitivity:.3e}", 
-              f"Epochs: {len(loss_history)} |",
-              f"Improvement: {improvement:.2f}%")
-        
+    lr_list = {"abs": 0.03, "m1": 0.01, "V": 0.002}  # Learning rates for different measurands
+
+    # Initialize results table and windows storage
+    results = []
+    windows_data = {}  # Dictionary to store windows: {(measurand, depth): window_array}
+    loss_history_data = {}  # Dictionary to store loss histories: {(measurand, depth): loss_array}
+
+    for measurand in named_moment_types:
+        lr = lr_list.get(measurand, 0.01)
+
+        ## Logs
+        all_depths = []
+        all_optimized_sens = []
+        all_vanilla_sens = []
+
+        ## Run experiments
+        print(f"Starting sensitivity comparison for measurand: {measurand}")
+        ppath_file_mapping = read_parameter_mapping()
+        experiments = ppath_file_mapping["experiments"]
+        for experiment in experiments:
+            ppath_filename = experiment["filename"]
+            derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
+            ppath_file = Path("./data") / ppath_filename
+            tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
+            generate_tof(ppath_file, tof_dataset_file)
+            window, loss_history = main_optimize(tof_dataset_file, measurand, filter_hw=filter_hw, lr=lr)
+            vanilla_window = torch.ones_like(window)
+            optimized_sensitivity, _ = compute_sensitivity(tof_dataset_file, window, measurand, filter_hw=filter_hw)
+            vanilla_sensitivity, _ = compute_sensitivity(
+                tof_dataset_file, vanilla_window, measurand, filter_hw=filter_hw
+            )
+
+            depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
+            improvement = (optimized_sensitivity - vanilla_sensitivity) / vanilla_sensitivity * 100
+            epochs = len(loss_history)
+
+            # Add row to results
+            results.append(
+                {
+                    "Measurand": measurand,
+                    "Depth": depth,
+                    "Optimized Sensitivity": optimized_sensitivity,
+                    "Vanilla Sensitivity": vanilla_sensitivity,
+                    "Improvement": improvement,
+                    "Epochs": epochs,
+                }
+            )
+
+            # More logging - since I am a lumberjack apparently
+            windows_data[(measurand, depth)] = window.detach().cpu().numpy()
+            loss_history_data[(measurand, depth)] = loss_history
+
+            print(
+                f"Depth: {depth} mm |",
+                f"Optimized Sensitivity: {optimized_sensitivity:.3e} |",
+                f"Vanilla Sensitivity: {vanilla_sensitivity:.3e}",
+                f"Epochs: {epochs} |",
+                f"Improvement: {improvement:.2f}%",
+            )
+
+    # Create DataFrame and save
+    results_df = pd.DataFrame(results)
+    results_df.to_csv("./results/sensitivity_comparison_results.csv", index=False)
+    print("\nResults saved to ./results/sensitivity_comparison_results.csv")
+
+    # Save windows as .npz file
+    windows_dict = {}
+    for (measurand, depth), window_array in windows_data.items():
+        key = f"{measurand}_depth_{depth}mm"
+        windows_dict[key] = window_array
+
+    np.savez("./results/optimized_windows.npz", **windows_dict)
+    print("Windows saved to ./results/optimized_windows.npz")
+
+    # Save loss histories as .npz file
+    loss_history_dict = {}
+    for (measurand, depth), loss_array in loss_history_data.items():
+        key = f"{measurand}_depth_{depth}mm"
+        loss_history_dict[key] = np.array(loss_array)
+    np.savez("./results/loss_histories.npz", **loss_history_dict)
+    print("Loss histories saved to ./results/loss_histories.npz")
+
+    # Also save as a summary table with windows
+    windows_summary = []
+    for (measurand, depth), window_array in windows_data.items():
+        windows_summary.append(
+            {
+                "Measurand": measurand,
+                "Depth (mm)": depth,
+                "Window": window_array.tolist(),  # Convert to list for CSV compatibility
+            }
+        )
+
+    windows_df = pd.DataFrame(windows_summary)
+    windows_df.to_csv("./results/windows_summary.csv", index=False)
+    print("Windows summary saved to ./results/windows_summary.csv")

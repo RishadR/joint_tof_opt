@@ -250,7 +250,7 @@ if __name__ == "__main__":
     data_path = Path("./data/generated_tof_set.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=data_path,
-        measurand="V",
+        measurand="m1",
         max_epochs=2000,
         lr=0.01,
         filter_hw=0.3,
