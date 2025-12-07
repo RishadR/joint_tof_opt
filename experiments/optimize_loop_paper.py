@@ -181,6 +181,7 @@ def plot_training_curves_and_window(
     training_curves: np.ndarray,
     curve_column_labels: list[str],
     optimized_window: torch.Tensor,
+    bin_edges: np.ndarray,
     fig_size: tuple[int, int] = (10, 6),
     grid: bool = False,
     normalize_curves: bool = True,
@@ -197,6 +198,8 @@ def plot_training_curves_and_window(
     :type fig_size: tuple[int, int]
     :param optimized_window: Optimized window tensor.
     :type optimized_window: torch.Tensor
+    :param bin_edges: Bin edges tensor.
+    :type bin_edges: np.ndarray
     :param grid: Whether to show grid on the training plots. Defaults to False.
     :type grid: bool
     :param normalize_curves: Whether to normalize each training curves for better visualization. Defaults to True.
@@ -207,6 +210,11 @@ def plot_training_curves_and_window(
     """
     ## Validity Checks
     assert training_curves.shape[1] == len(curve_column_labels), "Number of curve labels must match number of metrics."
+
+    ## Bin Centers
+    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    bin_centers_ns = bin_centers * 1e9  # Convert to nanoseconds for better readability
+    bin_centers_ns = np.round(bin_centers_ns, decimals=2)
 
     ## Load config for plotting if available
     config_path = Path("./experiments/plot_config.yaml")
@@ -236,8 +244,8 @@ def plot_training_curves_and_window(
 
     # Plot Optimized Window
     plt.subplot(1, 2, 2)
-    plt.plot(optimized_window.numpy(), marker="o")
-    plt.xlabel("Timebin Index")
+    plt.plot(bin_centers_ns, optimized_window.detach().cpu().numpy(), marker="o")
+    plt.xlabel("Bin Center (ns)")
     plt.ylabel("Window Value")
     plt.title("Optimized Window")
     plt.tight_layout()
@@ -247,10 +255,10 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    data_path = Path("./data/generated_tof_set.npz")
+    tof_dataset_path = Path("./data/generated_tof_set.npz")
     optimized_window, training_curves = main_optimize(
-        tof_dataset_path=data_path,
-        measurand="m1",
+        tof_dataset_path=tof_dataset_path,
+        measurand="abs",
         max_epochs=2000,
         lr=0.01,
         filter_hw=0.3,
@@ -260,4 +268,6 @@ if __name__ == "__main__":
     print("Best Final Metric:", training_curves[-1, 2])
     print("Total Epochs:", training_curves.shape[0])
     loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
-    plot_training_curves_and_window(training_curves, loss_names, optimized_window, grid=True)
+    bin_edges = np.load(tof_dataset_path)["bin_edges"]
+    plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)
+    

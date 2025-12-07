@@ -32,5 +32,8 @@ savefig.pad_inches: 0.1
 # SVG settings - store text as text instead of paths
 svg.fonttype: none
 
-# Default colormap
+# Default colormap (for images/heatmaps)
 image.cmap: Accent
+
+# Color cycle for line plots (using Accent colormap colors)
+axes.prop_cycle: cycler('color', ['7fc97f', 'beaed4', 'fdc086', 'ffff99', '386cb0', 'f0027f', 'bf5b17', '666666'])

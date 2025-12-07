@@ -28,6 +28,7 @@ if __name__ == "__main__":
     results = []
     windows_data = {}  # Dictionary to store windows: {(measurand, depth): window_array}
     loss_history_data = {}  # Dictionary to store loss histories: {(measurand, depth): loss_array}
+    bin_edges = {}  # Dictionary to store timebin edges: {(measurand, depth): edges_array}
 
     for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
@@ -73,6 +74,7 @@ if __name__ == "__main__":
             # More logging - since I am a lumberjack apparently
             windows_data[(measurand, depth)] = window.detach().cpu().numpy()
             loss_history_data[(measurand, depth)] = loss_history
+            bin_edges[(measurand, depth)] = np.load(tof_dataset_file)["bin_edges"]
 
             print(
                 f"Depth: {depth} mm |",
@@ -89,32 +91,17 @@ if __name__ == "__main__":
 
     # Save windows as .npz file
     windows_dict = {}
-    for (measurand, depth), window_array in windows_data.items():
-        key = f"{measurand}_depth_{depth}mm"
-        windows_dict[key] = window_array
+    loss_history_dict = {}
+    bin_edges_dict = {}
+    for measurand, depth in windows_data.keys():
+        key = f"{measurand}_depth_{depth}"
+        windows_dict[key] = windows_data[(measurand, depth)]
+        loss_history_dict[key] = np.array(loss_history_data[(measurand, depth)])
+        bin_edges_dict[key] = bin_edges[(measurand, depth)]
 
     np.savez("./results/optimized_windows.npz", **windows_dict)
-    print("Windows saved to ./results/optimized_windows.npz")
-
-    # Save loss histories as .npz file
-    loss_history_dict = {}
-    for (measurand, depth), loss_array in loss_history_data.items():
-        key = f"{measurand}_depth_{depth}mm"
-        loss_history_dict[key] = np.array(loss_array)
     np.savez("./results/loss_histories.npz", **loss_history_dict)
+    np.savez("./results/timebin_edges.npz", **bin_edges_dict)
+    print("Windows saved to ./results/optimized_windows.npz")
     print("Loss histories saved to ./results/loss_histories.npz")
-
-    # Also save as a summary table with windows
-    windows_summary = []
-    for (measurand, depth), window_array in windows_data.items():
-        windows_summary.append(
-            {
-                "Measurand": measurand,
-                "Depth (mm)": depth,
-                "Window": window_array.tolist(),  # Convert to list for CSV compatibility
-            }
-        )
-
-    windows_df = pd.DataFrame(windows_summary)
-    windows_df.to_csv("./results/windows_summary.csv", index=False)
-    print("Windows summary saved to ./results/windows_summary.csv")
+    print("Timebin edges saved to ./results/timebin_edges.npz")
