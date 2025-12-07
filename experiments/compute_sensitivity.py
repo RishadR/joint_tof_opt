@@ -28,7 +28,7 @@ from joint_tof_opt.signal_process import CombSeparator
 from joint_tof_opt.metric_process import EnergyRatioMetric
 
 
-def main(window: torch.Tensor, measurand: Literal["abs", "m1", "V"]) -> tuple[float, float]:
+def compute_sensitivity(window: torch.Tensor, measurand: Literal["abs", "m1", "V"]) -> tuple[float, float]:
     """
     Compute the fetal and maternal sensitivities for a given window.
 
@@ -143,5 +143,5 @@ if __name__ == "__main__":
 
     print("Computing Sensitvities for all measurands with example window...")
     for measurand in ["abs", "m1", "V"]:
-        fetal_sens, maternal_sens = main(windows[measurand], measurand)  # type: ignore[arg-type]
+        fetal_sens, maternal_sens = compute_sensitivity(windows[measurand], measurand)  # type: ignore[arg-type]
         print(f"{measurand} | Fetal Sensitivity: {fetal_sens:.3e} | Maternal Sensitivity: {maternal_sens:.3e}")
