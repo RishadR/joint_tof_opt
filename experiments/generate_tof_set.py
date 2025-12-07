@@ -6,9 +6,6 @@ from pathlib import Path
 import numpy as np
 import yaml
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
-import os
-print(f"PYTHONPATH: {os.environ.get('PYTHONPATH', 'Not set')}")
-
 from joint_tof_opt.tof_process import compute_tof_discrete
 import os
 
@@ -75,7 +72,6 @@ def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
     detpos_array = ppath_dataset["detpos"]
     detpos = detpos_array[int(selected_sdd_index), :3]
     sd_distance = detpos[1] - srcpos[1]
-    print(f"SDD selected: {sd_distance} mm")
     filtered_ppath_array = (ppath_array[ppath_array[:, 0] == selected_sdd_index])[:, 1:]
 
     tof_dataset = np.zeros((len(time_axis), bin_count))
