@@ -240,7 +240,6 @@ def plot_training_curves_and_window(
     plt.xlabel("Timebin Index")
     plt.ylabel("Window Value")
     plt.title("Optimized Window")
-    plt.grid(grid)
     plt.tight_layout()
 
     plt.savefig(f"./figures/{filename}.svg")
