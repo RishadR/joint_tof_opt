@@ -84,7 +84,8 @@ def compute_tof_discrete(
     :type partialpath_table: np.ndarray
     :param light_speed: List of light speeds corresponding to each medium (in m/s).
     :type light_speed: list[float]
-    :param tissue_model: Tissue model object that provides optical properties for computing weights.
+    :param tissue_model: Tissue model object that provides optical properties for computing weights. The class only 
+    needs to have a "prop" attribute as described in compute_weighted_intensity.
     :type tissue_model: Any
     :param num_bins: Number of bins for the ToF histogram.
     :type num_bins: int

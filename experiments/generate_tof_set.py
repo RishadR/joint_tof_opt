@@ -2,13 +2,38 @@
 Load and create a ToF dataset for testing purposes.
 """
 
+from pathlib import Path
 import numpy as np
 import yaml
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
+import os
+print(f"PYTHONPATH: {os.environ.get('PYTHONPATH', 'Not set')}")
+
 from joint_tof_opt.tof_process import compute_tof_discrete
+import os
 
 
-def main():
+def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
+    """
+    Generate a DToF dataset based on the provided path length dataset and save it.
+    This function modulates maternal and fetal hemoglobin concentrations over time to simulate physiological changes and
+    generates a set of time-of-flight histograms accordingly for a single detector. It then stores the generated dataset
+    along with relevant metadata in a .npz file.
+
+    The optical properties are explained in the paper.
+
+    To modify parameters, edit the ./experiments/tof_config.yaml file.
+
+    :param ppath_dataset_filename: Filepath to the MC path length dataset from tfo_sim2 (.npz file). The file should
+    contain a ppath array with shape (num_photons, num_layers)
+    :type ppath_dataset_filename: Path
+    :param save_path: Filepath to save the generated ToF dataset (.npz file). The savefile contains the following
+    information - tof_dataset, bin_edges, time_axis, sd_distance, maternal_hb_series, fetal_hb_series, wavelength,
+        weight_threshold_fraction, fetal_f, maternal_f, and sampling_rate.
+    :type save_path: Path
+    :return: None
+    :rtype: None
+    """
     # Load configuration
     with open("./experiments/tof_config.yaml", "r") as f:
         config = yaml.safe_load(f)
@@ -17,7 +42,6 @@ def main():
     maternal_f = config["maternal_f"]
     fetal_f = config["fetal_f"]
     selected_sdd_index = config["selected_sdd_index"]
-    ppath_dataset_filename = config["ppath_dataset_filename"]
     bin_count = config["bin_count"]
     weight_threshold_fraction = config["weight_threshold_fraction"]
     end_sec = config["end_sec"]
@@ -28,8 +52,7 @@ def main():
     fetal_saturation = config["fetal_saturation"]
     epi_thickness_mm = config["epi_thickness_mm"]
     derm_thickness_mm = config["derm_thickness_mm"]
-    save_path = config["save_path"]
-
+    light_speeds = [float(speed) for speed in config["light_speeds"]]   # in m/s for 4 layers
     ## Generate the time serieses
     # Assume a sampling rate of 10 Hz - Nyquist frequency 5 Hz
     time_axis = np.linspace(0, end_sec, datapoint_count)
@@ -46,7 +69,7 @@ def main():
     )
 
     ## Load the ppath data
-    ppath_dataset = np.load(f"./data/{ppath_dataset_filename}")
+    ppath_dataset = np.load(ppath_dataset_filename)
     ppath_array = ppath_dataset["ppath"]
     srcpos = ppath_dataset["srcpos"]
     detpos_array = ppath_dataset["detpos"]
@@ -54,7 +77,6 @@ def main():
     sd_distance = detpos[1] - srcpos[1]
     print(f"SDD selected: {sd_distance} mm")
     filtered_ppath_array = (ppath_array[ppath_array[:, 0] == selected_sdd_index])[:, 1:]
-    light_speed = [3e8 / 1.4] * 4  # Equal speed all across
 
     tof_dataset = np.zeros((len(time_axis), bin_count))
     time_limits = None
@@ -72,7 +94,7 @@ def main():
         if time_limits is None:
             tof_array, bin_edges = compute_tof_discrete(
                 filtered_ppath_array,
-                light_speed,
+                light_speeds,
                 tisse_model,
                 bin_count,
                 weight_threshold_fraction,
@@ -82,7 +104,7 @@ def main():
         else:
             tof_array, bin_edges = compute_tof_discrete(
                 filtered_ppath_array,
-                light_speed,
+                light_speeds,
                 tisse_model,
                 bin_count,
                 None,
@@ -93,7 +115,7 @@ def main():
     # Save the generated ToF dataset
     assert bin_edges is not None
     np.savez(
-        f"./data/{save_path}",
+        save_path,
         tof_dataset=tof_dataset,
         bin_edges=bin_edges,
         time_axis=time_axis,
@@ -109,4 +131,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    in_file = Path("./data/experiment_0000.npz")
+    out_file = Path("./data/generated_tof_set.npz")
+    generate_tof(in_file, out_file)

@@ -2,24 +2,22 @@
 
 # Time series parameters
 datapoint_count: 40
-maternal_f: 1.0      # Maternal heartbeat frequency (Hz)
-fetal_f: 2.2         # Fetal heartbeat frequency (Hz)
-end_sec: 4.0         # Duration of the time series (seconds)
+maternal_f: 1.0 # Maternal heartbeat frequency (Hz)
+fetal_f: 2.2 # Fetal heartbeat frequency (Hz)
+end_sec: 4.0 # Duration of the time series (seconds)
 
 # Tissue Parameters
-maternal_hb_base: 15.0    # Baseline maternal hemoglobin concentration 
-fetal_hb_base: 15.0       # Baseline fetal hemoglobin concentration
-wavelength: 735.0         # Wavelength in nm
-maternal_saturation: 1.0  # Maternal oxygen saturation
-fetal_saturation: 0.60    # Fetal oxygen saturation
-epi_thickness_mm: 2   # Epidermis thickness in mm
-derm_thickness_mm: 4   # Dermis thickness in mm
-
+maternal_hb_base: 15.0 # Baseline maternal hemoglobin concentration
+fetal_hb_base: 15.0 # Baseline fetal hemoglobin concentration
+wavelength: 735.0 # Wavelength in nm
+maternal_saturation: 1.0 # Maternal oxygen saturation
+fetal_saturation: 0.60 # Fetal oxygen saturation
+light_speeds: [2.14e8, 2.14e8, 2.14e8, 2.14e8] # Speed of light in each layer (m/s)
+epi_thickness_mm: 2 # Epidermis thickness in mm - does not affect optical properties - can be ignored
+derm_thickness_mm: 4 # Dermis thickness in mm - does not affect optical properties - can be ignored
 
 # Data selection
-selected_sdd_index: 2   # Source-detector distance index
-ppath_dataset_filename: experiment_0000.npz  # Path data filename (located in ./data/)
-save_path: generated_tof_set.npz  # Output ToF dataset filename (will be saved in ./data/)
+selected_sdd_index: 2 # Source-detector distance index
 
 # Histogram parameters
 bin_count: 20
