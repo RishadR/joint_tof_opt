@@ -51,7 +51,7 @@ ax_right_bottom = fig.add_subplot(gs[1, 1])
 ax_left.plot(bin_centers_ns, optimized_window, marker="o", linewidth=2, markersize=5)
 ax_left.set_xlabel("Quantized Distribution of Time-of-Flight Bin Centers (ns)", fontsize=12)
 ax_left.set_ylabel("Window Value", fontsize=12)
-ax_left.set_title(f"Example of an Optimized Window", fontsize=14)
+ax_left.set_title(f"(a) Example of a DIGSS-Optimized Window", fontsize=14)
 ax_left.grid(True, alpha=0.3)
 
 # ============ RIGHT TOP PANE: 'abs' measurand ============
@@ -74,7 +74,7 @@ ax_right_top.plot(
     df_abs["Depth"],
     df_abs["Optimized Sensitivity"],
     marker="s",
-    label="Optimized Sensitivity",
+    label="DIGSS-Optimized Sensitivity",
     linewidth=2,
     markersize=6,
     color=color_optimized,
@@ -83,15 +83,15 @@ ax_right_top.plot(
     df_abs["Depth"],
     df_abs["Vanilla Sensitivity"],
     marker="^",
-    label="Ungated Sensitivity",
+    label="Non-Timegated Sensitivity",
     linewidth=2,
     markersize=6,
     color=color_vanilla,
 )
-ax_right_top.set_ylabel("Sensitivity", fontsize=12, color="black")
+ax_right_top.set_ylabel("Sensitivity, $\\frac{\\Delta N_{tot}}{\\Delta \\mu_{a,fetal}}$", fontsize=12, color="black")
 ax_right_top.tick_params(axis="y", labelcolor="black")
 ax_right_top.tick_params(axis="x", labelbottom=False)  # Hide x-axis labels for top subplot
-ax_right_top.set_title("Measurand: Photon Count ($N_{tot}$)", fontsize=14)
+ax_right_top.set_title("(b) Measurand: Photon Count ($N_{tot}$)", fontsize=14)
 ax_right_top.grid(True, alpha=0.3)
 
 
@@ -125,7 +125,7 @@ ax_right_bottom.plot(
     df_V["Depth"],
     df_V["Optimized Sensitivity"],
     marker="s",
-    label="Optimized Sensitivity",
+    label="DIGSS-Optimized Sensitivity",
     linewidth=2,
     markersize=6,
     color=color_optimized,
@@ -134,15 +134,15 @@ ax_right_bottom.plot(
     df_V["Depth"],
     df_V["Vanilla Sensitivity"],
     marker="^",
-    label="Ungated Sensitivity",
+    label="Non-Timegated Sensitivity",
     linewidth=2,
     markersize=6,
     color=color_vanilla,
 )
 ax_right_bottom.set_xlabel("Fetal Depth (mm)", fontsize=12)
-ax_right_bottom.set_ylabel("Sensitivity", fontsize=12, color="black")
+ax_right_bottom.set_ylabel("Sensitivity, $\\frac{\\Delta V}{\\Delta \\mu_{a,fetal}}$", fontsize=12, color="black")
 ax_right_bottom.tick_params(axis="y", labelcolor="black")
-ax_right_bottom.set_title("Measurand: Photon Arrival Time Variance($V$)", fontsize=14)
+ax_right_bottom.set_title("(c) Measurand: Photon Arrival Time Variance($V$)", fontsize=14)
 ax_right_bottom.grid(True, alpha=0.3)
 
 # Right y-axis: Improvement %
