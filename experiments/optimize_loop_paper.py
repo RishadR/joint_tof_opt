@@ -26,12 +26,14 @@ Window Parameterization:
 the window energy.
 """
 
+import yaml
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from typing import Callable, Literal
 from pathlib import Path
+import matplotlib.pyplot as plt
 from joint_tof_opt import (
     CombSeparator,
     EnergyRatioMetric,
@@ -174,11 +176,82 @@ def main_optimize(
     # Return the optimized window and training curves up to the last epoch
     return window_normalized.detach(), training_curves[: epoch + 1]
 
-if __name__ == '__main__':
+
+def plot_training_curves_and_window(
+    training_curves: np.ndarray,
+    curve_column_labels: list[str],
+    optimized_window: torch.Tensor,
+    fig_size: tuple[int, int] = (10, 6),
+    grid: bool = False,
+    normalize_curves: bool = True,
+    filename: str = "optimization_results",
+) -> None:
+    """
+    Plot the training curves and optimized window in two subplots and save to a file.
+
+    :param training_curves: Numpy array of shape (num_epochs, num_metrics) containing the training curves.
+    :type training_curves: np.ndarray
+    :param curve_column_labels: List of labels for each metric in the training curves.
+    :type curve_column_labels: list[str]
+    :param fig_size: Figure size for the plots. Defaults to (10, 6).
+    :type fig_size: tuple[int, int]
+    :param optimized_window: Optimized window tensor.
+    :type optimized_window: torch.Tensor
+    :param grid: Whether to show grid on the training plots. Defaults to False.
+    :type grid: bool
+    :param normalize_curves: Whether to normalize each training curves for better visualization. Defaults to True.
+    :type normalize_curves: bool
+    :param filename: Filename to save the plots. Defaults to "optimization_results". Saves to ./figures/{filename}.svg
+    and ./figures/{filename}.pdf (Like the professionals we are)
+    :type filename: str
+    """
+    ## Validity Checks
+    assert training_curves.shape[1] == len(curve_column_labels), "Number of curve labels must match number of metrics."
+
+    ## Load config for plotting if available
+    config_path = Path("./experiments/plot_config.yaml")
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            plot_config = yaml.safe_load(f)
+            plt.rcParams.update(plot_config)
+
+    linestyles = ["-", "--", "-.", ":", (0, (3, 1, 1, 1)), (0, (5, 2, 1, 2))]
+
+    plt.subplots(1, 2, figsize=fig_size)
+
+    # Plot Training Curves
+    plt.subplot(1, 2, 1)
+    for i in range(training_curves.shape[1]):
+        if normalize_curves:
+            curve = training_curves[:, i] / (np.max(np.abs(training_curves[:, i])) + 1e-20)
+        else:
+            curve = training_curves[:, i]
+        plt.plot(curve, label=curve_column_labels[i], linestyle=linestyles[i])
+    plt.xlabel("Epoch")
+    plt.ylabel("Metric Value")
+    axes_title = "Normalized Training Metrics" if normalize_curves else "Training Metrics"
+    plt.title(axes_title)
+    plt.legend()
+    plt.grid(grid)
+
+    # Plot Optimized Window
+    plt.subplot(1, 2, 2)
+    plt.plot(optimized_window.numpy(), marker="o")
+    plt.xlabel("Timebin Index")
+    plt.ylabel("Window Value")
+    plt.title("Optimized Window")
+    plt.grid(grid)
+    plt.tight_layout()
+
+    plt.savefig(f"./figures/{filename}.svg")
+    plt.savefig(f"./figures/{filename}.pdf")
+
+
+if __name__ == "__main__":
     data_path = Path("./data/generated_tof_set.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=data_path,
-        measurand="m1",
+        measurand="V",
         max_epochs=2000,
         lr=0.01,
         filter_hw=0.3,
@@ -186,4 +259,6 @@ if __name__ == '__main__':
     )
     print("Optimized Window:", optimized_window.numpy())
     print("Best Final Metric:", training_curves[-1, 2])
-    
+    print("Total Epochs:", training_curves.shape[0])
+    loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+    plot_training_curves_and_window(training_curves, loss_names, optimized_window, grid=True)
