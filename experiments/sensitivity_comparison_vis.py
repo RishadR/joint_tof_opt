@@ -37,8 +37,8 @@ measurands_to_plot = ["abs", "V"]
 df_results_filtered = df_results[df_results["Measurand"].isin(measurands_to_plot)]
 
 # Create figure with custom grid layout
-fig = plt.figure(figsize=(12, 4))
-gs = gridspec.GridSpec(2, 2, figure=fig, width_ratios=[1, 1], hspace=0.35, wspace=0.15)
+fig = plt.figure(figsize=(10, 4))
+gs = gridspec.GridSpec(2, 2, figure=fig, width_ratios=[1, 1], hspace=0.35, wspace=0.22)
 
 # Left pane: single plot spanning both rows
 ax_left = fig.add_subplot(gs[:, 0])
@@ -160,7 +160,7 @@ ax_right_bottom_twin.plot(
 ax_right_bottom_twin.set_ylabel("Improvement (%)", fontsize=12, color=color_improvement)
 ax_right_bottom_twin.set_ylim(bottom=0)
 current_top = ax_right_bottom_twin.get_ylim()[1]
-ax_right_bottom_twin.set_ylim(top=current_top * 1.5)
+ax_right_bottom_twin.set_ylim(top=current_top * 1.2)
 ax_right_bottom_twin.tick_params(axis="y", labelcolor=color_improvement)
 
 # No legend for bottom plot to avoid clutter
