@@ -37,8 +37,8 @@ measurands_to_plot = ["abs", "V"]
 df_results_filtered = df_results[df_results["Measurand"].isin(measurands_to_plot)]
 
 # Create figure with custom grid layout
-fig = plt.figure(figsize=(18, 4))
-gs = gridspec.GridSpec(2, 2, figure=fig, width_ratios=[1, 1], hspace=0.3, wspace=0.12)
+fig = plt.figure(figsize=(12, 4))
+gs = gridspec.GridSpec(2, 2, figure=fig, width_ratios=[1, 1], hspace=0.35, wspace=0.15)
 
 # Left pane: single plot spanning both rows
 ax_left = fig.add_subplot(gs[:, 0])
@@ -49,7 +49,7 @@ ax_right_bottom = fig.add_subplot(gs[1, 1])
 
 # ============ LEFT PANE: Optimized Window vs Bin Center ============
 ax_left.plot(bin_centers_ns, optimized_window, marker="o", linewidth=2, markersize=5)
-ax_left.set_xlabel("Quantized Distribution of Time-of-Flight Bin Centers (ns)", fontsize=12)
+ax_left.set_xlabel("Quantized Distribution of Time-of-Flight(DTOF)\nBin Centers (ns)", fontsize=12)
 ax_left.set_ylabel("Window Value", fontsize=12)
 ax_left.set_title(f"(a) Example of a DIGSS-Optimized Window", fontsize=14)
 ax_left.grid(True, alpha=0.3)

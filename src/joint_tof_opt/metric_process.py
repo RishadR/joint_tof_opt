@@ -33,9 +33,7 @@ class EnergyRatioMetric(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def forward(
-        self, filtered_signal: torch.Tensor, original_signal: torch.Tensor
-    ) -> torch.Tensor:
+    def forward(self, filtered_signal: torch.Tensor, original_signal: torch.Tensor) -> torch.Tensor:
         """
         Compute energy ratio metric.
 
@@ -55,9 +53,10 @@ class EnergyRatioMetric(nn.Module):
         filtered_energy = torch.sum(filtered_signal**2)
         original_energy = torch.sum(original_signal**2)
 
-        # Compute ratio, adding small epsilon to avoid division by zero
-        epsilon = 1e-20
-        energy_ratio = filtered_energy / (original_energy + epsilon)
+        # Okay, these values become bery tiny. I do not want to define my own epsilon here.
+        # Rather let's just throw an error if original energy is zero.
+        assert original_energy.item() > 0, "Original signal energy is zero, cannot compute energy ratio."
+        energy_ratio = filtered_energy / (original_energy)
 
         return energy_ratio
 
@@ -86,7 +85,7 @@ class ContrastToNoiseMetric(nn.Module):
         self.dB_scale = dB_scale
 
     def forward(self, window: torch.Tensor, filtered_signal: torch.Tensor) -> torch.Tensor:
-        noise = self.noise_func(self.tof_series, self.bin_edges, window)    # sigma^2
+        noise = self.noise_func(self.tof_series, self.bin_edges, window)  # sigma^2
         noise_std = noise.mean().sqrt()
         filtered_signal_energy = torch.mean(filtered_signal**2)  # mu^2
         filtered_signal_amp = torch.sqrt(filtered_signal_energy)  # mu

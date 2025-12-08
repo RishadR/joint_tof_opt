@@ -22,7 +22,7 @@ def read_parameter_mapping():
 def main():
     ## Params
     filter_hw = 0.3  # Comb filter half-width in Hz
-    lr_list = {"abs": 0.03, "m1": 0.01, "V": 0.002}  # Learning rates for different measurands
+    lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
 
     # Initialize results table and windows storage
     results = []
@@ -31,6 +31,7 @@ def main():
     bin_edges_data = {}  # Dictionary to store timebin edges: {(measurand, depth): edges_array}
 
     for measurand in named_moment_types:
+    # for measurand in ['m1']:
         lr = lr_list.get(measurand, 0.01)
 
         ## Run experiments

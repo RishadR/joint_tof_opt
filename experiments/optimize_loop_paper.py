@@ -94,6 +94,13 @@ def main_optimize(
     tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
     bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
     num_timepoints, num_bins = tof_series_tensor.shape
+
+    ######## IMPORTANT ########
+    bin_edges_tensor *= 1e9  # Convert to nanoseconds for better numerical stability
+    # Without this, the higher order moments can blow up due to very tiny denominators
+    ###########################
+    
+
     # Handle measurand and corresponding noise function
     if isinstance(measurand, str):
         if measurand not in named_moment_types:
@@ -119,7 +126,7 @@ def main_optimize(
     # Step 3
     window_exponents = nn.Parameter(torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
     window = torch.exp(window_exponents)
-    window_normalized = window / (torch.norm(window) + 1e-20)
+    window_normalized = window / (torch.norm(window))
 
     # Prep for Optimization Loop
     best_metric = -np.inf
@@ -129,11 +136,10 @@ def main_optimize(
     epoch = 0
     for epoch in range(max_epochs):
         optimizer.zero_grad()
-
         # Reparameterize window using exponentiation to ensure positivity
         window = torch.exp(window_exponents)
         # Normalize window to unit energy
-        window_normalized = window / (torch.norm(window) + 1e-20)
+        window_normalized = window / (torch.norm(window))
 
         # Step 4
         # Compute compact statistics
@@ -158,7 +164,8 @@ def main_optimize(
 
         # Step 9
         # Backpropagation
-        loss = -final_metric
+        # loss = -final_metric
+        loss = -torch.log(final_metric)
         loss.backward()
         optimizer.step()
 
@@ -255,12 +262,12 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    tof_dataset_path = Path("./data/generated_tof_set.npz")
+    tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
-        measurand="abs",
+        measurand="V",
         max_epochs=2000,
-        lr=0.01,
+        lr=1e-2,
         filter_hw=0.3,
         patience=50,
     )
@@ -269,5 +276,5 @@ if __name__ == "__main__":
     print("Total Epochs:", training_curves.shape[0])
     loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
+    # print(training_curves[::10, :])
     plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)
-    

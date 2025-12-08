@@ -20,5 +20,5 @@ derm_thickness_mm: 4 # Dermis thickness in mm - does not affect optical properti
 selected_sdd_index: 2 # Source-detector distance index
 
 # Histogram parameters
-bin_count: 30
+bin_count: 20
 weight_threshold_fraction: 0.98
