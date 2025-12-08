@@ -41,7 +41,8 @@ class WindowedSum(nn.Module):
         :rtype: torch.Tensor
         """
         # Point-wise multiply and sum across bins (dim=1)
-        result = (self.tof_series * window).sum(dim=1).flatten()
+        normalizer = torch.sum(self.tof_series, dim=1) + 1e-20
+        result = (self.tof_series * window).sum(dim=1).flatten() / normalizer
         return result
 
 
@@ -84,10 +85,11 @@ class NthOrderMoment(nn.Module):
         :rtype: torch.Tensor
         """
         # Point-wise multiply with window
+        normalizer = torch.sum(self.tof_series, dim=1) + 1e-20
         windowed_histograms = self.tof_series * window
 
         # Compute numerator: Σ(t^n * h(t))
-        moment = (windowed_histograms * self.bin_centers**self.order).sum(dim=1)
+        moment = (windowed_histograms * self.bin_centers**self.order).sum(dim=1) / normalizer
         return moment.flatten()
 
 
@@ -131,8 +133,9 @@ class NthOrderCenteredMoment(nn.Module):
         :rtype: torch.Tensor
         """
         # Point-wise multiply with window
+        normalizer = torch.sum(self.tof_series, dim=1) + 1e-20
         windowed_histograms = self.tof_series * window
-        mean_time = (windowed_histograms * self.bin_centers.unsqueeze(0)).sum(dim=1, keepdim=True)
+        mean_time = (windowed_histograms * self.bin_centers.unsqueeze(0)).sum(dim=1, keepdim=True) / normalizer.unsqueeze(1)
 
         # Compute centered values: (t - μ)
         centered_times = self.bin_centers.unsqueeze(0) - mean_time
@@ -141,7 +144,7 @@ class NthOrderCenteredMoment(nn.Module):
         centered_times_pow = centered_times**self.order
 
         # Compute n-th centered moment: Σ((t - μ)^n * h(t)) / Σ(h(t))
-        centered_moment = (windowed_histograms * centered_times_pow).sum(dim=1)
+        centered_moment = (windowed_histograms * centered_times_pow).sum(dim=1) / normalizer
         return centered_moment.flatten()
 
 
