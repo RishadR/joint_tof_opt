@@ -49,7 +49,7 @@ def compute_sensitivityv2(
     bin_count = config["bin_count"]
     assert bin_count == len(window), "Window length must match bin count in tof_config.yaml"
     fraction = config["weight_threshold_fraction"]
-    filtered_ppath = (ppath[ppath[:0] == config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
+    filtered_ppath = (ppath[ppath[:, 0] == config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
     base_model = DanModel4LayerX(
         config["wavelength"],
         config["epi_thickness_mm"],

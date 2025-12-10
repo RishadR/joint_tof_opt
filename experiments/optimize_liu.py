@@ -106,17 +106,18 @@ def liu_optimize(
         if average_dtof[b] <= half_max_value:
             b0 = b
             break
-    bf = bmax  # bin where counts fall to 10% of max
-    for b in range(bmax + 1, num_bins):
-        if average_dtof[b] <= half_max_value * 0.1:
-            bf = b
-            break
+    bf = num_bins - 1 # bin where counts fall to 10% of max
+    # for b in range(num_bins - 1, bmax, -1):
+    #     if average_dtof[b] <= half_max_value * 0.1:
+    #         bf = b
+    #         break
 
     # Step 3: Nested loop over (b2, b3)
     best_snr = 0.0
     best_window = None
-    for b2 in range(b0, bf + 1):
-        for b3 in range(b2 + 1, bf + 1):
+    for b2 in range(bmax, bf):
+    # for b2 in range(b0, bf):
+        for b3 in range(b2, bf):    # Inclusive
             # Create rectangular window
             window = torch.zeros(num_bins, dtype=torch.float32)
             window[b2 : b3 + 1] = 1.0
