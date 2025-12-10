@@ -10,12 +10,14 @@ Implemented Using the Supplementary Material provided with the paper + Talking w
 
 Steps:
 1. Obtain the bin with the maximum count (bmax) over the average of all DTOFs
-2. Obtain the initial estimate b0 as the bin with ~50% of bmax's count on the right side of bmax
-3. Run a nested loop of all pairs of (b2, b3) where b3 > b2 >= b0
+2. Obtain b0 and bf:
+    a. b0 = first bin to the right of bmax with ~50% of bmax count (assuming falling edge)
+    b. bf = first bin to the right of bmax with ~10% of bmax count (assuming falling edge)
+3. Run a nested loop of all pairs of (b2, b3) where bf >= b3 > b2 >= b0
     a. For each (b2, b3) compute Measurand time series using a rectangular window between [b2, b3]
     b. Compute the FFT of the Measurand signal
     c. Get the FFT component at known FHR frequency
-    d. Compute noise-floor via MAD
+    d. Compute noise-floor via MAD while keeping the harmonics of FHR and MHR included (MAD Should be robust enough)
     e. Choose the pair that maxmizes SNR = Signal_at_FHR / Noise_Floor
 4. Return the window corresponding to the best (b2, b3) pair but also maintain unit energy constraint
 
@@ -84,18 +86,18 @@ def liu_optimize(
     else:
         moment_calculator = measurand
 
-    # Noise calculation setup - determine FFT bins to exclude around FHR and MHR harmonics
-    noise_fhr_mhr_exclusion_hw_in_bins = int(noise_fhr_mhr_exclusion_hw / (sampling_rate / num_timepoints))
-    bins_to_exclude = []
     fetal_bin = int(fetal_f / (sampling_rate / num_timepoints))
     maternal_bin = int(maternal_f / (sampling_rate / num_timepoints))
-    for h in range(1, harmonic_count + 1):
-        for bin_center in [fetal_bin * h, maternal_bin * h]:
-            start_bin = max(0, bin_center - noise_fhr_mhr_exclusion_hw_in_bins)
-            end_bin = min(num_timepoints // 2, bin_center + noise_fhr_mhr_exclusion_hw_in_bins)
-            bins_to_exclude.extend(range(start_bin, end_bin + 1))
-    bins_to_exclude = sorted(set(bins_to_exclude))
-    bins_to_include = [b for b in range(num_timepoints // 2 + 1) if b not in bins_to_exclude]
+    # Noise calculation setup - determine FFT bins to exclude around FHR and MHR harmonics
+    # noise_fhr_mhr_exclusion_hw_in_bins = int(noise_fhr_mhr_exclusion_hw / (sampling_rate / num_timepoints))
+    # bins_to_exclude = []
+    # for h in range(1, harmonic_count + 1):
+    #     for bin_center in [fetal_bin * h, maternal_bin * h]:
+    #         start_bin = max(0, bin_center - noise_fhr_mhr_exclusion_hw_in_bins)
+    #         end_bin = min(num_timepoints // 2, bin_center + noise_fhr_mhr_exclusion_hw_in_bins)
+    #         bins_to_exclude.extend(range(start_bin, end_bin + 1))
+    # bins_to_exclude = sorted(set(bins_to_exclude))
+    # bins_to_include = [b for b in range(num_timepoints // 2 + 1) if b not in bins_to_exclude]
 
     # Step 1: Find bmax
     average_dtof = torch.mean(tof_series_tensor, dim=0)  # Shape: (num_bins,)
@@ -103,17 +105,22 @@ def liu_optimize(
 
     # Step 2: Find b0 (first bin to the right of bmax with ~50% of bmax count assuming a falling edge)
     half_max_value = average_dtof[bmax] * 0.5
-    b0 = bmax
+    b0 = bmax   # 50% point bin
     for b in range(bmax + 1, num_bins):
         if average_dtof[b] <= half_max_value:
             b0 = b
+            break
+    bf = bmax   # bin where counts fall to 10% of max
+    for b in range(bmax + 1, num_bins):
+        if average_dtof[b] <= half_max_value * 0.1:
+            bf = b
             break
 
     # Step 3: Nested loop over (b2, b3)
     best_snr = 0.0
     best_window = None
-    for b2 in range(b0, num_bins - 1):
-        for b3 in range(b2 + 1, num_bins):
+    for b2 in range(b0, bf + 1):
+        for b3 in range(b2 + 1, bf + 1):
             # Create rectangular window
             window = torch.zeros(num_bins, dtype=torch.float32)
             window[b2 : b3 + 1] = 1.0
@@ -121,7 +128,8 @@ def liu_optimize(
             measurand_fft = torch.fft.rfft(measurand_series)
             fetal_fft_component = float(measurand_fft[fetal_bin].abs().item())
             # Compute noise floor using MAD
-            measurand_fft_without_excluded = measurand_fft[bins_to_include]
+            # measurand_fft_without_excluded = measurand_fft[bins_to_include]
+            measurand_fft_without_excluded = measurand_fft
             median_fft = torch.median(measurand_fft_without_excluded.abs()).item()
             mad_fft = torch.median(torch.abs(measurand_fft_without_excluded.abs() - median_fft)).item()
             noise_floor = mad_fft * 1.4826  # Convert MAD to std dev
