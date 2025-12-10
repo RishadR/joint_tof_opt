@@ -27,7 +27,8 @@ def main(save: bool = True):
 
     # Initialize results table and windows storage
     results = []
-    windows_data = {}  # Dictionary to store windows: {(measurand, depth): window_array}
+    our_windows_data = {}  # Dictionary to store windows: {(measurand, depth): window_array}
+    vanilla_windows_data = {}  # Dictionary to store vanilla windows: {(measurand, depth): window_array}
     loss_history_data = {}  # Dictionary to store loss histories: {(measurand, depth): loss_array}
     bin_edges_data = {}  # Dictionary to store timebin edges: {(measurand, depth): edges_array}
 
@@ -51,8 +52,12 @@ def main(save: bool = True):
             # vanilla_window = torch.ones_like(window)
 
             ## Option 2: Very Last Bin
-            vanilla_window = torch.zeros_like(window)
-            vanilla_window[-1] = 1.0
+            # vanilla_window = torch.zeros_like(window)
+            # vanilla_window[-1] = 1.0
+
+            ## Option 3: Liu et al. optimized window
+            vanilla_window, _ = liu_optimize(tof_dataset_file, measurand, harmonic_count=2, normalize_window=False)
+            print("Liu et al. window: ", vanilla_window.numpy())
 
             optimized_sensitivity, _ = compute_sensitivity(tof_dataset_file, window, measurand, filter_hw=filter_hw)
             vanilla_sensitivity, _ = compute_sensitivity(
@@ -76,9 +81,10 @@ def main(save: bool = True):
             )
 
             # More logging - since I am a lumberjack apparently
-            windows_data[(measurand, depth)] = window.detach().cpu().numpy()
+            our_windows_data[(measurand, depth)] = window.detach().cpu().numpy()
             loss_history_data[(measurand, depth)] = loss_history
             bin_edges_data[(measurand, depth)] = np.load(tof_dataset_file)["bin_edges"]
+            vanilla_windows_data[(measurand, depth)] = vanilla_window.detach().cpu().numpy()
 
             print(
                 f"Depth: {depth} mm |",
@@ -98,9 +104,9 @@ def main(save: bool = True):
         windows_dict = {}
         loss_history_dict = {}
         bin_edges_dict = {}
-        for measurand, depth in windows_data.keys():
+        for measurand, depth in our_windows_data.keys():
             key = f"{measurand}_depth_{depth}"
-            windows_dict[key] = windows_data[(measurand, depth)]
+            windows_dict[key] = our_windows_data[(measurand, depth)]
             loss_history_dict[key] = np.array(loss_history_data[(measurand, depth)])
             bin_edges_dict[key] = bin_edges_data[(measurand, depth)]
 

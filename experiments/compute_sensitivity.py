@@ -40,7 +40,8 @@ def compute_sensitivity(
     filter_hw: float = 0.3,
 ) -> tuple[float, float]:
     """
-    Compute the fetal and maternal sensitivities for a given window and measurand.
+    Compute the fetal and maternal sensitivities for a given window and measurand. 
+    (Note the window does not get energy normalized)
 
     :param tof_dataset_path: Path to the ToF dataset (.npz file).
     :type tof_dataset_path: Path
@@ -76,8 +77,6 @@ def compute_sensitivity(
     else:
         moment_calculator = measurand
 
-    # Normalize window to unit energy
-    window = window.reshape(1, -1) / (torch.norm(window) + 1e-20)  # Unit norm
     compact_stats = moment_calculator(window)  # Shape: (num_timepoints,)
     compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, num_timepoints)
 
@@ -116,11 +115,10 @@ def compute_sensitivity(
     return fetal_sensitivity, maternal_sensitivity
 
 
-
 if __name__ == "__main__":
     # Example usage
     from pathlib import Path
-    
+
     data_path = Path("./data/generated_tof_set.npz")
     window_size = 20  # Has to be the same size as TOF Bin count
     windows = {

@@ -24,7 +24,7 @@ Notes:
 2. The original paper does not do MAD
 3. Not sure which DTOF the original paper chooses to compute bmax and b0
 4. Also, mine is a discrete DTOF implementation rather than continuous - that optimization will take forver to run
-5. I do not consider her t_end. 
+5. I do not consider her t_end.
 """
 
 import yaml
@@ -39,7 +39,11 @@ from joint_tof_opt import get_named_moment_module
 
 
 def liu_optimize(
-    tof_dataset_path: Path, measurand: str | nn.Module, noise_fhr_mhr_exclusion_hw: float = 0.1, harmonic_count: int = 2
+    tof_dataset_path: Path,
+    measurand: str | nn.Module,
+    noise_fhr_mhr_exclusion_hw: float = 0.1,
+    harmonic_count: int = 2,
+    normalize_window: bool = True,
 ) -> tuple[torch.Tensor, np.ndarray]:
     """
     The optimization loop implementation used in the paper.
@@ -53,6 +57,12 @@ def liu_optimize(
         - "m1": First Order Moment
         - "V": Second Order Centered Moment (Variance)
     :type measurand: str | nn.Module
+    :param noise_fhr_mhr_exclusion_hw: Half-width in Hz around FHR and MHR harmonics to exclude from noise calculation.
+    :type noise_fhr_mhr_exclusion_hw: float
+    :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
+    :type harmonic_count: int
+    :param normalize_window: Whether to normalize the output window to have unit energy. (Not used during optimization)
+    :type normalize_window: bool
     :return: Tuple containing the optimized window tensor and an array of training curves (empty in this implementation)
     This implementation does not return training curves as the optimization is not iterative.
     :rtype: tuple[torch.Tensor, np.ndarray]
@@ -109,7 +119,7 @@ def liu_optimize(
             window[b2 : b3 + 1] = 1.0
             measurand_series = moment_calculator(window)
             measurand_fft = torch.fft.rfft(measurand_series)
-            fetal_fft_component = measurand_fft[fetal_bin].abs().item()
+            fetal_fft_component = float(measurand_fft[fetal_bin].abs().item())
             # Compute noise floor using MAD
             measurand_fft_without_excluded = measurand_fft[bins_to_include]
             median_fft = torch.median(measurand_fft_without_excluded.abs()).item()
@@ -120,14 +130,15 @@ def liu_optimize(
             snr = fetal_fft_component / noise_floor
             if snr > best_snr:
                 best_snr = snr
-                best_window = window
+                best_window = window.clone()  # Clone this so we don't point to the changing tensor
 
-    # Normalize best window to have unit energy
+    # Prepare Output
     if best_window is not None:
-        best_window = best_window / torch.norm(best_window)
+        if normalize_window:
+            best_window = best_window / torch.norm(best_window)
     else:
         raise ValueError("Something went wrong with Liu optimization; no valid window that improves SNR above 0.")
-    return best_window, np.array([])  # No training curves to return in this method
+    return best_window, np.array([])  # No training curves to return in this method since it's not iterative
 
 
 if __name__ == "__main__":
