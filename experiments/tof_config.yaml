@@ -3,7 +3,7 @@
 # Time series parameters
 datapoint_count: 40
 maternal_f: 1.0 # Maternal heartbeat frequency (Hz)
-fetal_f: 2.1 # Fetal heartbeat frequency (Hz)
+fetal_f: 2.2 # Fetal heartbeat frequency (Hz)
 end_sec: 4.0 # Duration of the time series (seconds)
 
 # Tissue Parameters

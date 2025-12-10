@@ -43,7 +43,7 @@ from joint_tof_opt import get_named_moment_module
 def liu_optimize(
     tof_dataset_path: Path,
     measurand: str | nn.Module,
-    noise_fhr_mhr_exclusion_hw: float = 0.1,
+    fhr_hw: float = 0.3,
     harmonic_count: int = 2,
     normalize_window: bool = True,
 ) -> tuple[torch.Tensor, np.ndarray]:
@@ -59,8 +59,8 @@ def liu_optimize(
         - "m1": First Order Moment
         - "V": Second Order Centered Moment (Variance)
     :type measurand: str | nn.Module
-    :param noise_fhr_mhr_exclusion_hw: Half-width in Hz around FHR and MHR harmonics to exclude from noise calculation.
-    :type noise_fhr_mhr_exclusion_hw: float
+    :param fhr_hw: Helps in computing SNR. How many Hz around FHR to consider when computing signl in SNR
+    :type fhr_hw: float
     :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
     :type harmonic_count: int
     :param normalize_window: Whether to normalize the output window to have unit energy. (Not used during optimization)
@@ -86,18 +86,14 @@ def liu_optimize(
     else:
         moment_calculator = measurand
 
-    fetal_bin = int(fetal_f / (sampling_rate / num_timepoints))
-    maternal_bin = int(maternal_f / (sampling_rate / num_timepoints))
-    # Noise calculation setup - determine FFT bins to exclude around FHR and MHR harmonics
-    # noise_fhr_mhr_exclusion_hw_in_bins = int(noise_fhr_mhr_exclusion_hw / (sampling_rate / num_timepoints))
-    # bins_to_exclude = []
-    # for h in range(1, harmonic_count + 1):
-    #     for bin_center in [fetal_bin * h, maternal_bin * h]:
-    #         start_bin = max(0, bin_center - noise_fhr_mhr_exclusion_hw_in_bins)
-    #         end_bin = min(num_timepoints // 2, bin_center + noise_fhr_mhr_exclusion_hw_in_bins)
-    #         bins_to_exclude.extend(range(start_bin, end_bin + 1))
-    # bins_to_exclude = sorted(set(bins_to_exclude))
-    # bins_to_include = [b for b in range(num_timepoints // 2 + 1) if b not in bins_to_exclude]
+    fetal_bin = int(fetal_f / (sampling_rate / 2 / num_timepoints))
+    maternal_bin = int(maternal_f / (sampling_rate / 2 / num_timepoints))
+    fetal_bins = []
+    for h in range(1, harmonic_count + 1):
+        width_int_in_bins = int(fhr_hw / (sampling_rate / 2 / num_timepoints))
+        left_edge = max(fetal_bin - h * width_int_in_bins, 0)
+        right_edge = min(fetal_bin + h * width_int_in_bins, num_timepoints // 2)
+        fetal_bins.extend(list(range(left_edge, right_edge + 1)))
 
     # Step 1: Find bmax
     average_dtof = torch.mean(tof_series_tensor, dim=0)  # Shape: (num_bins,)
@@ -105,12 +101,12 @@ def liu_optimize(
 
     # Step 2: Find b0 (first bin to the right of bmax with ~50% of bmax count assuming a falling edge)
     half_max_value = average_dtof[bmax] * 0.5
-    b0 = bmax   # 50% point bin
+    b0 = bmax  # 50% point bin
     for b in range(bmax + 1, num_bins):
         if average_dtof[b] <= half_max_value:
             b0 = b
             break
-    bf = bmax   # bin where counts fall to 10% of max
+    bf = bmax  # bin where counts fall to 10% of max
     for b in range(bmax + 1, num_bins):
         if average_dtof[b] <= half_max_value * 0.1:
             bf = b
@@ -125,8 +121,9 @@ def liu_optimize(
             window = torch.zeros(num_bins, dtype=torch.float32)
             window[b2 : b3 + 1] = 1.0
             measurand_series = moment_calculator(window)
+            measurand_series = measurand_series - torch.mean(measurand_series)  # Detrend
             measurand_fft = torch.fft.rfft(measurand_series)
-            fetal_fft_component = float(measurand_fft[fetal_bin].abs().item())
+            fetal_fft_component = float(measurand_fft[fetal_bins].abs().sum().item())
             # Compute noise floor using MAD
             # measurand_fft_without_excluded = measurand_fft[bins_to_include]
             measurand_fft_without_excluded = measurand_fft

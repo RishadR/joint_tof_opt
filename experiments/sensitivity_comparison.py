@@ -32,8 +32,8 @@ def main(save: bool = True):
     loss_history_data = {}  # Dictionary to store loss histories: {(measurand, depth): loss_array}
     bin_edges_data = {}  # Dictionary to store timebin edges: {(measurand, depth): edges_array}
 
-    for measurand in named_moment_types:
-        # for measurand in ['m1']:
+    for measurand in ['abs']:
+    # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
 
         ## Run experiments
