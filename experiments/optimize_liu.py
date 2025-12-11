@@ -43,6 +43,7 @@ from joint_tof_opt import get_named_moment_module
 def liu_optimize(
     tof_dataset_path: Path,
     measurand: str | nn.Module,
+    dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
     fhr_hw: float = 0.3,
     harmonic_count: int = 2,
     normalize_window: bool = True,
@@ -59,7 +60,9 @@ def liu_optimize(
         - "m1": First Order Moment
         - "V": Second Order Centered Moment (Variance)
     :type measurand: str | nn.Module
-    :param fhr_hw: Helps in computing SNR. How many Hz around FHR to consider when computing signl in SNR
+    :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0. Options are "mean", "median", and "first".
+    :type dtof_to_find_max_on: Literal["mean", "median", "first"]
+    :param fhr_hw: Helps in computing SNR. How many Hz around FHR to consider when computing signal in SNR
     :type fhr_hw: float
     :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
     :type harmonic_count: int
@@ -86,38 +89,44 @@ def liu_optimize(
     else:
         moment_calculator = measurand
 
-    fetal_bin = int(fetal_f / (sampling_rate / 2 / num_timepoints))
-    maternal_bin = int(maternal_f / (sampling_rate / 2 / num_timepoints))
+    fetal_bin = int(fetal_f / (sampling_rate / num_timepoints))
+    maternal_bin = int(maternal_f / (sampling_rate / num_timepoints))
     fetal_bins = []
     for h in range(1, harmonic_count + 1):
-        width_int_in_bins = int(fhr_hw / (sampling_rate / 2 / num_timepoints))
-        left_edge = max(fetal_bin - h * width_int_in_bins, 0)
-        right_edge = min(fetal_bin + h * width_int_in_bins, num_timepoints // 2)
+        width_int_in_bins = int(fhr_hw / (sampling_rate / num_timepoints))
+        left_edge = max(h * fetal_bin - width_int_in_bins, 0)
+        right_edge = min(h * fetal_bin + width_int_in_bins, num_timepoints // 2 + 1)
         fetal_bins.extend(list(range(left_edge, right_edge + 1)))
 
     # Step 1: Find bmax
-    average_dtof = torch.mean(tof_series_tensor, dim=0)  # Shape: (num_bins,)
-    bmax = int(torch.argmax(average_dtof).item())
+    if dtof_to_find_max_on == "mean":
+        representative_dtof = torch.mean(tof_series_tensor, dim=0)
+    elif dtof_to_find_max_on == "median":
+        representative_dtof = torch.median(tof_series_tensor, dim=0).values
+    elif dtof_to_find_max_on == "first":
+        representative_dtof = tof_series_tensor[0, :]
+    else:
+        raise ValueError(f"Invalid dtof_to_find_max_on value: {dtof_to_find_max_on}")
+    bmax = int(torch.argmax(representative_dtof).item())
 
     # Step 2: Find b0 (first bin to the right of bmax with ~50% of bmax count assuming a falling edge)
-    half_max_value = average_dtof[bmax] * 0.5
+    half_max_value = representative_dtof[bmax] * 0.5
     b0 = bmax  # 50% point bin
     for b in range(bmax + 1, num_bins):
-        if average_dtof[b] <= half_max_value:
+        if representative_dtof[b] <= half_max_value:
             b0 = b
             break
     bf = num_bins - 1 # bin where counts fall to 10% of max
-    # for b in range(num_bins - 1, bmax, -1):
-    #     if average_dtof[b] <= half_max_value * 0.1:
-    #         bf = b
-    #         break
+    for b in range(num_bins - 1, bmax, -1):
+        if representative_dtof[b] <= half_max_value * 0.1:
+            bf = b
+            break
 
     # Step 3: Nested loop over (b2, b3)
     best_snr = 0.0
     best_window = None
-    for b2 in range(bmax, bf):
-    # for b2 in range(b0, bf):
-        for b3 in range(b2, bf):    # Inclusive
+    for b2 in range(b0, bf):
+        for b3 in range(b2 + 1, bf):    # Inclusive
             # Create rectangular window
             window = torch.zeros(num_bins, dtype=torch.float32)
             window[b2 : b3 + 1] = 1.0

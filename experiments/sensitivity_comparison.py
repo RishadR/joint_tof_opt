@@ -68,7 +68,7 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
             # vanilla_window[-1] = 1.0
 
             ## Option 3: Liu et al. optimized window
-            vanilla_window, _ = liu_optimize(tof_dataset_file, measurand, harmonic_count=2, normalize_window=False)
+            vanilla_window, _ = liu_optimize(tof_dataset_file, measurand, 0.05, 1, True)
             print("Liu et al. window: ", vanilla_window.numpy())
 
             if sensitivity_type == "v1":
