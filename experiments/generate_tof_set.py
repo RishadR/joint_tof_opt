@@ -55,7 +55,7 @@ def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
     time_axis = np.linspace(0, end_sec, datapoint_count)
     sampling_rate = 1 / (time_axis[1] - time_axis[0])
     maternal_hb_series = (
-        maternal_hb_base
+        maternal_hb_base 
         + 0.375 * np.sin(2 * np.pi * maternal_f * time_axis)
         + 0.25 * np.sin(2 * np.pi * 2 * maternal_f * time_axis)
     )

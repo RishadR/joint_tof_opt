@@ -140,4 +140,4 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
 
 
 if __name__ == "__main__":
-    main(save=False, sensitivity_type="v1")
+    main(save=False, sensitivity_type="v2")
