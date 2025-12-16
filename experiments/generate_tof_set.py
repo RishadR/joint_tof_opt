@@ -10,7 +10,9 @@ from joint_tof_opt.tof_process import compute_tof_discrete
 import os
 
 
-def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
+def generate_tof(
+    ppath_dataset_filename: Path, gen_config: dict, save_path: Path
+) -> None:
     """
     Generate a DToF dataset based on the provided path length dataset and save it.
     This function modulates maternal and fetal hemoglobin concentrations over time to simulate physiological changes and
@@ -24,6 +26,8 @@ def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
     :param ppath_dataset_filename: Filepath to the MC path length dataset from tfo_sim2 (.npz file). The file should
     contain a ppath array with shape (num_photons, num_layers)
     :type ppath_dataset_filename: Path
+    :param gen_config: Dictionary containing parameters for ToF dataset generation.
+    :type gen_config: dict
     :param save_path: Filepath to save the generated ToF dataset (.npz file). The savefile contains the following
     information - tof_dataset, bin_edges, time_axis, sd_distance, maternal_hb_series, fetal_hb_series, wavelength,
         weight_threshold_fraction, fetal_f, maternal_f, and sampling_rate.
@@ -31,31 +35,29 @@ def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
     :return: None
     :rtype: None
     """
-    # Load configuration
-    with open("./experiments/tof_config.yaml", "r") as f:
-        config = yaml.safe_load(f)
-
-    datapoint_count = config["datapoint_count"]
-    maternal_f = config["maternal_f"]
-    fetal_f = config["fetal_f"]
-    selected_sdd_index = config["selected_sdd_index"]
-    bin_count = config["bin_count"]
-    weight_threshold_fraction = config["weight_threshold_fraction"]
-    end_sec = config["end_sec"]
-    maternal_hb_base = config["maternal_hb_base"]
-    fetal_hb_base = config["fetal_hb_base"]
-    wavelength = config["wavelength"]
-    maternal_saturation = config["maternal_saturation"]
-    fetal_saturation = config["fetal_saturation"]
-    epi_thickness_mm = config["epi_thickness_mm"]
-    derm_thickness_mm = config["derm_thickness_mm"]
-    light_speeds = [float(speed) for speed in config["light_speeds"]]   # in m/s for 4 layers
+    datapoint_count = gen_config["datapoint_count"]
+    maternal_f = gen_config["maternal_f"]
+    fetal_f = gen_config["fetal_f"]
+    selected_sdd_index = gen_config["selected_sdd_index"]
+    bin_count = gen_config["bin_count"]
+    weight_threshold_fraction = gen_config["weight_threshold_fraction"]
+    end_sec = gen_config["end_sec"]
+    maternal_hb_base = gen_config["maternal_hb_base"]
+    fetal_hb_base = gen_config["fetal_hb_base"]
+    wavelength = gen_config["wavelength"]
+    maternal_saturation = gen_config["maternal_saturation"]
+    fetal_saturation = gen_config["fetal_saturation"]
+    epi_thickness_mm = gen_config["epi_thickness_mm"]
+    derm_thickness_mm = gen_config["derm_thickness_mm"]
+    light_speeds = [
+        float(speed) for speed in gen_config["light_speeds"]
+    ]  # in m/s for 4 layers
     ## Generate the time serieses
     # Assume a sampling rate of 10 Hz - Nyquist frequency 5 Hz
     time_axis = np.linspace(0, end_sec, datapoint_count)
     sampling_rate = 1 / (time_axis[1] - time_axis[0])
     maternal_hb_series = (
-        maternal_hb_base 
+        maternal_hb_base
         + 0.375 * np.sin(2 * np.pi * maternal_f * time_axis)
         + 0.25 * np.sin(2 * np.pi * 2 * maternal_f * time_axis)
     )
@@ -128,5 +130,7 @@ def generate_tof(ppath_dataset_filename: Path, save_path: Path) -> None:
 
 if __name__ == "__main__":
     in_file = Path("./data/experiment_0000.npz")
+    config_file = Path("./experiments/tof_config.yaml")
+    config = yaml.safe_load(open(config_file, "r"))
     out_file = Path("./data/generated_tof_set.npz")
-    generate_tof(in_file, out_file)
+    generate_tof(in_file, config, out_file)

@@ -35,6 +35,7 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
     ## Params
     filter_hw = 0.3  # Comb filter half-width in Hz
     lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
+    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
 
     # Initialize results table and windows storage
     results = []
@@ -56,7 +57,7 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-            generate_tof(ppath_file, tof_dataset_file)
+            generate_tof(ppath_file, gen_config, tof_dataset_file)
             window, loss_history = main_optimize(tof_dataset_file, measurand, filter_hw=filter_hw, lr=lr)
             # put the baseline window here
             ## Option 1: No time gating
@@ -140,4 +141,4 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
 
 
 if __name__ == "__main__":
-    main(save=False, sensitivity_type="v2")
+    main(save=False, sensitivity_type="v1")
