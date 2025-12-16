@@ -10,8 +10,7 @@ import pandas as pd
 import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
-from compute_sensitivity import compute_sensitivity
-from compute_sensitivityv2 import compute_sensitivityv2
+from compute_sensitivity import compute_sensitivity, compute_sensitivityv2
 from joint_tof_opt import named_moment_types
 from optimize_liu import liu_optimize
 
