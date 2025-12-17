@@ -41,9 +41,184 @@ from joint_tof_opt import (
     get_named_moment_module,
     named_moment_types,
     noise_func_table,
+    OptimizationExperiment,
 )
 
 
+class DIGSSOptimizer(OptimizationExperiment):
+    """
+    Optimization experiment implementing the optimization loop used in the paper.
+
+    This class optimizes a window function to maximize a combination of:
+    - Energy Ratio Metric (fetal selectivity)
+    - Contrast-to-Noise Metric (signal quality)
+
+    Process Flow:
+    1. Load DTOF dataset
+    2. Extract metadata (frequencies, sampling rate, etc.)
+    3. Initialize window vector as learnable parameter
+    4. For each epoch:
+       - Compute compact statistics using current window
+       - Apply sinc comb filters to extract fetal/maternal signals
+       - Compute energy ratio and contrast-to-noise metrics
+       - Optimize window to maximize final metric
+    5. Output optimized window and training curves
+
+    Early stopping occurs if final metric doesn't improve by 1% over best recorded metric
+    for 'patience' consecutive epochs.
+    """
+
+    def __init__(
+        self,
+        tof_dataset_path: Path,
+        measurand: str | nn.Module,
+        noise_func: None | Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] = None,
+        max_epochs: int = 2000,
+        lr: float = 0.001,
+        filter_hw: float = 0.3,
+        patience: int = 20,
+    ):
+        """
+        Initialize the PaperOptimizer.
+
+        :param tof_dataset_path: Path to the ToF dataset (.npz file).
+        :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
+        :param noise_func: Noise function for custom measurands.
+        :param max_epochs: Maximum number of optimization epochs.
+        :param lr: Learning rate for the optimizer.
+        :param filter_hw: Half width of the sinc comb filter (in Hz).
+        :param patience: Number of epochs to wait for improvement before early stopping.
+        """
+        super().__init__(tof_dataset_path, measurand)
+
+        self.max_epochs = max_epochs
+        self.lr = lr
+        self.filter_hw = filter_hw
+        self.patience = patience
+
+        # Handle measurand and noise function
+        if isinstance(measurand, str):
+            if measurand not in named_moment_types:
+                raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
+            if noise_func is not None:
+                print("Warning: noise_func is ignored when using a predefined measurand string.")
+            self.noise_func = noise_func_table[measurand]
+        else:
+            if noise_func is None:
+                raise ValueError("noise_func must be provided when using a custom measurand module.")
+            self.noise_func = noise_func
+
+        # Convert bin edges to nanoseconds for numerical stability
+        self.bin_edges *= 1e9
+
+        # Extract additional metadata
+        self.sampling_rate = self.tof_data["sampling_rate"]
+        self.fetal_f = self.tof_data["fetal_f"]
+        self.maternal_f = self.tof_data["maternal_f"]
+        num_timepoints, num_bins = self.tof_series.shape
+
+        # Initialize components (to be created in optimize())
+        self.fetal_comb_filter = CombSeparator(
+            self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1
+        )
+        self.maternal_comb_filter = CombSeparator(
+            self.sampling_rate,
+            self.maternal_f,
+            2 * self.maternal_f,
+            self.filter_hw,
+            num_timepoints // 2 + 1,
+        )
+        self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_func, self.tof_series, self.bin_edges, False)
+        self.energy_ratio_metric = EnergyRatioMetric()
+
+        # Parameters
+        self.window_exponents = nn.Parameter(torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
+        self.window = torch.exp(self.window_exponents)
+        self.window_normalized = self.window / torch.norm(self.window)
+
+        # Set training curve labels
+        self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+
+    def __str__(self) -> str:
+        return (
+            f"PaperOptimizer(measurand={self.moment_module.__class__.__name__}, "
+            f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience})"
+        )
+
+    def components(self) -> dict[str, nn.Module]:
+        """Return the internal components/modules used in optimization."""
+        return {
+            "moment_module": self.moment_module,
+            "fetal_comb_filter": self.fetal_comb_filter,
+            "maternal_comb_filter": self.maternal_comb_filter,
+            "contrast_to_noise_metric": self.contrast_to_noise_metric,
+            "energy_ratio_metric": self.energy_ratio_metric,
+        }
+
+    def optimize(self):
+        """
+        Perform the optimization loop and populate self.window and self.training_curves.
+        """
+        num_timepoints, num_bins = self.tof_series.shape
+        # Initialize window parameters
+
+        # Prep for optimization loop
+        best_metric = -np.inf
+        epochs_no_improve = 0
+        optimizer = optim.Adam([self.window_exponents], lr=self.lr)
+        self.training_curves = np.zeros((self.max_epochs, 3))
+
+        epoch = 0
+        for epoch in range(self.max_epochs):
+            optimizer.zero_grad()
+            # Reparameterize window using exponentiation to ensure positivity
+            self.window = torch.exp(self.window_exponents)
+            # Normalize window to unit energy
+            self.window_normalized = self.window / torch.norm(self.window)
+
+            # Compute compact statistics
+            compact_stats = self.moment_module(self.window_normalized)
+
+            # Apply comb filters
+            compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
+            fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
+            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
+
+            # Compute metrics
+            energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
+            contrast_value = self.contrast_to_noise_metric(self.window_normalized, fetal_filtered_signal)
+            final_metric = energy_ratio * contrast_value
+
+            # Log metrics
+            self.training_curves[epoch, 0] = energy_ratio.item()
+            self.training_curves[epoch, 1] = contrast_value.item()
+            self.training_curves[epoch, 2] = final_metric.item()
+
+            # Backpropagation
+            loss = -torch.log(final_metric)
+            loss.backward()
+            optimizer.step()
+
+            # Early stopping check
+            if final_metric.item() > best_metric * 1.01:
+                best_metric = final_metric.item()
+                epochs_no_improve = 0
+            else:
+                epochs_no_improve += 1
+                if epochs_no_improve >= self.patience:
+                    print(f"Early stopping at epoch {epoch + 1}")
+                    self.training_curves = self.training_curves[: epoch + 1]
+                    break
+
+        # Store final window as a normalized tensor
+        self.window = self.window_normalized
+
+        # Trim training curves if early stopping occurred
+        if self.training_curves.shape[0] > epoch + 1:
+            self.training_curves = self.training_curves[: epoch + 1]
+
+
+# Functional Interface
 def main_optimize(
     tof_dataset_path: Path,
     measurand: str | nn.Module,
@@ -81,107 +256,17 @@ def main_optimize(
     array has shape (max_epochs, 3) corresponding to [Energy Ratio, Contrast-to-Noise, Final Metric] at each epoch.
     :rtype: tuple[torch.Tensor, np.ndarray]
     """
-    # Step 1
-    data = np.load(tof_dataset_path)
-
-    # Step 2
-    tof_series = data["tof_dataset"]  # Shape: (num_timepoints, num_bins)
-    bin_edges = data["bin_edges"]  # Shape: (num_bins + 1,)
-    sampling_rate = data["sampling_rate"]  # Sampling rate in Hz
-    fetal_f = data["fetal_f"]  # Fetal heartbeat frequency in Hz
-    maternal_f = data["maternal_f"]  # Maternal heartbeat frequency in Hz
-    time_axis = data["time_axis"]  # Time axis
-    tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
-    bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-    num_timepoints, num_bins = tof_series_tensor.shape
-
-    ######## IMPORTANT ########
-    bin_edges_tensor *= 1e9  # Convert to nanoseconds for better numerical stability
-    # Without this, the higher order moments can blow up due to very tiny denominators
-    ###########################
-    
-
-    # Handle measurand and corresponding noise function
-    if isinstance(measurand, str):
-        if measurand not in named_moment_types:
-            raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
-        moment_calculator = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
-        if noise_func is not None:
-            print("Warning: noise_func is ignored when using a predefined measurand string.")
-        noise_func = noise_func_table[measurand]
-    else:
-        # Custom measurand module provided
-        if noise_func is None:
-            raise ValueError("noise_func must be provided when using a custom measurand module.")
-        moment_calculator = measurand
-
-    ## Define Comb Filters
-    fetal_comb_filter = CombSeparator(sampling_rate, fetal_f, 2 * fetal_f, filter_hw, len(time_axis) // 2 + 1)
-    maternal_comb_filter = CombSeparator(sampling_rate, maternal_f, 2 * maternal_f, filter_hw, len(time_axis) // 2 + 1)
-
-    ## Define Metrics
-    contrast_to_noise_metric = ContrastToNoiseMetric(noise_func, tof_series_tensor, bin_edges_tensor, False)
-    energy_ratio_metric = EnergyRatioMetric()
-
-    # Step 3
-    window_exponents = nn.Parameter(torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
-    window = torch.exp(window_exponents)
-    window_normalized = window / (torch.norm(window))
-
-    # Prep for Optimization Loop
-    best_metric = -np.inf
-    epochs_no_improve = 0
-    optimizer = optim.Adam([window_exponents], lr=lr)
-    training_curves = np.zeros((max_epochs, 3))  # Columns: [Energy Ratio, Contrast-to-Noise, Final Metric]
-    epoch = 0
-    for epoch in range(max_epochs):
-        optimizer.zero_grad()
-        # Reparameterize window using exponentiation to ensure positivity
-        window = torch.exp(window_exponents)
-        # Normalize window to unit energy
-        window_normalized = window / (torch.norm(window))
-
-        # Step 4
-        # Compute compact statistics
-        compact_stats = moment_calculator(window_normalized)  # Shape: (num_timepoints,)
-
-        # Step 5
-        # Apply comb filters
-        compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, num_timepoints) for conv1d
-        fetal_filtered_signal = fetal_comb_filter(compact_stats_reshaped)
-        maternal_filtered_signal = maternal_comb_filter(compact_stats_reshaped)
-
-        # Step 6, 7, 8
-        # Compute metrics
-        energy_ratio = energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
-        contrast_value = contrast_to_noise_metric(window_normalized, fetal_filtered_signal)
-        final_metric = energy_ratio * contrast_value
-
-        # Logging
-        training_curves[epoch, 0] = energy_ratio.item()
-        training_curves[epoch, 1] = contrast_value.item()
-        training_curves[epoch, 2] = final_metric.item()
-
-        # Step 9
-        # Backpropagation
-        # loss = -final_metric
-        loss = -torch.log(final_metric)
-        loss.backward()
-        optimizer.step()
-
-        # Early Stopping Check
-        if final_metric.item() > best_metric * 1.01:
-            best_metric = final_metric.item()
-            epochs_no_improve = 0
-        else:
-            epochs_no_improve += 1
-            if epochs_no_improve >= patience:
-                print(f"Early stopping at epoch {epoch+1}")
-                break
-
-    # Step 10
-    # Return the optimized window and training curves up to the last epoch
-    return window_normalized.detach(), training_curves[: epoch + 1]
+    optimizer = DIGSSOptimizer(
+        tof_dataset_path=tof_dataset_path,
+        measurand=measurand,
+        noise_func=noise_func,
+        max_epochs=max_epochs,
+        lr=lr,
+        filter_hw=filter_hw,
+        patience=patience,
+    )
+    optimizer.optimize()
+    return optimizer.window.detach(), optimizer.training_curves
 
 
 def plot_training_curves_and_window(
