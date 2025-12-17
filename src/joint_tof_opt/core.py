@@ -9,7 +9,7 @@ import torch.nn as nn
 import numpy as np
 from joint_tof_opt.compact_stat_process import NthOrderMoment, NthOrderCenteredMoment, WindowedSum
 from joint_tof_opt.noise_calc import compute_noise_m1, compute_noise_variance, compute_noise_window_sum
-from typing import Literal
+from typing import Any, Literal
 
 
 # Single source of truth: define moment configurations once
@@ -88,4 +88,30 @@ class OptimizationExperiment(ABC):
 
     @abstractmethod
     def components(self) -> dict[str, nn.Module]:
+        pass
+
+
+class Evaluator(ABC):
+    """
+    Base class for evaluating any given window on some partial path data.
+
+    Things to Implement in Subclasses:
+    -----------------------
+    - self.evaluate() : Method to perform the evaluation and populate self.final_metric. Ideally a float or a
+    tuple of floats.
+    - __str__() : String representation of the evaluator for easy identification.
+    """
+
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | nn.Module):
+        self.ppath_file = ppath_file
+        self.window = window
+        self.measurand = measurand
+        self.final_metric = None
+
+    @abstractmethod
+    def evaluate(self) -> Any:
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
         pass
