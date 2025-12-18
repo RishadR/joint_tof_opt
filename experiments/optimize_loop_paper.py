@@ -89,10 +89,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param filter_hw: Half width of the sinc comb filter (in Hz).
         :param patience: Number of epochs to wait for improvement before early stopping.
         """
-        super().__init__(tof_dataset_path, measurand)
+        super().__init__(tof_dataset_path, measurand, lr)
 
         self.max_epochs = max_epochs
-        self.lr = lr
         self.filter_hw = filter_hw
         self.patience = patience
 
@@ -141,7 +140,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
     def __str__(self) -> str:
         return (
-            f"PaperOptimizer(measurand={self.moment_module.__class__.__name__}, "
+            f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
             f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience})"
         )
 

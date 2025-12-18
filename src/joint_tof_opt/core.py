@@ -15,9 +15,9 @@ from typing import Any, Literal
 
 # Single source of truth: define moment configurations once
 MOMENT_CONFIGS = {
-    "abs": lambda tof, edges: WindowedSum(tof, edges),
-    "m1": lambda tof, edges: NthOrderMoment(tof, edges, order=1),
-    "V": lambda tof, edges: NthOrderCenteredMoment(tof, edges, order=2),
+    "abs": lambda tof, edges, meta_data: WindowedSum(tof, edges, meta_data=meta_data),
+    "m1": lambda tof, edges, meta_data: NthOrderMoment(tof, edges, order=1, meta_data=meta_data),
+    "V": lambda tof, edges, meta_data: NthOrderCenteredMoment(tof, edges, order=2, meta_data=meta_data),
 }
 
 named_moment_types = list(MOMENT_CONFIGS.keys())
@@ -27,12 +27,13 @@ def get_named_moment_module(
     moment_type: str,
     tof_series_tensor: torch.Tensor,
     bin_edges_tensor: torch.Tensor,
-) -> nn.Module:
+    meta_data: dict | None = None,
+) -> CompactStatProcess:
     if moment_type not in MOMENT_CONFIGS:
         raise ValueError(f"Invalid moment type: {moment_type}")
 
     config = MOMENT_CONFIGS[moment_type]
-    return config(tof_series_tensor, bin_edges_tensor)
+    return config(tof_series_tensor, bin_edges_tensor, meta_data)
 
 
 noise_func_table = {
@@ -65,7 +66,7 @@ class OptimizationExperiment(ABC):
     - window : Torch tensor to store the optimized window. Leave empty if not yet optimized.
     """
 
-    def __init__(self, tof_dataset_path: Path, measurand: str | nn.Module):
+    def __init__(self, tof_dataset_path: Path, measurand: str | nn.Module, lr: float = 0.01):
         self.tof_dataset_path = tof_dataset_path
         self.tof_data = np.load(tof_dataset_path)
         self.tof_series = torch.tensor(self.tof_data["tof_dataset"], dtype=torch.float32)
@@ -78,6 +79,7 @@ class OptimizationExperiment(ABC):
         self.training_curves = np.array([])
         self.training_curve_labels = []
         self.window = torch.tensor([])
+        self.lr = lr
 
     @abstractmethod
     def optimize(self):

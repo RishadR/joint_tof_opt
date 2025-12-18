@@ -1,9 +1,11 @@
 """
 Code to compute compact statistics from time-of-flight (TOF) data for joint optimization tasks.
 """
+
 from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
+
 
 class CompactStatProcess(ABC, nn.Module):
     """
@@ -11,19 +13,25 @@ class CompactStatProcess(ABC, nn.Module):
 
     Subclasses should implement the forward method to define how the compact statistic
     is computed from the TOF histograms and a window function.
-    """
-    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor):
-        """
-        Initialize the CompactStatProcess.
 
-        :param tof_series: 2D tensor where each row is a ToF histogram and each column is a bin.
-        :type tof_series: torch.Tensor
-        :param bin_edges: 1D tensor of bin edges (length = num_bins + 1).
-        :type bin_edges: torch.Tensor
-        """
+    The initializer takes in the TOF series and bin edges, which are used in the computation. Additionally, you can
+    pass in the generate_tof metadata - which should include
+        - time_axis
+        - sd_distance
+        - maternal_hb_series
+        - fetal_hb_series
+        - wavelength
+        - weight_threshold_fraction
+        - fetal_f
+        - maternal_f
+        - sampling_rate
+    """
+
+    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, meta_data: dict | None = None):
         super().__init__()
         self.tof_series = tof_series
         self.bin_edges = bin_edges
+        self.meta_data = meta_data
 
     @abstractmethod
     def forward(self, window: torch.Tensor) -> torch.Tensor:
@@ -46,7 +54,7 @@ class WindowedSum(CompactStatProcess):
     across bins to produce a single value per ToF.
     """
 
-    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor):
+    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, meta_data: dict | None = None):
         """
         Initialize the MultiplyAndSum module.
 
@@ -54,8 +62,10 @@ class WindowedSum(CompactStatProcess):
         :type tof_histograms: torch.Tensor
         :param bin_edges: 1D tensor of bin edges (length = num_bins + 1).
         :type bin_edges: torch.Tensor
+        :param meta_data: Optional dictionary of additional metadata. Check CompactStatProcess for details.
+        :type meta_data: dict | None
         """
-        super().__init__(tof_series, bin_edges)
+        super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
 
         # Compute bin centers from edges
@@ -87,7 +97,7 @@ class NthOrderMoment(CompactStatProcess):
     the n-th order moment using bin centers: Σ(t^n * h(t)) / Σ(h(t))
     """
 
-    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, order: int):
+    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, order: int, meta_data: dict | None = None):
         """
         Initialize the NthOrderMoment module.
 
@@ -97,8 +107,10 @@ class NthOrderMoment(CompactStatProcess):
         :type bin_edges: torch.Tensor
         :param order: The order of the moment (e.g., 1 for mean, 2 for second moment).
         :type order: int
+        :param meta_data: Optional dictionary of additional metadata. Check CompactStatProcess for details.
+        :type meta_data: dict | None
         """
-        super().__init__(tof_series, bin_edges)
+        super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
         self.order = order
 
@@ -135,7 +147,7 @@ class NthOrderCenteredMoment(CompactStatProcess):
     where μ is the mean time (1st moment).
     """
 
-    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, order: int):
+    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, order: int, meta_data: dict | None = None):
         """
         Initialize the NthOrderCenteredMoment module.
 
@@ -145,8 +157,10 @@ class NthOrderCenteredMoment(CompactStatProcess):
         :type bin_edges: torch.Tensor
         :param order: The order of the centered moment (e.g., 2 for variance, 3 for skewness basis).
         :type order: int
+        :param meta_data: Optional dictionary of additional metadata. Check CompactStatProcess for details.
+        :type meta_data: dict | None
         """
-        super().__init__(tof_series, bin_edges)
+        super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
         self.order = order
 

@@ -184,7 +184,7 @@ class LiuOptimizer(OptimizationExperiment):
                 
                 # Compute SNR
                 snr = fetal_fft_component / noise_floor
-                if snr > best_snr:
+                if snr >= best_snr: # Bias towards later windows
                     best_snr = snr
                     best_window = window.clone()
         
