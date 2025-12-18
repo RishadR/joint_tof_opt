@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
-from compute_sensitivity import FetalSensitivityEvaluator, FetalSensitivityNoInterferenceEvaluator
+from compute_sensitivity import FetalSensitivityEvaluator, FetalSensitivityNoInterferenceEvaluator, CorrelationEvaluator
 from joint_tof_opt import (
     named_moment_types,
     OptimizationExperiment,
@@ -109,11 +109,10 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath_file, window, measurand: FetalSensitivityEvaluator(
-        ppath_file, window, measurand, 0.3, "fetal"
-    )
+    # eval_func = lambda ppath, win, meas: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
+    eval_func = lambda ppath_file, window, measurand: CorrelationEvaluator(ppath_file, window, measurand, 0.1)
     optimizer_funcs_to_test =[
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "median", normalize_window=False),
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "median", normalize_window=True),
     ] 
     exp_results = main(eval_func, optimizer_funcs_to_test, save=False)

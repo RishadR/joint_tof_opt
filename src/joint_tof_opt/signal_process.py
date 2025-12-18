@@ -7,6 +7,7 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 
+
 def create_sinc_bandpass_filter(fs: float, lowcut: float, highcut: float, filter_length: int) -> np.ndarray:
     """
     Creates a Bandpass filter as the difference of two lowpass sinc filters. Outputs a time domain filter kernel
@@ -75,11 +76,15 @@ def create_sinc_comb_filter(fs: float, f0: float, f1: float, half_width: float, 
     comb_filter /= np.sqrt(np.sum(comb_filter**2))
     return comb_filter
 
+
 class CombSeparator(nn.Module):
     """
     PyTorch module to apply a comb filter to input signals for frequency separation.
     """
-    def __init__(self, fs: float, f0: float, f1: float, half_width: float, filter_length: int):
+
+    def __init__(
+        self, fs: float, f0: float, f1: float, half_width: float, filter_length: int, phase_preserve: bool = False
+    ):
         """
         Initialize the CombSeparator module.
 
@@ -93,12 +98,15 @@ class CombSeparator(nn.Module):
         :type half_width: float
         :param filter_length: Length of the filter kernel. (Should be odd for symmetry. If not, incremented by 1).
         :type filter_length: int
+        :param phase_preserve: Whether to preserve phase via a double application of the filter (Defaults to False).
+        :type phase_preserve: bool
         """
         # TODO: Consider if using pure Sinc filters is the way to go here (Plus a windowing function)
         super().__init__()
         comb_filter = create_sinc_comb_filter(fs, f0, f1, half_width, filter_length)
         comb_filter_tensor = torch.tensor(comb_filter, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
         self.comb_filter = nn.Parameter(comb_filter_tensor, requires_grad=False)
+        self.phase_preserve = phase_preserve
 
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         """
@@ -111,5 +119,10 @@ class CombSeparator(nn.Module):
         """
         # TODO: Consider what padding needs to be set - currently using half filter length
         filtered_signal = nn.functional.conv1d(signal, self.comb_filter, padding=self.comb_filter.shape[-1] // 2)
+        
+        # Apply the filter in reverse to preserve phase if needed
+        if self.phase_preserve:
+            filtered_signal = nn.functional.conv1d(
+                filtered_signal, self.comb_filter.flip(-1), padding=self.comb_filter.shape[-1] // 2
+            )
         return filtered_signal.flatten()
-    

@@ -234,13 +234,34 @@ class FetalSensitivityEvaluator(Evaluator):
         return self.final_metric
 
 class CorrelationEvaluator(Evaluator):
+    """
+        Computes the correlation between the pulsating mu_a signal and the measurand signal's filtered version.
+        
+        :param ppath_file: The path to the partial path dataset (.npz file).
+        :type ppath_file: Path 
+        :param window: The time-gating window to apply.
+        :type window: torch.Tensor
+        :param measurand: The measurand to compute correlation for ("abs", "m1", "V") or custom module.
+        :type measurand: str | CompactStatProcess
+        :param signal_type: Type of hemoglobin signal to correlate with ("fetal" or "maternal"). For fetal, we filter
+        around the fetal heart rate; for maternal, we filter around the maternal heart rate.
+        :type signal_type: Literal["fetal", "maternal"]
+        :param filter_hw: Half-width of the filter to apply.
+        :type filter_hw: float
+    """
     def __init__(
         self,
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
+        filter_hw: float = 0.3,
+        signal_type: Literal["fetal", "maternal"] = "fetal",
     ):
+
         super().__init__(ppath_file, window, measurand)
+        self.signal_type = signal_type
+        self.filter_hw = filter_hw
+        self.comb_filter = None
 
     def __str__(self) -> str:
         return "Computes Correlation between measurand and fetal hb changes"
@@ -266,12 +287,30 @@ class CorrelationEvaluator(Evaluator):
 
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
+        assert self.moment_module.meta_data is not None, "Meta data must be provided in the measurand module"
+        assert self.moment_module.meta_data["fetal_f"] is not None, "Fetal frequency must be in the meta data"
+        assert self.moment_module.meta_data["maternal_f"] is not None, "Maternal frequency must be in the meta data"
+        assert self.moment_module.meta_data["sampling_rate"] is not None, "Sampling rate must be in the meta data"
+        if self.signal_type == "fetal":
+            target_f = self.moment_module.meta_data["fetal_f"]
+        else:
+            target_f = self.moment_module.meta_data["maternal_f"]
+        self.comb_filter = CombSeparator(
+            fs=self.moment_module.meta_data["sampling_rate"],
+            f0=target_f,
+            f1=2 * target_f,
+            half_width=self.filter_hw,
+            filter_length=tof_data.shape[1] // 2 + 1,
+            phase_preserve=True,
+        )
+        filtered_signal = self.comb_filter(compact_stats.unsqueeze(0).unsqueeze(0))  # Shape: (1, 1, num_timepoints)
+        filtered_signal = filtered_signal.squeeze()  # Shape: (num_timepoints,)
 
         # Load heartbeat series
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
 
         # Compute correlation
-        correlation = torch.corrcoef(torch.stack([compact_stats, fetal_hb_series_tensor]))[0, 1].item()
+        correlation = torch.corrcoef(torch.stack([filtered_signal, fetal_hb_series_tensor]))[0, 1].item()
         self.final_metric = correlation
         return self.final_metric
