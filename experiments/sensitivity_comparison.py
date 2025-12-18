@@ -11,7 +11,12 @@ import pandas as pd
 import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
-from compute_sensitivity import FetalSensitivityEvaluator, FetalSensitivityNoInterferenceEvaluator, CorrelationEvaluator
+from compute_sensitivity import (
+    FetalSensitivityEvaluator,
+    FetalSensitivityNoInterferenceEvaluator,
+    CorrelationEvaluator,
+    CorrelationxSNREvaluator,
+)
 from joint_tof_opt import (
     named_moment_types,
     OptimizationExperiment,
@@ -19,6 +24,7 @@ from joint_tof_opt import (
     get_named_moment_module,
     OptimizationExperiment,
     CompactStatProcess,
+    noise_func_table,
 )
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
@@ -31,7 +37,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, Callable], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     save: bool = True,
 ) -> list[dict[str, Any]]:
@@ -39,8 +45,8 @@ def main(
     Main function to run sensitivity comparison experiments across measurands and depths.
 
     :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
+    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: Callable) and return an Evaluator instance.
+    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, Callable], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
@@ -56,6 +62,10 @@ def main(
     for measurand in ["abs"]:
         # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
+        # Get the noise function for the measurand
+        
+        
+        
         ## Run experiments
         print(f"Starting sensitivity comparison for measurand: {measurand}")
         ppath_file_mapping = read_parameter_mapping()
@@ -84,7 +94,7 @@ def main(
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand_module)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand_module, noise_func_table[measurand])
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -109,10 +119,14 @@ def main(
 
 
 if __name__ == "__main__":
-    # eval_func = lambda ppath, win, meas: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
-    eval_func = lambda ppath_file, window, measurand: CorrelationEvaluator(ppath_file, window, measurand, 0.1)
-    optimizer_funcs_to_test =[
+    # eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
+    # eval_func = lambda ppath, win, meas: CorrelationEvaluator(ppath, win, meas, 0.1)
+    eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise)
+    optimizer_funcs_to_test = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "median", normalize_window=True),
-    ] 
+    ]
     exp_results = main(eval_func, optimizer_funcs_to_test, save=False)
+    for result in exp_results:
+        print(f"\nMeasurand: {result['Measurand']}, Depth: {result['Depth_mm']} mm, Optimizer: {result['Optimizer']}")
+        print(f"Window: {result['Optimized_Window']}")

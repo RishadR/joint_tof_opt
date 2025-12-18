@@ -28,7 +28,15 @@ from pathlib import Path
 from joint_tof_opt.tof_process import compute_tof_discrete
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 from generate_tof_set import generate_tof
-from joint_tof_opt import CombSeparator, EnergyRatioMetric, named_moment_types, get_named_moment_module, Evaluator, CompactStatProcess
+from joint_tof_opt import (
+    CombSeparator,
+    EnergyRatioMetric,
+    named_moment_types,
+    get_named_moment_module,
+    Evaluator,
+    CompactStatProcess,
+    noise_func_table,
+)
 
 
 class FetalSensitivityNoInterferenceEvaluator(Evaluator):
@@ -233,22 +241,24 @@ class FetalSensitivityEvaluator(Evaluator):
             self.final_metric = maternal_sensitivity
         return self.final_metric
 
+
 class CorrelationEvaluator(Evaluator):
     """
-        Computes the correlation between the pulsating mu_a signal and the measurand signal's filtered version.
-        
-        :param ppath_file: The path to the partial path dataset (.npz file).
-        :type ppath_file: Path 
-        :param window: The time-gating window to apply.
-        :type window: torch.Tensor
-        :param measurand: The measurand to compute correlation for ("abs", "m1", "V") or custom module.
-        :type measurand: str | CompactStatProcess
-        :param signal_type: Type of hemoglobin signal to correlate with ("fetal" or "maternal"). For fetal, we filter
-        around the fetal heart rate; for maternal, we filter around the maternal heart rate.
-        :type signal_type: Literal["fetal", "maternal"]
-        :param filter_hw: Half-width of the filter to apply.
-        :type filter_hw: float
+    Computes the correlation between the pulsating mu_a signal and the measurand signal's filtered version.
+
+    :param ppath_file: The path to the partial path dataset (.npz file).
+    :type ppath_file: Path
+    :param window: The time-gating window to apply.
+    :type window: torch.Tensor
+    :param measurand: The measurand to compute correlation for ("abs", "m1", "V") or custom module.
+    :type measurand: str | CompactStatProcess
+    :param signal_type: Type of hemoglobin signal to correlate with ("fetal" or "maternal"). For fetal, we filter
+    around the fetal heart rate; for maternal, we filter around the maternal heart rate.
+    :type signal_type: Literal["fetal", "maternal"]
+    :param filter_hw: Half-width of the filter to apply.
+    :type filter_hw: float
     """
+
     def __init__(
         self,
         ppath_file: Path,
@@ -262,9 +272,11 @@ class CorrelationEvaluator(Evaluator):
         self.signal_type = signal_type
         self.filter_hw = filter_hw
         self.comb_filter = None
+        self.filtered_signal = None
+        self.moment_module = None
 
     def __str__(self) -> str:
-        return "Computes Correlation between measurand and fetal hb changes"
+        return "Computes Correlation between measurand and fetal or maternal hb changes"
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
@@ -303,14 +315,64 @@ class CorrelationEvaluator(Evaluator):
             filter_length=tof_data.shape[1] // 2 + 1,
             phase_preserve=True,
         )
-        filtered_signal = self.comb_filter(compact_stats.unsqueeze(0).unsqueeze(0))  # Shape: (1, 1, num_timepoints)
-        filtered_signal = filtered_signal.squeeze()  # Shape: (num_timepoints,)
+        self.filtered_signal = self.comb_filter(
+            compact_stats.unsqueeze(0).unsqueeze(0)
+        )  # Shape: (1, 1, num_timepoints)
+        self.filtered_signal = self.filtered_signal.squeeze()  # Shape: (num_timepoints,)
 
         # Load heartbeat series
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
 
         # Compute correlation
-        correlation = torch.corrcoef(torch.stack([filtered_signal, fetal_hb_series_tensor]))[0, 1].item()
+        correlation = torch.corrcoef(torch.stack([self.filtered_signal, fetal_hb_series_tensor]))[0, 1].item()
         self.final_metric = correlation
+        return self.final_metric
+
+
+class CorrelationxSNREvaluator(Evaluator):
+    """
+    Same as the CorrelationEvaluator but multiplies the correlation with the SNR
+    """
+
+    def __init__(
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str | CompactStatProcess,
+        noise_func: Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
+        filter_hw: float = 0.3,
+        signal_type: Literal["fetal", "maternal"] = "fetal",
+    ):
+
+        super().__init__(ppath_file, window, measurand)
+        self.signal_type = signal_type
+        self.filter_hw = filter_hw
+        self.comb_filter = None
+        self.moment_module = None
+        self._correlation_evaluator = CorrelationEvaluator(ppath_file, window, measurand, filter_hw, signal_type)
+        if not isinstance(measurand, str):
+            assert noise_func is not None, "Noise function must be provided for custom measurand modules"
+            self.noise_func = noise_func
+        else:
+            self.noise_func = noise_func_table[measurand]
+
+    def __str__(self) -> str:
+        return "Computes Correlation x SNR between measurand and fetal or maternal hb changes"
+
+    def evaluate(self) -> float:
+        correlation = self._correlation_evaluator.evaluate()
+        self.moment_module = self._correlation_evaluator.moment_module
+        self.comb_filter = self._correlation_evaluator.comb_filter
+        assert self.moment_module is not None, "Internal CorrelationEvaluator did not work properly!"
+        assert (
+            self._correlation_evaluator.filtered_signal is not None
+        ), "Internal CorrelationEvaluator did not work properly!"
+        tof_series = self.moment_module.tof_series
+        bin_edges = self.moment_module.bin_edges
+        noise_var = self.noise_func(tof_series, bin_edges, self.window)
+        signal = self._correlation_evaluator.filtered_signal
+        signal_energy = torch.sum(signal**2).item()
+        snr = signal_energy / (torch.sum(noise_var).item() + 1e-40)
+        self.final_metric = correlation * snr
         return self.final_metric
