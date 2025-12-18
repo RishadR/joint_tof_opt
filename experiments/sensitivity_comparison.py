@@ -2,16 +2,17 @@
 Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
 """
 
-from typing import Literal
+from typing import Literal, Callable
 from pathlib import Path
 import torch
+import torch.nn as nn
 import yaml
 import pandas as pd
 import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
-from compute_sensitivity import compute_sensitivity, compute_sensitivityv2
-from joint_tof_opt import named_moment_types
+from compute_sensitivity import FetalSensitivityEvaluator, FetalSensitivityNoInterferenceEvaluator
+from joint_tof_opt import named_moment_types, OptimizationExperiment, Evaluator, get_named_moment_module
 from optimize_liu import liu_optimize
 
 
@@ -21,15 +22,15 @@ def read_parameter_mapping():
     return parameter_mapping
 
 
-def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
+def main(evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator], save: bool = True):
     """
     Main function to run sensitivity comparison experiments across measurands and depths.
 
+    :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
+    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module) and return an Evaluator instance.
+    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param save: Whether to save the results.
     :type save: bool
-    :param sensitivity_type: Which version of sensitivity computation to use ("v1" or "v2"). Check out
-    compute_sensitivity.py and compute_sensitivityv2.py for details.
-    :type sensitivity_type: Literal["v1", "v2"]
     """
     ## Params
     filter_hw = 0.3  # Comb filter half-width in Hz
@@ -54,9 +55,17 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
         for experiment in experiments:
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
-            ppath_file = Path("./data") / ppath_filename
+            ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config, tof_dataset_file)
+
+            # Get TOF data tensors
+            tof_data = np.load(tof_dataset_file)
+            tof_series = tof_data["tof_dataset"]
+            bin_edges = tof_data["bin_edges"]
+            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
+            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
+
             window, loss_history = main_optimize(tof_dataset_file, measurand, filter_hw=filter_hw, lr=lr)
             # put the baseline window here
             ## Option 1: No time gating
@@ -71,15 +80,13 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
             vanilla_window, _ = liu_optimize(tof_dataset_file, measurand, "first", 0.3, 2, True)
             print("Liu et al. window: ", vanilla_window.numpy())
 
-            if sensitivity_type == "v1":
-                optimized_sensitivity, _ = compute_sensitivity(tof_dataset_file, window, measurand, filter_hw=filter_hw)
-                vanilla_sensitivity, _ = compute_sensitivity(
-                    tof_dataset_file, vanilla_window, measurand, filter_hw=filter_hw
-                )
-            else:
-                # This one has a different signature but also can be negative if measurand decreases with mu_a_fetal
-                optimized_sensitivity = abs(compute_sensitivityv2(ppath_file, window, measurand))
-                vanilla_sensitivity = abs(compute_sensitivityv2(ppath_file, vanilla_window, measurand))
+            # Evaluate sensitivities
+            measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
+            evaluator = evaluator_gen_func(ppath_file, vanilla_window, measurand_module)
+            vanilla_sensitivity = evaluator.evaluate()
+
+            evaluator = evaluator_gen_func(ppath_file, window, measurand_module)
+            optimized_sensitivity = evaluator.evaluate()
 
             depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
             improvement = (optimized_sensitivity - vanilla_sensitivity) / vanilla_sensitivity * 100
@@ -140,4 +147,7 @@ def main(save: bool = True, sensitivity_type: Literal["v1", "v2"] = "v2"):
 
 
 if __name__ == "__main__":
-    main(save=False, sensitivity_type="v1")
+    eval_func = lambda ppath_file, window, measurand: FetalSensitivityEvaluator(
+        ppath_file, window, measurand, 0.3, "fetal"
+    )
+    main(eval_func, save=False)

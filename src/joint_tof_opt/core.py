@@ -9,6 +9,7 @@ import torch.nn as nn
 import numpy as np
 from joint_tof_opt.compact_stat_process import NthOrderMoment, NthOrderCenteredMoment, WindowedSum
 from joint_tof_opt.noise_calc import compute_noise_m1, compute_noise_variance, compute_noise_window_sum
+from joint_tof_opt.compact_stat_process import CompactStatProcess
 from typing import Any, Literal
 
 
@@ -94,22 +95,31 @@ class OptimizationExperiment(ABC):
 class Evaluator(ABC):
     """
     Base class for evaluating any given window on some partial path data.
+    
+    Modifiable Attributes:
+    -----------------------
+    - ppath_file : Path to the partial path file (.json or similar).
+    - window : Torch tensor representing the time-gating window.
+    - measurand : The measurand to evaluate. Can be a string (named moment) or a custom nn.Module.
+    
+    Stored Attributes:
+    -----------------------
+    - final_metric : Float to store the final evaluation metric after calling evaluate().
 
     Things to Implement in Subclasses:
     -----------------------
-    - self.evaluate() : Method to perform the evaluation and populate self.final_metric. Ideally a float or a
-    tuple of floats.
+    - self.evaluate() : Method to perform the evaluation and populate self.final_metric and return a float
     - __str__() : String representation of the evaluator for easy identification.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | nn.Module):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess):
         self.ppath_file = ppath_file
         self.window = window
         self.measurand = measurand
         self.final_metric = None
 
     @abstractmethod
-    def evaluate(self) -> Any:
+    def evaluate(self) -> float:
         pass
 
     @abstractmethod

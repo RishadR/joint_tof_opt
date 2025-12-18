@@ -5,6 +5,7 @@ datapoint_count: 40
 maternal_f: 1.0 # Maternal heartbeat frequency (Hz)
 fetal_f: 2.2 # Fetal heartbeat frequency (Hz)
 end_sec: 4.0 # Duration of the time series (seconds)
+sampling_rate: 10 # Sampling rate (Hz)
 
 # Tissue Parameters
 maternal_hb_base: 15.0 # Baseline maternal hemoglobin concentration

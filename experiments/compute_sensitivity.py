@@ -19,16 +19,16 @@ Process flow:
 8. Return the two sensitivities
 """
 
-from typing import Callable
+from typing import Callable, Literal
 import torch
 import yaml
 import torch.nn as nn
 import numpy as np
 from pathlib import Path
-from joint_tof_opt import CombSeparator, EnergyRatioMetric, named_moment_types, get_named_moment_module, Evaluator
 from joint_tof_opt.tof_process import compute_tof_discrete
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 from generate_tof_set import generate_tof
+from joint_tof_opt import CombSeparator, EnergyRatioMetric, named_moment_types, get_named_moment_module, Evaluator, CompactStatProcess
 
 
 class FetalSensitivityNoInterferenceEvaluator(Evaluator):
@@ -43,13 +43,17 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
     4. Computing sensitivity as delta measurand / delta mu_a_fetal
 
     The result is stored in self.final_metric as a float.
+
+    Extra Note: If the measurand is a string, it uses the ppath & the tof_config.yaml to compute the TOF distributions.
+    If the measurand is a custom nn.Module, it directly uses the measurand's internal TOF for computation - skipping
+    the ppath generation step.
     """
 
     def __init__(
         self,
         ppath_file: Path,
         window: torch.Tensor,
-        measurand: str | nn.Module,
+        measurand: str | CompactStatProcess,
         delta_percnt: float = 2.5,
     ):
         """
@@ -107,18 +111,20 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
             config["fetal_hb_base"] * (1 + self.delta_percnt / 100),
         )
 
-        # Compute TOF distributions
-        base_tof, bin_edges = compute_tof_discrete(filtered_ppath, light_speeds, base_model, bin_count, fraction, None)
-        time_limits = (bin_edges[0], bin_edges[-1])
-        perturbed_tof, _ = compute_tof_discrete(
-            filtered_ppath, light_speeds, perturbed_model, bin_count, None, time_limits
-        )
-        tof_dataset = np.vstack([base_tof, perturbed_tof])  # Shape: (2, bin_count)
-
-        # Compute measurand
-        tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
-        bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
         if isinstance(self.measurand, str):
+            # Compute TOF distributions
+            base_tof, bin_edges = compute_tof_discrete(
+                filtered_ppath, light_speeds, base_model, bin_count, fraction, None
+            )
+            time_limits = (bin_edges[0], bin_edges[-1])
+            perturbed_tof, _ = compute_tof_discrete(
+                filtered_ppath, light_speeds, perturbed_model, bin_count, None, time_limits
+            )
+            tof_dataset = np.vstack([base_tof, perturbed_tof])  # Shape: (2, bin_count)
+
+            # Compute measurand
+            tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
+            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
             moment_calculator = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
         else:
             moment_calculator = self.measurand
@@ -139,11 +145,13 @@ class FetalSensitivityEvaluator(Evaluator):
         self,
         ppath_file: Path,
         window: torch.Tensor,
-        measurand: str | nn.Module,
+        measurand: str | CompactStatProcess,
         filter_hw: float = 0.3,
+        output_sensitivity: Literal["maternal", "fetal"] = "fetal",
     ):
         super().__init__(ppath_file, window, measurand)
         self.filter_hw = filter_hw
+        self.output_sensitivity = output_sensitivity
         self.fetal_comb_filter = None
         self.maternal_comb_filter = None
         self.moment_module = None
@@ -151,7 +159,7 @@ class FetalSensitivityEvaluator(Evaluator):
     def __str__(self) -> str:
         return "Computes Fetal and Maternal Sensitivities as delta filtered measurand / delta hb concentration"
 
-    def evaluate(self) -> tuple[float, float]:
+    def evaluate(self) -> float:
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         tof_temp_path = Path("./data/temp_tof_dataset.npz")
         generate_tof(self.ppath_file, gen_config, tof_temp_path)
@@ -160,17 +168,18 @@ class FetalSensitivityEvaluator(Evaluator):
         bin_edges = tof_dataset["bin_edges"]
         tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
         bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-        
         if isinstance(self.measurand, str):
             self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
         else:
             self.moment_module = self.measurand
-        
+            tof_data = self.measurand.tof_series
+
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
         compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, num_timepoints)
 
         # Initialize comb filters
+        filter_len = tof_data.shape[1] // 2 + 1
         sampling_rate = gen_config["sampling_rate"]
         maternal_f = gen_config["maternal_f"]
         fetal_f = gen_config["fetal_f"]
@@ -179,14 +188,14 @@ class FetalSensitivityEvaluator(Evaluator):
             f0=fetal_f,
             f1=2 * fetal_f,
             half_width=self.filter_hw,
-            filter_length=len(tof_dataset["time_axis"]) // 2 + 1,
+            filter_length=filter_len,
         )
         self.maternal_comb_filter = CombSeparator(
             fs=sampling_rate,
             f0=maternal_f,
             f1=2 * maternal_f,
             half_width=self.filter_hw,
-            filter_length=len(tof_dataset["time_axis"]) // 2 + 1,
+            filter_length=filter_len,
         )
         fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
         maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
@@ -207,7 +216,8 @@ class FetalSensitivityEvaluator(Evaluator):
         maternal_sensitivity = torch.sqrt(
             energy_ratio_metric(maternal_filtered_signal, maternal_hb_series_tensor)
         ).item()
-        self.final_metric = (fetal_sensitivity, maternal_sensitivity)
+        if self.output_sensitivity == "fetal":
+            self.final_metric = fetal_sensitivity
+        else:
+            self.final_metric = maternal_sensitivity
         return self.final_metric
-
-

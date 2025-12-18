@@ -1,12 +1,44 @@
 """
 Code to compute compact statistics from time-of-flight (TOF) data for joint optimization tasks.
 """
-
+from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 
+class CompactStatProcess(ABC, nn.Module):
+    """
+    Abstract base class for computing compact statistics from TOF data.
 
-class WindowedSum(nn.Module):
+    Subclasses should implement the forward method to define how the compact statistic
+    is computed from the TOF histograms and a window function.
+    """
+    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor):
+        """
+        Initialize the CompactStatProcess.
+
+        :param tof_series: 2D tensor where each row is a ToF histogram and each column is a bin.
+        :type tof_series: torch.Tensor
+        :param bin_edges: 1D tensor of bin edges (length = num_bins + 1).
+        :type bin_edges: torch.Tensor
+        """
+        super().__init__()
+        self.tof_series = tof_series
+        self.bin_edges = bin_edges
+
+    @abstractmethod
+    def forward(self, window: torch.Tensor) -> torch.Tensor:
+        """
+        Compute the compact statistic given a window function.
+
+        :param window: 1D tensor with same length as number of bins.
+        :type window: torch.Tensor
+        :return: 1D tensor of computed compact statistics for each ToF (flattened).
+        :rtype: torch.Tensor
+        """
+        pass
+
+
+class WindowedSum(CompactStatProcess):
     """
     Applies point-wise multiplication with a window and computes row-wise sum.
 
@@ -23,7 +55,7 @@ class WindowedSum(nn.Module):
         :param bin_edges: 1D tensor of bin edges (length = num_bins + 1).
         :type bin_edges: torch.Tensor
         """
-        super().__init__()
+        super().__init__(tof_series, bin_edges)
         self.num_tofs, self.num_bins = tof_series.shape
 
         # Compute bin centers from edges
@@ -47,7 +79,7 @@ class WindowedSum(nn.Module):
         return result
 
 
-class NthOrderMoment(nn.Module):
+class NthOrderMoment(CompactStatProcess):
     """
     Computes the n-th order moment of time for windowed ToF histograms.
 
@@ -66,7 +98,7 @@ class NthOrderMoment(nn.Module):
         :param order: The order of the moment (e.g., 1 for mean, 2 for second moment).
         :type order: int
         """
-        super().__init__()
+        super().__init__(tof_series, bin_edges)
         self.num_tofs, self.num_bins = tof_series.shape
         self.order = order
 
@@ -94,7 +126,7 @@ class NthOrderMoment(nn.Module):
         return moment.flatten()
 
 
-class NthOrderCenteredMoment(nn.Module):
+class NthOrderCenteredMoment(CompactStatProcess):
     """
     Computes the n-th order centered moment of time for windowed ToF histograms.
 
@@ -114,7 +146,7 @@ class NthOrderCenteredMoment(nn.Module):
         :param order: The order of the centered moment (e.g., 2 for variance, 3 for skewness basis).
         :type order: int
         """
-        super().__init__()
+        super().__init__(tof_series, bin_edges)
         self.num_tofs, self.num_bins = tof_series.shape
         self.order = order
 
