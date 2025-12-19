@@ -124,5 +124,7 @@ if __name__ == "__main__":
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "median", normalize_window=True),
     ]
     exp_results = main(eval_func, optimizer_funcs_to_test)
+    results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
+    np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     
     
