@@ -37,28 +37,28 @@ import torch.optim as optim
 from typing import Callable, Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
-from joint_tof_opt import get_named_moment_module, named_moment_types, OptimizationExperiment
+from joint_tof_opt import get_named_moment_module, named_moment_types, OptimizationExperiment, CompactStatProcess
 
 
 class LiuOptimizer(OptimizationExperiment):
     """
     Optimization experiment implementing the optimization loop from Liu et al.
     (https://doi.org/10.1364/BOE.500898)
-    
+
     Extended for any measurand rather than just N_tot as described in the paper.
     Also uses improved SNR computation via MAD (Median Absolute Deviation) rather than simple std-dev.
-    
+
     This implementation uses discrete ToF and finds the optimal rectangular window by:
     1. Finding the bin with maximum count (bmax) in a representative DTOF
     2. Determining boundary bins b0 and bf based on count thresholds
     3. Exhaustively searching all (b2, b3) window pairs to maximize SNR
     4. SNR is computed as Signal_at_FHR / Noise_Floor (using MAD)
     """
-    
+
     def __init__(
         self,
         tof_dataset_path: Path,
-        measurand: str | nn.Module,
+        measurand: str | CompactStatProcess,
         dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
         fhr_hw: float = 0.3,
         harmonic_count: int = 2,
@@ -66,7 +66,7 @@ class LiuOptimizer(OptimizationExperiment):
     ):
         """
         Initialize the LiuOptimizer.
-        
+
         :param tof_dataset_path: Path to the ToF dataset (.npz file).
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
         :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0 ("mean", "median", or "first").
@@ -75,28 +75,28 @@ class LiuOptimizer(OptimizationExperiment):
         :param normalize_window: Whether to normalize output window to unit energy.
         """
         super().__init__(tof_dataset_path, measurand)
-        
+
         self.dtof_to_find_max_on = dtof_to_find_max_on
         self.fhr_hw = fhr_hw
         self.harmonic_count = harmonic_count
         self.normalize_window = normalize_window
-        
+
         # Extract metadata
         self.sampling_rate = self.tof_data["sampling_rate"]
         self.fetal_f = self.tof_data["fetal_f"]
         self.maternal_f = self.tof_data["maternal_f"]
-        
+
         # Pre-compute fetal bins for SNR calculation
         num_timepoints = self.tof_series.shape[0]
         self.fetal_bins = self._compute_fetal_bins(num_timepoints)
-        
+
         # Set training curve labels (empty for this non-iterative method)
         self.training_curve_labels = []
-    
+
     def _compute_fetal_bins(self, num_timepoints: int) -> list[int]:
         """
         Compute the FFT bin indices that correspond to FHR harmonics.
-        
+
         :param num_timepoints: Number of time points in the signal.
         :return: List of bin indices to include in fetal signal extraction.
         """
@@ -108,28 +108,28 @@ class LiuOptimizer(OptimizationExperiment):
             right_edge = min(h * fetal_bin + width_int_in_bins, num_timepoints // 2 + 1)
             fetal_bins.extend(list(range(left_edge, right_edge + 1)))
         return fetal_bins
-    
+
     def __str__(self) -> str:
         return (
             f"LiuOptimizer(measurand={self.moment_module.__class__.__name__}, "
             f"dtof_to_find_max_on={self.dtof_to_find_max_on}, fhr_hw={self.fhr_hw})"
         )
-    
+
     def components(self) -> dict[str, nn.Module]:
         """Return the internal components/modules used in optimization."""
         return {
             "moment_module": self.moment_module,
         }
-    
+
     def optimize(self):
         """
         Perform the window optimization using Liu et al. approach.
-        
+
         Exhaustively searches all rectangular window pairs (b2, b3) to find the one
         that maximizes SNR between fetal signal and noise floor.
         """
         num_timepoints, num_bins = self.tof_series.shape
-        
+
         # Step 1: Find bmax (bin with maximum count)
         if self.dtof_to_find_max_on == "mean":
             representative_dtof = torch.mean(self.tof_series, dim=0)
@@ -139,9 +139,9 @@ class LiuOptimizer(OptimizationExperiment):
             representative_dtof = self.tof_series[0, :]
         else:
             raise ValueError(f"Invalid dtof_to_find_max_on value: {self.dtof_to_find_max_on}")
-        
+
         self.bmax = int(torch.argmax(representative_dtof).item())
-        
+
         # Step 2: Find b0 (50% of bmax) and bf (10% of bmax)
         half_max_value = representative_dtof[self.bmax] * 0.5
         self.b0 = self.bmax
@@ -149,45 +149,46 @@ class LiuOptimizer(OptimizationExperiment):
             if representative_dtof[b] <= half_max_value:
                 self.b0 = b
                 break
-        
+
         self.bf = num_bins - 1
         for b in range(num_bins - 1, self.bmax, -1):
             if representative_dtof[b] <= half_max_value * 0.1:
                 self.bf = b
                 break
-        
+
         # Step 3: Exhaustive search over all (b2, b3) window pairs
         best_snr = 0.0
         best_window = None
-        
+
         for b2 in range(self.b0, self.bf):
             for b3 in range(b2 + 1, self.bf):
                 # Create rectangular window
                 window = torch.zeros(num_bins, dtype=torch.float32)
                 window[b2 : b3 + 1] = 1.0
-                
+
                 # Compute measurand signal
                 measurand_series = self.moment_module(window)
                 measurand_series = measurand_series - torch.mean(measurand_series)  # Detrend
-                
+
                 # Compute FFT
                 measurand_fft = torch.fft.rfft(measurand_series)
                 fetal_fft_component = float(measurand_fft[self.fetal_bins].abs().sum().item())
-                
+
                 # Compute noise floor using MAD
                 median_fft = torch.median(measurand_fft.abs()).item()
                 mad_fft = torch.median(torch.abs(measurand_fft.abs() - median_fft)).item()
                 noise_floor = mad_fft * 1.4826  # Convert MAD to std dev
-                
+
                 if noise_floor == 0:
                     continue
-                
+
                 # Compute SNR
                 snr = fetal_fft_component / noise_floor
-                if snr >= best_snr: # Bias towards later windows
+                if snr >= best_snr:  # Bias towards later windows
                     best_snr = snr
                     best_window = window.clone()
-        
+                    self.final_signal = measurand_series.detach().cpu()
+
         # Store results
         if best_window is not None:
             if self.normalize_window:
@@ -196,14 +197,14 @@ class LiuOptimizer(OptimizationExperiment):
                 self.window = best_window
         else:
             raise ValueError("Something went wrong; no valid window that improves SNR above 0.")
-        
+
         # No training curves for this non-iterative method
         self.training_curves = np.array([])
 
 
 def liu_optimize(
     tof_dataset_path: Path,
-    measurand: str | nn.Module,
+    measurand: str | CompactStatProcess,
     dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
     fhr_hw: float = 0.3,
     harmonic_count: int = 2,

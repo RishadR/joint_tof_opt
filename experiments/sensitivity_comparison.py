@@ -39,7 +39,6 @@ def read_parameter_mapping():
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, Callable], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
-    save: bool = True,
 ) -> list[dict[str, Any]]:
     """
     Main function to run sensitivity comparison experiments across measurands and depths.
@@ -50,8 +49,6 @@ def main(
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
-    :param save: Whether to save the results.
-    :type save: bool
     """
     ## Params
     lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
@@ -63,9 +60,7 @@ def main(
         # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
-        
-        
-        
+
         ## Run experiments
         print(f"Starting sensitivity comparison for measurand: {measurand}")
         ppath_file_mapping = read_parameter_mapping()
@@ -107,6 +102,8 @@ def main(
                         "Epochs": epochs,
                         "Bin_Edges": bin_edges,
                         "Optimized_Window": window.detach().cpu().numpy(),
+                        "fetal_hb_series": meta_data["fetal_hb_series"],
+                        "filtered_signal": optimizer_experiment.final_signal.numpy(),
                     }
                 )
                 print(
@@ -119,14 +116,13 @@ def main(
 
 
 if __name__ == "__main__":
-    # eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
+    eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
     # eval_func = lambda ppath, win, meas: CorrelationEvaluator(ppath, win, meas, 0.1)
-    eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise)
+    # eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise)
     optimizer_funcs_to_test = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "median", normalize_window=True),
     ]
-    exp_results = main(eval_func, optimizer_funcs_to_test, save=False)
-    for result in exp_results:
-        print(f"\nMeasurand: {result['Measurand']}, Depth: {result['Depth_mm']} mm, Optimizer: {result['Optimizer']}")
-        print(f"Window: {result['Optimized_Window']}")
+    exp_results = main(eval_func, optimizer_funcs_to_test)
+    
+    

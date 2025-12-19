@@ -42,6 +42,7 @@ from joint_tof_opt import (
     named_moment_types,
     noise_func_table,
     OptimizationExperiment,
+    CompactStatProcess,
 )
 
 
@@ -71,7 +72,7 @@ class DIGSSOptimizer(OptimizationExperiment):
     def __init__(
         self,
         tof_dataset_path: Path,
-        measurand: str | nn.Module,
+        measurand: str | CompactStatProcess,
         noise_func: None | Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] = None,
         max_epochs: int = 2000,
         lr: float = 0.001,
@@ -187,6 +188,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
             fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
             maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
+            self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
 
             # Compute metrics
             energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
@@ -225,7 +227,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 # Functional Interface
 def main_optimize(
     tof_dataset_path: Path,
-    measurand: str | nn.Module,
+    measurand: str | CompactStatProcess,
     noise_func: None | Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] = None,
     max_epochs: int = 2000,
     lr: float = 0.001,

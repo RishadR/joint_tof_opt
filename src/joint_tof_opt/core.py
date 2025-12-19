@@ -66,7 +66,7 @@ class OptimizationExperiment(ABC):
     - window : Torch tensor to store the optimized window. Leave empty if not yet optimized.
     """
 
-    def __init__(self, tof_dataset_path: Path, measurand: str | nn.Module, lr: float = 0.01):
+    def __init__(self, tof_dataset_path: Path, measurand: str | CompactStatProcess, lr: float = 0.01):
         self.tof_dataset_path = tof_dataset_path
         self.tof_data = np.load(tof_dataset_path)
         self.tof_series = torch.tensor(self.tof_data["tof_dataset"], dtype=torch.float32)
@@ -80,6 +80,7 @@ class OptimizationExperiment(ABC):
         self.training_curve_labels = []
         self.window = torch.tensor([])
         self.lr = lr
+        self.final_signal = torch.tensor([])
 
     @abstractmethod
     def optimize(self):
@@ -119,6 +120,7 @@ class Evaluator(ABC):
         self.window = window
         self.measurand = measurand
         self.final_metric = None
+        
 
     @abstractmethod
     def evaluate(self) -> float:
