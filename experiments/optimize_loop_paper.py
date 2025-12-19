@@ -123,7 +123,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.fetal_f, 2 * self.fetal_f,
             self.filter_hw,
             num_timepoints // 2 + 1,
-            True
+            False
         )
         self.maternal_comb_filter = CombSeparator(
             self.sampling_rate,
@@ -131,7 +131,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             2 * self.maternal_f,
             self.filter_hw,
             num_timepoints // 2 + 1,
-            True
+            False
         )
         self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_func, self.tof_series, self.bin_edges, False)
         self.energy_ratio_metric = EnergyRatioMetric()

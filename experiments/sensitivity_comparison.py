@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
-from compute_sensitivity import (
+from sensitivity_compute import (
     FetalSensitivityEvaluator,
     FetalSensitivityNoInterferenceEvaluator,
     CorrelationEvaluator,
@@ -51,8 +51,9 @@ def main(
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
     """
     ## Params
-    lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
+    lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.001}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    gen_config['selected_sdd_index'] = 2
 
     # Initialize results table and windows storage
     results = []
@@ -116,15 +117,15 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
-    # eval_func = lambda ppath, win, meas: CorrelationEvaluator(ppath, win, meas, 0.1)
-    # eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise)
+    # eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
+    # eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas, 0.3, 'fetal', 8)
+    eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise, 0.3, 'fetal', 8)
     optimizer_funcs_to_test = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "median", normalize_window=True),
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
     ]
     exp_results = main(eval_func, optimizer_funcs_to_test)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
-    np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
+    # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     
     

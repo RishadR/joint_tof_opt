@@ -89,15 +89,21 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
         with open("./experiments/tof_config.yaml", "r") as f:
             config = yaml.safe_load(f)
 
-        light_speeds = [float(speed) for speed in config["light_speeds"]]  # in m/s for 4 layers
+        light_speeds = [
+            float(speed) for speed in config["light_speeds"]
+        ]  # in m/s for 4 layers
 
         # Load partial path data
         ppath_dataset = np.load(self.ppath_file)
         ppath = ppath_dataset["ppath"]  # Shape: (num_photons, num_layers + 1)
         bin_count = config["bin_count"]
-        assert bin_count == len(self.window), "Window length must match bin count in tof_config.yaml"
+        assert bin_count == len(
+            self.window
+        ), "Window length must match bin count in tof_config.yaml"
         fraction = config["weight_threshold_fraction"]
-        filtered_ppath = (ppath[ppath[:, 0] == config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
+        filtered_ppath = (ppath[ppath[:, 0] == config["selected_sdd_index"]])[
+            :, 1:
+        ]  # Drop the sdd index column
 
         # Create base and perturbed tissue models
         base_model = DanModel4LayerX(
@@ -126,14 +132,21 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
             )
             time_limits = (bin_edges[0], bin_edges[-1])
             perturbed_tof, _ = compute_tof_discrete(
-                filtered_ppath, light_speeds, perturbed_model, bin_count, None, time_limits
+                filtered_ppath,
+                light_speeds,
+                perturbed_model,
+                bin_count,
+                None,
+                time_limits,
             )
             tof_dataset = np.vstack([base_tof, perturbed_tof])  # Shape: (2, bin_count)
 
             # Compute measurand
             tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            moment_calculator = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
+            moment_calculator = get_named_moment_module(
+                self.measurand, tof_series_tensor, bin_edges_tensor
+            )
         else:
             moment_calculator = self.measurand
 
@@ -141,7 +154,9 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
         measurand_values = measurand_values.detach().cpu().numpy()
 
         # Compute sensitivity
-        delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
+        delta_mu_a_fetal = (
+            perturbed_model.prop[-1][0] - base_model.prop[-1][0]
+        )  # Change in fetal mu_a in mm-1
         delta_measurand = measurand_values[1] - measurand_values[0]
         self.final_metric = delta_measurand / delta_mu_a_fetal
 
@@ -177,19 +192,33 @@ class FetalSensitivityEvaluator(Evaluator):
             bin_edges = tof_dataset["bin_edges"]
             tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
+            self.moment_module = get_named_moment_module(
+                self.measurand, tof_series_tensor, bin_edges_tensor
+            )
             sampling_rate = gen_config["sampling_rate"]
             maternal_f = gen_config["maternal_f"]
             fetal_f = gen_config["fetal_f"]
             maternal_hb_series = tof_dataset["maternal_hb_series"]
             fetal_hb_series = tof_dataset["fetal_hb_series"]
         else:
-            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
-            assert self.measurand.meta_data["sampling_rate"] is not None, "Sampling rate must be in the meta data"
-            assert self.measurand.meta_data["maternal_f"] is not None, "Maternal f must be in the meta data"
-            assert self.measurand.meta_data["fetal_f"] is not None, "Fetal f must be in the meta data"
-            assert self.measurand.meta_data["maternal_hb_series"] is not None, "Maternal hb series must be present"
-            assert self.measurand.meta_data["fetal_hb_series"] is not None, "Fetal hb series must be present"
+            assert (
+                self.measurand.meta_data is not None
+            ), "Meta data must be provided in the measurand module"
+            assert (
+                self.measurand.meta_data["sampling_rate"] is not None
+            ), "Sampling rate must be in the meta data"
+            assert (
+                self.measurand.meta_data["maternal_f"] is not None
+            ), "Maternal f must be in the meta data"
+            assert (
+                self.measurand.meta_data["fetal_f"] is not None
+            ), "Fetal f must be in the meta data"
+            assert (
+                self.measurand.meta_data["maternal_hb_series"] is not None
+            ), "Maternal hb series must be present"
+            assert (
+                self.measurand.meta_data["fetal_hb_series"] is not None
+            ), "Fetal hb series must be present"
             self.moment_module = self.measurand
             tof_data = self.measurand.tof_series
             sampling_rate = self.measurand.meta_data["sampling_rate"]
@@ -200,7 +229,9 @@ class FetalSensitivityEvaluator(Evaluator):
 
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
-        compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, num_timepoints)
+        compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(
+            0
+        )  # Shape: (1, 1, num_timepoints)
 
         # Initialize comb filters
         filter_len = tof_data.shape[1] // 2 + 1
@@ -226,12 +257,16 @@ class FetalSensitivityEvaluator(Evaluator):
         # Remove DC component
         maternal_hb_series = maternal_hb_series - np.mean(maternal_hb_series)
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
-        maternal_hb_series_tensor = torch.tensor(maternal_hb_series, dtype=torch.float32)
+        maternal_hb_series_tensor = torch.tensor(
+            maternal_hb_series, dtype=torch.float32
+        )
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
 
         # Compute sensitivities
         energy_ratio_metric = EnergyRatioMetric()
-        fetal_sensitivity = torch.sqrt(energy_ratio_metric(fetal_filtered_signal, fetal_hb_series_tensor)).item()
+        fetal_sensitivity = torch.sqrt(
+            energy_ratio_metric(fetal_filtered_signal, fetal_hb_series_tensor)
+        ).item()
         maternal_sensitivity = torch.sqrt(
             energy_ratio_metric(maternal_filtered_signal, maternal_hb_series_tensor)
         ).item()
@@ -257,6 +292,8 @@ class CorrelationEvaluator(Evaluator):
     :type signal_type: Literal["fetal", "maternal"]
     :param filter_hw: Half-width of the filter to apply.
     :type filter_hw: float
+    :param terminal_ignore_points: Number of points to ignore at the start and end of the signal when computing correlation to account for edge effects.
+    :type terminal_ignore_points: int
     """
 
     def __init__(
@@ -266,6 +303,7 @@ class CorrelationEvaluator(Evaluator):
         measurand: str | CompactStatProcess,
         filter_hw: float = 0.3,
         signal_type: Literal["fetal", "maternal"] = "fetal",
+        terminal_ignore_points: int = 5,
     ):
 
         super().__init__(ppath_file, window, measurand)
@@ -274,6 +312,7 @@ class CorrelationEvaluator(Evaluator):
         self.comb_filter = None
         self.filtered_signal = None
         self.moment_module = None
+        self.terminal_ignore_points = terminal_ignore_points
 
     def __str__(self) -> str:
         return "Computes Correlation between measurand and fetal or maternal hb changes"
@@ -288,21 +327,35 @@ class CorrelationEvaluator(Evaluator):
             bin_edges = tof_dataset["bin_edges"]
             tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
+            self.moment_module = get_named_moment_module(
+                self.measurand, tof_series_tensor, bin_edges_tensor
+            )
             fetal_hb_series = tof_dataset["fetal_hb_series"]
         else:
             self.moment_module = self.measurand
-            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
-            assert self.measurand.meta_data["fetal_hb_series"] is not None, "Fetal hb series must be in the meta data"
+            assert (
+                self.measurand.meta_data is not None
+            ), "Meta data must be provided in the measurand module"
+            assert (
+                self.measurand.meta_data["fetal_hb_series"] is not None
+            ), "Fetal hb series must be in the meta data"
             tof_data = self.measurand.tof_series
             fetal_hb_series = self.measurand.meta_data["fetal_hb_series"]
 
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
-        assert self.moment_module.meta_data is not None, "Meta data must be provided in the measurand module"
-        assert self.moment_module.meta_data["fetal_f"] is not None, "Fetal frequency must be in the meta data"
-        assert self.moment_module.meta_data["maternal_f"] is not None, "Maternal frequency must be in the meta data"
-        assert self.moment_module.meta_data["sampling_rate"] is not None, "Sampling rate must be in the meta data"
+        assert (
+            self.moment_module.meta_data is not None
+        ), "Meta data must be provided in the measurand module"
+        assert (
+            self.moment_module.meta_data["fetal_f"] is not None
+        ), "Fetal frequency must be in the meta data"
+        assert (
+            self.moment_module.meta_data["maternal_f"] is not None
+        ), "Maternal frequency must be in the meta data"
+        assert (
+            self.moment_module.meta_data["sampling_rate"] is not None
+        ), "Sampling rate must be in the meta data"
         if self.signal_type == "fetal":
             target_f = self.moment_module.meta_data["fetal_f"]
         else:
@@ -318,14 +371,18 @@ class CorrelationEvaluator(Evaluator):
         self.filtered_signal = self.comb_filter(
             compact_stats.unsqueeze(0).unsqueeze(0)
         )  # Shape: (1, 1, num_timepoints)
-        self.filtered_signal = self.filtered_signal.squeeze()  # Shape: (num_timepoints,)
+        self.filtered_signal = (
+            self.filtered_signal.squeeze()
+        )  # Shape: (num_timepoints,)
 
         # Load heartbeat series
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
-
+        fetal_hb_series_tensor = fetal_hb_series_tensor[self.terminal_ignore_points : -self.terminal_ignore_points]
+        temp_sig = self.filtered_signal[self.terminal_ignore_points : -self.terminal_ignore_points]
+        
         # Compute correlation
-        correlation = torch.corrcoef(torch.stack([self.filtered_signal, fetal_hb_series_tensor]))[0, 1].item()
+        correlation = torch.corrcoef(torch.stack([temp_sig, fetal_hb_series_tensor]))[0, 1].item()
         self.final_metric = correlation
         return self.final_metric
 
@@ -340,9 +397,10 @@ class CorrelationxSNREvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
-        noise_func: Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
+        noise_func: (Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] | None) = None,
         filter_hw: float = 0.3,
         signal_type: Literal["fetal", "maternal"] = "fetal",
+        terminal_ignore_points: int = 5,
     ):
 
         super().__init__(ppath_file, window, measurand)
@@ -350,9 +408,18 @@ class CorrelationxSNREvaluator(Evaluator):
         self.filter_hw = filter_hw
         self.comb_filter = None
         self.moment_module = None
-        self._correlation_evaluator = CorrelationEvaluator(ppath_file, window, measurand, filter_hw, signal_type)
+        self._correlation_evaluator = CorrelationEvaluator(
+            ppath_file,
+            window,
+            measurand,
+            filter_hw,
+            signal_type,
+            terminal_ignore_points,
+        )
         if not isinstance(measurand, str):
-            assert noise_func is not None, "Noise function must be provided for custom measurand modules"
+            assert (
+                noise_func is not None
+            ), "Noise function must be provided for custom measurand modules"
             self.noise_func = noise_func
         else:
             self.noise_func = noise_func_table[measurand]
@@ -364,7 +431,9 @@ class CorrelationxSNREvaluator(Evaluator):
         correlation = self._correlation_evaluator.evaluate()
         self.moment_module = self._correlation_evaluator.moment_module
         self.comb_filter = self._correlation_evaluator.comb_filter
-        assert self.moment_module is not None, "Internal CorrelationEvaluator did not work properly!"
+        assert (
+            self.moment_module is not None
+        ), "Internal CorrelationEvaluator did not work properly!"
         assert (
             self._correlation_evaluator.filtered_signal is not None
         ), "Internal CorrelationEvaluator did not work properly!"

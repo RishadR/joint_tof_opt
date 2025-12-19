@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
-from compute_sensitivity import (
+from experiments.sensitivity_compute import (
     FetalSensitivityEvaluator,
     FetalSensitivityNoInterferenceEvaluator,
     CorrelationEvaluator,
