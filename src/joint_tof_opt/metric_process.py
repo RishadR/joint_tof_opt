@@ -66,8 +66,11 @@ class ContrastToNoiseMetric(nn.Module):
     Computes the contrast-to-noise ratio (CNR) as a metric.
 
     The CNR is defined as:
-        CNR = (mean_signal - mean_background) / std_background
+        CNR = ((mean_signal - mean_background) / std_background)^2
     A higher CNR indicates better distinguishability of the signal from the background noise.
+    
+    For our paper, CNR is treated as the filtered signal energy divided by noise standard variance.
+    
     Input:
         signal_region: Tensor of shape (batch_size, signal_length) or (signal_length,)
         background_region: Tensor of shape (batch_size, background_length) or (background_length,)
@@ -88,8 +91,8 @@ class ContrastToNoiseMetric(nn.Module):
         noise = self.noise_func(self.tof_series, self.bin_edges, window)  # sigma^2
         noise_std = noise.mean().sqrt()
         filtered_signal_energy = torch.mean(filtered_signal**2)  # mu^2
-        filtered_signal_amp = torch.sqrt(filtered_signal_energy)  # mu
-        contrast = filtered_signal_amp / (noise_std + 1e-20)
+        assert noise_std.item() > 0, "Noise standard deviation is zero, cannot compute contrast-to-noise ratio."
+        contrast = filtered_signal_energy / (noise_std)
         if self.dB_scale:
-            contrast = 20 * torch.log10(contrast + 1e-30)  # Convert to dB scale, add epsilon to avoid log(0)
+            contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)
         return contrast

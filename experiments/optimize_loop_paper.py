@@ -45,7 +45,6 @@ from joint_tof_opt import (
     CompactStatProcess,
 )
 
-
 class DIGSSOptimizer(OptimizationExperiment):
     """
     Optimization experiment implementing the optimization loop used in the paper.
@@ -137,28 +136,12 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.energy_ratio_metric = EnergyRatioMetric()
 
         # Parameters
-        self.window_exponents = nn.Parameter(torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
+        self.window_exponents = nn.Parameter(0.5 * torch.zeros(num_bins, dtype=torch.float32, requires_grad=True))
         self.window = torch.exp(self.window_exponents)
         self.window_normalized = self.window / torch.norm(self.window)
 
         # Set training curve labels
         self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
-
-    def __str__(self) -> str:
-        return (
-            f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
-            f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience})"
-        )
-
-    def components(self) -> dict[str, nn.Module]:
-        """Return the internal components/modules used in optimization."""
-        return {
-            "moment_module": self.moment_module,
-            "fetal_comb_filter": self.fetal_comb_filter,
-            "maternal_comb_filter": self.maternal_comb_filter,
-            "contrast_to_noise_metric": self.contrast_to_noise_metric,
-            "energy_ratio_metric": self.energy_ratio_metric,
-        }
 
     def optimize(self):
         """
@@ -203,6 +186,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             # Backpropagation
             loss = -torch.log(final_metric)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
             optimizer.step()
 
             # Early stopping check
@@ -223,6 +207,21 @@ class DIGSSOptimizer(OptimizationExperiment):
         if self.training_curves.shape[0] > epoch + 1:
             self.training_curves = self.training_curves[: epoch + 1]
 
+    def __str__(self) -> str:
+        return (
+            f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
+            f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience})"
+        )
+
+    def components(self) -> dict[str, nn.Module]:
+        """Return the internal components/modules used in optimization."""
+        return {
+            "moment_module": self.moment_module,
+            "fetal_comb_filter": self.fetal_comb_filter,
+            "maternal_comb_filter": self.maternal_comb_filter,
+            "contrast_to_noise_metric": self.contrast_to_noise_metric,
+            "energy_ratio_metric": self.energy_ratio_metric,
+        }
 
 # Functional Interface
 def main_optimize(
@@ -353,12 +352,13 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
+    torch.autograd.set_detect_anomaly(True)
     tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
         measurand="V",
         max_epochs=2000,
-        lr=1e-2,
+        lr=1e-5,
         filter_hw=0.3,
         patience=50,
     )
@@ -368,4 +368,4 @@ if __name__ == "__main__":
     loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
     # print(training_curves[::10, :])
-    plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)
+    # plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)

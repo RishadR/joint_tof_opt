@@ -57,7 +57,7 @@ def main(
 
     # Initialize results table and windows storage
     results = []
-    for measurand in ["abs"]:
+    for measurand in ["V"]:
         # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
