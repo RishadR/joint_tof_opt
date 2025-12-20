@@ -69,7 +69,7 @@ class ContrastToNoiseMetric(nn.Module):
         CNR = ((mean_signal - mean_background) / std_background)^2
     A higher CNR indicates better distinguishability of the signal from the background noise.
     
-    For our paper, CNR is treated as the filtered signal energy divided by noise standard variance.
+    For our paper, CNR is treated as the filtered signal energy by noise standard variance.
     
     Input:
         signal_region: Tensor of shape (batch_size, signal_length) or (signal_length,)
@@ -89,10 +89,10 @@ class ContrastToNoiseMetric(nn.Module):
 
     def forward(self, window: torch.Tensor, filtered_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_func(self.tof_series, self.bin_edges, window)  # sigma^2
-        noise_std = noise.mean().sqrt()
+        noise_var = noise.mean()
         filtered_signal_energy = torch.mean(filtered_signal**2)  # mu^2
-        assert noise_std.item() > 0, "Noise standard deviation is zero, cannot compute contrast-to-noise ratio."
-        contrast = filtered_signal_energy / (noise_std)
+        assert noise_var.item() > 0, "Noise standard deviation is zero, cannot compute contrast-to-noise ratio."
+        contrast = filtered_signal_energy / (noise_var)
         if self.dB_scale:
             contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)
         return contrast

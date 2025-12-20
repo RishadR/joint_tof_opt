@@ -32,6 +32,7 @@ class CompactStatProcess(ABC, nn.Module):
         self.tof_series = tof_series
         self.bin_edges = bin_edges
         self.meta_data = meta_data
+        self.bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
 
     @abstractmethod
     def forward(self, window: torch.Tensor) -> torch.Tensor:
@@ -68,10 +69,6 @@ class WindowedSum(CompactStatProcess):
         super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
 
-        # Compute bin centers from edges
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
-        self.bin_centers = bin_centers
-        self.tof_series = tof_series
 
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
@@ -114,11 +111,6 @@ class NthOrderMoment(CompactStatProcess):
         self.num_tofs, self.num_bins = tof_series.shape
         self.order = order
 
-        # Compute bin centers from edges
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
-        self.bin_centers = bin_centers
-        self.order = order
-        self.tof_series = tof_series
 
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
@@ -162,12 +154,6 @@ class NthOrderCenteredMoment(CompactStatProcess):
         """
         super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
-        self.order = order
-
-        # Compute bin centers from edges
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
-        self.bin_centers = bin_centers
-        self.tof_series = tof_series
         self.order = order
 
     def forward(self, window: torch.Tensor) -> torch.Tensor:

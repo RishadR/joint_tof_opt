@@ -109,6 +109,10 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         # Convert bin edges to nanoseconds for numerical stability
         self.bin_edges *= 1e9
+        # moment_module is originally initialized by the parent class but since we change the bin_centers and edges
+        # Keep everything else unchanged
+        self.moment_module.bin_edges = self.bin_edges
+        self.moment_module.bin_centers = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2
 
         # Extract additional metadata
         self.sampling_rate = self.tof_data["sampling_rate"]
