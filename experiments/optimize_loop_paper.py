@@ -356,7 +356,6 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    torch.autograd.set_detect_anomaly(True)
     tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
