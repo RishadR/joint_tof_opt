@@ -77,6 +77,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         lr: float = 0.001,
         filter_hw: float = 0.3,
         patience: int = 20,
+        grad_clip: bool = False
     ):
         """
         Initialize the PaperOptimizer.
@@ -88,12 +89,14 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param lr: Learning rate for the optimizer.
         :param filter_hw: Half width of the sinc comb filter (in Hz).
         :param patience: Number of epochs to wait for improvement before early stopping.
+        :param grad_clip: Whether to apply gradient clipping.
         """
         super().__init__(tof_dataset_path, measurand, lr)
 
         self.max_epochs = max_epochs
         self.filter_hw = filter_hw
         self.patience = patience
+        self.grad_clip = grad_clip
 
         # Handle measurand and noise function
         if isinstance(measurand, str):
@@ -190,7 +193,8 @@ class DIGSSOptimizer(OptimizationExperiment):
             # Backpropagation
             loss = -torch.log(final_metric)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
+            if self.grad_clip:
+                torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
             optimizer.step()
 
             # Early stopping check

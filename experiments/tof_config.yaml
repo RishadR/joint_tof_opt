@@ -4,7 +4,7 @@
 # Note: I messed up a little bit. Need to update both datapoint_count/end_sec and sampling_rate together
 datapoint_count: 60
 maternal_f: 1.0 # Maternal heartbeat frequency (Hz)
-fetal_f: 2.2 # Fetal heartbeat frequency (Hz)
+fetal_f: 2.05 # Fetal heartbeat frequency (Hz)
 end_sec: 4.0 # Duration of the time series (seconds)
 sampling_rate: 15 # Sampling rate (Hz)
 
