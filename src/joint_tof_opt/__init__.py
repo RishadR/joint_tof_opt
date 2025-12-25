@@ -9,6 +9,7 @@ from joint_tof_opt.core import (
     OptimizationExperiment,
     Evaluator,
 )
+from joint_tof_opt.tof_batch_process import generate_tof
 
 __all__ = [
     "WindowedSum",
@@ -26,4 +27,5 @@ __all__ = [
     "noise_func_table",
     "OptimizationExperiment",
     "Evaluator",
+    "generate_tof",
 ]

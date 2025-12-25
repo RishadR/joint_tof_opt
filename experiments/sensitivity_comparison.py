@@ -9,7 +9,6 @@ import torch.nn as nn
 import yaml
 import pandas as pd
 import numpy as np
-from generate_tof_set import generate_tof
 from optimize_loop_paper import main_optimize
 from sensitivity_compute import (
     FetalSensitivityEvaluator,
@@ -25,6 +24,7 @@ from joint_tof_opt import (
     OptimizationExperiment,
     CompactStatProcess,
     noise_func_table,
+    generate_tof,
 )
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer

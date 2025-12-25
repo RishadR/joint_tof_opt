@@ -1,5 +1,6 @@
 """
-Code that processes time-of-flight (TOF) data for joint optimization tasks.
+Code that processes time-of-flight (TOF) data for joint optimization tasks. Mainly for internal usage. For 
+experiments, use the functions inside tof_batch_process.py - which provide higher level abstractions.
 """
 
 from typing import Any

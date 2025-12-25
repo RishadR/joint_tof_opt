@@ -27,7 +27,6 @@ import numpy as np
 from pathlib import Path
 from joint_tof_opt.tof_process import compute_tof_discrete
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
-from generate_tof_set import generate_tof
 from joint_tof_opt import (
     CombSeparator,
     EnergyRatioMetric,
@@ -36,6 +35,7 @@ from joint_tof_opt import (
     Evaluator,
     CompactStatProcess,
     noise_func_table,
+    generate_tof
 )
 
 
