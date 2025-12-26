@@ -91,13 +91,6 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param patience: Number of epochs to wait for improvement before early stopping.
         :param grad_clip: Whether to apply gradient clipping.
         """
-        super().__init__(tof_dataset_path, measurand, lr)
-
-        self.max_epochs = max_epochs
-        self.filter_hw = filter_hw
-        self.patience = patience
-        self.grad_clip = grad_clip
-
         # Handle measurand and noise function
         if isinstance(measurand, str):
             if measurand not in named_moment_types:
@@ -109,6 +102,17 @@ class DIGSSOptimizer(OptimizationExperiment):
             if noise_func is None:
                 raise ValueError("noise_func must be provided when using a custom measurand module.")
             self.noise_func = noise_func
+        
+        if isinstance(measurand, str):
+            tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
+            bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
+            measurand = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
+        super().__init__(tof_dataset_path, measurand, lr)
+
+        self.max_epochs = max_epochs
+        self.filter_hw = filter_hw
+        self.patience = patience
+        self.grad_clip = grad_clip
 
         # Convert bin edges to nanoseconds for numerical stability
         self.bin_edges *= 1e9

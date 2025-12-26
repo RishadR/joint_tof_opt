@@ -10,7 +10,7 @@ import yaml
 import pandas as pd
 import numpy as np
 from optimize_loop_paper import main_optimize
-from experiments.sensitivity_compute import (
+from sensitivity_compute import (
     FetalSensitivityEvaluator,
     FetalSensitivityNoInterferenceEvaluator,
     CorrelationEvaluator,

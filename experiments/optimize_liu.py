@@ -74,6 +74,10 @@ class LiuOptimizer(OptimizationExperiment):
         :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
         :param normalize_window: Whether to normalize output window to unit energy.
         """
+        if isinstance(measurand, str):
+            tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
+            bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
+            measurand = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
         super().__init__(tof_dataset_path, measurand)
 
         self.dtof_to_find_max_on = dtof_to_find_max_on

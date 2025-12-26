@@ -33,6 +33,13 @@ class DummyOptimizationExperiment(OptimizationExperiment):
     """
     Always returns a unit window for testing purposes.
     """
+    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess | str):
+        if isinstance(measurand, str):
+            tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
+            bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
+            measurand = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
+        super().__init__(tof_dataset_path, measurand)
+    
     def optimize(self) -> None:
         self.window = torch.ones(1, self.tof_series.shape[1], dtype=torch.float32)
         self.window /= torch.norm(self.window, p=2)

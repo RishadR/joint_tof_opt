@@ -7,40 +7,48 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import numpy as np
-from joint_tof_opt.compact_stat_process import NthOrderMoment, NthOrderCenteredMoment, WindowedSum
-from joint_tof_opt.noise_calc import compute_noise_m1, compute_noise_variance, compute_noise_window_sum
-from joint_tof_opt.compact_stat_process import CompactStatProcess
 from typing import Any, Literal
 
 
-# Single source of truth: define moment configurations once
-MOMENT_CONFIGS = {
-    "abs": lambda tof, edges, meta_data: WindowedSum(tof, edges, meta_data=meta_data),
-    "m1": lambda tof, edges, meta_data: NthOrderMoment(tof, edges, order=1, meta_data=meta_data),
-    "V": lambda tof, edges, meta_data: NthOrderCenteredMoment(tof, edges, order=2, meta_data=meta_data),
-}
+class CompactStatProcess(ABC, nn.Module):
+    """
+    Abstract base class for computing compact statistics from TOF data.
 
-named_moment_types = list(MOMENT_CONFIGS.keys())
+    Subclasses should implement the forward method to define how the compact statistic
+    is computed from the TOF histograms and a window function.
 
+    The initializer takes in the TOF series and bin edges, which are used in the computation. Additionally, you can
+    pass in the generate_tof metadata - which should include
+        - time_axis
+        - sd_distance
+        - maternal_hb_series
+        - fetal_hb_series
+        - wavelength
+        - weight_threshold_fraction
+        - fetal_f
+        - maternal_f
+        - sampling_rate
+    """
 
-def get_named_moment_module(
-    moment_type: str,
-    tof_series_tensor: torch.Tensor,
-    bin_edges_tensor: torch.Tensor,
-    meta_data: dict | None = None,
-) -> CompactStatProcess:
-    if moment_type not in MOMENT_CONFIGS:
-        raise ValueError(f"Invalid moment type: {moment_type}")
+    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, meta_data: dict | None = None):
+        super().__init__()
+        self.tof_series = tof_series
+        self.bin_edges = bin_edges
+        self.meta_data = meta_data
+        self.bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
 
-    config = MOMENT_CONFIGS[moment_type]
-    return config(tof_series_tensor, bin_edges_tensor, meta_data)
+    @abstractmethod
+    def forward(self, window: torch.Tensor) -> torch.Tensor:
+        """
+        Compute the compact statistic given a window function.
 
+        :param window: 1D tensor with same length as number of bins.
+        :type window: torch.Tensor
+        :return: 1D tensor of computed compact statistics for each ToF (flattened).
+        :rtype: torch.Tensor
+        """
+        pass
 
-noise_func_table = {
-    "abs": compute_noise_window_sum,
-    "m1": compute_noise_m1,
-    "V": compute_noise_variance,
-}
 
 
 class OptimizationExperiment(ABC):
@@ -66,16 +74,13 @@ class OptimizationExperiment(ABC):
     - window : Torch tensor to store the optimized window. Leave empty if not yet optimized.
     """
 
-    def __init__(self, tof_dataset_path: Path, measurand: str | CompactStatProcess, lr: float = 0.01):
+    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess, lr: float = 0.01):
         self.tof_dataset_path = tof_dataset_path
         self.tof_data = np.load(tof_dataset_path)
         self.tof_series = torch.tensor(self.tof_data["tof_dataset"], dtype=torch.float32)
         self.bin_edges = torch.tensor(self.tof_data["bin_edges"], dtype=torch.float32)
         self.time_axis = self.tof_data["time_axis"]
-        if isinstance(measurand, str):
-            self.moment_module = get_named_moment_module(measurand, self.tof_series, self.bin_edges)
-        else:
-            self.moment_module = measurand
+        self.moment_module = measurand
         self.training_curves = np.array([])
         self.training_curve_labels = []
         self.window = torch.tensor([])
@@ -98,13 +103,13 @@ class OptimizationExperiment(ABC):
 class Evaluator(ABC):
     """
     Base class for evaluating any given window on some partial path data.
-    
+
     Modifiable Attributes:
     -----------------------
     - ppath_file : Path to the partial path file (.json or similar).
     - window : Torch tensor representing the time-gating window.
     - measurand : The measurand to evaluate. Can be a string (named moment) or a custom nn.Module.
-    
+
     Stored Attributes:
     -----------------------
     - final_metric : Float to store the final evaluation metric after calling evaluate().
@@ -120,10 +125,23 @@ class Evaluator(ABC):
         self.window = window
         self.measurand = measurand
         self.final_metric = None
-        
 
     @abstractmethod
     def evaluate(self) -> float:
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+
+class NoiseCalculator(ABC):
+    """
+    Base class for noise calculation modules.
+    """
+
+    @abstractmethod
+    def compute_noise(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, window: torch.Tensor) -> torch.Tensor:
         pass
 
     @abstractmethod

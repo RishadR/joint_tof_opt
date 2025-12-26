@@ -5,46 +5,7 @@ Code to compute compact statistics from time-of-flight (TOF) data for joint opti
 from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
-
-
-class CompactStatProcess(ABC, nn.Module):
-    """
-    Abstract base class for computing compact statistics from TOF data.
-
-    Subclasses should implement the forward method to define how the compact statistic
-    is computed from the TOF histograms and a window function.
-
-    The initializer takes in the TOF series and bin edges, which are used in the computation. Additionally, you can
-    pass in the generate_tof metadata - which should include
-        - time_axis
-        - sd_distance
-        - maternal_hb_series
-        - fetal_hb_series
-        - wavelength
-        - weight_threshold_fraction
-        - fetal_f
-        - maternal_f
-        - sampling_rate
-    """
-
-    def __init__(self, tof_series: torch.Tensor, bin_edges: torch.Tensor, meta_data: dict | None = None):
-        super().__init__()
-        self.tof_series = tof_series
-        self.bin_edges = bin_edges
-        self.meta_data = meta_data
-        self.bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
-
-    @abstractmethod
-    def forward(self, window: torch.Tensor) -> torch.Tensor:
-        """
-        Compute the compact statistic given a window function.
-
-        :param window: 1D tensor with same length as number of bins.
-        :type window: torch.Tensor
-        :return: 1D tensor of computed compact statistics for each ToF (flattened).
-        :rtype: torch.Tensor
-        """
-        pass
+from joint_tof_opt.core import CompactStatProcess
 
 
 class WindowedSum(CompactStatProcess):
@@ -68,7 +29,6 @@ class WindowedSum(CompactStatProcess):
         """
         super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
-
 
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
@@ -110,7 +70,6 @@ class NthOrderMoment(CompactStatProcess):
         super().__init__(tof_series, bin_edges, meta_data)
         self.num_tofs, self.num_bins = tof_series.shape
         self.order = order
-
 
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
@@ -179,3 +138,28 @@ class NthOrderCenteredMoment(CompactStatProcess):
         # Compute n-th centered moment: Σ((t - μ)^n * h(t)) / Σ(h(t))
         centered_moment = (windowed_histograms * centered_times_pow).sum(dim=1) / normalizer.flatten()
         return centered_moment
+
+
+# Gather all moment modules for easy access
+# Single source of truth: define moment configurations once
+# Add new moment types here to make them accessible throughout the package
+MOMENT_CONFIGS = {
+    "abs": lambda tof, edges, meta_data: WindowedSum(tof, edges, meta_data=meta_data),
+    "m1": lambda tof, edges, meta_data: NthOrderMoment(tof, edges, order=1, meta_data=meta_data),
+    "V": lambda tof, edges, meta_data: NthOrderCenteredMoment(tof, edges, order=2, meta_data=meta_data),
+}
+
+named_moment_types = list(MOMENT_CONFIGS.keys())
+
+
+def get_named_moment_module(
+    moment_type: str,
+    tof_series_tensor: torch.Tensor,
+    bin_edges_tensor: torch.Tensor,
+    meta_data: dict | None = None,
+) -> CompactStatProcess:
+    if moment_type not in MOMENT_CONFIGS:
+        raise ValueError(f"Invalid moment type: {moment_type}")
+
+    config = MOMENT_CONFIGS[moment_type]
+    return config(tof_series_tensor, bin_edges_tensor, meta_data)
