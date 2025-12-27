@@ -19,16 +19,16 @@ class FilteredWindowSumNoiseCalculator(NoiseCalculator):
     """
     OOP wrapper for computing analytical noise for the windowed sum compact statistic with a filter applied at the
     very end.
-    
+
     Note: Typically assumes the input to the filter module as a 3D tensor with shape (1, 1, signal_length).
     """
 
-    def __init__(self,filter_module: nn.Module):
+    def __init__(self, filter_module: nn.Module):
         """
         Initialize the noise calculator.
-        
+
         :param filter_module: PyTorch module that applies the desired filter to the signal.
-        :type filter_module: nn.Module    
+        :type filter_module: nn.Module
         """
         self.filter_module = filter_module
 
@@ -37,27 +37,28 @@ class FilteredWindowSumNoiseCalculator(NoiseCalculator):
         weighted_tof = tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
         # The absolute value ensures that noise contributions are non-negative
         noise = weighted_tof.sum(dim=1)  # Shape: (num_timepoints,)
-        noise_reshaped = noise.reshape(1, 1, -1) # Reshape to (1, 1, signal_length) for filtering
+        noise_reshaped = noise.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
         filtered_noise = self.filter_module(noise_reshaped)
         return filtered_noise.flatten()
 
     def __str__(self) -> str:
         return "FilteredWindowSumNoiseCalculator"
 
+
 class FilteredFirstMomentNoiseCalculator(NoiseCalculator):
     """
     OOP wrapper for computing analytical noise for the first order non-centered moment compact statistic with a filter
     applied at the very end.
-    
+
     Note: Typically assumes the input to the filter module as a 3D tensor with shape (1, 1, signal_length).
     """
 
-    def __init__(self,filter_module: nn.Module):
+    def __init__(self, filter_module: nn.Module):
         """
         Initialize the noise calculator.
-        
+
         :param filter_module: PyTorch module that applies the desired filter to the signal.
-        :type filter_module: nn.Module    
+        :type filter_module: nn.Module
         """
         self.filter_module = filter_module
 
@@ -68,9 +69,9 @@ class FilteredFirstMomentNoiseCalculator(NoiseCalculator):
         N_calculator = WindowedSum(tof_series, bin_edges)
         N = N_calculator.forward(window)  # Shape: (num_timepoints,)
         assert torch.all(N > 0), "Weighted counts N must be positive to compute noise."
-        variance_reshaped = variance.reshape(1, 1, -1) # Reshape to (1, 1, signal_length) for filtering
+        variance_reshaped = variance.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
         filtered_variance = self.filter_module(variance_reshaped).flatten()
-        N_reshaped = N.reshape(1, 1, -1) # Reshape to (1, 1, signal_length) for filtering
+        N_reshaped = N.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
         filtered_N = self.filter_module(N_reshaped).flatten()
         filtered_noise = filtered_variance / (filtered_N)  # Shape: (num_timepoints,)
         return filtered_noise.flatten()
@@ -83,16 +84,16 @@ class FilteredVarianceNoiseCalculator(NoiseCalculator):
     """
     OOP wrapper for computing analytical noise for the second order centered moment (variance) compact statistic
     with a filter applied at the very end.
-    
+
     Note: Typically assumes the input to the filter module as a 3D tensor with shape (1, 1, signal_length).
     """
 
-    def __init__(self,filter_module: nn.Module):
+    def __init__(self, filter_module: nn.Module):
         """
         Initialize the noise calculator.
-        
+
         :param filter_module: PyTorch module that applies the desired filter to the signal.
-        :type filter_module: nn.Module    
+        :type filter_module: nn.Module
         """
         self.filter_module = filter_module
 
@@ -106,13 +107,37 @@ class FilteredVarianceNoiseCalculator(NoiseCalculator):
         fourth_centered_moment_calculator = NthOrderCenteredMoment(tof_series, bin_edges, order=4)
         fourth_centered_moment = fourth_centered_moment_calculator.forward(window)  # Shape: (num_timepoints,)
         assert torch.all(N > 0), "Weighted counts N must be positive to compute noise."
-        
-        variance_reshaped = variance.reshape(1, 1, -1) # Reshape to (1, 1, signal_length) for filtering
+
+        variance_reshaped = variance.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
         filtered_variance = self.filter_module(variance_reshaped).flatten()
-        N_reshaped = N.reshape(1, 1, -1) # Reshape to (1, 1, signal_length) for filtering
+        N_reshaped = N.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
         filtered_N = self.filter_module(N_reshaped).flatten()
-        fourth_centered_moment_reshaped = fourth_centered_moment.reshape(1, 1, -1) # Reshape to (1, 1, signal_length) for filtering
+        fourth_centered_moment_reshaped = fourth_centered_moment.reshape(1, 1, -1)
+        # Reshape to (1, 1, signal_length) for filtering
         filtered_fourth_centered_moment = self.filter_module(fourth_centered_moment_reshaped).flatten()
-        
-        filtered_noise = (filtered_fourth_centered_moment - (filtered_variance**2)) / (filtered_N)  # Shape: (num_timepoints,)
+
+        filtered_noise = (filtered_fourth_centered_moment - (filtered_variance**2)) / (
+            filtered_N
+        )  # Shape: (num_timepoints,)
         return filtered_noise.flatten()
+
+    def __str__(self) -> str:
+        return "FilteredVarianceNoiseCalculator"
+
+
+def get_filtered_noise_calculator(moment_type: str, filter_module: nn.Module) -> NoiseCalculator:
+    """
+    Factory function to get the appropriate filtered noise calculator based on the moment type.
+
+    :param moment_type: The type of moment for which to compute noise ('abs', 'm1', 'V').
+    :param filter_module: PyTorch module that applies the desired filter to the signal.
+    :return: An instance of a NoiseCalculator subclass.
+    """
+    if moment_type == "abs":
+        return FilteredWindowSumNoiseCalculator(filter_module)
+    elif moment_type == "m1":
+        return FilteredFirstMomentNoiseCalculator(filter_module)
+    elif moment_type == "V":
+        return FilteredVarianceNoiseCalculator(filter_module)
+    else:
+        raise ValueError(f"Unsupported moment type: {moment_type}")
