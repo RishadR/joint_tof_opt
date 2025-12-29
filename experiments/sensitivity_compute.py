@@ -1,24 +1,13 @@
 """
-Code to compute the sensitivity of some measurand w.r.t. some window
+Computing Different Evaluation Metrics for Sensitivity Analysis.
 
-Sensitivity is defined as the change in measurand per unit change in mu_a (in dL/M)
-You can compare sensitivities across different windows to see which window gives better
-
-For our case, the measurand is a mix between fetal and maternal hemoglobin changes - so sensitivities are computed
-via a bandpass comb filter and an energy ratio metric. Which is further square rooted to get sensitivity in terms
-of amplitude.
-
-Process flow:
-1. Read the ToF dataset from the given path
-2. Use the given window to compute the measurand time series
-3. Get the fetal_hb_series and maternal_hb_series from the dataset
-4. Extract the fetal and maternal componets of the measurand using comb filters @FHR and MHR
-5. Remove the DC from fetal_hb_series and maternal_hb_series
-6. Compute Fetal Sensitivity as sqrt(energy ratio between measurand fetal component and fetal_hb_series)
-7. Compute Maternal Sensitivity as sqrt(energy ratio between measurand maternal component and maternal_hb_series)
-8. Return the two sensitivities
+- All modules here inherit from the Evaluator base class and implement the evaluate() method to compute
+- Modules are lazy-evaluated; computation happens only when evaluate() is called.
+- Modules can either recompute DTOF from partial path data (if measurand is a string) or
+use internal data (if measurand is a custom module) - in which case the DTOF computations must be done beforehand
 """
 
+from math import sqrt
 from typing import Callable, Literal
 import torch
 import yaml
@@ -35,11 +24,20 @@ from joint_tof_opt import (
     Evaluator,
     CompactStatProcess,
     noise_func_table,
-    generate_tof
+    generate_tof,
+    NoiseCalculator,
+    get_noise_calculator,
 )
+from joint_tof_opt.noise_calc_filtered import get_filtered_noise_calculator
 
 
-class FetalSensitivityNoInterferenceEvaluator(Evaluator):
+def _metadata_check(moment_module: CompactStatProcess, required_fields: list[str]) -> None:
+    assert moment_module.meta_data is not None, "Meta data must be provided in the measurand module"
+    for field in required_fields:
+        assert field in moment_module.meta_data, f"{field} must be in the meta data!"
+
+
+class PureFetalSensitivityEvaluator(Evaluator):
     """
     Evaluator for computing fetal sensitivity w.r.t. fetal mu_a using partial path data.
 
@@ -74,6 +72,10 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
         """
         super().__init__(ppath_file, window, measurand)
         self.delta_percnt = delta_percnt
+        self.measurand_str = ""
+        if isinstance(measurand, str):
+            assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
+            self.measurand_str = measurand
 
     def __str__(self) -> str:
         return "Computes Fetal Sensitivity as delta measurand / delta mu_a_fetal assuming no maternal interference"
@@ -89,21 +91,15 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
         with open("./experiments/tof_config.yaml", "r") as f:
             config = yaml.safe_load(f)
 
-        light_speeds = [
-            float(speed) for speed in config["light_speeds"]
-        ]  # in m/s for 4 layers
+        light_speeds = [float(speed) for speed in config["light_speeds"]]  # in m/s for 4 layers
 
         # Load partial path data
         ppath_dataset = np.load(self.ppath_file)
         ppath = ppath_dataset["ppath"]  # Shape: (num_photons, num_layers + 1)
         bin_count = config["bin_count"]
-        assert bin_count == len(
-            self.window
-        ), "Window length must match bin count in tof_config.yaml"
+        assert bin_count == len(self.window), "Window length must match bin count in tof_config.yaml"
         fraction = config["weight_threshold_fraction"]
-        filtered_ppath = (ppath[ppath[:, 0] == config["selected_sdd_index"]])[
-            :, 1:
-        ]  # Drop the sdd index column
+        filtered_ppath = (ppath[ppath[:, 0] == config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
 
         # Create base and perturbed tissue models
         base_model = DanModel4LayerX(
@@ -144,9 +140,7 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
             # Compute measurand
             tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            moment_calculator = get_named_moment_module(
-                self.measurand, tof_series_tensor, bin_edges_tensor
-            )
+            moment_calculator = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
         else:
             moment_calculator = self.measurand
 
@@ -154,9 +148,7 @@ class FetalSensitivityNoInterferenceEvaluator(Evaluator):
         measurand_values = measurand_values.detach().cpu().numpy()
 
         # Compute sensitivity
-        delta_mu_a_fetal = (
-            perturbed_model.prop[-1][0] - base_model.prop[-1][0]
-        )  # Change in fetal mu_a in mm-1
+        delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
         delta_measurand = measurand_values[1] - measurand_values[0]
         self.final_metric = delta_measurand / delta_mu_a_fetal
 
@@ -178,6 +170,10 @@ class FetalSensitivityEvaluator(Evaluator):
         self.fetal_comb_filter = None
         self.maternal_comb_filter = None
         self.moment_module = None
+        self.measurand_str = ""
+        if isinstance(measurand, str):
+            assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
+            self.measurand_str = measurand
 
     def __str__(self) -> str:
         return "Computes Fetal and Maternal Sensitivities as delta filtered measurand / delta hb concentration"
@@ -192,33 +188,24 @@ class FetalSensitivityEvaluator(Evaluator):
             bin_edges = tof_dataset["bin_edges"]
             tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(
-                self.measurand, tof_series_tensor, bin_edges_tensor
-            )
+            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
             sampling_rate = gen_config["sampling_rate"]
             maternal_f = gen_config["maternal_f"]
             fetal_f = gen_config["fetal_f"]
             maternal_hb_series = tof_dataset["maternal_hb_series"]
             fetal_hb_series = tof_dataset["fetal_hb_series"]
         else:
-            assert (
-                self.measurand.meta_data is not None
-            ), "Meta data must be provided in the measurand module"
-            assert (
-                self.measurand.meta_data["sampling_rate"] is not None
-            ), "Sampling rate must be in the meta data"
-            assert (
-                self.measurand.meta_data["maternal_f"] is not None
-            ), "Maternal f must be in the meta data"
-            assert (
-                self.measurand.meta_data["fetal_f"] is not None
-            ), "Fetal f must be in the meta data"
-            assert (
-                self.measurand.meta_data["maternal_hb_series"] is not None
-            ), "Maternal hb series must be present"
-            assert (
-                self.measurand.meta_data["fetal_hb_series"] is not None
-            ), "Fetal hb series must be present"
+            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
+            _metadata_check(
+                self.measurand,
+                [
+                    "sampling_rate",
+                    "maternal_f",
+                    "fetal_f",
+                    "maternal_hb_series",
+                    "fetal_hb_series",
+                ],
+            )
             self.moment_module = self.measurand
             tof_data = self.measurand.tof_series
             sampling_rate = self.measurand.meta_data["sampling_rate"]
@@ -229,9 +216,7 @@ class FetalSensitivityEvaluator(Evaluator):
 
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
-        compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(
-            0
-        )  # Shape: (1, 1, num_timepoints)
+        compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, num_timepoints)
 
         # Initialize comb filters
         filter_len = tof_data.shape[1] // 2 + 1
@@ -257,16 +242,12 @@ class FetalSensitivityEvaluator(Evaluator):
         # Remove DC component
         maternal_hb_series = maternal_hb_series - np.mean(maternal_hb_series)
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
-        maternal_hb_series_tensor = torch.tensor(
-            maternal_hb_series, dtype=torch.float32
-        )
+        maternal_hb_series_tensor = torch.tensor(maternal_hb_series, dtype=torch.float32)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
 
         # Compute sensitivities
         energy_ratio_metric = EnergyRatioMetric()
-        fetal_sensitivity = torch.sqrt(
-            energy_ratio_metric(fetal_filtered_signal, fetal_hb_series_tensor)
-        ).item()
+        fetal_sensitivity = torch.sqrt(energy_ratio_metric(fetal_filtered_signal, fetal_hb_series_tensor)).item()
         maternal_sensitivity = torch.sqrt(
             energy_ratio_metric(maternal_filtered_signal, maternal_hb_series_tensor)
         ).item()
@@ -308,6 +289,10 @@ class CorrelationEvaluator(Evaluator):
 
         super().__init__(ppath_file, window, measurand)
         self.signal_type = signal_type
+        self.measurand_str = ""
+        if isinstance(measurand, str):
+            assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
+            self.measurand_str = measurand
         self.filter_hw = filter_hw
         self.comb_filter = None
         self.filtered_signal = None
@@ -327,35 +312,19 @@ class CorrelationEvaluator(Evaluator):
             bin_edges = tof_dataset["bin_edges"]
             tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(
-                self.measurand, tof_series_tensor, bin_edges_tensor
-            )
+            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
             fetal_hb_series = tof_dataset["fetal_hb_series"]
         else:
             self.moment_module = self.measurand
-            assert (
-                self.measurand.meta_data is not None
-            ), "Meta data must be provided in the measurand module"
-            assert (
-                self.measurand.meta_data["fetal_hb_series"] is not None
-            ), "Fetal hb series must be in the meta data"
+            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
+            assert self.measurand.meta_data["fetal_hb_series"] is not None, "Fetal hb series must be in the meta data"
             tof_data = self.measurand.tof_series
             fetal_hb_series = self.measurand.meta_data["fetal_hb_series"]
 
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
-        assert (
-            self.moment_module.meta_data is not None
-        ), "Meta data must be provided in the measurand module"
-        assert (
-            self.moment_module.meta_data["fetal_f"] is not None
-        ), "Fetal frequency must be in the meta data"
-        assert (
-            self.moment_module.meta_data["maternal_f"] is not None
-        ), "Maternal frequency must be in the meta data"
-        assert (
-            self.moment_module.meta_data["sampling_rate"] is not None
-        ), "Sampling rate must be in the meta data"
+        assert self.moment_module.meta_data is not None, "Meta data must be provided in the measurand module"
+        _metadata_check(self.moment_module, ["sampling_rate", "fetal_f", "maternal_f"])
         if self.signal_type == "fetal":
             target_f = self.moment_module.meta_data["fetal_f"]
         else:
@@ -368,19 +337,15 @@ class CorrelationEvaluator(Evaluator):
             filter_length=tof_data.shape[1] // 2 + 1,
             phase_preserve=True,
         )
-        self.filtered_signal = self.comb_filter(
-            compact_stats.unsqueeze(0).unsqueeze(0)
-        )  # Shape: (1, 1, num_timepoints)
-        self.filtered_signal = (
-            self.filtered_signal.squeeze()
-        )  # Shape: (num_timepoints,)
+        self.filtered_signal = self.comb_filter(compact_stats.unsqueeze(0).unsqueeze(0))  # Shape:(1, 1, num_timepoints)
+        self.filtered_signal = self.filtered_signal.squeeze()  # Shape: (num_timepoints,)
 
         # Load heartbeat series
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
         fetal_hb_series_tensor = fetal_hb_series_tensor[self.terminal_ignore_points : -self.terminal_ignore_points]
         temp_sig = self.filtered_signal[self.terminal_ignore_points : -self.terminal_ignore_points]
-        
+
         # Compute correlation
         correlation = torch.corrcoef(torch.stack([temp_sig, fetal_hb_series_tensor]))[0, 1].item()
         self.final_metric = correlation
@@ -397,7 +362,7 @@ class CorrelationxSNREvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
-        noise_func: (Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] | None) = None,
+        noise_func: Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
         filter_hw: float = 0.3,
         signal_type: Literal["fetal", "maternal"] = "fetal",
         terminal_ignore_points: int = 5,
@@ -417,12 +382,12 @@ class CorrelationxSNREvaluator(Evaluator):
             terminal_ignore_points,
         )
         if not isinstance(measurand, str):
-            assert (
-                noise_func is not None
-            ), "Noise function must be provided for custom measurand modules"
+            assert noise_func is not None, "Noise function must be provided for custom measurand modules"
             self.noise_func = noise_func
+            self.measurand_str = ""
         else:
             self.noise_func = noise_func_table[measurand]
+            self.measurand_str = measurand
 
     def __str__(self) -> str:
         return "Computes Correlation x SNR between measurand and fetal or maternal hb changes"
@@ -431,9 +396,7 @@ class CorrelationxSNREvaluator(Evaluator):
         correlation = self._correlation_evaluator.evaluate()
         self.moment_module = self._correlation_evaluator.moment_module
         self.comb_filter = self._correlation_evaluator.comb_filter
-        assert (
-            self.moment_module is not None
-        ), "Internal CorrelationEvaluator did not work properly!"
+        assert self.moment_module is not None, "Internal CorrelationEvaluator did not work properly!"
         assert (
             self._correlation_evaluator.filtered_signal is not None
         ), "Internal CorrelationEvaluator did not work properly!"
@@ -444,4 +407,201 @@ class CorrelationxSNREvaluator(Evaluator):
         signal_energy = torch.sum(signal**2).item()
         snr = signal_energy / (torch.sum(noise_var).item() + 1e-40)
         self.final_metric = correlation * snr
+        return self.final_metric
+
+
+class SNREvaluator(Evaluator):
+    """
+    Evaluator for computing SNR of a given measurand with a filter applied using a (custom) noise calculator.
+
+    :param ppath_file: Path to the ppath dataset (.npz file).
+    :param window: The time-gating window to apply.
+    :param measurand: The measurand to compute SNR for ("abs", "m1", "V") or custom module.
+    :param filter_module: PyTorch module that applies the desired filter to the signal.
+    :param noise_calc: (Optional) Custom noise calculator to use. If None, a default filtered noise calculator is
+                    computed based on the measurand type.
+    """
+
+    def __init__(
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str | CompactStatProcess,
+        noise_calc: NoiseCalculator | None = None,
+        filter_module: nn.Module | None = None,
+    ):
+        """
+        Initialize the SNR evaluator.
+
+        :param ppath_file: Path to the ppath dataset (.npz file).
+        :param window: The time-gating window to apply.
+        :param measurand: The measurand to compute SNR for ("abs", "m1", "V") or custom module.
+        :param filter_module: PyTorch module that applies the desired filter to the signal.
+        """
+        super().__init__(ppath_file, window, measurand)
+        self.filter_module = filter_module
+        self.measurand_str = ""
+        if isinstance(measurand, str):
+            assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
+            self.measurand_str = measurand
+
+        # Noise Calc logic: If it is provied, use it. Otherwise create one
+        self.noise_calc: NoiseCalculator  # This will never be None
+        if noise_calc is not None:
+            self.noise_calc = noise_calc
+        else:
+            if self.filter_module is not None:
+                self.noise_calc = get_filtered_noise_calculator(self.measurand_str, self.filter_module)
+            else:
+                self.noise_calc = get_noise_calculator(self.measurand_str)
+
+    def __str__(self) -> str:
+        return f"Computes SNR of filtered {self.measurand_str} measurand using {str(self.noise_calc)}"
+
+    def evaluate(self) -> float:
+        # Two Paths: If measurand is string, generate new data via tof_config. Otherwise use internal data
+        if isinstance(self.measurand, str):
+            gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+            tof_temp_path = Path("./data/temp_tof_dataset.npz")
+            generate_tof(self.ppath_file, gen_config, tof_temp_path)
+            tof_dataset = np.load(tof_temp_path)
+            tof_data = torch.tensor(tof_dataset["tof_dataset"], dtype=torch.float32)
+            bin_edges = torch.tensor(tof_dataset["bin_edges"], dtype=torch.float32)
+            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges)
+        else:
+            moment_module = self.measurand
+            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
+            tof_data = self.measurand.tof_series
+            bin_edges = self.measurand.bin_edges
+        # Compute compact statistics
+        compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
+        noise_var = self.noise_calc.compute_noise(tof_data, bin_edges, self.window)  # Shape: (num_timepoints,)
+        noise_var = noise_var.mean().item()
+        assert noise_var > 0, "Computed noise variance must be greater than zero!"
+        if self.filter_module is not None:
+            compact_stats_reshaped = compact_stats.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
+            compact_stats = self.filter_module(compact_stats_reshaped).flatten()
+        signal_energy = torch.sum(compact_stats**2).item()
+        snr = signal_energy / noise_var
+        self.final_metric = snr
+        return self.final_metric
+
+
+class FetalSNREvaluator(SNREvaluator):
+    """
+    Specialized SNREvaluator class for computing Fetal SNR with a given filter with filter_hw(in Hz)
+
+    Note: This computes noise using FilteredNoiseCalculators internally.
+    """
+
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
+    ):
+        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        sampling_rate = gen_config["sampling_rate"]
+        fetal_f = gen_config["fetal_f"]
+        datapoint_count = gen_config["datapoint_count"]
+        filter_len = datapoint_count // 2 + 1
+        fetal_comb_filter = CombSeparator(
+            fs=sampling_rate,
+            f0=fetal_f,
+            f1=2 * fetal_f,
+            half_width=filter_hw,
+            filter_length=filter_len,
+        )
+        super().__init__(ppath_file, window, measurand, filter_module=fetal_comb_filter)
+
+
+class PureFetalSNREvaluator(SNREvaluator):
+    """
+    Specialized version of SNREvaluator that assumes no maternal pulsations are present and thus no filtering is needed.
+    The entire signal is Fetal Signal. Ignores internal measurand data.
+    """
+
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess):
+        super().__init__(ppath_file, window, measurand, filter_module=None)
+
+    def str(self) -> str:
+        return "Computes Pure Fetal SNR when there is no maternal interference"
+
+    def evaluate(self) -> float:
+        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        temp_tof_path = Path("./data/temp_tof_dataset.npz")
+        generate_tof(self.ppath_file, gen_config, temp_tof_path, pulse_maternal=False, pulse_fetal=True)
+        tof_dataset = np.load(temp_tof_path)
+        tof_data = torch.tensor(tof_dataset["tof_dataset"], dtype=torch.float32)
+        bin_edges = torch.tensor(tof_dataset["bin_edges"], dtype=torch.float32)
+        if isinstance(self.measurand, str):
+            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges)
+        else:
+            moment_module = self.measurand
+        # Compute compact statistics
+        compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
+        noise_var = self.noise_calc.compute_noise(tof_data, bin_edges, self.window)  # Shape: (num_timepoints,)
+        noise_var = noise_var.mean().item()
+        assert noise_var > 0, "Computed noise variance must be greater than zero!"
+        signal_energy = torch.sum(compact_stats**2).item()
+        snr = signal_energy / noise_var
+        self.final_metric = snr
+        return self.final_metric
+
+
+class NormalizedFetalSNREvaluator(Evaluator):
+    """
+    Normalized Version of FetalSNREvaluator where the computed SNR is always between 0 and 1.
+
+    This is done via computing the Best SNR
+    """
+
+    def _init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
+    ):
+        super().__init__(ppath_file, window, measurand)
+        self.fetal_snr_evaluator = FetalSNREvaluator(ppath_file, window, measurand, filter_hw)
+        unit_window = torch.ones_like(window)
+        unit_window /= unit_window.norm(p=2)
+        self.best_snr_evaluator = PureFetalSNREvaluator(ppath_file, unit_window, measurand)
+        worst_window = torch.zeros_like(window)  # Take the last two points to avoid weird noise issues
+        worst_window[-2:] = 1 / sqrt(2)
+        self.worst_snr_evaluator = PureFetalSNREvaluator(ppath_file, worst_window, measurand)
+
+    def __str__(self) -> str:
+        return "Computes Normalized Fetal SNR between 0 and 1"
+
+    def evaluate(self) -> float:
+        actual_snr = self.fetal_snr_evaluator.evaluate()
+        best_snr = self.best_snr_evaluator.evaluate()
+        worst_snr = self.worst_snr_evaluator.evaluate()
+        normalized_snr = (actual_snr - worst_snr) / (best_snr - worst_snr)
+        self.final_metric = normalized_snr
+        return self.final_metric
+
+class NormalizedFetalSensitivityEvaluator(Evaluator):
+    """
+    Normalized Version of FetalSensitivityEvaluator where the computed Sensitivity is always between 0 and 1.
+
+    This is done via computing the Best Sensitivity
+    """
+
+    def _init_(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
+    ):
+        super().__init__(ppath_file, window, measurand)
+        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
+        unit_window = torch.ones_like(window)
+        unit_window /= unit_window.norm(p=2)
+        self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand)
+        worst_window = torch.zeros_like(window)  # Take the last two points to avoid weird noise issues
+        worst_window[-2:] = 1 / sqrt(2)
+        self.worst_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, worst_window, measurand)
+
+    def __str__(self) -> str:
+        return "Computes Normalized Fetal Sensitivity between 0 and 1"
+
+    def evaluate(self) -> float:
+        actual_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
+        best_sensitivity = self.best_sensitivity_evaluator.evaluate()
+        worst_sensitivity = self.worst_sensitivity_evaluator.evaluate()
+        normalized_sensitivity = (actual_sensitivity - worst_sensitivity) / (best_sensitivity - worst_sensitivity)
+        self.final_metric = normalized_sensitivity
         return self.final_metric

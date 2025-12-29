@@ -12,7 +12,7 @@ import numpy as np
 from optimize_loop_paper import main_optimize
 from sensitivity_compute import (
     FetalSensitivityEvaluator,
-    FetalSensitivityNoInterferenceEvaluator,
+    PureFetalSensitivityEvaluator,
     CorrelationEvaluator,
     CorrelationxSNREvaluator,
 )
