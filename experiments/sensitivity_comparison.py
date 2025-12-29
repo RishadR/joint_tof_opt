@@ -141,13 +141,10 @@ def main(
 
 
 if __name__ == "__main__":
-    # eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
-    # eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas, 0.3, 'fetal', 8)
-    # eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise, 0.3, 'fetal', 8)
     eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
     exp_results = main(eval_func, optimizer_funcs_to_test)

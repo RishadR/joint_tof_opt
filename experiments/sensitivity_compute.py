@@ -226,7 +226,6 @@ class FetalSensitivityEvaluator(Evaluator):
             f1=2 * fetal_f,
             half_width=self.filter_hw,
             filter_length=filter_len,
-            phase_preserve=True,
         )
         self.maternal_comb_filter = CombSeparator(
             fs=sampling_rate,
@@ -234,7 +233,6 @@ class FetalSensitivityEvaluator(Evaluator):
             f1=2 * maternal_f,
             half_width=self.filter_hw,
             filter_length=filter_len,
-            phase_preserve=True,
         )
         fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
         maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
@@ -337,7 +335,6 @@ class CorrelationEvaluator(Evaluator):
             f1=2 * target_f,
             half_width=self.filter_hw,
             filter_length=tof_data.shape[1] // 2 + 1,
-            phase_preserve=True,
         )
         self.filtered_signal = self.comb_filter(compact_stats.unsqueeze(0).unsqueeze(0))  # Shape:(1, 1, num_timepoints)
         self.filtered_signal = self.filtered_signal.squeeze()  # Shape: (num_timepoints,)
@@ -510,7 +507,6 @@ class FetalSNREvaluator(SNREvaluator):
             f1=2 * fetal_f,
             half_width=filter_hw,
             filter_length=filter_len,
-            phase_preserve=True,
         )
         super().__init__(ppath_file, window, measurand, filter_module=fetal_comb_filter)
 
