@@ -42,7 +42,7 @@ class DummyOptimizationExperiment(OptimizationExperiment):
         super().__init__(tof_dataset_path, measurand)
     
     def optimize(self) -> None:
-        self.window = torch.ones(1, self.tof_series.shape[1], dtype=torch.float32)
+        self.window = torch.ones(self.tof_series.shape[1], dtype=torch.float32)
         self.window /= torch.norm(self.window, p=2)
         self.final_signal = self.moment_module(self.window) 
         self.training_curves = []
@@ -61,7 +61,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, Callable], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, Callable], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
 ) -> list[dict[str, Any]]:
     """
@@ -114,7 +114,7 @@ def main(
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand_module, noise_func_table[measurand])
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, noise_func_table[measurand])
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -145,10 +145,10 @@ if __name__ == "__main__":
     # eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas, 0.3, 'fetal', 8)
     # eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise, 0.3, 'fetal', 8)
     eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
-    optimizer_funcs_to_test = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand),
+    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
+        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
+        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
     exp_results = main(eval_func, optimizer_funcs_to_test)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}

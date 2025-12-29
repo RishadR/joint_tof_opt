@@ -13,7 +13,6 @@ import torch
 # Type alias for backward compatibility
 NoiseFunc = Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]
 
-
 class WindowSumNoiseCalculator(NoiseCalculator):
     """
     OOP wrapper for computing analytical noise for the windowed sum compact statistic.

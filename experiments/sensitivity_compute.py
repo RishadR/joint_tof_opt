@@ -226,6 +226,7 @@ class FetalSensitivityEvaluator(Evaluator):
             f1=2 * fetal_f,
             half_width=self.filter_hw,
             filter_length=filter_len,
+            phase_preserve=True,
         )
         self.maternal_comb_filter = CombSeparator(
             fs=sampling_rate,
@@ -233,6 +234,7 @@ class FetalSensitivityEvaluator(Evaluator):
             f1=2 * maternal_f,
             half_width=self.filter_hw,
             filter_length=filter_len,
+            phase_preserve=True,
         )
         fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
         maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
@@ -495,7 +497,7 @@ class FetalSNREvaluator(SNREvaluator):
     """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3
     ):
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         sampling_rate = gen_config["sampling_rate"]
@@ -508,6 +510,7 @@ class FetalSNREvaluator(SNREvaluator):
             f1=2 * fetal_f,
             half_width=filter_hw,
             filter_length=filter_len,
+            phase_preserve=True,
         )
         super().__init__(ppath_file, window, measurand, filter_module=fetal_comb_filter)
 
@@ -518,7 +521,7 @@ class PureFetalSNREvaluator(SNREvaluator):
     The entire signal is Fetal Signal. Ignores internal measurand data.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str):
         super().__init__(ppath_file, window, measurand, filter_module=None)
 
     def str(self) -> str:
@@ -553,17 +556,12 @@ class NormalizedFetalSNREvaluator(Evaluator):
     This is done via computing the Best SNR
     """
 
-    def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
-    ):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
         super().__init__(ppath_file, window, measurand)
         self.fetal_snr_evaluator = FetalSNREvaluator(ppath_file, window, measurand, filter_hw)
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
         self.best_snr_evaluator = PureFetalSNREvaluator(ppath_file, unit_window, measurand)
-        worst_window = torch.zeros_like(window)  # Take the last two points to avoid weird noise issues
-        worst_window[-2:] = 1 / sqrt(2)
-        self.worst_snr_evaluator = PureFetalSNREvaluator(ppath_file, worst_window, measurand)
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal SNR between 0 and 1"
@@ -571,8 +569,7 @@ class NormalizedFetalSNREvaluator(Evaluator):
     def evaluate(self) -> float:
         actual_snr = self.fetal_snr_evaluator.evaluate()
         best_snr = self.best_snr_evaluator.evaluate()
-        worst_snr = self.worst_snr_evaluator.evaluate()
-        normalized_snr = (actual_snr - worst_snr) / (best_snr - worst_snr)
+        normalized_snr = actual_snr / best_snr
         self.final_metric = normalized_snr
         return self.final_metric
 
@@ -591,9 +588,6 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
         self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand)
-        worst_window = torch.zeros_like(window)  # Take the last two points to avoid weird noise issues
-        worst_window[-2:] = 1 / sqrt(2)
-        self.worst_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, worst_window, measurand)
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal Sensitivity between 0 and 1"
@@ -601,7 +595,6 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
     def evaluate(self) -> float:
         actual_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
         best_sensitivity = self.best_sensitivity_evaluator.evaluate()
-        worst_sensitivity = self.worst_sensitivity_evaluator.evaluate()
-        normalized_sensitivity = (actual_sensitivity - worst_sensitivity) / (best_sensitivity - worst_sensitivity)
+        normalized_sensitivity = actual_sensitivity / best_sensitivity
         self.final_metric = normalized_sensitivity
         return self.final_metric
