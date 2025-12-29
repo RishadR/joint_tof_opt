@@ -15,9 +15,10 @@ from sensitivity_compute import (
     PureFetalSensitivityEvaluator,
     CorrelationEvaluator,
     CorrelationxSNREvaluator,
+    NormalizedFetalSensitivityEvaluator, 
+    NormalizedFetalSNREvaluator
 )
 from joint_tof_opt import (
-    named_moment_types,
     OptimizationExperiment,
     Evaluator,
     get_named_moment_module,
@@ -80,7 +81,7 @@ def main(
 
     # Initialize results table and windows storage
     results = []
-    for measurand in ["V"]:
+    for measurand in ["abs"]:
         # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
@@ -142,7 +143,8 @@ def main(
 if __name__ == "__main__":
     # eval_func = lambda ppath, win, meas, noise: FetalSensitivityEvaluator(ppath, win, meas, 0.3, "fetal")
     # eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas, 0.3, 'fetal', 8)
-    eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise, 0.3, 'fetal', 8)
+    # eval_func = lambda ppath, win, meas, noise: CorrelationxSNREvaluator(ppath, win, meas, noise, 0.3, 'fetal', 8)
+    eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
     optimizer_funcs_to_test = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),

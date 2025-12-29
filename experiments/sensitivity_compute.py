@@ -553,7 +553,7 @@ class NormalizedFetalSNREvaluator(Evaluator):
     This is done via computing the Best SNR
     """
 
-    def _init__(
+    def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
     ):
         super().__init__(ppath_file, window, measurand)
@@ -583,7 +583,7 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
     This is done via computing the Best Sensitivity
     """
 
-    def _init_(
+    def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
     ):
         super().__init__(ppath_file, window, measurand)
