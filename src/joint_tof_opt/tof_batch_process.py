@@ -11,7 +11,11 @@ import os
 
 
 def generate_tof(
-    ppath_dataset_filename: Path, gen_config: dict, save_path: Path
+    ppath_dataset_filename: Path,
+    gen_config: dict,
+    save_path: Path,
+    pulse_maternal: bool = True,
+    pulse_fetal: bool = True,
 ) -> None:
     """
     Generate a DToF dataset based on the provided path length dataset and save it.
@@ -32,6 +36,10 @@ def generate_tof(
     information - tof_dataset, bin_edges, time_axis, sd_distance, maternal_hb_series, fetal_hb_series, wavelength,
         weight_threshold_fraction, fetal_f, maternal_f, and sampling_rate.
     :type save_path: Path
+    :param pulse_maternal: Whether to pulse maternal hemoglobin concentration. Default is True.
+    :type pulse_maternal: bool
+    :param pulse_fetal: Whether to pulse fetal hemoglobin concentration. Default is True.
+    :type pulse_fetal: bool
     :return: None
     :rtype: None
     """
@@ -49,23 +57,27 @@ def generate_tof(
     fetal_saturation = gen_config["fetal_saturation"]
     epi_thickness_mm = gen_config["epi_thickness_mm"]
     derm_thickness_mm = gen_config["derm_thickness_mm"]
-    light_speeds = [
-        float(speed) for speed in gen_config["light_speeds"]
-    ]  # in m/s for 4 layers
+    light_speeds = [float(speed) for speed in gen_config["light_speeds"]]  # in m/s for 4 layers
     ## Generate the time serieses
     # Assume a sampling rate of 10 Hz - Nyquist frequency 5 Hz
     time_axis = np.linspace(0, end_sec, datapoint_count)
     sampling_rate = 1 / (time_axis[1] - time_axis[0])
-    maternal_hb_series = (
-        maternal_hb_base
-        + 0.375 * np.sin(2 * np.pi * maternal_f * time_axis)
-        + 0.25 * np.sin(2 * np.pi * 2 * maternal_f * time_axis)
-    )
-    fetal_hb_series = (
-        fetal_hb_base
-        + 0.375 * np.sin(2 * np.pi * fetal_f * time_axis)
-        + 0.25 * np.sin(2 * np.pi * 2 * fetal_f * time_axis)
-    )
+    if pulse_maternal:
+        maternal_hb_series = (
+            maternal_hb_base
+            + 0.375 * np.sin(2 * np.pi * maternal_f * time_axis)
+            + 0.25 * np.sin(2 * np.pi * 2 * maternal_f * time_axis)
+        )
+    else:
+        maternal_hb_series = maternal_hb_base * np.ones_like(time_axis)
+    if pulse_fetal:
+        fetal_hb_series = (
+            fetal_hb_base
+            + 0.375 * np.sin(2 * np.pi * fetal_f * time_axis)
+            + 0.25 * np.sin(2 * np.pi * 2 * fetal_f * time_axis)
+        )
+    else:
+        fetal_hb_series = fetal_hb_base * np.ones_like(time_axis)
 
     ## Load the ppath data
     ppath_dataset = np.load(ppath_dataset_filename)
