@@ -10,14 +10,7 @@ import yaml
 import pandas as pd
 import numpy as np
 from optimize_loop_paper import main_optimize
-from sensitivity_compute import (
-    FetalSensitivityEvaluator,
-    PureFetalSensitivityEvaluator,
-    CorrelationEvaluator,
-    CorrelationxSNREvaluator,
-    NormalizedFetalSensitivityEvaluator, 
-    NormalizedFetalSNREvaluator
-)
+from sensitivity_compute import *
 from joint_tof_opt import (
     OptimizationExperiment,
     Evaluator,
@@ -81,7 +74,7 @@ def main(
 
     # Initialize results table and windows storage
     results = []
-    for measurand in ["abs"]:
+    for measurand in ["V"]:
         # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
@@ -106,7 +99,7 @@ def main(
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
 
             # Run Optimizers
-            measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
+            # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
                 optimizer_experiment.lr = lr
@@ -141,12 +134,17 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise: NormalizedFetalSensitivityEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise: NormalizedPureFetalSensitivityEvaluator(ppath, win, meas)
+    eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas)
+    
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
+
     exp_results = main(eval_func, optimizer_funcs_to_test)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore

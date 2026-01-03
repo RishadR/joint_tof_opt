@@ -30,6 +30,18 @@ from joint_tof_opt import (
 )
 from joint_tof_opt.noise_calc_filtered import get_filtered_noise_calculator
 
+__all__ = [
+    "PureFetalSensitivityEvaluator",
+    "NormalizedPureFetalSensitivityEvaluator",
+    "FetalSensitivityEvaluator",
+    "CorrelationEvaluator",
+    "CorrelationxSNREvaluator",
+    "SNREvaluator",
+    "NormalizedFetalSNREvaluator",
+    "ProductEvaluator",
+    "NormalizedFetalSensitivityEvaluator",
+]
+
 
 def _metadata_check(moment_module: CompactStatProcess, required_fields: list[str]) -> None:
     assert moment_module.meta_data is not None, "Meta data must be provided in the measurand module"
@@ -60,7 +72,7 @@ class PureFetalSensitivityEvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
-        delta_percnt: float = 2.5,
+        delta_percnt: float = 5.0,
     ):
         """
         Initialize the FetalSensitivityEvaluator.
@@ -150,7 +162,7 @@ class PureFetalSensitivityEvaluator(Evaluator):
         # Compute sensitivity
         delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
         delta_measurand = measurand_values[1] - measurand_values[0]
-        self.final_metric = delta_measurand / delta_mu_a_fetal
+        self.final_metric = -delta_measurand / delta_mu_a_fetal
 
         return self.final_metric
 
@@ -184,11 +196,12 @@ class FetalSensitivityEvaluator(Evaluator):
             tof_temp_path = Path("./data/temp_tof_dataset.npz")
             generate_tof(self.ppath_file, gen_config, tof_temp_path)
             tof_dataset = np.load(tof_temp_path)
+            meta_data = dict(tof_dataset)
             tof_data = tof_dataset["tof_dataset"]
             bin_edges = tof_dataset["bin_edges"]
             tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
+            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             sampling_rate = gen_config["sampling_rate"]
             maternal_f = gen_config["maternal_f"]
             fetal_f = gen_config["fetal_f"]
@@ -226,6 +239,7 @@ class FetalSensitivityEvaluator(Evaluator):
             f1=2 * fetal_f,
             half_width=self.filter_hw,
             filter_length=filter_len,
+            phase_preserve=True,
         )
         self.maternal_comb_filter = CombSeparator(
             fs=sampling_rate,
@@ -233,9 +247,12 @@ class FetalSensitivityEvaluator(Evaluator):
             f1=2 * maternal_f,
             half_width=self.filter_hw,
             filter_length=filter_len,
+            phase_preserve=True,
         )
         fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
+        fetal_filtered_signal -= fetal_filtered_signal.mean()
         maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
+        maternal_filtered_signal -= maternal_filtered_signal.mean()
 
         # Load heartbeat series
 
@@ -308,11 +325,12 @@ class CorrelationEvaluator(Evaluator):
             tof_temp_path = Path("./data/temp_tof_dataset.npz")
             generate_tof(self.ppath_file, gen_config, tof_temp_path)
             tof_dataset = np.load(tof_temp_path)
+            meta_data = dict(tof_dataset)
             tof_data = tof_dataset["tof_dataset"]
             bin_edges = tof_dataset["bin_edges"]
             tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
+            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             fetal_hb_series = tof_dataset["fetal_hb_series"]
         else:
             self.moment_module = self.measurand
@@ -464,9 +482,10 @@ class SNREvaluator(Evaluator):
             tof_temp_path = Path("./data/temp_tof_dataset.npz")
             generate_tof(self.ppath_file, gen_config, tof_temp_path)
             tof_dataset = np.load(tof_temp_path)
+            meta_data = dict(tof_dataset)
             tof_data = torch.tensor(tof_dataset["tof_dataset"], dtype=torch.float32)
             bin_edges = torch.tensor(tof_dataset["bin_edges"], dtype=torch.float32)
-            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges)
+            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges, meta_data)
         else:
             moment_module = self.measurand
             assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
@@ -493,9 +512,7 @@ class FetalSNREvaluator(SNREvaluator):
     Note: This computes noise using FilteredNoiseCalculators internally.
     """
 
-    def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3
-    ):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         sampling_rate = gen_config["sampling_rate"]
         fetal_f = gen_config["fetal_f"]
@@ -528,10 +545,11 @@ class PureFetalSNREvaluator(SNREvaluator):
         temp_tof_path = Path("./data/temp_tof_dataset.npz")
         generate_tof(self.ppath_file, gen_config, temp_tof_path, pulse_maternal=False, pulse_fetal=True)
         tof_dataset = np.load(temp_tof_path)
+        meta_data = dict(tof_dataset)
         tof_data = torch.tensor(tof_dataset["tof_dataset"], dtype=torch.float32)
         bin_edges = torch.tensor(tof_dataset["bin_edges"], dtype=torch.float32)
         if isinstance(self.measurand, str):
-            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges)
+            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges, meta_data)
         else:
             moment_module = self.measurand
         # Compute compact statistics
@@ -569,6 +587,7 @@ class NormalizedFetalSNREvaluator(Evaluator):
         self.final_metric = normalized_snr
         return self.final_metric
 
+
 class NormalizedFetalSensitivityEvaluator(Evaluator):
     """
     Normalized Version of FetalSensitivityEvaluator where the computed Sensitivity is always between 0 and 1.
@@ -593,4 +612,89 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
         best_sensitivity = self.best_sensitivity_evaluator.evaluate()
         normalized_sensitivity = actual_sensitivity / best_sensitivity
         self.final_metric = normalized_sensitivity
+        return self.final_metric
+
+
+class NormalizedPureFetalSensitivityEvaluator(Evaluator):
+    """
+    Normalized Version of FetalSensitivityEvaluator where the computed Sensitivity is always between 0 and 1.
+
+    This is done via computing the Best Sensitivity
+    """
+
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
+    ):
+        super().__init__(ppath_file, window, measurand)
+        self.fetal_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, window, measurand)
+        unit_window = torch.ones_like(window)
+        unit_window /= unit_window.norm(p=2)
+        self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand)
+
+    def __str__(self) -> str:
+        return "Computes Normalized Fetal Sensitivity between 0 and 1"
+
+    def evaluate(self) -> float:
+        actual_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
+        best_sensitivity = self.best_sensitivity_evaluator.evaluate()
+        normalized_sensitivity = actual_sensitivity / best_sensitivity
+        self.final_metric = normalized_sensitivity
+        return self.final_metric
+
+
+class ProductEvaluator(Evaluator):
+    """
+    Evaluator that computes the product of two evaluators.
+
+    :param evaluator1: The first evaluator.
+    :param evaluator2: The second evaluator.
+    """
+
+    def __init__(self, evaluator1: Evaluator, evaluator2: Evaluator):
+        super().__init__(evaluator1.ppath_file, evaluator1.window, evaluator1.measurand)
+        self.evaluator1 = evaluator1
+        self.evaluator2 = evaluator2
+
+    def __str__(self) -> str:
+        return f"Computes Product of {str(self.evaluator1)} and {str(self.evaluator2)}"
+
+    def evaluate(self) -> float:
+        metric1 = self.evaluator1.evaluate()
+        metric2 = self.evaluator2.evaluate()
+        self.final_metric = metric1 * metric2
+        return self.final_metric
+
+
+class PaperEvaluator(Evaluator):
+    """
+    The final evaluator used in the paper! Uses the following equation:
+    Final Metric = Fetal Sensitivity x Normalized Fetal SNR x Fetal Correlation
+
+    where,
+    Fetal Sensitivity: Computed using FetalSensitivityEvaluator
+    Normalized Fetal SNR: Computed using NormalizedFetalSNREvaluator
+    Fetal Correlation: Computed using CorrelationEvaluator
+
+    :param ppath_file: Path to the ppath dataset (.npz file).
+    :param window: The time-gating window to apply.
+    :param measurand: The measurand to compute SNR for ("abs", "m1", "V") or custom module.
+    :param filter_hw: Half-width of the filter to apply.
+    """
+
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
+        super().__init__(ppath_file, window, measurand)
+        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
+        self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, filter_hw)
+        self.fetal_correlation_evaluator = CorrelationEvaluator(
+            ppath_file, window, measurand, filter_hw, signal_type="fetal"
+        )
+
+    def __str__(self) -> str:
+        return "Computes Product of Fetal Sensitivity, Normalized Fetal SNR, and Fetal Correlation"
+
+    def evaluate(self) -> float:
+        fetal_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
+        normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
+        fetal_correlation = self.fetal_correlation_evaluator.evaluate()
+        self.final_metric = abs(fetal_sensitivity * normalized_fetal_snr * fetal_correlation)
         return self.final_metric
