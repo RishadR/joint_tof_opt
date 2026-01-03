@@ -92,7 +92,7 @@ class ContrastToNoiseMetric(nn.Module):
     def forward(self, window: torch.Tensor, filtered_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_func(self.tof_series, self.bin_edges, window)  # sigma^2
         noise_var = noise.mean()
-        filtered_signal_energy = torch.mean(filtered_signal**2)  # mu^2
+        filtered_signal_energy = torch.sum(filtered_signal**2)  # mu^2
         assert noise_var.item() > 0, "Noise standard deviation is zero, cannot compute contrast-to-noise ratio."
         contrast = filtered_signal_energy / (noise_var)
         if self.dB_scale:
@@ -137,7 +137,7 @@ class FilteredContrastToNoiseMetric(nn.Module):
         noise = self.noise_func(self.tof_series, self.bin_edges, window)  # sigma^2
         noise_var = noise.mean()
         filtered_signal = self.filter_module(measurand_signal.unsqueeze(0).unsqueeze(0)).squeeze()  # Apply filter
-        filtered_signal_energy = torch.mean(filtered_signal**2)  # mu^2
+        filtered_signal_energy = torch.sum(filtered_signal**2)  # mu^2
         assert noise_var.item() > 0, "Noise standard deviation is zero, cannot compute contrast-to-noise ratio."
         contrast = filtered_signal_energy / (noise_var)
         if self.dB_scale:

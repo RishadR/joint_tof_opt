@@ -18,7 +18,7 @@ def pretty_print_log(log_dict: dict[str, Any], float_round: int = 4) -> None:
     formatted_items = []
     for key, value in log_dict.items():
         if isinstance(value, float):
-            formatted_items.append(f"{key}: {value:.{float_round}f}")
+            formatted_items.append(f"{key}: {value:.{float_round}e}")
         else:
             formatted_items.append(f"{key}: {value}")
     print(" | ".join(formatted_items))
