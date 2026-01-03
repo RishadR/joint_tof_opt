@@ -682,7 +682,9 @@ class PaperEvaluator(Evaluator):
 
     def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
         super().__init__(ppath_file, window, measurand)
-        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
+        self.fetal_sensitivity_evaluator = NormalizedPureFetalSensitivityEvaluator(
+            ppath_file, window, measurand, filter_hw
+        )
         self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, filter_hw)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, filter_hw, signal_type="fetal"

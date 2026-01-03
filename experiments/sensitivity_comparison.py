@@ -151,7 +151,7 @@ if __name__ == "__main__":
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"])
+    exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"])
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     
