@@ -19,6 +19,7 @@ from joint_tof_opt import (
     CompactStatProcess,
     noise_func_table,
     generate_tof,
+    pretty_print_log
 )
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
@@ -56,7 +57,8 @@ def read_parameter_mapping():
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, Callable], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
-    measurands_to_test: list[str]
+    measurands_to_test: list[str],
+    print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
     Main function to run sensitivity comparison experiments across measurands and depths.
@@ -69,6 +71,8 @@ def main(
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
     :param measurands_to_test: List of measurand names to test (e.g., ['abs', 'm1', 'V']).
     :type measurands_to_test: list[str]
+    :param print_log: Whether to print log messages during execution. (Default: False)
+    :type print_log: bool
     :return: List of dictionaries containing results for each experiment.
     :rtype: list[dict[str, Any]]
     """
@@ -135,6 +139,10 @@ def main(
                     f"Sensitivity: {optimized_sensitivity:.4f} |",
                     f"Epochs: {epochs} |",
                 )
+                if print_log:
+                    log_dict = evaluator.get_log()
+                    print("Log Details:")
+                    pretty_print_log(log_dict)
     return results
 
 
@@ -151,7 +159,7 @@ if __name__ == "__main__":
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"])
+    exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     

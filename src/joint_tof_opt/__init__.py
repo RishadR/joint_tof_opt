@@ -19,6 +19,7 @@ from joint_tof_opt.noise_calc import (
     get_noise_calculator,
 )
 from joint_tof_opt.tof_batch_process import generate_tof
+from joint_tof_opt.misc import pretty_print_log
 
 # Backward-compatible noise function table
 noise_func_table = {
@@ -50,4 +51,5 @@ __all__ = [
     "Evaluator",
     "generate_tof",
     "noise_func_table",
+    "pretty_print_log",
 ]
