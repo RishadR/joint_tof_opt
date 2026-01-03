@@ -35,7 +35,6 @@ __all__ = [
     "NormalizedPureFetalSensitivityEvaluator",
     "FetalSensitivityEvaluator",
     "CorrelationEvaluator",
-    "CorrelationxSNREvaluator",
     "SNREvaluator",
     "NormalizedFetalSNREvaluator",
     "ProductEvaluator",
