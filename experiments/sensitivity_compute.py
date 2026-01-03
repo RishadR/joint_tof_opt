@@ -40,6 +40,7 @@ __all__ = [
     "NormalizedFetalSNREvaluator",
     "ProductEvaluator",
     "NormalizedFetalSensitivityEvaluator",
+    "PaperEvaluator",
 ]
 
 
@@ -467,10 +468,8 @@ class SNREvaluator(Evaluator):
         if noise_calc is not None:
             self.noise_calc = noise_calc
         else:
-            if self.filter_module is not None:
-                self.noise_calc = get_filtered_noise_calculator(self.measurand_str, self.filter_module)
-            else:
-                self.noise_calc = get_noise_calculator(self.measurand_str)
+            # The noise calculator does not care about the filter module
+            self.noise_calc = get_noise_calculator(self.measurand_str)
 
     def __str__(self) -> str:
         return f"Computes SNR of filtered {self.measurand_str} measurand using {str(self.noise_calc)}"
@@ -688,13 +687,16 @@ class PaperEvaluator(Evaluator):
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, filter_hw, signal_type="fetal"
         )
+        self.fetal_sensitivity = 0.0
+        self.normalized_fetal_snr = 0.0
+        self.fetal_correlation = 0.0
 
     def __str__(self) -> str:
         return "Computes Product of Fetal Sensitivity, Normalized Fetal SNR, and Fetal Correlation"
 
     def evaluate(self) -> float:
-        fetal_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
-        normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
-        fetal_correlation = self.fetal_correlation_evaluator.evaluate()
-        self.final_metric = abs(fetal_sensitivity * normalized_fetal_snr * fetal_correlation)
+        self.fetal_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
+        self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
+        self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
+        self.final_metric = abs(self.fetal_sensitivity * self.normalized_fetal_snr * self.fetal_correlation)
         return self.final_metric

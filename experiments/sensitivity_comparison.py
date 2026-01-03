@@ -56,6 +56,7 @@ def read_parameter_mapping():
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, Callable], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
+    measurands_to_test: list[str]
 ) -> list[dict[str, Any]]:
     """
     Main function to run sensitivity comparison experiments across measurands and depths.
@@ -66,6 +67,10 @@ def main(
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
+    :param measurands_to_test: List of measurand names to test (e.g., ['abs', 'm1', 'V']).
+    :type measurands_to_test: list[str]
+    :return: List of dictionaries containing results for each experiment.
+    :rtype: list[dict[str, Any]]
     """
     ## Params
     lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
@@ -74,7 +79,7 @@ def main(
 
     # Initialize results table and windows storage
     results = []
-    for measurand in ["V"]:
+    for measurand in measurands_to_test:
         # for measurand in named_moment_types:
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
@@ -137,7 +142,8 @@ if __name__ == "__main__":
     # eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
     # eval_func = lambda ppath, win, meas, noise: NormalizedFetalSensitivityEvaluator(ppath, win, meas)
     # eval_func = lambda ppath, win, meas, noise: NormalizedPureFetalSensitivityEvaluator(ppath, win, meas)
-    eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas)
+    eval_func = lambda ppath, win, meas, noise: PaperEvaluator(ppath, win, meas)
     
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
@@ -145,7 +151,7 @@ if __name__ == "__main__":
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test)
+    exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"])
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     
