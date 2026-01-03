@@ -155,11 +155,11 @@ if __name__ == "__main__":
     
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
+        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
+        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
+    exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"], print_log=False)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     

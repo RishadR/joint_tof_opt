@@ -72,8 +72,10 @@ class ContrastToNoiseMetric(nn.Module):
     For our paper, CNR is treated as the filtered signal energy by noise standard variance.
     
     Input:
-        signal_region: Tensor of shape (batch_size, signal_length) or (signal_length,)
-        background_region: Tensor of shape (batch_size, background_length) or (background_length,)
+        noise_func: Function to compute noise given tof_series, bin_edges, and window
+        tof_series: Tensor of shape (num_timepoints, num_bins)
+        bin_edges: Tensor of shape (num_bins + 1)
+        dB_scale: If True, return CNR in decibel scale
     Output:
         Scalar tensor with the CNR value
     """
@@ -96,3 +98,49 @@ class ContrastToNoiseMetric(nn.Module):
         if self.dB_scale:
             contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)
         return contrast
+    
+class FilteredContrastToNoiseMetric(nn.Module):
+    """
+    Computes the contrast-to-noise ratio (CNR) metric where the measurand signal is filtered. 
+
+    The CNR is defined as:
+        CNR = ((mean_signal - mean_background) / std_background)^2
+    A higher CNR indicates better distinguishability of the signal from the background noise. 
+    For our paper, CNR is treated as the filtered signal energy by noise standard variance.
+    
+    Input:
+        noise_func: Function to compute noise given tof_series, bin_edges, and window
+        tof_series: Tensor of shape (num_timepoints, num_bins)
+        bin_edges: Tensor of shape (num_bins + 1)
+        filter_module: nn.Module to filter the measurand signal
+        dB_scale: If True, return CNR in decibel scale
+    
+    Output:
+        Scalar tensor with the CNR value
+    """
+    def __init__(
+        self,
+        noise_func: NoiseFunc,
+        tof_series: torch.Tensor,
+        bin_edges: torch.Tensor,
+        filter_module: nn.Module,
+        dB_scale: bool = False,
+    ):
+        super().__init__()
+        self.noise_func = noise_func
+        self.tof_series = tof_series
+        self.bin_edges = bin_edges
+        self.filter_module = filter_module
+        self.dB_scale = dB_scale
+    
+    def forward(self, window: torch.Tensor, measurand_signal: torch.Tensor) -> torch.Tensor:
+        noise = self.noise_func(self.tof_series, self.bin_edges, window)  # sigma^2
+        noise_var = noise.mean()
+        filtered_signal = self.filter_module(measurand_signal.unsqueeze(0).unsqueeze(0)).squeeze()  # Apply filter
+        filtered_signal_energy = torch.mean(filtered_signal**2)  # mu^2
+        assert noise_var.item() > 0, "Noise standard deviation is zero, cannot compute contrast-to-noise ratio."
+        contrast = filtered_signal_energy / (noise_var)
+        if self.dB_scale:
+            contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)
+        return contrast
+    
