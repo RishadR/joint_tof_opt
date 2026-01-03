@@ -118,6 +118,7 @@ class Evaluator(ABC):
     -----------------------
     - self.evaluate() : Method to perform the evaluation and populate self.final_metric and return a float
     - __str__() : String representation of the evaluator for easy identification.
+    - self.get_log() : Method to return a dictionary of relevant evaluation metrics and their corresponding values.
     """
 
     def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess):
@@ -132,6 +133,10 @@ class Evaluator(ABC):
 
     @abstractmethod
     def __str__(self) -> str:
+        pass
+    
+    @abstractmethod
+    def get_log(self) -> dict[str, Any]:
         pass
 
 

@@ -8,7 +8,7 @@ use internal data (if measurand is a custom module) - in which case the DTOF com
 """
 
 from math import sqrt
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 import torch
 import yaml
 import torch.nn as nn
@@ -89,6 +89,8 @@ class PureFetalSensitivityEvaluator(Evaluator):
         if isinstance(measurand, str):
             assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
             self.measurand_str = measurand
+        self.delta_mu_a_fetal = 0.0
+        self.delta_measurand = 0.0
 
     def __str__(self) -> str:
         return "Computes Fetal Sensitivity as delta measurand / delta mu_a_fetal assuming no maternal interference"
@@ -161,11 +163,18 @@ class PureFetalSensitivityEvaluator(Evaluator):
         measurand_values = measurand_values.detach().cpu().numpy()
 
         # Compute sensitivity
-        delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
-        delta_measurand = measurand_values[1] - measurand_values[0]
-        self.final_metric = -delta_measurand / delta_mu_a_fetal
-
+        self.delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
+        self.delta_measurand = measurand_values[1] - measurand_values[0]
+        self.final_metric = -self.delta_measurand / self.delta_mu_a_fetal
         return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "fetal_sensitivity": self.final_metric,
+            "delta_percnt": self.delta_percnt,
+            "delta_mu_a_fetal": self.delta_mu_a_fetal,
+            "delta_measurand": self.delta_measurand,
+        }
 
 
 class FetalSensitivityEvaluator(Evaluator):
@@ -187,6 +196,12 @@ class FetalSensitivityEvaluator(Evaluator):
         if isinstance(measurand, str):
             assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
             self.measurand_str = measurand
+        self.fetal_measurand_energy = 0.0
+        self.maternal_measurand_energy = 0.0
+        self.fetal_hb_energy = 0.0
+        self.maternal_hb_energy = 0.0
+        self.fetal_sensitivity = 0.0
+        self.maternal_sensitivity = 0.0
 
     def __str__(self) -> str:
         return "Computes Fetal and Maternal Sensitivities as delta filtered measurand / delta hb concentration"
@@ -264,16 +279,27 @@ class FetalSensitivityEvaluator(Evaluator):
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
 
         # Compute sensitivities
-        energy_ratio_metric = EnergyRatioMetric()
-        fetal_sensitivity = torch.sqrt(energy_ratio_metric(fetal_filtered_signal, fetal_hb_series_tensor)).item()
-        maternal_sensitivity = torch.sqrt(
-            energy_ratio_metric(maternal_filtered_signal, maternal_hb_series_tensor)
-        ).item()
+        self.fetal_measurand_energy = float(torch.sum(fetal_filtered_signal**2).item())
+        self.fetal_hb_energy = float(torch.sum(fetal_hb_series_tensor**2).item())
+        self.maternal_measurand_energy = float(torch.sum(maternal_filtered_signal**2).item())
+        self.maternal_hb_energy = float(torch.sum(maternal_hb_series_tensor**2).item())
+        self.fetal_sensitivity = sqrt(self.fetal_measurand_energy / self.fetal_hb_energy)
+        self.maternal_sensitivity = sqrt(self.maternal_measurand_energy / self.maternal_hb_energy)
         if self.output_sensitivity == "fetal":
-            self.final_metric = fetal_sensitivity
+            self.final_metric = self.fetal_sensitivity
         else:
-            self.final_metric = maternal_sensitivity
+            self.final_metric = self.maternal_sensitivity
         return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "fetal_sensitivity": self.fetal_sensitivity,
+            "maternal_sensitivity": self.maternal_sensitivity,
+            "fetal_measurand_energy": self.fetal_measurand_energy,
+            "fetal_hb_energy": self.fetal_hb_energy,
+            "maternal_measurand_energy": self.maternal_measurand_energy,
+            "maternal_hb_energy": self.maternal_hb_energy,
+        }
 
 
 class CorrelationEvaluator(Evaluator):
@@ -369,63 +395,10 @@ class CorrelationEvaluator(Evaluator):
         self.final_metric = correlation
         return self.final_metric
 
-
-class CorrelationxSNREvaluator(Evaluator):
-    """
-    Same as the CorrelationEvaluator but multiplies the correlation with the SNR
-    """
-
-    def __init__(
-        self,
-        ppath_file: Path,
-        window: torch.Tensor,
-        measurand: str | CompactStatProcess,
-        noise_func: Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
-        filter_hw: float = 0.3,
-        signal_type: Literal["fetal", "maternal"] = "fetal",
-        terminal_ignore_points: int = 5,
-    ):
-
-        super().__init__(ppath_file, window, measurand)
-        self.signal_type = signal_type
-        self.filter_hw = filter_hw
-        self.comb_filter = None
-        self.moment_module = None
-        self._correlation_evaluator = CorrelationEvaluator(
-            ppath_file,
-            window,
-            measurand,
-            filter_hw,
-            signal_type,
-            terminal_ignore_points,
-        )
-        if not isinstance(measurand, str):
-            assert noise_func is not None, "Noise function must be provided for custom measurand modules"
-            self.noise_func = noise_func
-            self.measurand_str = ""
-        else:
-            self.noise_func = noise_func_table[measurand]
-            self.measurand_str = measurand
-
-    def __str__(self) -> str:
-        return "Computes Correlation x SNR between measurand and fetal or maternal hb changes"
-
-    def evaluate(self) -> float:
-        correlation = self._correlation_evaluator.evaluate()
-        self.moment_module = self._correlation_evaluator.moment_module
-        self.comb_filter = self._correlation_evaluator.comb_filter
-        assert self.moment_module is not None, "Internal CorrelationEvaluator did not work properly!"
-        assert (
-            self._correlation_evaluator.filtered_signal is not None
-        ), "Internal CorrelationEvaluator did not work properly!"
-        tof_series = self.moment_module.tof_series
-        bin_edges = self.moment_module.bin_edges
-        noise_var = self.noise_func(tof_series, bin_edges, self.window)
-        signal = self._correlation_evaluator.filtered_signal
-        signal_energy = torch.sum(signal**2).item()
-        snr = signal_energy / (torch.sum(noise_var).item() + 1e-40)
-        self.final_metric = correlation * snr
-        return self.final_metric
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "correlation": self.final_metric,
+        }
 
 
 class SNREvaluator(Evaluator):
@@ -470,6 +443,8 @@ class SNREvaluator(Evaluator):
         else:
             # The noise calculator does not care about the filter module
             self.noise_calc = get_noise_calculator(self.measurand_str)
+        self.noise_var = 0.0
+        self.signal_energy = 0.0
 
     def __str__(self) -> str:
         return f"Computes SNR of filtered {self.measurand_str} measurand using {str(self.noise_calc)}"
@@ -493,15 +468,21 @@ class SNREvaluator(Evaluator):
         # Compute compact statistics
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
         noise_var = self.noise_calc.compute_noise(tof_data, bin_edges, self.window)  # Shape: (num_timepoints,)
-        noise_var = noise_var.mean().item()
-        assert noise_var > 0, "Computed noise variance must be greater than zero!"
+        self.noise_var = noise_var.mean().item()
+        assert self.noise_var > 0, "Computed noise variance must be greater than zero!"
         if self.filter_module is not None:
             compact_stats_reshaped = compact_stats.reshape(1, 1, -1)  # Reshape to (1, 1, signal_length) for filtering
             compact_stats = self.filter_module(compact_stats_reshaped).flatten()
-        signal_energy = torch.sum(compact_stats**2).item()
-        snr = signal_energy / noise_var
-        self.final_metric = snr
+        self.signal_energy = float(torch.sum(compact_stats**2).item())
+        self.final_metric = self.signal_energy / self.noise_var
         return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "snr": self.final_metric,
+            "signal_energy": self.signal_energy,
+            "noise_variance": self.noise_var,
+        }
 
 
 class FetalSNREvaluator(SNREvaluator):
@@ -554,11 +535,10 @@ class PureFetalSNREvaluator(SNREvaluator):
         # Compute compact statistics
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
         noise_var = self.noise_calc.compute_noise(tof_data, bin_edges, self.window)  # Shape: (num_timepoints,)
-        noise_var = noise_var.mean().item()
-        assert noise_var > 0, "Computed noise variance must be greater than zero!"
-        signal_energy = torch.sum(compact_stats**2).item()
-        snr = signal_energy / noise_var
-        self.final_metric = snr
+        self.noise_var = noise_var.mean().item()
+        assert self.noise_var > 0, "Computed noise variance must be greater than zero!"
+        self.signal_energy = float(torch.sum(compact_stats**2).item())
+        self.final_metric = self.signal_energy / self.noise_var
         return self.final_metric
 
 
@@ -575,16 +555,30 @@ class NormalizedFetalSNREvaluator(Evaluator):
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
         self.best_snr_evaluator = PureFetalSNREvaluator(ppath_file, unit_window, measurand)
+        self.actual_snr = 0.0
+        self.best_snr = 0.0
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal SNR between 0 and 1"
 
     def evaluate(self) -> float:
-        actual_snr = self.fetal_snr_evaluator.evaluate()
-        best_snr = self.best_snr_evaluator.evaluate()
-        normalized_snr = actual_snr / best_snr
+        self.actual_snr = self.fetal_snr_evaluator.evaluate()
+        self.best_snr = self.best_snr_evaluator.evaluate()
+        normalized_snr = self.actual_snr / self.best_snr
         self.final_metric = normalized_snr
         return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        actual_snr_log = self.fetal_snr_evaluator.get_log()
+        best_snr_log = self.best_snr_evaluator.get_log()
+        final_log = {
+            "normalized_fetal_snr": self.final_metric,
+        }
+        for key, value in actual_snr_log.items():
+            final_log[f"actual_{key}"] = value
+        for key, value in best_snr_log.items():
+            final_log[f"best_{key}"] = value
+        return final_log
 
 
 class NormalizedFetalSensitivityEvaluator(Evaluator):
@@ -613,6 +607,18 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
         self.final_metric = normalized_sensitivity
         return self.final_metric
 
+    def get_log(self) -> dict[str, Any]:
+        actual_sensitivity_log = self.fetal_sensitivity_evaluator.get_log()
+        best_sensitivity_log = self.best_sensitivity_evaluator.get_log()
+        final_log = {
+            "normalized_fetal_sensitivity": self.final_metric,
+        }
+        for key, value in actual_sensitivity_log.items():
+            final_log[f"actual_{key}"] = value
+        for key, value in best_sensitivity_log.items():
+            final_log[f"best_{key}"] = value
+        return final_log
+
 
 class NormalizedPureFetalSensitivityEvaluator(Evaluator):
     """
@@ -640,6 +646,18 @@ class NormalizedPureFetalSensitivityEvaluator(Evaluator):
         self.final_metric = normalized_sensitivity
         return self.final_metric
 
+    def get_log(self) -> dict[str, Any]:
+        actual_sensitivity_log = self.fetal_sensitivity_evaluator.get_log()
+        best_sensitivity_log = self.best_sensitivity_evaluator.get_log()
+        final_log = {
+            "normalized_fetal_sensitivity": self.final_metric,
+        }
+        for key, value in actual_sensitivity_log.items():
+            final_log[f"actual_{key}"] = value
+        for key, value in best_sensitivity_log.items():
+            final_log[f"best_{key}"] = value
+        return final_log
+
 
 class ProductEvaluator(Evaluator):
     """
@@ -663,6 +681,18 @@ class ProductEvaluator(Evaluator):
         self.final_metric = metric1 * metric2
         return self.final_metric
 
+    def get_log(self) -> dict[str, Any]:
+        log1 = self.evaluator1.get_log()
+        log2 = self.evaluator2.get_log()
+        final_log = {
+            "product_metric": self.final_metric,
+        }
+        for key, value in log1.items():
+            final_log[f"evaluator1_{key}"] = value
+        for key, value in log2.items():
+            final_log[f"evaluator2_{key}"] = value
+        return final_log
+
 
 class PaperEvaluator(Evaluator):
     """
@@ -682,9 +712,7 @@ class PaperEvaluator(Evaluator):
 
     def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
         super().__init__(ppath_file, window, measurand)
-        self.fetal_sensitivity_evaluator = NormalizedPureFetalSensitivityEvaluator(
-            ppath_file, window, measurand, filter_hw
-        )
+        self.fetal_sensitivity_evaluator = NormalizedFetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
         self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, filter_hw)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, filter_hw, signal_type="fetal"
@@ -702,3 +730,21 @@ class PaperEvaluator(Evaluator):
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
         self.final_metric = abs(self.fetal_sensitivity * self.normalized_fetal_snr * self.fetal_correlation)
         return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        fetal_sensitivity_log = self.fetal_sensitivity_evaluator.get_log()
+        normalized_fetal_snr_log = self.normalized_fetal_snr_evaluator.get_log()
+        fetal_correlation_log = self.fetal_correlation_evaluator.get_log()
+        final_log = {
+            "final_metric": self.final_metric,
+            "fetal_sensitivity": self.fetal_sensitivity,
+            "normalized_fetal_snr": self.normalized_fetal_snr,
+            "fetal_correlation": self.fetal_correlation,
+        }
+        for key, value in fetal_sensitivity_log.items():
+            final_log[f"fetal_sensitivity_{key}"] = value
+        for key, value in normalized_fetal_snr_log.items():
+            final_log[f"normalized_fetal_snr_{key}"] = value
+        for key, value in fetal_correlation_log.items():
+            final_log[f"fetal_correlation_{key}"] = value
+        return final_log
