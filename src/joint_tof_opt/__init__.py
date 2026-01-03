@@ -8,7 +8,7 @@ from joint_tof_opt.compact_stat_process import (
     named_moment_types,
 )
 from joint_tof_opt.signal_process import CombSeparator
-from joint_tof_opt.metric_process import EnergyRatioMetric, ContrastToNoiseMetric
+from joint_tof_opt.metric_process import EnergyRatioMetric, ContrastToNoiseMetric, FilteredContrastToNoiseMetric
 from joint_tof_opt.noise_calc import (
     WindowSumNoiseCalculator,
     FirstMomentNoiseCalculator,
