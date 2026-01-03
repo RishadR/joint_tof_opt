@@ -594,7 +594,7 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
         self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
-        self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand)
+        self.best_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, unit_window, measurand)
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal Sensitivity between 0 and 1"
