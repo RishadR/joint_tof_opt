@@ -5,9 +5,11 @@ Load and create a ToF dataset for testing purposes.
 from pathlib import Path
 import numpy as np
 import yaml
+import torch
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 from joint_tof_opt.tof_process import compute_tof_discrete
-import os
+from joint_tof_opt.core import ToFData
+from tempfile import NamedTemporaryFile
 
 
 def generate_tof(
@@ -89,6 +91,7 @@ def generate_tof(
     filtered_ppath_array = (ppath_array[ppath_array[:, 0] == selected_sdd_index])[:, 1:]
 
     tof_dataset = np.zeros((len(time_axis), bin_count))
+    var_dataset = np.zeros_like(tof_dataset)
     time_limits = None
     bin_edges = None
     for idx in range(len(time_axis)):
@@ -102,7 +105,7 @@ def generate_tof(
             fetal_hb_series[idx],
         )
         if time_limits is None:
-            tof_array, bin_edges = compute_tof_discrete(
+            tof_array, bin_edges, var_array = compute_tof_discrete(
                 filtered_ppath_array,
                 light_speeds,
                 tisse_model,
@@ -112,7 +115,7 @@ def generate_tof(
             )
             time_limits = (bin_edges[0], bin_edges[-1])
         else:
-            tof_array, bin_edges = compute_tof_discrete(
+            tof_array, bin_edges, var_array = compute_tof_discrete(
                 filtered_ppath_array,
                 light_speeds,
                 tisse_model,
@@ -121,12 +124,14 @@ def generate_tof(
                 time_limits,
             )
         tof_dataset[idx, :] = tof_array
+        var_dataset[idx, :] = var_array
 
     # Save the generated ToF dataset
     assert bin_edges is not None
     np.savez(
         save_path,
         tof_dataset=tof_dataset,
+        var_dataset=var_dataset,
         bin_edges=bin_edges,
         time_axis=time_axis,
         sd_distance=sd_distance,
@@ -138,6 +143,30 @@ def generate_tof(
         maternal_f=maternal_f,
         sampling_rate=sampling_rate,
     )
+
+
+def compute_tof_data_series(
+    ppath_dataset_filename: Path,
+    gen_config: dict,
+    pulse_maternal: bool = True,
+    pulse_fetal: bool = True,
+) -> ToFData:
+    """
+    An OOP wrapper around generate_tof to return a ToFData object.
+    """
+    temp_file = NamedTemporaryFile(delete=False, suffix=".npz")
+    temp_path = Path(temp_file.name)
+    temp_file.close()
+    generate_tof(
+        ppath_dataset_filename,
+        gen_config,
+        temp_path,
+        pulse_maternal,
+        pulse_fetal,
+    )
+    tof_data = ToFData.from_npz(temp_path)
+    temp_path.unlink()  # Delete the temporary file
+    return tof_data
 
 
 if __name__ == "__main__":

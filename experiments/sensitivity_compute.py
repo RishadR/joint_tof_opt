@@ -23,12 +23,12 @@ from joint_tof_opt import (
     get_named_moment_module,
     Evaluator,
     CompactStatProcess,
-    noise_func_table,
     generate_tof,
     NoiseCalculator,
     get_noise_calculator,
+    ToFData,
+    compute_tof_data_series,
 )
-from joint_tof_opt.noise_calc_filtered import get_filtered_noise_calculator
 
 __all__ = [
     "PureFetalSensitivityEvaluator",
@@ -137,11 +137,11 @@ class PureFetalSensitivityEvaluator(Evaluator):
 
         if isinstance(self.measurand, str):
             # Compute TOF distributions
-            base_tof, bin_edges = compute_tof_discrete(
+            base_tof, bin_edges, base_var = compute_tof_discrete(
                 filtered_ppath, light_speeds, base_model, bin_count, fraction, None
             )
             time_limits = (bin_edges[0], bin_edges[-1])
-            perturbed_tof, _ = compute_tof_discrete(
+            perturbed_tof, _, perturbed_var = compute_tof_discrete(
                 filtered_ppath,
                 light_speeds,
                 perturbed_model,
@@ -150,11 +150,15 @@ class PureFetalSensitivityEvaluator(Evaluator):
                 time_limits,
             )
             tof_dataset = np.vstack([base_tof, perturbed_tof])  # Shape: (2, bin_count)
+            var_dataset = np.vstack([base_var, perturbed_var])  # Shape: (2, bin_count)
 
             # Compute measurand
             tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
+            var_dataset_tensor = torch.tensor(var_dataset, dtype=torch.float32)
             bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            moment_calculator = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor)
+            bin_centers_tensor = 0.5 * (bin_edges_tensor[:-1] + bin_edges_tensor[1:])
+            tof_data = ToFData(tof_series_tensor, bin_edges_tensor, bin_centers_tensor, var_dataset_tensor)
+            moment_calculator = get_named_moment_module(self.measurand, tof_data)
         else:
             moment_calculator = self.measurand
 
@@ -208,20 +212,16 @@ class FetalSensitivityEvaluator(Evaluator):
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
             gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_temp_path = Path("./data/temp_tof_dataset.npz")
-            generate_tof(self.ppath_file, gen_config, tof_temp_path)
-            tof_dataset = np.load(tof_temp_path)
-            meta_data = dict(tof_dataset)
-            tof_data = tof_dataset["tof_dataset"]
-            bin_edges = tof_dataset["bin_edges"]
-            tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor, meta_data)
+            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            tof_series_tensor = tof_data.tof_series
+            bin_edges_tensor = tof_data.bin_edges
+            self.moment_module = get_named_moment_module(self.measurand, tof_data)
             sampling_rate = gen_config["sampling_rate"]
             maternal_f = gen_config["maternal_f"]
             fetal_f = gen_config["fetal_f"]
-            maternal_hb_series = tof_dataset["maternal_hb_series"]
-            fetal_hb_series = tof_dataset["fetal_hb_series"]
+            assert tof_data.meta_data is not None, "ToF Generation Failed! No MetaData for Fetal Sensitivity Evaluation"
+            maternal_hb_series = tof_data.meta_data["maternal_hb_series"]
+            fetal_hb_series = tof_data.meta_data["fetal_hb_series"]
         else:
             assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
             _metadata_check(
@@ -235,7 +235,8 @@ class FetalSensitivityEvaluator(Evaluator):
                 ],
             )
             self.moment_module = self.measurand
-            tof_data = self.measurand.tof_series
+            tof_series = self.measurand.tof_series
+            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
             sampling_rate = self.measurand.meta_data["sampling_rate"]
             maternal_f = self.measurand.meta_data["maternal_f"]
             fetal_f = self.measurand.meta_data["fetal_f"]
@@ -247,7 +248,7 @@ class FetalSensitivityEvaluator(Evaluator):
         compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, num_timepoints)
 
         # Initialize comb filters
-        filter_len = tof_data.shape[1] // 2 + 1
+        filter_len = tof_series_tensor.shape[1] // 2 + 1
         self.fetal_comb_filter = CombSeparator(
             fs=sampling_rate,
             f0=fetal_f,
@@ -348,21 +349,20 @@ class CorrelationEvaluator(Evaluator):
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
             gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_temp_path = Path("./data/temp_tof_dataset.npz")
-            generate_tof(self.ppath_file, gen_config, tof_temp_path)
-            tof_dataset = np.load(tof_temp_path)
-            meta_data = dict(tof_dataset)
-            tof_data = tof_dataset["tof_dataset"]
-            bin_edges = tof_dataset["bin_edges"]
-            tof_series_tensor = torch.tensor(tof_data, dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            self.moment_module = get_named_moment_module(self.measurand, tof_series_tensor, bin_edges_tensor, meta_data)
-            fetal_hb_series = tof_dataset["fetal_hb_series"]
+            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            meta_data = tof_data.meta_data
+            tof_series_tensor = tof_data.tof_series
+            bin_edges_tensor = tof_data.bin_edges
+            self.moment_module = get_named_moment_module(self.measurand, tof_data)
+            meta_data = tof_data.meta_data
+            assert meta_data is not None, "ToF Generation Failed! No MetaData for Correlation Evaluation"
+            fetal_hb_series = meta_data["fetal_hb_series"]
         else:
             self.moment_module = self.measurand
             assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
             assert self.measurand.meta_data["fetal_hb_series"] is not None, "Fetal hb series must be in the meta data"
-            tof_data = self.measurand.tof_series
+            tof_series = self.measurand.tof_series
+            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
             fetal_hb_series = self.measurand.meta_data["fetal_hb_series"]
 
         # Compute compact statistics
@@ -378,7 +378,7 @@ class CorrelationEvaluator(Evaluator):
             f0=target_f,
             f1=2 * target_f,
             half_width=self.filter_hw,
-            filter_length=tof_data.shape[1] // 2 + 1,
+            filter_length=tof_series_tensor.shape[1] // 2 + 1,
         )
         self.filtered_signal = self.comb_filter(compact_stats.unsqueeze(0).unsqueeze(0))  # Shape:(1, 1, num_timepoints)
         self.filtered_signal = self.filtered_signal.squeeze()  # Shape: (num_timepoints,)
@@ -452,21 +452,14 @@ class SNREvaluator(Evaluator):
         # Two Paths: If measurand is string, generate new data via tof_config. Otherwise use internal data
         if isinstance(self.measurand, str):
             gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_temp_path = Path("./data/temp_tof_dataset.npz")
-            generate_tof(self.ppath_file, gen_config, tof_temp_path)
-            tof_dataset = np.load(tof_temp_path)
-            meta_data = dict(tof_dataset)
-            tof_data = torch.tensor(tof_dataset["tof_dataset"], dtype=torch.float32)
-            bin_edges = torch.tensor(tof_dataset["bin_edges"], dtype=torch.float32)
-            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges, meta_data)
+            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            moment_module = get_named_moment_module(self.measurand, tof_data)
         else:
             moment_module = self.measurand
-            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
-            tof_data = self.measurand.tof_series
-            bin_edges = self.measurand.bin_edges
+            tof_data = moment_module.tof_data
         # Compute compact statistics
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
-        noise_var = self.noise_calc.compute_noise(tof_data, bin_edges, self.window)  # Shape: (num_timepoints,)
+        noise_var = self.noise_calc.compute_noise(tof_data, self.window)  # Shape: (num_timepoints,)
         self.noise_var = noise_var.mean().item()
         assert self.noise_var > 0, "Computed noise variance must be greater than zero!"
         if self.filter_module is not None:
@@ -521,19 +514,15 @@ class PureFetalSNREvaluator(SNREvaluator):
 
     def evaluate(self) -> float:
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        temp_tof_path = Path("./data/temp_tof_dataset.npz")
-        generate_tof(self.ppath_file, gen_config, temp_tof_path, pulse_maternal=False, pulse_fetal=True)
-        tof_dataset = np.load(temp_tof_path)
-        meta_data = dict(tof_dataset)
-        tof_data = torch.tensor(tof_dataset["tof_dataset"], dtype=torch.float32)
-        bin_edges = torch.tensor(tof_dataset["bin_edges"], dtype=torch.float32)
+        tof_data = compute_tof_data_series(self.ppath_file, gen_config, pulse_maternal=False, pulse_fetal=True)
         if isinstance(self.measurand, str):
-            moment_module = get_named_moment_module(self.measurand, tof_data, bin_edges, meta_data)
+            moment_module = get_named_moment_module(self.measurand, tof_data)
         else:
             moment_module = self.measurand
+            tof_data = moment_module.tof_data
         # Compute compact statistics
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
-        noise_var = self.noise_calc.compute_noise(tof_data, bin_edges, self.window)  # Shape: (num_timepoints,)
+        noise_var = self.noise_calc.compute_noise(tof_data, self.window)  # Shape: (num_timepoints,)
         self.noise_var = noise_var.mean().item()
         assert self.noise_var > 0, "Computed noise variance must be greater than zero!"
         self.signal_energy = float(torch.sum(compact_stats**2).item())

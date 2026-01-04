@@ -37,7 +37,15 @@ import torch.optim as optim
 from typing import Callable, Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
-from joint_tof_opt import get_named_moment_module, named_moment_types, OptimizationExperiment, CompactStatProcess
+from joint_tof_opt import (
+    get_named_moment_module,
+    named_moment_types,
+    OptimizationExperiment,
+    CompactStatProcess,
+    get_noise_calculator,
+    NoiseCalculator,
+    ToFData,
+)
 
 
 class LiuOptimizer(OptimizationExperiment):
@@ -75,9 +83,8 @@ class LiuOptimizer(OptimizationExperiment):
         :param normalize_window: Whether to normalize output window to unit energy.
         """
         if isinstance(measurand, str):
-            tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
-            measurand = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
+            tof_data = ToFData.from_npz(tof_dataset_path)
+            measurand = get_named_moment_module(measurand, tof_data)
         super().__init__(tof_dataset_path, measurand)
 
         self.dtof_to_find_max_on = dtof_to_find_max_on
@@ -86,12 +93,13 @@ class LiuOptimizer(OptimizationExperiment):
         self.normalize_window = normalize_window
 
         # Extract metadata
-        self.sampling_rate = self.tof_data["sampling_rate"]
-        self.fetal_f = self.tof_data["fetal_f"]
-        self.maternal_f = self.tof_data["maternal_f"]
+        assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
+        self.sampling_rate = self.tof_data.meta_data["sampling_rate"]
+        self.fetal_f = self.tof_data.meta_data["fetal_f"]
+        self.maternal_f = self.tof_data.meta_data["maternal_f"]
 
         # Pre-compute fetal bins for SNR calculation
-        num_timepoints = self.tof_series.shape[0]
+        num_timepoints = self.tof_data.tof_series.shape[0]
         self.fetal_bins = self._compute_fetal_bins(num_timepoints)
 
         # Set training curve labels (empty for this non-iterative method)
@@ -132,15 +140,15 @@ class LiuOptimizer(OptimizationExperiment):
         Exhaustively searches all rectangular window pairs (b2, b3) to find the one
         that maximizes SNR between fetal signal and noise floor.
         """
-        num_timepoints, num_bins = self.tof_series.shape
+        num_timepoints, num_bins = self.tof_data.tof_series.shape
 
         # Step 1: Find bmax (bin with maximum count)
         if self.dtof_to_find_max_on == "mean":
-            representative_dtof = torch.mean(self.tof_series, dim=0)
+            representative_dtof = torch.mean(self.tof_data.tof_series, dim=0)
         elif self.dtof_to_find_max_on == "median":
-            representative_dtof = torch.median(self.tof_series, dim=0).values
+            representative_dtof = torch.median(self.tof_data.tof_series, dim=0).values
         elif self.dtof_to_find_max_on == "first":
-            representative_dtof = self.tof_series[0, :]
+            representative_dtof = self.tof_data.tof_series[0, :]
         else:
             raise ValueError(f"Invalid dtof_to_find_max_on value: {self.dtof_to_find_max_on}")
 

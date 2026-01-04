@@ -17,9 +17,11 @@ from joint_tof_opt import (
     get_named_moment_module,
     OptimizationExperiment,
     CompactStatProcess,
-    noise_func_table,
     generate_tof,
-    pretty_print_log
+    pretty_print_log,
+    ToFData,
+    get_noise_calculator,
+    NoiseCalculator
 )
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
@@ -30,13 +32,12 @@ class DummyOptimizationExperiment(OptimizationExperiment):
     """
     def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess | str):
         if isinstance(measurand, str):
-            tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
-            measurand = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
+            tof_data = ToFData.from_npz(tof_dataset_path)
+            measurand = get_named_moment_module(measurand, tof_data)
         super().__init__(tof_dataset_path, measurand)
     
     def optimize(self) -> None:
-        self.window = torch.ones(self.tof_series.shape[1], dtype=torch.float32)
+        self.window = torch.ones(self.tof_data.tof_series.shape[1], dtype=torch.float32)
         self.window /= torch.norm(self.window, p=2)
         self.final_signal = self.moment_module(self.window) 
         self.training_curves = []
@@ -58,7 +59,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, Callable], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, NoiseCalculator], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
     print_log: bool = False,
@@ -67,8 +68,8 @@ def main(
     Main function to run sensitivity comparison experiments across measurands and depths.
 
     :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: Callable) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, Callable], Evaluator]
+    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
+    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, NoiseCalculator], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
@@ -125,7 +126,8 @@ def main(
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, noise_func_table[measurand])
+                noise_calculator = get_noise_calculator(measurand)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, noise_calculator)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -156,16 +158,16 @@ def main(
 
 
 if __name__ == "__main__":
-    # eval_func = lambda ppath, win, meas, noise: NormalizedFetalSNREvaluator(ppath, win, meas)
-    # eval_func = lambda ppath, win, meas, noise: NormalizedFetalSensitivityEvaluator(ppath, win, meas)
-    # eval_func = lambda ppath, win, meas, noise: NormalizedPureFetalSensitivityEvaluator(ppath, win, meas)
-    # eval_func = lambda ppath, win, meas, noise: CorrelationEvaluator(ppath, win, meas)
-    eval_func = lambda ppath, win, meas, noise: PaperEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise_calc: NormalizedFetalSNREvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise_calc: NormalizedFetalSensitivityEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise_calc: NormalizedPureFetalSensitivityEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise_calc: CorrelationEvaluator(ppath, win, meas)
+    eval_func = lambda ppath, win, meas, noise_calc: PaperEvaluator(ppath, win, meas)
     
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
+        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
         # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
-        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"], print_log=True)

@@ -41,9 +41,11 @@ from joint_tof_opt import (
     FilteredContrastToNoiseMetric,
     get_named_moment_module,
     named_moment_types,
-    noise_func_table,
+    get_noise_calculator,
+    NoiseCalculator,
     OptimizationExperiment,
     CompactStatProcess,
+    ToFData,
 )
 
 
@@ -74,7 +76,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self,
         tof_dataset_path: Path,
         measurand: str | CompactStatProcess,
-        noise_func: None | Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] = None,
+        noise_calc: None | NoiseCalculator = None,
         max_epochs: int = 2000,
         lr: float = 0.001,
         filter_hw: float = 0.3,
@@ -86,7 +88,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         :param tof_dataset_path: Path to the ToF dataset (.npz file).
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
-        :param noise_func: Noise function for custom measurands.
+        :param noise_calc: Noise calculator for custom measurands.
         :param max_epochs: Maximum number of optimization epochs.
         :param lr: Learning rate for the optimizer.
         :param filter_hw: Half width of the sinc comb filter (in Hz).
@@ -97,18 +99,17 @@ class DIGSSOptimizer(OptimizationExperiment):
         if isinstance(measurand, str):
             if measurand not in named_moment_types:
                 raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
-            if noise_func is not None:
-                print("Warning: noise_func is ignored when using a predefined measurand string.")
-            self.noise_func = noise_func_table[measurand]
+            if noise_calc is not None:
+                print("Warning: noise_calc is ignored since a predefined measurand string is given")
+            self.noise_calc = get_noise_calculator(measurand)
         else:
-            if noise_func is None:
-                raise ValueError("noise_func must be provided when using a custom measurand module.")
-            self.noise_func = noise_func
+            if noise_calc is None:
+                raise ValueError("noise_calc must be provided when using a custom measurand module.")
+            self.noise_calc = noise_calc
 
         if isinstance(measurand, str):
-            tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
-            measurand = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor)
+            tof_data = ToFData.from_npz(tof_dataset_path)
+            measurand = get_named_moment_module(measurand, tof_data)
         super().__init__(tof_dataset_path, measurand, lr)
 
         self.max_epochs = max_epochs
@@ -116,18 +117,19 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.patience = patience
         self.grad_clip = grad_clip
 
-        # Convert bin edges to nanoseconds for numerical stability
-        self.bin_edges *= 1e9
-        # moment_module is originally initialized by the parent class but since we change the bin_centers and edges
-        # Keep everything else unchanged
-        self.moment_module.bin_edges = self.bin_edges
-        self.moment_module.bin_centers = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2
+        # Convert bin edges to nanoseconds for numerical stability (TODO: FIX later if needed)
+        # self.bin_edges *= 1e9
+        # # moment_module is originally initialized by the parent class but since we change the bin_centers and edges
+        # # Keep everything else unchanged
+        # self.moment_module.bin_edges = self.bin_edges
+        # self.moment_module.bin_centers = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2
 
         # Extract additional metadata
-        self.sampling_rate = self.tof_data["sampling_rate"]
-        self.fetal_f = self.tof_data["fetal_f"]
-        self.maternal_f = self.tof_data["maternal_f"]
-        num_timepoints, num_bins = self.tof_series.shape
+        assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
+        self.sampling_rate = self.tof_data.meta_data["sampling_rate"]
+        self.fetal_f = self.tof_data.meta_data["fetal_f"]
+        self.maternal_f = self.tof_data.meta_data["maternal_f"]
+        num_timepoints, num_bins = self.tof_data.tof_series.shape
 
         # Initialize components (to be created in optimize())
         self.fetal_comb_filter = CombSeparator(
@@ -139,7 +141,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         ############### DEBUG CODE - CHANGE LATER ###############
         # self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_func, self.tof_series, self.bin_edges, False)
         self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
-            self.noise_func, self.tof_series, self.bin_edges, self.fetal_comb_filter, False
+            self.noise_calc, self.tof_data, self.fetal_comb_filter, False
         )
         ############### DEBUG CODE - CHANGE LATER ###############
 
@@ -157,15 +159,13 @@ class DIGSSOptimizer(OptimizationExperiment):
         """
         Perform the optimization loop and populate self.window and self.training_curves.
         """
-        num_timepoints, num_bins = self.tof_series.shape
-        # Initialize window parameters
-
         # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
         optimizer = optim.Adam([self.window_exponents], lr=self.lr)
         self.training_curves = np.zeros((self.max_epochs, 3))
 
+        # Optimization Loop
         epoch = 0
         for epoch in range(self.max_epochs):
             optimizer.zero_grad()
@@ -239,7 +239,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 def main_optimize(
     tof_dataset_path: Path,
     measurand: str | CompactStatProcess,
-    noise_func: None | Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor] = None,
+    noise_calc: None | NoiseCalculator = None,
     max_epochs: int = 2000,
     lr: float = 0.001,
     filter_hw: float = 0.3,
@@ -257,10 +257,10 @@ def main_optimize(
         - "m1": First Order Moment
         - "V": Second Order Centered Moment (Variance)
     :type measurand: str | nn.Module
-    :param noise_func: Function to compute the noise for the given measurand. Required if a custom measurand module is
+    :param noise_calc: Noise calculator for the given measurand. Required if a custom measurand module is
     provided. Note: The function signature should be:
-        noise_func(tof_series: torch.Tensor, bin_edges: torch.Tensor, window: torch.Tensor, ) -> torch.Tensor
-    :type noise_func: None | Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]
+        noise_calc(tof_series: torch.Tensor, bin_edges: torch.Tensor, window: torch.Tensor, ) -> torch.Tensor
+    :type noise_calc: None | NoiseCalculator
     :param max_epochs: Maximum number of optimization epochs.
     :type max_epochs: int
     :param lr: Learning rate for the optimizer.
@@ -276,7 +276,7 @@ def main_optimize(
     optimizer = DIGSSOptimizer(
         tof_dataset_path=tof_dataset_path,
         measurand=measurand,
-        noise_func=noise_func,
+        noise_calc=noise_calc,
         max_epochs=max_epochs,
         lr=lr,
         filter_hw=filter_hw,

@@ -1,4 +1,4 @@
-from joint_tof_opt.core import OptimizationExperiment, Evaluator, NoiseCalculator
+from joint_tof_opt.core import OptimizationExperiment, Evaluator, NoiseCalculator, ToFData
 from joint_tof_opt.compact_stat_process import (
     WindowedSum,
     NthOrderMoment,
@@ -13,22 +13,14 @@ from joint_tof_opt.noise_calc import (
     WindowSumNoiseCalculator,
     FirstMomentNoiseCalculator,
     VarianceNoiseCalculator,
-    compute_noise_window_sum,
-    compute_noise_m1,
-    compute_noise_variance,
     get_noise_calculator,
 )
-from joint_tof_opt.tof_batch_process import generate_tof
+from joint_tof_opt.tof_batch_process import generate_tof, compute_tof_data_series
 from joint_tof_opt.misc import pretty_print_log
 
-# Backward-compatible noise function table
-noise_func_table = {
-    "abs": compute_noise_window_sum,
-    "m1": compute_noise_m1,
-    "V": compute_noise_variance,
-}
 
 __all__ = [
+    "ToFData",
     "CompactStatProcess",
     "WindowedSum",
     "NthOrderMoment",
@@ -52,4 +44,6 @@ __all__ = [
     "generate_tof",
     "noise_func_table",
     "pretty_print_log",
+    "FirstMomentNoiseCalculator",
+    "compute_tof_data_series",
 ]

@@ -5,7 +5,8 @@ experiments, use the functions inside tof_batch_process.py - which provide highe
 
 from typing import Any
 import numpy as np
-
+import torch
+from joint_tof_opt.core import ToFData
 
 def compute_arrival_times(
     partialpath_table: np.ndarray, light_speed: list[float]
@@ -72,13 +73,14 @@ def compute_tof_discrete(
     num_bins: int,
     weight_threshold_fraction: float | None = 0.99,
     time_limits: tuple[float, float] | None = None,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Computes a weighted time-of-flight (ToF) histogram for photon paths.
+    Computes a weighted time-of-flight (ToF) histogram for photon paths with per-bin variance.
 
     This function calculates arrival times and weights for each photon, then creates
-    a histogram. The time range can be determined either by weight_threshold_fraction
-    or by explicitly providing time_limits. Exactly one of these must be provided.
+    a histogram and computes the weighted variance of arrival times within each bin.
+    The time range can be determined either by weight_threshold_fraction or by explicitly 
+    providing time_limits. Exactly one of these must be provided.
 
     :param partialpath_table: 2D array, each row corresponds to a photon and each column to the path
         within medium (in mm).
@@ -99,7 +101,8 @@ def compute_tof_discrete(
     :return: Tuple containing:
         - 1D array representing the weighted ToF histogram.
         - 1D array representing the bin edges of the histogram.
-    :rtype: tuple[np.ndarray, np.ndarray]
+        - 1D array representing the weighted variance of arrival times per bin.
+    :rtype: tuple[np.ndarray, np.ndarray, np.ndarray]
     """
     # Validate that exactly one method is specified
     if (weight_threshold_fraction is None) == (time_limits is None):
@@ -156,4 +159,73 @@ def compute_tof_discrete(
         range=(time_min, time_max),
         weights=filtered_weights
     )
-    return histogram, bin_edges
+    
+    # Compute weighted variance per bin
+    bin_indices = np.digitize(filtered_times, bin_edges) - 1
+    # Clip indices to valid range [0, num_bins-1]
+    bin_indices = np.clip(bin_indices, 0, num_bins - 1)
+    
+    variance_per_bin = np.zeros(num_bins)
+    for bin_idx in range(num_bins):
+        bin_mask = bin_indices == bin_idx
+        if np.any(bin_mask):
+            bin_times = filtered_times[bin_mask]
+            bin_weights = filtered_weights[bin_mask]
+            
+            # Compute weighted mean
+            total_weight_in_bin = np.sum(bin_weights)
+            weighted_mean = np.sum(bin_weights * bin_times) / total_weight_in_bin
+            
+            # Compute weighted variance
+            variance_per_bin[bin_idx] = np.sum(bin_weights * (bin_times - weighted_mean) ** 2) / total_weight_in_bin
+    
+    return histogram, bin_edges, variance_per_bin
+
+def compute_tof_data_single_time_point(
+    partialpath_table: np.ndarray,
+    light_speed: list[float],
+    tissue_model: Any,
+    num_bins: int,
+    weight_threshold_fraction: float | None = 0.99,
+    time_limits: tuple[float, float] | None = None,
+) -> ToFData:
+    """
+    Computes ToFData for a single time point. An OOP wrapper around compute_tof_discrete.
+    
+    :param partialpath_table: 2D array, each row corresponds to a photon and each column to the path
+        within medium (in mm).
+    :type partialpath_table: np.ndarray
+    :param light_speed: List of light speeds corresponding to each medium (in m/s).
+    :type light_speed: list[float]
+    :param tissue_model: Tissue model object that provides optical properties for computing weights. The class only
+    needs to have a "prop" attribute as described in compute_weighted_intensity.
+    :type tissue_model: Any
+    :param num_bins: Number of bins for the ToF histogram.
+    :type num_bins: int
+    :param weight_threshold_fraction: Fraction of cumulative weight (0 to 1) used to determine
+        the histogram upper limit. Default is 0.99. Must be None if time_limits is provided.
+    :type weight_threshold_fraction: float | None
+    :param time_limits: Tuple of (time_min, time_max) to explicitly set the histogram range.
+        Must be None if weight_threshold_fraction is provided.
+    :type time_limits: tuple[float, float] | None
+    :return: ToFData object containing the computed ToF histogram, bin edges, and variance series.
+    """
+    tof_array, bin_edges, var_series = compute_tof_discrete(
+        partialpath_table,
+        light_speed,
+        tissue_model,
+        num_bins,
+        weight_threshold_fraction,
+        time_limits,
+    )
+    tof_tensor = torch.tensor(tof_array, dtype=torch.float32).reshape(1, -1)  # Shape: (1, num_bins)
+    bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
+    var_series_tensor = torch.tensor(var_series, dtype=torch.float32).reshape(1, -1)  # Shape: (1, num_bins)
+    tof_data = ToFData(
+        tof_series=tof_tensor,
+        bin_edges=bin_edges_tensor,
+        bin_centers=(bin_edges_tensor[:-1] + bin_edges_tensor[1:]) / 2.0,
+        var_series=var_series_tensor,
+    )
+    return tof_data
+
