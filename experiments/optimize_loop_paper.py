@@ -38,12 +38,14 @@ from joint_tof_opt import (
     CombSeparator,
     EnergyRatioMetric,
     ContrastToNoiseMetric,
+    FilteredContrastToNoiseMetric,
     get_named_moment_module,
     named_moment_types,
     noise_func_table,
     OptimizationExperiment,
     CompactStatProcess,
 )
+
 
 class DIGSSOptimizer(OptimizationExperiment):
     """
@@ -77,7 +79,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         lr: float = 0.001,
         filter_hw: float = 0.3,
         patience: int = 20,
-        grad_clip: bool = False
+        grad_clip: bool = False,
     ):
         """
         Initialize the PaperOptimizer.
@@ -102,7 +104,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             if noise_func is None:
                 raise ValueError("noise_func must be provided when using a custom measurand module.")
             self.noise_func = noise_func
-        
+
         if isinstance(measurand, str):
             tof_series_tensor = torch.tensor(np.load(tof_dataset_path)["tof_dataset"], dtype=torch.float32)
             bin_edges_tensor = torch.tensor(np.load(tof_dataset_path)["bin_edges"], dtype=torch.float32)
@@ -129,21 +131,18 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         # Initialize components (to be created in optimize())
         self.fetal_comb_filter = CombSeparator(
-            self.sampling_rate, 
-            self.fetal_f, 2 * self.fetal_f,
-            self.filter_hw,
-            num_timepoints // 2 + 1,
-            False
+            self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1, False
         )
         self.maternal_comb_filter = CombSeparator(
-            self.sampling_rate,
-            self.maternal_f,
-            2 * self.maternal_f,
-            self.filter_hw,
-            num_timepoints // 2 + 1,
-            False
+            self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, False
         )
-        self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_func, self.tof_series, self.bin_edges, False)
+        ############### DEBUG CODE - CHANGE LATER ###############
+        # self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_func, self.tof_series, self.bin_edges, False)
+        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
+            self.noise_func, self.tof_series, self.bin_edges, self.fetal_comb_filter, False
+        )
+        ############### DEBUG CODE - CHANGE LATER ###############
+
         self.energy_ratio_metric = EnergyRatioMetric()
 
         # Parameters
@@ -234,6 +233,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             "contrast_to_noise_metric": self.contrast_to_noise_metric,
             "energy_ratio_metric": self.energy_ratio_metric,
         }
+
 
 # Functional Interface
 def main_optimize(

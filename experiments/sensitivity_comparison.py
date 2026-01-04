@@ -54,6 +54,9 @@ def read_parameter_mapping():
     return parameter_mapping
 
 
+
+
+
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, Callable], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
@@ -76,6 +79,8 @@ def main(
     :return: List of dictionaries containing results for each experiment.
     :rtype: list[dict[str, Any]]
     """
+    ### DEBUG CODE ###
+    to_skip = 1
     ## Params
     lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
@@ -93,6 +98,10 @@ def main(
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
         for experiment in experiments:
+            ## DEBUG CODE ##
+            if to_skip > 0:
+                to_skip -= 1
+                continue
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
@@ -159,7 +168,7 @@ if __name__ == "__main__":
         # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"], print_log=False)
+    exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"], print_log=True)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     

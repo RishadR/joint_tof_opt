@@ -50,7 +50,6 @@ class CompactStatProcess(ABC, nn.Module):
         pass
 
 
-
 class OptimizationExperiment(ABC):
     """
     Base class for optimization experiments on TOF data.
@@ -134,7 +133,7 @@ class Evaluator(ABC):
     @abstractmethod
     def __str__(self) -> str:
         pass
-    
+
     @abstractmethod
     def get_log(self) -> dict[str, Any]:
         pass
@@ -143,16 +142,16 @@ class Evaluator(ABC):
 class NoiseCalculator(ABC):
     """
     Base class for noise calculation modules.
-    
+
     Things to Implement in Subclasses:
     -----------------------
-    - self.compute_noise() : Method to compute the analytical noise for a given ToF series, bin edges, and window. 
+    - self.compute_noise() : Method to compute the analytical noise for a given ToF series, bin edges, and window.
     The method should return a 1D tensor of noise values - same length as number of ToF series.
     - __str__() : String representation of the noise calculator for easy identification.
-    
+
     Extra:
     -----------------------
-    If you need to have other parameters go into the noise calculator, you can add them to the __init__ method 
+    If you need to have other parameters go into the noise calculator, you can add them to the __init__ method
     """
 
     @abstractmethod
