@@ -8,8 +8,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from typing import Any, Literal
-from dataclasses import dataclass
-
+from dataclasses import dataclass, field
 
 @dataclass
 class ToFData:
@@ -22,6 +21,8 @@ class ToFData:
     bin_edges: 1D tensor of shape (num_bins + 1)
     bin_centers: 1D tensor of shape (num_bins)
     var_series: 2D tensor of shape (num_timepoints, num_bins) - holds corresponding variance values for each point
+    inner_moments: Dictionary to hold precomputed inner moments if needed. Keys are moment orders (float),
+        values are 2D tensors of shape (num_timepoints, num_bins) corresponding to that moment.
     meta_data: Optional dictionary to hold any additional metadata. This might include:
         - time_axis: 1D numpy array of time values corresponding to each row of tof_series
         - sd_distance: Source-detector distance in mm
@@ -43,6 +44,7 @@ class ToFData:
     bin_edges: torch.Tensor
     bin_centers: torch.Tensor
     var_series: torch.Tensor
+    inner_moments: dict[float, torch.Tensor] = field(default_factory=dict)
     meta_data: dict[str, Any] | None = None
 
     @classmethod
@@ -65,14 +67,22 @@ class ToFData:
         # Load meta_data if it exists in the npz file
         meta_data = {}
         all_keys = list(data.keys())
-        meta_data_keys = [x for x in all_keys if x not in ["tof_dataset", "bin_edges", "var_dataset", "bin_centers"]]
+        meta_data_keys = [
+            x for x in all_keys if x not in ["tof_dataset", "bin_edges", "var_dataset", "bin_centers"] and not x.startswith("inner_moment_")
+        ]
         for key in meta_data_keys:
             meta_data[key] = data[key]
+        inner_moments = {}
+        for key in all_keys:
+            if key.startswith("inner_moment_"):
+                order_str = key[len("inner_moment_"):]
+                inner_moments[float(order_str)] = torch.tensor(data[key], dtype=torch.float32)
         return cls(
             tof_series=tof_series,
             bin_edges=bin_edges,
             bin_centers=bin_centers,
             var_series=var_series,
+            inner_moments=inner_moments,
             meta_data=meta_data,
         )
 
@@ -83,10 +93,15 @@ class ToFData:
         :param npz_path: Path to save the .npz file
         :type npz_path: Path
         """
+        inner_moments_kwargs = {
+            "inner_moment_" + str(order): moment.numpy() for order, moment in self.inner_moments.items()
+        }
         save_dict = {
             "tof_dataset": self.tof_series.numpy(),
             "bin_edges": self.bin_edges.numpy(),
             "var_dataset": self.var_series.numpy(),
+            "bin_centers": self.bin_centers.numpy(),
+            **inner_moments_kwargs,
         }
         if self.meta_data is not None:
             for key, value in self.meta_data.items():
@@ -162,7 +177,7 @@ class OptimizationExperiment(ABC):
     def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess, lr: float = 0.01):
         self.tof_dataset_path = tof_dataset_path
         self.tof_data = ToFData.from_npz(tof_dataset_path)
-        assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None" 
+        assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
         assert "time_axis" in self.tof_data.meta_data, "ToFData meta_data must contain time_axis"
         self.moment_module = measurand
         self.training_curves = np.array([])

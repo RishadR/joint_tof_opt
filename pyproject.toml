@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "joint_tof_opt"
+version = "0.1.0"
+description = "Joint time-of-flight optimization"
+requires-python = ">=3.7"
+dependencies = [
+    "numpy",
+    "torch",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools]
+packages = ["joint_tof_opt"]
+
+[tool.setuptools.package-dir]
+"" = "src"

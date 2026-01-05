@@ -3,21 +3,23 @@ Unit tests for TOF processing functions.
 """
 
 import numpy as np
-import pytest
+import unittest
 from unittest.mock import Mock
+from pathlib import Path
 from joint_tof_opt.tof_process import (
     compute_arrival_times,
     compute_weighted_intensity,
     compute_tof_discrete,
     compute_tof_data_single_time_point,
 )
+import yaml
 from joint_tof_opt.tof_batch_process import generate_tof, compute_tof_data_series
 import tempfile
 from pathlib import Path
 from joint_tof_opt.core import ToFData
 
 
-class TestComputeArrivalTimes:
+class TestComputeArrivalTimes(unittest.TestCase):
     """Tests for compute_arrival_times function."""
 
     def test_single_medium(self):
@@ -68,11 +70,11 @@ class TestComputeArrivalTimes:
         partialpath_table = np.array([[100.0, 200.0]])
         light_speed = [3e8]  # Only 1 speed, but 2 media in table
 
-        with pytest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             compute_arrival_times(partialpath_table, light_speed)
 
 
-class TestComputeWeightedIntensity:
+class TestComputeWeightedIntensity(unittest.TestCase):
     """Tests for compute_weighted_intensity function."""
 
     def test_single_medium(self):
@@ -136,7 +138,7 @@ class TestComputeWeightedIntensity:
         partialpath_table = np.array([[100.0]])
         tissue_model = Mock(spec=[])  # No attributes
 
-        with pytest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             compute_weighted_intensity(partialpath_table, tissue_model)
 
     def test_mismatched_media_count(self):
@@ -149,11 +151,11 @@ class TestComputeWeightedIntensity:
             [0.01, 1.0, 0.9],  # Only 1 medium (need 2)
         ]
 
-        with pytest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             compute_weighted_intensity(partialpath_table, tissue_model)
 
 
-class TestComputeTofDiscrete:
+class TestComputeTofDiscrete(unittest.TestCase):
     """Tests for compute_tof_discrete function."""
 
     def test_basic_histogram(self):
@@ -238,13 +240,13 @@ class TestComputeTofDiscrete:
         ]
 
         # Test threshold > 1
-        with pytest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             compute_tof_discrete(
                 partialpath_table, light_speed, tissue_model, num_bins=10, weight_threshold_fraction=1.5
             )
 
         # Test threshold <= 0
-        with pytest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             compute_tof_discrete(
                 partialpath_table, light_speed, tissue_model, num_bins=10, weight_threshold_fraction=0.0
             )
@@ -307,7 +309,7 @@ class TestComputeTofDiscrete:
         np.testing.assert_almost_equal(np.sum(histogram), total_weight)
 
 
-class TestComputeTofDataSingleTimePoint:
+class TestComputeTofDataSingleTimePoint(unittest.TestCase):
     """Tests for compute_tof_data_single_time_point function."""
 
     def test_basic_tof_data(self):
@@ -364,93 +366,79 @@ class TestComputeTofDataSingleTimePoint:
         np.testing.assert_array_almost_equal(tof_data.var_series.flatten(), expected_var)
         np.testing.assert_array_almost_equal(tof_data.bin_edges.numpy(), expected_bin_edges)
 
-class TestComputeToFDataSeries:
-    def test_generate_tof_save_load_consistency(self, tmp_path):
+
+class TestComputeToFDataSeries(unittest.TestCase):
+    def test_generate_tof_save_load_consistency(self):
         """Test that generate_tof output saved as npz matches ToFData.from_npz when loaded."""
         
-        # Create test data
-        partialpath_table = np.array(
-            [
-                [100.0],
-                [200.0],
-                [300.0],
-                [400.0],
-            ]
-        )
-        light_speed = [3e8]
-        
-        tissue_model = Mock()
-        tissue_model.prop = [
-            [0.0, 0.0, 0.0],  # Background
-            [0.01, 1.0, 0.9],  # Medium 1: [mu_a, mu_s, g]
-        ]
-        num_bins = 5
-        
-        # Generate ToFData
-        tof_data = compute_tof_data_single_time_point(
-            partialpath_table, light_speed, tissue_model, num_bins
-        )
-        
-        # Save to npz file
-        npz_path = tmp_path / "test_tof_data.npz"
-        tof_data.to_npz(npz_path)
-        
-        # Load from npz file
-        loaded_tof_data = ToFData.from_npz(npz_path)
-        
-        # Compare all attributes
-        np.testing.assert_array_almost_equal(
-            tof_data.tof_series.numpy(),
-            loaded_tof_data.tof_series.numpy()
-        )
-        np.testing.assert_array_almost_equal(
-            tof_data.var_series.numpy(),
-            loaded_tof_data.var_series.numpy()
-        )
-        np.testing.assert_array_almost_equal(
-            tof_data.bin_edges.numpy(),
-            loaded_tof_data.bin_edges.numpy()
-        )
-        np.testing.assert_array_almost_equal(
-            tof_data.bin_centers.numpy(),
-            loaded_tof_data.bin_centers.numpy()
-        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            
+            # Create test data
+            partialpath_table = np.array(
+                [
+                    [100.0],
+                    [200.0],
+                    [300.0],
+                    [400.0],
+                ]
+            )
+            light_speed = [3e8]
 
-    def test_compute_tof_data_series_vs_generate_tof(self):
-        """Test that compute_tof_data_series and generate_tof produce consistent outputs."""
-        # Create test data with multiple time points
-        partialpath_tables = [
-            np.array([[100.0], [200.0], [300.0]]),
-            np.array([[110.0], [210.0], [310.0]]),
-            np.array([[90.0], [190.0], [290.0]]),
-        ]
-        light_speed = [3e8]
-        
-        tissue_model = Mock()
-        tissue_model.prop = [
-            [0.0, 0.0, 0.0],  # Background
-            [0.01, 1.0, 0.9],  # Medium 1: [mu_a, mu_s, g]
-        ]
-        num_bins = 5
-        
-        # Generate ToFData for each time point
-        tof_data_list = [
-            compute_tof_data_single_time_point(
-                table, light_speed, tissue_model, num_bins
-            )
-            for table in partialpath_tables
-        ]
-        
-        # Check that all ToFData objects have consistent shapes
-        for tof_data in tof_data_list:
-            assert tof_data.tof_series.shape == (1, num_bins)
-            assert tof_data.var_series.shape == (1, num_bins)
-            assert tof_data.bin_edges.shape == (num_bins + 1,)
-            assert tof_data.bin_centers.shape == (num_bins,)
-        
-        # Verify bin edges are consistent across time points
-        for i in range(1, len(tof_data_list)):
-            np.testing.assert_array_almost_equal(
-                tof_data_list[0].bin_edges.numpy(),
-                tof_data_list[i].bin_edges.numpy()
-            )
+            tissue_model = Mock()
+            tissue_model.prop = [
+                [0.0, 0.0, 0.0],  # Background
+                [0.01, 1.0, 0.9],  # Medium 1: [mu_a, mu_s, g]
+            ]
+            num_bins = 5
+
+            # Generate ToFData
+            tof_data = compute_tof_data_single_time_point(partialpath_table, light_speed, tissue_model, num_bins)
+
+            # Save to npz file
+            npz_path = tmp_path / "test_tof_data.npz"
+            tof_data.to_npz(npz_path)
+
+            # Load from npz file
+            loaded_tof_data = ToFData.from_npz(npz_path)
+
+            # Compare all attributes
+            np.testing.assert_array_almost_equal(tof_data.tof_series.numpy(), loaded_tof_data.tof_series.numpy())
+            np.testing.assert_array_almost_equal(tof_data.var_series.numpy(), loaded_tof_data.var_series.numpy())
+            np.testing.assert_array_almost_equal(tof_data.bin_edges.numpy(), loaded_tof_data.bin_edges.numpy())
+            np.testing.assert_array_almost_equal(tof_data.bin_centers.numpy(), loaded_tof_data.bin_centers.numpy())
+
+    def test_generate_tof(self):
+        """Test generate_tof function works with using our test config"""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            
+            # Load config
+            config_path = Path(__file__).parent / "test_config.yaml"
+            with open(config_path, "r") as f:
+                config = yaml.safe_load(f)
+
+            # Create temporary ppath dataset file
+            ppath_dataset_path = tmp_path / "test_ppath_dataset.npz"
+            ppath_table = np.array([[1, 100.0, 50.0, 2., 1.], [1, 200.0, 75.0, 3., 1.]])  # Dummy data
+            srcpos = np.array([0.0, 0.0, 0.0])
+            detpos = np.array([[10.0, 0.0, 0.0, 2.0]])
+            np.savez(ppath_dataset_path, ppath=ppath_table, srcpos=srcpos, detpos=detpos)
+
+            # Create temporary save directory
+            save_path = tmp_path / "tof_output.npz"
+
+            # Call generate_tof
+            generate_tof(ppath_dataset_path, config, save_path, True, True, [])
+
+            # Verify that output files were created (adjust based on what generate_tof actually saves)
+            self.assertTrue(save_path.exists(), "Save path should be created")
+            # Verify the saved npz file contains the expected keys
+            saved_file = np.load(save_path)
+            self.assertIn("tof_dataset", saved_file.files)
+            self.assertIn("bin_edges", saved_file.files)
+            self.assertIn("time_axis", saved_file.files)
+
+
+if __name__ == "__main__":
+    unittest.main()

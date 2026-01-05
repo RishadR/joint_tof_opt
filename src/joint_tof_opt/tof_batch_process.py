@@ -7,7 +7,7 @@ import numpy as np
 import yaml
 import torch
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
-from joint_tof_opt.tof_process import compute_tof_discrete
+from joint_tof_opt.tof_process import compute_tof_discrete, compute_inner_bin_moment
 from joint_tof_opt.core import ToFData
 from tempfile import NamedTemporaryFile
 
@@ -18,6 +18,7 @@ def generate_tof(
     save_path: Path,
     pulse_maternal: bool = True,
     pulse_fetal: bool = True,
+    inner_moment_orders: list[float] = [],
 ) -> None:
     """
     Generate a DToF dataset based on the provided path length dataset and save it.
@@ -42,6 +43,8 @@ def generate_tof(
     :type pulse_maternal: bool
     :param pulse_fetal: Whether to pulse fetal hemoglobin concentration. Default is True.
     :type pulse_fetal: bool
+    :param inner_moment_orders: List of orders for which to compute inner moments. Default is empty list.
+    :type inner_moment_orders: list[float]
     :return: None
     :rtype: None
     """
@@ -86,12 +89,13 @@ def generate_tof(
     ppath_array = ppath_dataset["ppath"]
     srcpos = ppath_dataset["srcpos"]
     detpos_array = ppath_dataset["detpos"]
-    detpos = detpos_array[int(selected_sdd_index), :3]
+    detpos = detpos_array[int(selected_sdd_index) - 1, :3]
     sd_distance = detpos[1] - srcpos[1]
     filtered_ppath_array = (ppath_array[ppath_array[:, 0] == selected_sdd_index])[:, 1:]
 
     tof_dataset = np.zeros((len(time_axis), bin_count))
     var_dataset = np.zeros_like(tof_dataset)
+    inner_moments_dataset = {str(order): np.zeros((len(time_axis), bin_count)) for order in inner_moment_orders}
     time_limits = None
     bin_edges = None
     for idx in range(len(time_axis)):
@@ -123,11 +127,26 @@ def generate_tof(
                 None,
                 time_limits,
             )
+        for order in inner_moment_orders:
+            inner_moment_array = compute_inner_bin_moment(
+                filtered_ppath_array,
+                light_speeds,
+                tisse_model,
+                bin_count,
+                order,
+                time_limits,
+            )
+            inner_moments_dataset[str(order)][idx, :] = inner_moment_array
+        
         tof_dataset[idx, :] = tof_array
         var_dataset[idx, :] = var_array
 
     # Save the generated ToF dataset
     assert bin_edges is not None
+    
+    # Flatten inner_moments_dataset dictionary into separate arrays
+    inner_moments_kwargs = {f"inner_moment_{key}": value for key, value in inner_moments_dataset.items()}
+    
     np.savez(
         save_path,
         tof_dataset=tof_dataset,
@@ -142,6 +161,7 @@ def generate_tof(
         fetal_f=fetal_f,
         maternal_f=maternal_f,
         sampling_rate=sampling_rate,
+        **inner_moments_kwargs,
     )
 
 
@@ -150,6 +170,7 @@ def compute_tof_data_series(
     gen_config: dict,
     pulse_maternal: bool = True,
     pulse_fetal: bool = True,
+    inner_moment_orders: list[float] = [],
 ) -> ToFData:
     """
     An OOP wrapper around generate_tof to return a ToFData object.
@@ -163,6 +184,7 @@ def compute_tof_data_series(
         temp_path,
         pulse_maternal,
         pulse_fetal,
+        inner_moment_orders
     )
     tof_data = ToFData.from_npz(temp_path)
     temp_path.unlink()  # Delete the temporary file
