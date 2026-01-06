@@ -1,4 +1,7 @@
-# Our Setup
+# Joint-ToF Optimization Paper
+
+## Our Setup
+
 ![Flow](joint_opt_flow_alt.drawio.svg)
 *Fig: Our simulation process flow*
 Here is our current optimization process:
@@ -16,7 +19,7 @@ Here is our current optimization process:
 ![DTOF image](./Code_Generated_Image.png)
 *Fig: Sample image of Distribution of Time-of-Flight, both the continuous and discrete(binned) versions*
 
-# Motivations for Compact Stats
+## Motivations for Compact Stats
 
 1. Sum is the typical one - essentially reduces down to Continuous Wave (CW)
 2. $\bar{T}$ has better depth selectivity. Depth selectivity is the ability to prioritize deeper-tissue signals over shallow layer interference. Defined as the ratio between deep-tissue Sensitivity to shallow-tissue sensitivity.
@@ -24,13 +27,13 @@ Here is our current optimization process:
 ![Var Performance](./var_correlation.png)
 *Fig: We show the simulated $\alpha(t)$ using $Var(T)$ as the compact stats along with the underlying $\mu_{a,fetal}(t)$ used for generating the DTOF sets. This uses our optimized window. Note the near perfect negative correlation*
 
-# Issues
+## Issues
 
 
 1. *Window Shape:* Our current optimization creates a discrete, free-form window. Which does not align with the current hardware.
 2. *Runaway Optimization:* For both $\bar{T}$ and $Var(T)$, the optimizer needs to compute $Var(T)$. However, if the window focuses all its weights on a single bin, computing $Var(T)$ is impossible. For example: If Our window = [0, 0, 1, 0, 0], there only one bin in the DTOF. In which case, the $\bar{T}$ equals to the value of that bin. and $Var(T) = 0$. This creates exploding gradients and breaks the optimization process. This can be solved by either imposing a shape constraint on the window or by storing additional information to compute true, non-discretized compact statistics. (The second method would involve working with 3x more numbers, which is still many order magnitude less than working the entire continuous DTOF)
 
-# Questions
+## Questions
 
-1. From a practical stand point, does it make more sense to create a continuous window with a given shape or free-from, discrete(in T) window? 
-2. Does it add any extra value to work with all three compact stats? Or should we just stick to Sum?
+1. There are two ways to go about this. Discretize into bins or work in Continuous domain. The Binned version has much better SNR (Can be proven with Law of Total Variance - check noise_calc.md for more details). In which case, it makes sense to have discrete windows and treat this whole thing as a post-processing system. However, I am not sure if that can be implemented in hardware in real time. The Continuous domain poses optimization challenges on top of being noisier. The main challenge is working with a large chunk of input data - which makes gradient computation/optimization more unstable. Additionally, the windows cannot be free-form. They need to reduced down to some simple equation. Which of these two approaches is more interesting?
+2. Does it add any extra value to work with all three compact stats? Or should we just stick to Sum? Sticking to only Sum allows us to avoid all these optimization problems.
