@@ -9,7 +9,7 @@ Here is our current optimization process:
 4. We feed the product to a Compact Statistics generator to convert each DTOF into a single number - generating a time series across all DTOFs ($\alpha(t)$).
 5. Compact Statistics include :
    1. Sum
-   2. Mean Photon Arrival Time, $<T>$
+   2. Mean Photon Arrival Time, $\bar{T}$
    3. Photon Arrival Time Variance, $Var(T)$
 6. We iteratively optimize the window based on some Figure of Merit computed on $\alpha(t)$. The optimized window is "free-from" - its elements can have any positive weight.
 
@@ -19,7 +19,7 @@ Here is our current optimization process:
 # Motivations for Compact Stats
 
 1. Sum is the typical one - essentially reduces down to Continuous Wave (CW)
-2. $<T>$ has better depth selectivity. Depth selectivity is the ability to prioritize deeper-tissue signals over shallow layer interference. Defined as the ratio between deep-tissue Sensitivity to shallow-tissue sensitivity.
+2. $\bar{T}$ has better depth selectivity. Depth selectivity is the ability to prioritize deeper-tissue signals over shallow layer interference. Defined as the ratio between deep-tissue Sensitivity to shallow-tissue sensitivity.
 3. $Var(T)$ has the best depth selectivity among the three
 ![Var Performance](./var_correlation.png)
 *Fig: We show the simulated $\alpha(t)$ using $Var(T)$ as the compact stats along with the underlying $\mu_{a,fetal}(t)$ used for generating the DTOF sets. This uses our optimized window. Note the near perfect negative correlation*
@@ -28,7 +28,7 @@ Here is our current optimization process:
 
 
 1. *Window Shape:* Our current optimization creates a discrete, free-form window. Which does not align with the current hardware.
-2. *Runaway Optimization:* For both $<T>$ and $Var(T)$, the optimizer needs to compute $Var(T)$. However, if the window focuses all its weights on a single bin, computing $Var(T)$ is impossible. For example: If Our window = [0, 0, 1, 0, 0], there only one bin in the DTOF. In which case, the $<T>$ equals to the value of that bin. and $Var(T) = 0$. This creates exploding gradients and breaks the optimization process. This can be solved by either imposing a shape constraint on the window or by storing additional information to compute true, non-discretized compact statistics. (The second method would involve working with 3x more numbers, which is still many order magnitude less than working the entire continuous DTOF)
+2. *Runaway Optimization:* For both $\bar{T}$ and $Var(T)$, the optimizer needs to compute $Var(T)$. However, if the window focuses all its weights on a single bin, computing $Var(T)$ is impossible. For example: If Our window = [0, 0, 1, 0, 0], there only one bin in the DTOF. In which case, the $\bar{T}$ equals to the value of that bin. and $Var(T) = 0$. This creates exploding gradients and breaks the optimization process. This can be solved by either imposing a shape constraint on the window or by storing additional information to compute true, non-discretized compact statistics. (The second method would involve working with 3x more numbers, which is still many order magnitude less than working the entire continuous DTOF)
 
 # Questions
 
