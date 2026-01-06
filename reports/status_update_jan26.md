@@ -22,7 +22,7 @@ Here is our current optimization process:
 2. $<T>$ has better depth selectivity. Depth selectivity is the ability to prioritize deeper-tissue signals over shallow layer interference. Defined as the ratio between deep-tissue Sensitivity to shallow-tissue sensitivity.
 3. $Var(T)$ has the best depth selectivity among the three
 ![Var Performance](./var_correlation.png)
-*Fig: We show the simulated \alpha(t) using $Var(T)$ as the compact stats along with the underlying $\mu_{a,fetal}(t)$ used for generating the DTOF sets. This uses our optimized window. Note the near perfect negative correlation*
+*Fig: We show the simulated $\alpha(t)$ using $Var(T)$ as the compact stats along with the underlying $\mu_{a,fetal}(t)$ used for generating the DTOF sets. This uses our optimized window. Note the near perfect negative correlation*
 
 # Issues
 
