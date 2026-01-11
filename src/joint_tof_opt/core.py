@@ -106,7 +106,7 @@ class ToFData:
         if self.meta_data is not None:
             for key, value in self.meta_data.items():
                 save_dict[key] = value
-        np.savez(npz_path, **save_dict)
+        np.savez(npz_path, **save_dict, allow_pickle=True)
 
 
 class CompactStatProcess(ABC, nn.Module):
