@@ -106,10 +106,11 @@ def main(
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
-                        "Bin_Edges": bin_edges,
-                        "Optimized_Window": window.detach().cpu().numpy(),
-                        "fetal_hb_series": meta_data["fetal_hb_series"],
-                        "filtered_signal": optimizer_experiment.final_signal.numpy(),
+                        "Bin_Edges": bin_edges.tolist(),
+                        "Optimized_Window": window.detach().cpu().numpy().tolist(),
+                        "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
+                        "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
+                        "evaluator_log": evaluator.get_log(),
                     }
                 )
                 print(
@@ -135,5 +136,7 @@ if __name__ == "__main__":
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
-    results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
-    np.savez("./results/sensitivity_comparison_results.npz", **results_dict, allow_pickle=True)  # pyright: ignore
+    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
+    with open("./results/sensitivity_comparison_results.yaml", "w") as f:
+        yaml.dump(results_dict, f, default_flow_style=False)
+    

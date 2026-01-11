@@ -59,7 +59,7 @@ def main(
 
     # Initialize results table and windows storage
     results = []
-    measurand = "abs" # Fixed measurand for this experiment
+    measurand = "abs"  # Fixed measurand for this experiment
     for sdd_index in sdd_indices_to_test:
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         gen_config["selected_sdd_index"] = sdd_index
@@ -107,10 +107,11 @@ def main(
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
-                        # "Bin_Edges": bin_edges,
-                        # "Optimized_Window": window.detach().cpu().numpy(),
-                        # "fetal_hb_series": meta_data["fetal_hb_series"],
-                        # "filtered_signal": optimizer_experiment.final_signal.numpy(),
+                        # Not exactly needed right now - maybe useul later
+                        # "Bin_Edges": bin_edges.tolist(),
+                        # "Optimized_Window": window.detach().cpu().numpy().tolist(),
+                        # "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
+                        # "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
                     }
                 )
@@ -137,5 +138,6 @@ if __name__ == "__main__":
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, [4, 5], print_log=False)
-    results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
-    np.savez("./results/detector_comparison_results.npz", **results_dict, allow_pickle=True)  # pyright: ignore
+    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
+    with open("./results/detector_comparison_results.yaml", "w") as f:
+        yaml.dump(results_dict, f, default_flow_style=False)

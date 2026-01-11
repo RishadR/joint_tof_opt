@@ -400,6 +400,26 @@ class CorrelationEvaluator(Evaluator):
         }
 
 
+class SpectralCorrelationEvaluator(Evaluator):
+    """
+    Same as CorrelationEvaluator but computes correlation in frequency domain.
+    """
+    def __init__(
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str | CompactStatProcess,
+        filter_hw: float = 0.3,
+        signal_type: Literal["fetal", "maternal"] = "fetal",
+        terminal_ignore_points: int = 3,
+    ):
+        pass
+    # TODO: Implement SpectralCorrelationEvaluator Later and use it for PaperEvaluator
+    
+    
+
+
+
 class SNREvaluator(Evaluator):
     """
     Evaluator for computing SNR of a given measurand with a filter applied using a (custom) noise calculator.
