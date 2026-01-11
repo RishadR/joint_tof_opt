@@ -55,7 +55,7 @@ def main(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
+    lr_list = {"abs": 0.08, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
     gen_config["selected_sdd_index"] = 2
 

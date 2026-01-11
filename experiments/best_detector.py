@@ -133,11 +133,11 @@ if __name__ == "__main__":
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.2, 1, True),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand),
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, [4, 5], print_log=False)
+    exp_results = main(eval_func, optimizer_funcs_to_test, [2], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/detector_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)

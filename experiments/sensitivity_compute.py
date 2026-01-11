@@ -364,7 +364,6 @@ class CorrelationEvaluator(Evaluator):
             tof_series = self.measurand.tof_series
             tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
             fetal_hb_series = self.measurand.meta_data["fetal_hb_series"]
-
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
         assert self.moment_module.meta_data is not None, "Meta data must be provided in the measurand module"
@@ -379,10 +378,10 @@ class CorrelationEvaluator(Evaluator):
             f1=2 * target_f,
             half_width=self.filter_hw,
             filter_length=tof_series_tensor.shape[1] // 2 + 1,
+            phase_preserve=True,
         )
         self.filtered_signal = self.comb_filter(compact_stats.unsqueeze(0).unsqueeze(0))  # Shape:(1, 1, num_timepoints)
         self.filtered_signal = self.filtered_signal.squeeze()  # Shape: (num_timepoints,)
-
         # Load heartbeat series
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
@@ -404,6 +403,7 @@ class SpectralCorrelationEvaluator(Evaluator):
     """
     Same as CorrelationEvaluator but computes correlation in frequency domain.
     """
+
     def __init__(
         self,
         ppath_file: Path,
@@ -413,11 +413,59 @@ class SpectralCorrelationEvaluator(Evaluator):
         signal_type: Literal["fetal", "maternal"] = "fetal",
         terminal_ignore_points: int = 3,
     ):
-        pass
-    # TODO: Implement SpectralCorrelationEvaluator Later and use it for PaperEvaluator
-    
-    
+        super().__init__(ppath_file, window, measurand)
+        self.signal_type = signal_type
+        self.measurand_str = ""
+        if isinstance(measurand, str):
+            assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
+            self.measurand_str = measurand
+        self.filter_hw = filter_hw
+        self.comb_filter = None
+        self.filtered_signal = None
+        self.moment_module = None
+        self.terminal_ignore_points = terminal_ignore_points
 
+    def __str__(self) -> str:
+        return "Computes Spectral Correlation between measurand and fetal or maternal hb changes"
+
+    def evaluate(self) -> float:
+        if isinstance(self.measurand, str):
+            gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            meta_data = tof_data.meta_data
+            tof_series_tensor = tof_data.tof_series
+            bin_edges_tensor = tof_data.bin_edges
+            self.moment_module = get_named_moment_module(self.measurand, tof_data)
+            meta_data = tof_data.meta_data
+            assert meta_data is not None, "ToF Generation Failed! No MetaData for Correlation Evaluation"
+            fetal_hb_series = meta_data["fetal_hb_series"]
+        else:
+            self.moment_module = self.measurand
+            assert self.measurand.meta_data is not None, "Meta data must be provided in the measurand module"
+            assert self.measurand.meta_data["fetal_hb_series"] is not None, "Fetal hb series must be in the meta data"
+            tof_series = self.measurand.tof_series
+            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
+            fetal_hb_series = self.measurand.meta_data["fetal_hb_series"]
+
+        # Compute compact statistics
+        compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
+        compact_stats = compact_stats[self.terminal_ignore_points : -self.terminal_ignore_points]
+        self.filtered_signal = torch.abs(torch.fft.rfft(compact_stats))  # Frequency domain signal
+        # Load heartbeat series
+        fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
+        fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
+        fetal_hb_series_tensor = fetal_hb_series_tensor[self.terminal_ignore_points : -self.terminal_ignore_points]
+        fetal_hb_series_tensor = torch.abs(torch.fft.rfft(fetal_hb_series_tensor))
+
+        # Compute correlation
+        correlation = torch.corrcoef(torch.stack([self.filtered_signal, fetal_hb_series_tensor]))[0, 1].item()
+        self.final_metric = correlation
+        return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "correlation": self.final_metric,
+        }
 
 
 class SNREvaluator(Evaluator):
@@ -518,6 +566,51 @@ class FetalSNREvaluator(SNREvaluator):
             filter_length=filter_len,
         )
         super().__init__(ppath_file, window, measurand, filter_module=fetal_comb_filter)
+
+
+class FetalSelectivityEvaluator(Evaluator):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
+        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        sampling_rate = gen_config["sampling_rate"]
+        fetal_f = gen_config["fetal_f"]
+        maternal_f = gen_config["maternal_f"]
+        datapoint_count = gen_config["datapoint_count"]
+        filter_len = datapoint_count // 2 + 1
+        fetal_comb_filter = CombSeparator(
+            fs=sampling_rate,
+            f0=fetal_f,
+            f1=2 * fetal_f,
+            half_width=filter_hw,
+            filter_length=filter_len,
+            phase_preserve=True,
+        )
+        maternal_comb_filter = CombSeparator(
+            fs=sampling_rate,
+            f0=maternal_f,
+            f1=2 * maternal_f,
+            half_width=filter_hw,
+            filter_length=filter_len,
+            phase_preserve=True,
+        )
+        self.fetal_snr_evaluator = SNREvaluator(ppath_file, window, measurand, filter_module=fetal_comb_filter)
+        self.maternal_snr_evaluator = SNREvaluator(ppath_file, window, measurand, filter_module=maternal_comb_filter)
+
+    def __str__(self) -> str:
+        return "Computes Fetal Selectivity as Fetal SNR / Maternal SNR"
+
+    def evaluate(self) -> float:
+        self.fetal_snr = self.fetal_snr_evaluator.evaluate()
+        self.maternal_snr = self.maternal_snr_evaluator.evaluate()
+        self.final_metric = self.fetal_snr / self.maternal_snr
+        return self.final_metric
+    
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "fetal_snr": self.fetal_snr,
+            "maternal_snr": self.maternal_snr,
+            "fetal_selectivity": self.final_metric,
+        }
+    
 
 
 class PureFetalSNREvaluator(SNREvaluator):
@@ -705,10 +798,10 @@ class ProductEvaluator(Evaluator):
 class PaperEvaluator(Evaluator):
     """
     The final evaluator used in the paper! Uses the following equation:
-    Final Metric = Fetal Sensitivity x Normalized Fetal SNR x Fetal Correlation
+    Final Metric = Fetal Selectivity x Normalized Fetal SNR x Fetal Correlation
 
     where,
-    Fetal Sensitivity: Computed using FetalSensitivityEvaluator
+    Fetal Selectivity: Computed using FetalSelectivityEvaluator
     Normalized Fetal SNR: Computed using NormalizedFetalSNREvaluator
     Fetal Correlation: Computed using CorrelationEvaluator
 
@@ -720,13 +813,15 @@ class PaperEvaluator(Evaluator):
 
     def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
         super().__init__(ppath_file, window, measurand)
-        self.fetal_sensitivity_evaluator = NormalizedFetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
+        self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, filter_hw)
         self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, filter_hw)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, filter_hw, signal_type="fetal"
         )
+        # self.fetal_correlation_evaluator = SpectralCorrelationEvaluator(ppath_file, window, measurand, filter_hw, signal_type="fetal")
         self.normalized_fetal_snr = 0.0
         self.fetal_correlation = 0.0
+        self.fetal_selectivity = 0.0
 
     def __str__(self) -> str:
         return "Computes Product of sqrt(Normalized Fetal SNR) and Fetal Correlation"
@@ -734,19 +829,27 @@ class PaperEvaluator(Evaluator):
     def evaluate(self) -> float:
         self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
-        self.final_metric = abs((self.normalized_fetal_snr ** 0.5) * self.fetal_correlation)
+        # self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
+        self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
+        self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
+        # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
+        # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_selectivity**0.5)
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:
         normalized_fetal_snr_log = self.normalized_fetal_snr_evaluator.get_log()
         fetal_correlation_log = self.fetal_correlation_evaluator.get_log()
+        fetal_selectivity_log = self.fetal_selectivity_evaluator.get_log()
         final_log = {
             "final_metric": self.final_metric,
             "normalized_fetal_snr": self.normalized_fetal_snr,
             "fetal_correlation": self.fetal_correlation,
+            "fetal_selectivity": self.fetal_selectivity,
         }
         for key, value in normalized_fetal_snr_log.items():
             final_log[f"normalized_fetal_snr_{key}"] = value
         for key, value in fetal_correlation_log.items():
             final_log[f"fetal_correlation_{key}"] = value
+        for key, value in fetal_selectivity_log.items():
+            final_log[f"fetal_selectivity_{key}"] = value
         return final_log

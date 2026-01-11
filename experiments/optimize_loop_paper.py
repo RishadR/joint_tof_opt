@@ -133,10 +133,10 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         # Initialize components (to be created in optimize())
         self.fetal_comb_filter = CombSeparator(
-            self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1, False
+            self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1, True
         )
         self.maternal_comb_filter = CombSeparator(
-            self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, False
+            self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
         )
         ############### DEBUG CODE - CHANGE LATER ###############
         # self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
@@ -185,6 +185,13 @@ class DIGSSOptimizer(OptimizationExperiment):
 
             # Compute metrics
             energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
+            ## DEBUG CODE
+            # unit_energy_signal = torch.ones_like(fetal_filtered_signal)  # Unit energy signal for energy ratio
+            # unit_energy_signal /= torch.norm(unit_energy_signal)
+            # energy_ratio = self.energy_ratio_metric(unit_energy_signal, maternal_filtered_signal)
+            ## DEBUG CODE
+            
+            
             contrast_value = self.contrast_to_noise_metric(self.window_normalized, fetal_filtered_signal)
             final_metric = energy_ratio * contrast_value
 

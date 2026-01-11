@@ -10,6 +10,7 @@ import numpy as np
 from typing import Any, Literal
 from dataclasses import dataclass, field
 
+
 @dataclass
 class ToFData:
     """
@@ -68,14 +69,16 @@ class ToFData:
         meta_data = {}
         all_keys = list(data.keys())
         meta_data_keys = [
-            x for x in all_keys if x not in ["tof_dataset", "bin_edges", "var_dataset", "bin_centers"] and not x.startswith("inner_moment_")
+            x
+            for x in all_keys
+            if x not in ["tof_dataset", "bin_edges", "var_dataset", "bin_centers"] and not x.startswith("inner_moment_")
         ]
         for key in meta_data_keys:
             meta_data[key] = data[key]
         inner_moments = {}
         for key in all_keys:
             if key.startswith("inner_moment_"):
-                order_str = key[len("inner_moment_"):]
+                order_str = key[len("inner_moment_") :]
                 inner_moments[float(order_str)] = torch.tensor(data[key], dtype=torch.float32)
         return cls(
             tof_series=tof_series,
