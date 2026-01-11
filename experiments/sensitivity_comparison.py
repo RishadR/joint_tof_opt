@@ -14,48 +14,22 @@ from sensitivity_compute import *
 from joint_tof_opt import (
     OptimizationExperiment,
     Evaluator,
-    get_named_moment_module,
     OptimizationExperiment,
     CompactStatProcess,
     generate_tof,
     pretty_print_log,
-    ToFData,
     get_noise_calculator,
-    NoiseCalculator
+    NoiseCalculator,
 )
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
+from optimize_dummy import DummyOptimizationExperiment
 
-class DummyOptimizationExperiment(OptimizationExperiment):
-    """
-    Always returns a unit window for testing purposes.
-    """
-    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess | str):
-        if isinstance(measurand, str):
-            tof_data = ToFData.from_npz(tof_dataset_path)
-            measurand = get_named_moment_module(measurand, tof_data)
-        super().__init__(tof_dataset_path, measurand)
-    
-    def optimize(self) -> None:
-        self.window = torch.ones(self.tof_data.tof_series.shape[1], dtype=torch.float32)
-        self.window /= torch.norm(self.window, p=2)
-        self.final_signal = self.moment_module(self.window) 
-        self.training_curves = []
-    
-    def __str__(self) -> str:
-        return "DummyUnitWindowGenerator"
-    
-    def components(self) -> dict[str, nn.Module]:
-        return {}
-        
 
 def read_parameter_mapping():
     with open("./data/parameter_mapping.json", "r") as f:
         parameter_mapping = yaml.safe_load(f)
     return parameter_mapping
-
-
-
 
 
 def main(
@@ -83,7 +57,7 @@ def main(
     ## Params
     lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-    gen_config['selected_sdd_index'] = 2
+    gen_config["selected_sdd_index"] = 2
 
     # Initialize results table and windows storage
     results = []
@@ -152,20 +126,14 @@ def main(
 
 
 if __name__ == "__main__":
-    # eval_func = lambda ppath, win, meas, noise_calc: NormalizedFetalSNREvaluator(ppath, win, meas)
-    # eval_func = lambda ppath, win, meas, noise_calc: NormalizedFetalSensitivityEvaluator(ppath, win, meas)
-    # eval_func = lambda ppath, win, meas, noise_calc: NormalizedPureFetalSensitivityEvaluator(ppath, win, meas)
-    # eval_func = lambda ppath, win, meas, noise_calc: CorrelationEvaluator(ppath, win, meas)
     eval_func = lambda ppath, win, meas, noise_calc: PaperEvaluator(ppath, win, meas)
-    
+
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand),
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
-    # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
-    
-    
+    np.savez("./results/sensitivity_comparison_results.npz", **results_dict, allow_pickle=True)  # pyright: ignore

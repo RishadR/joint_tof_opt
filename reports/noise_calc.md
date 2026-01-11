@@ -32,4 +32,3 @@ $$
 The paper I cited above deals in Binned Variance.
 
 Unfortunately, the concept of binned variance does not play well with windowing. Since during optimization, we can always choose a window that places all its weight on a single bin. In which case, the binned variance will drop down to zero. Since there is nothing to compute variance against. Which catapults SNR to infinity.
-
