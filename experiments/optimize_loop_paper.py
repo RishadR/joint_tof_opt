@@ -139,10 +139,10 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, False
         )
         ############### DEBUG CODE - CHANGE LATER ###############
-        # self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_func, self.tof_series, self.bin_edges, False)
-        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
-            self.noise_calc, self.tof_data, self.fetal_comb_filter, False
-        )
+        self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
+        # self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
+        #     self.noise_calc, self.tof_data, self.fetal_comb_filter, False
+        # )
         ############### DEBUG CODE - CHANGE LATER ###############
 
         self.energy_ratio_metric = EnergyRatioMetric()
