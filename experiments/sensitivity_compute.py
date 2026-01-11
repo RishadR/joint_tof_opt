@@ -705,32 +705,26 @@ class PaperEvaluator(Evaluator):
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, filter_hw, signal_type="fetal"
         )
-        self.fetal_sensitivity = 0.0
         self.normalized_fetal_snr = 0.0
         self.fetal_correlation = 0.0
 
     def __str__(self) -> str:
-        return "Computes Product of Fetal Sensitivity, Normalized Fetal SNR, and Fetal Correlation"
+        return "Computes Product of sqrt(Normalized Fetal SNR) and Fetal Correlation"
 
     def evaluate(self) -> float:
-        self.fetal_sensitivity = self.fetal_sensitivity_evaluator.evaluate()
         self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
-        self.final_metric = abs(self.fetal_sensitivity * self.normalized_fetal_snr * self.fetal_correlation)
+        self.final_metric = abs((self.normalized_fetal_snr ** 0.5) * self.fetal_correlation)
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:
-        fetal_sensitivity_log = self.fetal_sensitivity_evaluator.get_log()
         normalized_fetal_snr_log = self.normalized_fetal_snr_evaluator.get_log()
         fetal_correlation_log = self.fetal_correlation_evaluator.get_log()
         final_log = {
             "final_metric": self.final_metric,
-            "fetal_sensitivity": self.fetal_sensitivity,
             "normalized_fetal_snr": self.normalized_fetal_snr,
             "fetal_correlation": self.fetal_correlation,
         }
-        for key, value in fetal_sensitivity_log.items():
-            final_log[f"fetal_sensitivity_{key}"] = value
         for key, value in normalized_fetal_snr_log.items():
             final_log[f"normalized_fetal_snr_{key}"] = value
         for key, value in fetal_correlation_log.items():

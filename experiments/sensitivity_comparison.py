@@ -80,8 +80,6 @@ def main(
     :return: List of dictionaries containing results for each experiment.
     :rtype: list[dict[str, Any]]
     """
-    ### DEBUG CODE ###
-    to_skip = 1
     ## Params
     lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
@@ -99,10 +97,6 @@ def main(
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
         for experiment in experiments:
-            ## DEBUG CODE ##
-            if to_skip > 0:
-                to_skip -= 1
-                continue
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
@@ -166,11 +160,11 @@ if __name__ == "__main__":
     
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
-        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, ["m1"], print_log=False)
+    exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i}": res for i, res in enumerate(exp_results)}
     # np.savez("./results/sensitivity_comparison_results.npz", **results_dict)  # pyright: ignore
     
