@@ -100,7 +100,7 @@ def main(
                     final_optimizer_loss = loss_history[-1, :].tolist()
                 else:
                     final_optimizer_loss = []
-                
+
                 results.append(
                     {
                         "Measurand": measurand,
@@ -135,12 +135,13 @@ if __name__ == "__main__":
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 2, 1.0),
+        lambda tof_file, measurand: LiuOptimizer(
+            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0
+        ),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}   
+    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
-    

@@ -78,6 +78,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         tof_dataset_path: Path,
         measurand: str | CompactStatProcess,
         noise_calc: None | NoiseCalculator = None,
+        fetal_f: float | None = None,
         max_epochs: int = 2000,
         lr: float = 0.001,
         filter_hw: float = 0.3,
@@ -91,6 +92,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param tof_dataset_path: Path to the ToF dataset (.npz file).
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
         :param noise_calc: Noise calculator for custom measurands.
+        :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param max_epochs: Maximum number of optimization epochs.
         :param lr: Learning rate for the optimizer.
         :param filter_hw: Half width of the sinc comb filter (in Hz).
@@ -130,7 +132,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
         self.sampling_rate = self.tof_data.meta_data["sampling_rate"]
-        self.fetal_f = self.tof_data.meta_data["fetal_f"]
+        self.fetal_f = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
         self.maternal_f = self.tof_data.meta_data["maternal_f"]
         num_timepoints, num_bins = self.tof_data.tof_series.shape
 
@@ -401,7 +403,7 @@ if __name__ == "__main__":
         tof_dataset_path=tof_dataset_path,
         measurand="abs",
         max_epochs=2000,
-        lr=0.01,
+        lr=0.1,
         filter_hw=0.3,
         patience=50,
         normalize_tof=True
@@ -412,4 +414,4 @@ if __name__ == "__main__":
     loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
     print(training_curves[::10, :])
-    # plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)
+    plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)

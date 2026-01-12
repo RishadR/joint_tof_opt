@@ -1,15 +1,14 @@
 """
-Compare the sensitivity of our metric between different detector indices
+Comparing our optimizers performance when the Fetal F is off by some margin
 """
 
+"""
+Compare the sensitivity of our metric between different detector indices
+"""
 from typing import Any, Literal, Callable
 from pathlib import Path
 import torch
-import torch.nn as nn
 import yaml
-import pandas as pd
-import numpy as np
-from optimize_loop_paper import main_optimize
 from sensitivity_compute import *
 from joint_tof_opt import (
     OptimizationExperiment,
@@ -34,8 +33,8 @@ def read_parameter_mapping():
 
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
-    sdd_indices_to_test: list[int],
+    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]],
+    percent_errors: list[float],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -47,8 +46,8 @@ def main(
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
-    :param sdd_indices_to_test: List of SDD indices to test (e.g., [0, 1, 2]).
-    :type sdd_indices_to_test: list[int]
+    :param percent_errors: List of percentage errors to test (e.g., [0.1, 0.2, 0.3]).
+    :type percent_errors: list[float]
     :param print_log: Whether to print log messages during execution. (Default: False)
     :type print_log: bool
     :return: List of dictionaries containing results for each experiment.
@@ -60,9 +59,11 @@ def main(
     # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
-    for sdd_index in sdd_indices_to_test:
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        gen_config["selected_sdd_index"] = sdd_index
+    for percent_error in percent_errors:
+        gen_config_true = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        true_fetal_f: float = gen_config_true["fetal_f"]
+        error_value = true_fetal_f * percent_error
+        new_fetal_f = true_fetal_f + error_value
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
 
@@ -75,34 +76,28 @@ def main(
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-            generate_tof(ppath_file, gen_config, tof_dataset_file)
-
-            # Get TOF data tensors
-            tof_data = np.load(tof_dataset_file)
-            meta_data = dict(tof_data)
-            tof_series = tof_data["tof_dataset"]
-            bin_edges = tof_data["bin_edges"]
-            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-
+            generate_tof(ppath_file, gen_config_true, tof_dataset_file)
             # Run Optimizers
-            # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
+
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
+                # Optimize with the new (errored) fetal F as the BPF Center Freq
+                optimizer_experiment = optimizer_func(tof_dataset_file, measurand, new_fetal_f)
                 optimizer_experiment.lr = lr
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
                 noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true, noise_calculator)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 results.append(
                     {
                         "Measurand": measurand,
-                        "SDD_Index": sdd_index,
+                        "Percent_Error": percent_error,
+                        "True_Fetal_F_Hz": true_fetal_f,
+                        "Errored_Fetal_F_Hz": new_fetal_f,
                         "Depth_mm": depth,
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
@@ -130,14 +125,17 @@ def main(
 
 if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
-
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]] = [
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
+            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=True, patience=100
+        ),
+        # lambda tof_file, measurand, new_fetal_f: LiuOptimizer(
+        #     tof_file, measurand, fetal_f=new_fetal_f, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0
+        # ),
+        # lambda tof_file, measurand, new_fetal_f: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
-
-    exp_results = main(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4], print_log=False)
+    error_rates = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.4, 0.45, 0.5]  # 5%, 10%, 15%, 20% error in fetal F
+    exp_results = main(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/detector_comparison_results.yaml", "w") as f:
+    with open("./results/false_fetal_f_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)

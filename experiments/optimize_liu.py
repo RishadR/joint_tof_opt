@@ -67,6 +67,7 @@ class LiuOptimizer(OptimizationExperiment):
         self,
         tof_dataset_path: Path,
         measurand: str | CompactStatProcess,
+        fetal_f: float | None = None,
         dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
         fhr_hw: float = 0.3,
         harmonic_count: int = 2,
@@ -77,6 +78,7 @@ class LiuOptimizer(OptimizationExperiment):
 
         :param tof_dataset_path: Path to the ToF dataset (.npz file).
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
+        :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0 ("mean", "median", or "first").
         :param fhr_hw: Frequency half-width around FHR for signal extraction (in Hz).
         :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
@@ -95,7 +97,7 @@ class LiuOptimizer(OptimizationExperiment):
         # Extract metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
         self.sampling_rate = self.tof_data.meta_data["sampling_rate"]
-        self.fetal_f = self.tof_data.meta_data["fetal_f"]
+        self.fetal_f = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
         self.maternal_f = self.tof_data.meta_data["maternal_f"]
 
         # Pre-compute fetal bins for SNR calculation
