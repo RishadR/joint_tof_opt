@@ -129,11 +129,17 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
+    # Our actual evaluator (PaperEvaluator) uses Normalized SNR - which is not ideal for inter-detector comparison
+    eval_func = lambda ppath, win, meas, conf, noise_calc: ProductEvaluator(
+        FetalSelectivityEvaluator(ppath, win, meas, conf), SNREvaluator(ppath, win, meas, conf)
+    )
+    # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0),
+        lambda tof_file, measurand: LiuOptimizer(
+            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0
+        ),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 

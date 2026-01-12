@@ -70,10 +70,11 @@ def main():
 
     # Configure axes
     ax.set_xlabel('Fetal Depth (mm)')
-    ax.set_ylabel('SNR x Selectivity')
+    ax.set_ylabel('SNR (Unnormalized) x Selectivity')
+    ax.set_yscale('log')
     ax.legend(loc='upper right')
     ax.grid(True, alpha=0.3)
-    ax.set_ylim(top=1.3)
+    # ax.set_ylim(top=1.3)
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / 'figures'
