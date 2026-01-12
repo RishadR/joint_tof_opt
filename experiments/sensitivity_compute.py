@@ -42,6 +42,7 @@ __all__ = [
     "PaperEvaluator",
     "SpectralCorrelationEvaluator",
     "FetalSelectivityEvaluator",
+    "NormalizedSNREvaluator",
 ]
 
 
@@ -546,6 +547,50 @@ class SNREvaluator(Evaluator):
             "noise_variance": self.noise_var,
         }
 
+class NormalizedSNREvaluator(SNREvaluator):
+    """
+    Normalized Version of SNREvaluator where the computed SNR is always between 0 and 1.
+
+    This is done via computing the Best SNR
+    """
+
+    def __init__(
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str | CompactStatProcess,
+        gen_config: dict,
+        noise_calc: NoiseCalculator | None = None,
+        filter_module: nn.Module | None = None,
+    ):
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_module)
+        self.best_snr = 0.0
+
+    def __str__(self) -> str:
+        return f"Computes Normalized SNR of filtered {self.measurand_str} measurand using {str(self.noise_calc)}"
+
+    def evaluate(self) -> float:
+        raw_snr = super().evaluate()
+        # Compute Best SNR - The best SNR always appears when using a unit window!
+        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        moment_module = get_named_moment_module(self.measurand_str, tof_data)
+        unit_window = torch.ones_like(self.window)
+        unit_window /= unit_window.sum()
+        compact_stats = moment_module(unit_window)  # Shape: (num_timepoints,)
+        signal_energy = float(torch.sum(compact_stats**2).item())
+        noise_var = self.noise_calc.compute_noise(tof_data, unit_window)  # Shape: (num_timepoints,)
+        noise_var_mean = noise_var.mean().item()
+        assert noise_var_mean > 0, "Computed noise variance must be greater than zero!"
+        self.best_snr = signal_energy / noise_var_mean
+        self.final_metric = raw_snr / self.best_snr
+        return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        base_log = super().get_log()
+        base_log.update({"best_snr": self.best_snr})
+        return base_log
+
+
 
 class FetalSNREvaluator(SNREvaluator):
     """
@@ -822,7 +867,7 @@ class PaperEvaluator(Evaluator):
         super().__init__(ppath_file, window, measurand, gen_config)
         self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, gen_config, filter_hw)
         self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, gen_config, filter_hw)
-        self.normalized_snr_evaluator = SNREvaluator(ppath_file, window, measurand, gen_config)
+        self.normalized_snr_evaluator = NormalizedSNREvaluator(ppath_file, window, measurand, gen_config)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, gen_config, filter_hw, signal_type="fetal"
         )
@@ -845,8 +890,8 @@ class PaperEvaluator(Evaluator):
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
         # self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)
-        # self.final_metric = abs(self.normalized_snr * self.fetal_selectivity ** 0.5)
-        self.final_metric = abs(self.normalized_snr * self.fetal_correlation)
+        self.final_metric = abs(self.normalized_snr * self.fetal_selectivity)
+        # self.final_metric = abs(self.normalized_snr * self.fetal_correlation)
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:

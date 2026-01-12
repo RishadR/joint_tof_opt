@@ -172,7 +172,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=1e-3)
+        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=1e-4)
         self.training_curves = np.zeros((self.max_epochs, 3))
         # Max possible SNR will always occur when choosing an ALL ONES window
         ones_window = torch.ones_like(self.window_exponents)
