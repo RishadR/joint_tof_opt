@@ -33,7 +33,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, NoiseCalculator], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     sdd_indices_to_test: list[int],
     print_log: bool = False,
@@ -95,7 +95,7 @@ def main(
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
                 noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config, noise_calculator)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -129,7 +129,7 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, noise_calc: PaperEvaluator(ppath, win, meas)
+    eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),

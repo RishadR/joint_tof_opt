@@ -33,7 +33,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, NoiseCalculator], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
     print_log: bool = False,
@@ -80,10 +80,7 @@ def main(
             # Get TOF data tensors
             tof_data = np.load(tof_dataset_file)
             meta_data = dict(tof_data)
-            tof_series = tof_data["tof_dataset"]
             bin_edges = tof_data["bin_edges"]
-            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
 
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
@@ -95,7 +92,7 @@ def main(
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
                 noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config, noise_calculator)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -133,7 +130,7 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, noise_calc: PaperEvaluator(ppath, win, meas)
+    eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
     # eval_func = lambda ppath, win, meas, noise_calc: FetalSelectivityEvaluator(ppath, win, meas)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [

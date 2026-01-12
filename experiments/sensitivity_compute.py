@@ -74,17 +74,19 @@ class PureFetalSensitivityEvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
+        gen_config: dict,
         delta_percnt: float = 5.0,
-    ):
+    ):  
         """
         Initialize the FetalSensitivityEvaluator.
 
         :param ppath_file: Path to the ppath dataset (.npz file).
         :param window: The time-gating window to apply.
         :param measurand: The measurand to compute sensitivity for ("abs", "m1", "V") or custom module.
+        :param gen_config: DTOF generation configs. This will be used on the ppath file to generate the ToF data.
         :param delta_percnt: Percentage increase in fetal mu_a for sensitivity computation. (Default: 2.5)
         """
-        super().__init__(ppath_file, window, measurand)
+        super().__init__(ppath_file, window, measurand, gen_config)
         self.delta_percnt = delta_percnt
         self.measurand_str = ""
         if isinstance(measurand, str):
@@ -104,37 +106,34 @@ class PureFetalSensitivityEvaluator(Evaluator):
         The value could be negative. The units are (mm^-1 times units of measurand).
         """
         # Load configuration
-        with open("./experiments/tof_config.yaml", "r") as f:
-            config = yaml.safe_load(f)
-
-        light_speeds = [float(speed) for speed in config["light_speeds"]]  # in m/s for 4 layers
+        light_speeds = [float(speed) for speed in self.gen_config["light_speeds"]]  # in m/s for 4 layers
 
         # Load partial path data
         ppath_dataset = np.load(self.ppath_file)
         ppath = ppath_dataset["ppath"]  # Shape: (num_photons, num_layers + 1)
-        bin_count = config["bin_count"]
+        bin_count = self.gen_config["bin_count"]
         assert bin_count == len(self.window), "Window length must match bin count in tof_config.yaml"
-        fraction = config["weight_threshold_fraction"]
-        filtered_ppath = (ppath[ppath[:, 0] == config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
+        fraction = self.gen_config["weight_threshold_fraction"]
+        filtered_ppath = (ppath[ppath[:, 0] == self.gen_config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
 
         # Create base and perturbed tissue models
         base_model = DanModel4LayerX(
-            config["wavelength"],
-            config["epi_thickness_mm"],
-            config["derm_thickness_mm"],
-            config["maternal_hb_base"],
-            config["maternal_saturation"],
-            config["fetal_saturation"],
-            config["fetal_hb_base"],
+            self.gen_config["wavelength"],
+            self.gen_config["epi_thickness_mm"],
+            self.gen_config["derm_thickness_mm"],
+            self.gen_config["maternal_hb_base"],
+            self.gen_config["maternal_saturation"],
+            self.gen_config["fetal_saturation"],
+            self.gen_config["fetal_hb_base"],
         )
         perturbed_model = DanModel4LayerX(
-            config["wavelength"],
-            config["epi_thickness_mm"],
-            config["derm_thickness_mm"],
-            config["maternal_hb_base"],
-            config["maternal_saturation"],
-            config["fetal_saturation"],
-            config["fetal_hb_base"] * (1 + self.delta_percnt / 100),
+            self.gen_config["wavelength"],
+            self.gen_config["epi_thickness_mm"],
+            self.gen_config["derm_thickness_mm"],
+            self.gen_config["maternal_hb_base"],
+            self.gen_config["maternal_saturation"],
+            self.gen_config["fetal_saturation"],
+            self.gen_config["fetal_hb_base"] * (1 + self.delta_percnt / 100),
         )
 
         if isinstance(self.measurand, str):
@@ -188,10 +187,11 @@ class FetalSensitivityEvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
+        gen_config: dict,
         filter_hw: float = 0.3,
         output_sensitivity: Literal["maternal", "fetal"] = "fetal",
     ):
-        super().__init__(ppath_file, window, measurand)
+        super().__init__(ppath_file, window, measurand, gen_config)
         self.filter_hw = filter_hw
         self.output_sensitivity = output_sensitivity
         self.fetal_comb_filter = None
@@ -213,14 +213,13 @@ class FetalSensitivityEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
-            gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
             tof_series_tensor = tof_data.tof_series
             bin_edges_tensor = tof_data.bin_edges
             self.moment_module = get_named_moment_module(self.measurand, tof_data)
-            sampling_rate = gen_config["sampling_rate"]
-            maternal_f = gen_config["maternal_f"]
-            fetal_f = gen_config["fetal_f"]
+            sampling_rate = self.gen_config["sampling_rate"]
+            maternal_f = self.gen_config["maternal_f"]
+            fetal_f = self.gen_config["fetal_f"]
             assert tof_data.meta_data is not None, "ToF Generation Failed! No MetaData for Fetal Sensitivity Evaluation"
             maternal_hb_series = tof_data.meta_data["maternal_hb_series"]
             fetal_hb_series = tof_data.meta_data["fetal_hb_series"]
@@ -328,12 +327,13 @@ class CorrelationEvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
+        gen_config: dict,
         filter_hw: float = 0.3,
         signal_type: Literal["fetal", "maternal"] = "fetal",
         terminal_ignore_points: int = 5,
     ):
 
-        super().__init__(ppath_file, window, measurand)
+        super().__init__(ppath_file, window, measurand, gen_config)
         self.signal_type = signal_type
         self.measurand_str = ""
         if isinstance(measurand, str):
@@ -350,8 +350,7 @@ class CorrelationEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
-            gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
             meta_data = tof_data.meta_data
             tof_series_tensor = tof_data.tof_series
             bin_edges_tensor = tof_data.bin_edges
@@ -411,11 +410,12 @@ class SpectralCorrelationEvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
+        gen_config: dict,
         filter_hw: float = 0.3,
         signal_type: Literal["fetal", "maternal"] = "fetal",
         terminal_ignore_points: int = 3,
     ):
-        super().__init__(ppath_file, window, measurand)
+        super().__init__(ppath_file, window, measurand, gen_config)
         self.signal_type = signal_type
         self.measurand_str = ""
         if isinstance(measurand, str):
@@ -432,8 +432,7 @@ class SpectralCorrelationEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
-            gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
             meta_data = tof_data.meta_data
             tof_series_tensor = tof_data.tof_series
             bin_edges_tensor = tof_data.bin_edges
@@ -480,6 +479,7 @@ class SNREvaluator(Evaluator):
     :param filter_module: PyTorch module that applies the desired filter to the signal.
     :param noise_calc: (Optional) Custom noise calculator to use. If None, a default filtered noise calculator is
                     computed based on the measurand type.
+    :param gen_config: DTOF generation configs. This will be used on the ppath file to generate the ToF data.
     """
 
     def __init__(
@@ -487,6 +487,7 @@ class SNREvaluator(Evaluator):
         ppath_file: Path,
         window: torch.Tensor,
         measurand: str | CompactStatProcess,
+        gen_config: dict,
         noise_calc: NoiseCalculator | None = None,
         filter_module: nn.Module | None = None,
     ):
@@ -498,7 +499,7 @@ class SNREvaluator(Evaluator):
         :param measurand: The measurand to compute SNR for ("abs", "m1", "V") or custom module.
         :param filter_module: PyTorch module that applies the desired filter to the signal.
         """
-        super().__init__(ppath_file, window, measurand)
+        super().__init__(ppath_file, window, measurand, gen_config)
         self.filter_module = filter_module
         self.measurand_str = ""
         if isinstance(measurand, str):
@@ -521,8 +522,7 @@ class SNREvaluator(Evaluator):
     def evaluate(self) -> float:
         # Two Paths: If measurand is string, generate new data via tof_config. Otherwise use internal data
         if isinstance(self.measurand, str):
-            gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-            tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
             moment_module = get_named_moment_module(self.measurand, tof_data)
         else:
             moment_module = self.measurand
@@ -554,8 +554,7 @@ class FetalSNREvaluator(SNREvaluator):
     Note: This computes noise using FilteredNoiseCalculators internally.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
         sampling_rate = gen_config["sampling_rate"]
         fetal_f = gen_config["fetal_f"]
         datapoint_count = gen_config["datapoint_count"]
@@ -567,12 +566,12 @@ class FetalSNREvaluator(SNREvaluator):
             half_width=filter_hw,
             filter_length=filter_len,
         )
-        super().__init__(ppath_file, window, measurand, filter_module=fetal_comb_filter)
+        super().__init__(ppath_file, window, measurand, gen_config, filter_module=fetal_comb_filter)
 
 
 class FetalSelectivityEvaluator(Evaluator):
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+        super().__init__(ppath_file, window, measurand, gen_config)
         sampling_rate = gen_config["sampling_rate"]
         fetal_f = gen_config["fetal_f"]
         maternal_f = gen_config["maternal_f"]
@@ -604,8 +603,7 @@ class FetalSelectivityEvaluator(Evaluator):
         return "Computes Fetal Selectivity as Fetal SNR / Maternal SNR"
 
     def evaluate(self) -> float:
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
         moment_module = get_named_moment_module(self.measurand, tof_data)
         # Compute compact statistics
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
@@ -631,15 +629,14 @@ class PureFetalSNREvaluator(SNREvaluator):
     The entire signal is Fetal Signal. Ignores internal measurand data.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str):
-        super().__init__(ppath_file, window, measurand, filter_module=None)
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict):
+        super().__init__(ppath_file, window, measurand, gen_config, filter_module=None)
 
     def str(self) -> str:
         return "Computes Pure Fetal SNR when there is no maternal interference"
 
     def evaluate(self) -> float:
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        tof_data = compute_tof_data_series(self.ppath_file, gen_config, pulse_maternal=False, pulse_fetal=True)
+        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, pulse_maternal=False, pulse_fetal=True)
         if isinstance(self.measurand, str):
             moment_module = get_named_moment_module(self.measurand, tof_data)
         else:
@@ -662,12 +659,12 @@ class NormalizedFetalSNREvaluator(Evaluator):
     This is done via computing the Best SNR
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
-        super().__init__(ppath_file, window, measurand)
-        self.fetal_snr_evaluator = FetalSNREvaluator(ppath_file, window, measurand, filter_hw)
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+        super().__init__(ppath_file, window, measurand, gen_config)
+        self.fetal_snr_evaluator = FetalSNREvaluator(ppath_file, window, measurand, gen_config, filter_hw)
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
-        self.best_snr_evaluator = PureFetalSNREvaluator(ppath_file, unit_window, measurand)
+        self.best_snr_evaluator = PureFetalSNREvaluator(ppath_file, unit_window, measurand, gen_config)
         self.actual_snr = 0.0
         self.best_snr = 0.0
 
@@ -702,13 +699,13 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
     """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
+        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: dict, filter_hw: float = 0.3
     ):
-        super().__init__(ppath_file, window, measurand)
-        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, filter_hw)
+        super().__init__(ppath_file, window, measurand, gen_config)
+        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, gen_config, filter_hw)
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
-        self.best_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, unit_window, measurand)
+        self.best_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, unit_window, measurand, gen_config, filter_hw)
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal Sensitivity between 0 and 1"
@@ -740,14 +737,12 @@ class NormalizedPureFetalSensitivityEvaluator(Evaluator):
     This is done via computing the Best Sensitivity
     """
 
-    def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, filter_hw: float = 0.3
-    ):
-        super().__init__(ppath_file, window, measurand)
-        self.fetal_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, window, measurand)
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: dict):
+        super().__init__(ppath_file, window, measurand, gen_config)
+        self.fetal_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, window, measurand, gen_config)
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
-        self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand)
+        self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand, gen_config)
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal Sensitivity between 0 and 1"
@@ -781,7 +776,7 @@ class ProductEvaluator(Evaluator):
     """
 
     def __init__(self, evaluator1: Evaluator, evaluator2: Evaluator):
-        super().__init__(evaluator1.ppath_file, evaluator1.window, evaluator1.measurand)
+        super().__init__(evaluator1.ppath_file, evaluator1.window, evaluator1.measurand, evaluator1.gen_config)
         self.evaluator1 = evaluator1
         self.evaluator2 = evaluator2
 
@@ -823,13 +818,13 @@ class PaperEvaluator(Evaluator):
     :param filter_hw: Half-width of the filter to apply.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, filter_hw: float = 0.3):
-        super().__init__(ppath_file, window, measurand)
-        self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, filter_hw)
-        self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, filter_hw)
-        self.normalized_snr_evaluator = SNREvaluator(ppath_file, window, measurand)
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+        super().__init__(ppath_file, window, measurand, gen_config)
+        self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, gen_config, filter_hw)
+        self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, gen_config, filter_hw)
+        self.normalized_snr_evaluator = SNREvaluator(ppath_file, window, measurand, gen_config)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
-            ppath_file, window, measurand, filter_hw, signal_type="fetal"
+            ppath_file, window, measurand, gen_config, filter_hw, signal_type="fetal"
         )
         self.noise_calc = get_noise_calculator(measurand)
         

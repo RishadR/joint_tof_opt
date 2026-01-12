@@ -211,6 +211,7 @@ class Evaluator(ABC):
     - ppath_file : Path to the partial path file (.json or similar).
     - window : Torch tensor representing the time-gating window.
     - measurand : The measurand to evaluate. Can be a string (named moment) or a custom nn.Module.
+    - gen_config : DTOF generation configs. This will be used on the ppath file to generate the ToF data.
 
     Stored Attributes:
     -----------------------
@@ -223,12 +224,12 @@ class Evaluator(ABC):
     - self.get_log() : Method to return a dictionary of relevant evaluation metrics and their corresponding values.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: dict):
         self.ppath_file = ppath_file
         self.window = window
         self.measurand = measurand
         self.final_metric = None
-
+        self.gen_config = gen_config
     @abstractmethod
     def evaluate(self) -> float:
         pass
