@@ -55,7 +55,7 @@ def main(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    lr_list = {"abs": 0.08, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
+    lr_list = {"abs": 0.1, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
     gen_config["selected_sdd_index"] = 2
 
@@ -99,6 +99,11 @@ def main(
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
+                if epochs > 0:
+                    final_optimizer_loss = loss_history[-1, :].tolist()
+                else:
+                    final_optimizer_loss = []
+                
                 results.append(
                     {
                         "Measurand": measurand,
@@ -111,6 +116,7 @@ def main(
                         "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
                         "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
+                        "final_optimizer_loss": final_optimizer_loss,
                     }
                 )
                 print(
@@ -128,15 +134,16 @@ def main(
 
 if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, noise_calc: PaperEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, noise_calc: FetalSelectivityEvaluator(ppath, win, meas)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 1, True),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 2, 1.0),
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
+    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}   
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
     

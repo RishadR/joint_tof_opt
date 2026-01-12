@@ -21,16 +21,23 @@ from optimize_loop_paper import DIGSSOptimizer
 class DummyOptimizationExperiment(OptimizationExperiment):
     """
     Always returns a unit window for testing purposes.
+    Arguments:
+        tof_dataset_path: Path to the ToF dataset (.npz file).
+        measurand: CompactStatProcess instance or name of the moment to optimize.
+        norm: If specified, normalizes the window to have this p-norm. Ex: norm=1 for L1 norm.
+    
     """
-    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess | str):
+    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess | str, norm: float | None = None):
         if isinstance(measurand, str):
             tof_data = ToFData.from_npz(tof_dataset_path)
             measurand = get_named_moment_module(measurand, tof_data)
         super().__init__(tof_dataset_path, measurand)
+        self.norm = norm
     
     def optimize(self) -> None:
         self.window = torch.ones(self.tof_data.tof_series.shape[1], dtype=torch.float32)
-        self.window /= torch.norm(self.window, p=2)
+        if self.norm is not None:
+            self.window /= torch.norm(self.window, p=self.norm)
         self.final_signal = self.moment_module(self.window) 
         self.training_curves = []
     

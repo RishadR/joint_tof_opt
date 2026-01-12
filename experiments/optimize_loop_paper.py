@@ -47,6 +47,7 @@ from joint_tof_opt import (
     CompactStatProcess,
     ToFData,
 )
+from optimize_liu import LiuOptimizer
 
 
 class DIGSSOptimizer(OptimizationExperiment):
@@ -82,6 +83,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         filter_hw: float = 0.3,
         patience: int = 20,
         grad_clip: bool = False,
+        normalize_tof: bool = False
     ):
         """
         Initialize the PaperOptimizer.
@@ -94,6 +96,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param filter_hw: Half width of the sinc comb filter (in Hz).
         :param patience: Number of epochs to wait for improvement before early stopping.
         :param grad_clip: Whether to apply gradient clipping.
+        :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original 
+        counts. Default is False (keep original counts).
         """
         # Handle measurand and noise function
         if isinstance(measurand, str):
@@ -109,20 +113,19 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         if isinstance(measurand, str):
             tof_data = ToFData.from_npz(tof_dataset_path)
+            if normalize_tof:
+                tof_data.tof_series /= torch.sum(tof_data.tof_series, dim=1, keepdim=True)
             measurand = get_named_moment_module(measurand, tof_data)
+            if normalize_tof:
+                measurand.tof_data.tof_series /= torch.sum(measurand.tof_data.tof_series, dim=1, keepdim=True)
         super().__init__(tof_dataset_path, measurand, lr)
 
         self.max_epochs = max_epochs
         self.filter_hw = filter_hw
         self.patience = patience
         self.grad_clip = grad_clip
-
-        # Convert bin edges to nanoseconds for numerical stability (TODO: FIX later if needed)
-        # self.bin_edges *= 1e9
-        # # moment_module is originally initialized by the parent class but since we change the bin_centers and edges
-        # # Keep everything else unchanged
-        # self.moment_module.bin_edges = self.bin_edges
-        # self.moment_module.bin_centers = (self.bin_edges[:-1] + self.bin_edges[1:]) / 2
+        self.normalize_tof = normalize_tof
+        
 
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
@@ -139,21 +142,28 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
         )
         ############### DEBUG CODE - CHANGE LATER ###############
-        # self.contrast_to_noise_metric = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
-        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
-            self.noise_calc, self.tof_data, self.fetal_comb_filter, False
-        )
-        ############### DEBUG CODE - CHANGE LATER ###############
-
+        self.contrast_to_noise_metric_unfilt = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
+        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(self.noise_calc, self.tof_data, self.fetal_comb_filter, False)
+        ############### DEBUG CODE - CHANGE LATER ##############
         self.energy_ratio_metric = EnergyRatioMetric()
 
         # Parameters
-        self.window_exponents = nn.Parameter(0.5 * torch.zeros(num_bins, dtype=torch.float32, requires_grad=True))
-        self.window = torch.exp(self.window_exponents)
-        self.window_normalized = self.window / torch.norm(self.window)
+        self.window_exponents = nn.Parameter(0.5 * torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
+        self.window = self._winexp_to_win_func(self.window_exponents)
+        self.window_norm = self._win_norm_func(self.window)
 
         # Set training curve labels
         self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+    
+    @staticmethod
+    def _win_norm_func(win: torch.Tensor) -> torch.Tensor:
+        return win / torch.norm(win, p=1)
+    
+    @staticmethod
+    def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
+        # return torch.sigmoid(win_exp)
+        return torch.clamp(torch.relu(win_exp), min=1e-9, max=1.0)
+        # return torch.exp(win_exp)
 
     def optimize(self):
         """
@@ -162,20 +172,27 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam([self.window_exponents], lr=self.lr)
+        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=1e-4)
         self.training_curves = np.zeros((self.max_epochs, 3))
+        # Max possible SNR will always occur when choosing an ALL ONES window
+        ones_window = torch.ones_like(self.window_exponents)
+        max_signal = self.moment_module(ones_window)
+        max_contrast = self.contrast_to_noise_metric_unfilt(ones_window, max_signal)
 
         # Optimization Loop
         epoch = 0
         for epoch in range(self.max_epochs):
             optimizer.zero_grad()
             # Reparameterize window using exponentiation to ensure positivity
-            self.window = torch.exp(self.window_exponents)
+            # self.window = torch.exp(self.window_exponents)
+            
+            self.window = self._winexp_to_win_func(self.window_exponents)
+            self.window_norm = self._win_norm_func(self.window)
+
             # Normalize window to unit energy
-            self.window_normalized = self.window / torch.norm(self.window)
 
             # Compute compact statistics
-            compact_stats = self.moment_module(self.window_normalized)
+            compact_stats = self.moment_module(self.window_norm)
 
             # Apply comb filters
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
@@ -184,15 +201,18 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
 
             # Compute metrics
+            # DEBUG Code
+            # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, compact_stats)
             energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
-            ## DEBUG CODE
-            # unit_energy_signal = torch.ones_like(fetal_filtered_signal)  # Unit energy signal for energy ratio
-            # unit_energy_signal /= torch.norm(unit_energy_signal)
-            # energy_ratio = self.energy_ratio_metric(unit_energy_signal, maternal_filtered_signal)
-            ## DEBUG CODE
+            # DEBUG Code
             
             
-            contrast_value = self.contrast_to_noise_metric(self.window_normalized, fetal_filtered_signal)
+            
+            contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
+            contrast_value /= max_contrast  # Normalize contrast to max possible
+            # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
+            
+            
             final_metric = energy_ratio * contrast_value
 
             # Log metrics
@@ -201,7 +221,8 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.training_curves[epoch, 2] = final_metric.item()
 
             # Backpropagation
-            loss = -torch.log(final_metric)
+            loss = -final_metric  # DEBUG CODE: TODO Check which one is better
+            # loss = -torch.log(final_metric)
             loss.backward()
             if self.grad_clip:
                 torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
@@ -218,12 +239,12 @@ class DIGSSOptimizer(OptimizationExperiment):
                     self.training_curves = self.training_curves[: epoch + 1]
                     break
 
-        # Store final window as a normalized tensor
-        self.window = self.window_normalized
-
         # Trim training curves if early stopping occurred
         if self.training_curves.shape[0] > epoch + 1:
             self.training_curves = self.training_curves[: epoch + 1]
+            
+        # Set the normalized window as final window
+        self.window = self.window / torch.norm(self.window, p=1)
 
     def __str__(self) -> str:
         return (
@@ -251,6 +272,7 @@ def main_optimize(
     lr: float = 0.001,
     filter_hw: float = 0.3,
     patience: int = 20,
+    normalize_tof: bool = False
 ) -> tuple[torch.Tensor, np.ndarray]:
     """
     The optimization loop implementation used in the paper.
@@ -276,6 +298,8 @@ def main_optimize(
     :type filter_hw: float
     :param patience: Number of epochs to wait for improvement before early stopping.
     :type patience: int
+    :param normalize_tof: Whether to normalize the TOF data before optimization. Defaults to False.
+    :type normalize_tof: bool
     :return: Tuple containing the optimized window tensor and a numpy array of training curves. The training curves
     array has shape (max_epochs, 3) corresponding to [Energy Ratio, Contrast-to-Noise, Final Metric] at each epoch.
     :rtype: tuple[torch.Tensor, np.ndarray]
@@ -288,6 +312,7 @@ def main_optimize(
         lr=lr,
         filter_hw=filter_hw,
         patience=patience,
+        normalize_tof=normalize_tof,
     )
     optimizer.optimize()
     return optimizer.window.detach(), optimizer.training_curves
@@ -374,16 +399,17 @@ if __name__ == "__main__":
     tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
-        measurand="V",
+        measurand="abs",
         max_epochs=2000,
-        lr=1e-5,
+        lr=0.1,
         filter_hw=0.3,
         patience=50,
+        normalize_tof=True
     )
     print("Optimized Window:", optimized_window.numpy())
     print("Best Final Metric:", training_curves[-1, 2])
     print("Total Epochs:", training_curves.shape[0])
     loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
-    # print(training_curves[::10, :])
+    print(training_curves[::10, :])
     # plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)

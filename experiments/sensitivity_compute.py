@@ -40,6 +40,8 @@ __all__ = [
     "ProductEvaluator",
     "NormalizedFetalSensitivityEvaluator",
     "PaperEvaluator",
+    "SpectralCorrelationEvaluator",
+    "FetalSelectivityEvaluator",
 ]
 
 
@@ -824,16 +826,16 @@ class PaperEvaluator(Evaluator):
         self.fetal_selectivity = 0.0
 
     def __str__(self) -> str:
-        return "Computes Product of sqrt(Normalized Fetal SNR) and Fetal Correlation"
+        return "Computes Product of sqrt(Normalized Fetal SNR) and Fetal Selectivity"
 
     def evaluate(self) -> float:
         self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
         # self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
         self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
-        self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
+        # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
-        # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_selectivity**0.5)
+        self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:

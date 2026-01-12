@@ -70,7 +70,7 @@ class LiuOptimizer(OptimizationExperiment):
         dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
         fhr_hw: float = 0.3,
         harmonic_count: int = 2,
-        normalize_window: bool = True,
+        norm: None | float = None,
     ):
         """
         Initialize the LiuOptimizer.
@@ -80,7 +80,7 @@ class LiuOptimizer(OptimizationExperiment):
         :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0 ("mean", "median", or "first").
         :param fhr_hw: Frequency half-width around FHR for signal extraction (in Hz).
         :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
-        :param normalize_window: Whether to normalize output window to unit energy.
+        :param norm: If specified, normalizes the window to have this p-norm. Ex: norm=1 for L1 norm, norm=2 for L2 norm.
         """
         if isinstance(measurand, str):
             tof_data = ToFData.from_npz(tof_dataset_path)
@@ -90,7 +90,7 @@ class LiuOptimizer(OptimizationExperiment):
         self.dtof_to_find_max_on = dtof_to_find_max_on
         self.fhr_hw = fhr_hw
         self.harmonic_count = harmonic_count
-        self.normalize_window = normalize_window
+        self.norm = norm
 
         # Extract metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
@@ -203,8 +203,8 @@ class LiuOptimizer(OptimizationExperiment):
 
         # Store results
         if best_window is not None:
-            if self.normalize_window:
-                self.window = best_window / torch.norm(best_window)
+            if self.norm is not None:
+                self.window = best_window / torch.norm(best_window, p=self.norm)
             else:
                 self.window = best_window
         else:
@@ -251,7 +251,7 @@ def liu_optimize(
         dtof_to_find_max_on=dtof_to_find_max_on,
         fhr_hw=fhr_hw,
         harmonic_count=harmonic_count,
-        normalize_window=normalize_window,
+        norm=normalize_window,
     )
     optimizer.optimize()
     return optimizer.window, optimizer.training_curves

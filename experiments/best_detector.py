@@ -55,7 +55,7 @@ def main(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    lr_list = {"abs": 0.05, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
+    lr_list = {"abs": 0.01, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
 
     # Initialize results table and windows storage
     results = []
@@ -132,9 +132,9 @@ if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, noise_calc: PaperEvaluator(ppath, win, meas)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, grad_clip=False),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.2, 1, True),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
+        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, "mean", 0.3, 2, 1.0),
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, [2], print_log=False)
