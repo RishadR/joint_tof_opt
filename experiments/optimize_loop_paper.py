@@ -84,7 +84,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         filter_hw: float = 0.3,
         patience: int = 20,
         grad_clip: bool = False,
-        normalize_tof: bool = False
+        normalize_tof: bool = False,
     ):
         """
         Initialize the PaperOptimizer.
@@ -98,7 +98,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param filter_hw: Half width of the sinc comb filter (in Hz).
         :param patience: Number of epochs to wait for improvement before early stopping.
         :param grad_clip: Whether to apply gradient clipping.
-        :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original 
+        :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original
         counts. Default is False (keep original counts).
         """
         # Handle measurand and noise function
@@ -127,7 +127,6 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.patience = patience
         self.grad_clip = grad_clip
         self.normalize_tof = normalize_tof
-        
 
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
@@ -145,7 +144,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         )
         ############### DEBUG CODE - CHANGE LATER ###############
         self.contrast_to_noise_metric_unfilt = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
-        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(self.noise_calc, self.tof_data, self.fetal_comb_filter, False)
+        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
+            self.noise_calc, self.tof_data, self.fetal_comb_filter, False
+        )
         ############### DEBUG CODE - CHANGE LATER ##############
         self.energy_ratio_metric = EnergyRatioMetric()
 
@@ -156,11 +157,11 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         # Set training curve labels
         self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
-    
+
     @staticmethod
     def _win_norm_func(win: torch.Tensor) -> torch.Tensor:
         return win / torch.norm(win, p=1)
-    
+
     @staticmethod
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
         # return torch.sigmoid(win_exp)
@@ -188,7 +189,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             optimizer.zero_grad()
             # Reparameterize window using exponentiation to ensure positivity
             # self.window = torch.exp(self.window_exponents)
-            
+
             self.window = self._winexp_to_win_func(self.window_exponents)
             self.window_norm = self._win_norm_func(self.window)
 
@@ -208,13 +209,12 @@ class DIGSSOptimizer(OptimizationExperiment):
             # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, compact_stats)
             energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
             # DEBUG Code
-                
+
             # contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
             contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
             contrast_value /= max_contrast  # Normalize contrast to max possible
             # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
-            
-            
+
             final_metric = energy_ratio * contrast_value
 
             # Log metrics
@@ -244,14 +244,15 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Trim training curves if early stopping occurred
         if self.training_curves.shape[0] > epoch + 1:
             self.training_curves = self.training_curves[: epoch + 1]
-            
+
         # Set the normalized window as final window
         self.window = self.window / torch.norm(self.window, p=1)
 
     def __str__(self) -> str:
         return (
             f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
-            f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience})"
+            f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience}, grad_clip={self.grad_clip},"
+            f"normalize_tof={self.normalize_tof}, fetal_f={self.fetal_f})"
         )
 
     def components(self) -> dict[str, nn.Module]:
@@ -274,7 +275,7 @@ def main_optimize(
     lr: float = 0.001,
     filter_hw: float = 0.3,
     patience: int = 20,
-    normalize_tof: bool = False
+    normalize_tof: bool = False,
 ) -> tuple[torch.Tensor, np.ndarray]:
     """
     The optimization loop implementation used in the paper.
@@ -360,7 +361,7 @@ def plot_training_curves_and_window(
     bin_centers_ns = np.round(bin_centers_ns, decimals=2)
 
     ## Load config for plotting if available
-    config_path = Path("./experiments/plot_config.yaml")
+    config_path = Path("./plotting_codes/plot_config.yaml")
     if config_path.exists():
         with open(config_path, "r") as f:
             plot_config = yaml.safe_load(f)
@@ -406,7 +407,7 @@ if __name__ == "__main__":
         lr=0.1,
         filter_hw=0.3,
         patience=50,
-        normalize_tof=True
+        normalize_tof=True,
     )
     print("Optimized Window:", optimized_window.numpy())
     print("Best Final Metric:", training_curves[-1, 2])

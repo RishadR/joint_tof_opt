@@ -29,7 +29,7 @@ For each plot, we always use the same evaluator : Overall Signal SNR x Fetal Sel
 
 We run each optimizer for different fetal depth values, described as Depth_mm above. We want to compare the sensitivity across different depths.
 
-For each plot, the matplotlib configs (rcParams configs) are stored in './experiments/plot_config.yaml'. The color scheme is stored in here as well, as axes.prop_cycle. Saving the plots inside './figures/' as both a pdf and an svg for editability and latex-compatibility.
+For each plot, the matplotlib configs (rcParams configs) are stored in './plotting_codes/plot_config.yaml'. The color scheme is stored in here as well, as axes.prop_cycle. Saving the plots inside './figures/' as both a pdf and an svg for editability and latex-compatibility.
 
 The labels for the optimizers should be : DIGSS, Liu et al., and CW
 
@@ -37,5 +37,5 @@ The plots
 
 - Compare the Optimized_Sensitivity vs. Fetal Depth for the three optimizers. The data is stored in './results/sensitivity_comparison_results'
 - Compare different SDD Index vs. Fetal Depth for DIGSS only. The data is stored in './results/detector_comparison_results'
-- 
-- 
+- Compare the performance drop in DIGSS when a wrong fetal heartrate frequency is fed to it. The data is stored in './results/false_fetal_f_results.yaml'. We want to know the sensitivity vs. Fetal Depth for different levels of error
+

@@ -126,7 +126,8 @@ class LiuOptimizer(OptimizationExperiment):
     def __str__(self) -> str:
         return (
             f"LiuOptimizer(measurand={self.moment_module.__class__.__name__}, "
-            f"dtof_to_find_max_on={self.dtof_to_find_max_on}, fhr_hw={self.fhr_hw})"
+            f"dtof_to_find_max_on={self.dtof_to_find_max_on}, fhr_hw={self.fhr_hw},"
+            f"harmonics={self.harmonic_count}, norm={self.norm})"
         )
 
     def components(self) -> dict[str, nn.Module]:
