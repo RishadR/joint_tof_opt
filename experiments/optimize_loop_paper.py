@@ -162,8 +162,8 @@ class DIGSSOptimizer(OptimizationExperiment):
     @staticmethod
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
         # return torch.sigmoid(win_exp)
-        return torch.clamp(torch.relu(win_exp), min=1e-9, max=1.0)
-        # return torch.exp(win_exp)
+        # return torch.clamp(torch.relu(win_exp), min=1e-9, max=1.0)
+        return torch.exp(win_exp)
 
     def optimize(self):
         """
@@ -172,10 +172,11 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=1e-4)
+        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=1e-3)
         self.training_curves = np.zeros((self.max_epochs, 3))
         # Max possible SNR will always occur when choosing an ALL ONES window
         ones_window = torch.ones_like(self.window_exponents)
+        ones_window = self._win_norm_func(ones_window)
         max_signal = self.moment_module(ones_window)
         max_contrast = self.contrast_to_noise_metric_unfilt(ones_window, max_signal)
 
@@ -205,10 +206,9 @@ class DIGSSOptimizer(OptimizationExperiment):
             # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, compact_stats)
             energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
             # DEBUG Code
-            
-            
-            
-            contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
+                
+            # contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
+            contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
             contrast_value /= max_contrast  # Normalize contrast to max possible
             # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
             
@@ -401,7 +401,7 @@ if __name__ == "__main__":
         tof_dataset_path=tof_dataset_path,
         measurand="abs",
         max_epochs=2000,
-        lr=0.1,
+        lr=0.01,
         filter_hw=0.3,
         patience=50,
         normalize_tof=True

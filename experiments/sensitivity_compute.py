@@ -578,7 +578,7 @@ class FetalSelectivityEvaluator(Evaluator):
         maternal_f = gen_config["maternal_f"]
         datapoint_count = gen_config["datapoint_count"]
         filter_len = datapoint_count // 2 + 1
-        fetal_comb_filter = CombSeparator(
+        self.fetal_comb_filter = CombSeparator(
             fs=sampling_rate,
             f0=fetal_f,
             f1=2 * fetal_f,
@@ -586,7 +586,7 @@ class FetalSelectivityEvaluator(Evaluator):
             filter_length=filter_len,
             phase_preserve=True,
         )
-        maternal_comb_filter = CombSeparator(
+        self.maternal_comb_filter = CombSeparator(
             fs=sampling_rate,
             f0=maternal_f,
             f1=2 * maternal_f,
@@ -594,22 +594,32 @@ class FetalSelectivityEvaluator(Evaluator):
             filter_length=filter_len,
             phase_preserve=True,
         )
-        self.fetal_snr_evaluator = SNREvaluator(ppath_file, window, measurand, filter_module=fetal_comb_filter)
-        self.maternal_snr_evaluator = SNREvaluator(ppath_file, window, measurand, filter_module=maternal_comb_filter)
+        self.fetal_energy = 0.0
+        self.maternal_energy = 0.0
+        self.window = window
+        self.measurand = measurand
+        self.ppath_file = ppath_file
 
     def __str__(self) -> str:
         return "Computes Fetal Selectivity as Fetal SNR / Maternal SNR"
 
     def evaluate(self) -> float:
-        self.fetal_snr = self.fetal_snr_evaluator.evaluate()
-        self.maternal_snr = self.maternal_snr_evaluator.evaluate()
-        self.final_metric = self.fetal_snr / self.maternal_snr
+        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        tof_data = compute_tof_data_series(self.ppath_file, gen_config, True, True)
+        moment_module = get_named_moment_module(self.measurand, tof_data)
+        # Compute compact statistics
+        compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
+        fetal_filtered_stats = self.fetal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
+        maternal_filtered_stats = self.maternal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
+        self.fetal_energy = float(torch.sum(fetal_filtered_stats**2).item())
+        self.maternal_energy = float(torch.sum(maternal_filtered_stats**2).item())
+        self.final_metric = self.fetal_energy / self.maternal_energy
         return self.final_metric
     
     def get_log(self) -> dict[str, Any]:
         return {
-            "fetal_snr": self.fetal_snr,
-            "maternal_snr": self.maternal_snr,
+            "fetal_snr": self.fetal_energy,
+            "maternal_snr": self.maternal_energy,
             "fetal_selectivity": self.final_metric,
         }
     
@@ -817,25 +827,31 @@ class PaperEvaluator(Evaluator):
         super().__init__(ppath_file, window, measurand)
         self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, filter_hw)
         self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, filter_hw)
+        self.normalized_snr_evaluator = SNREvaluator(ppath_file, window, measurand)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, filter_hw, signal_type="fetal"
         )
+        self.noise_calc = get_noise_calculator(measurand)
+        
         # self.fetal_correlation_evaluator = SpectralCorrelationEvaluator(ppath_file, window, measurand, filter_hw, signal_type="fetal")
-        self.normalized_fetal_snr = 0.0
-        self.fetal_correlation = 0.0
         self.fetal_selectivity = 0.0
+        self.normalized_fetal_snr = 0.0
+        self.normalized_snr = 0.0
+        self.fetal_correlation = 0.0
 
     def __str__(self) -> str:
-        return "Computes Product of sqrt(Normalized Fetal SNR) and Fetal Selectivity"
+        return "Computes Product of Normalized SNR and Fetal Selectivity"
 
     def evaluate(self) -> float:
         self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
-        # self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
         self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
+        self.normalized_snr = self.normalized_snr_evaluator.evaluate()
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
-        self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)
+        # self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)
+        # self.final_metric = abs(self.normalized_snr * self.fetal_selectivity ** 0.5)
+        self.final_metric = abs(self.normalized_snr * self.fetal_correlation)
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:
@@ -847,6 +863,7 @@ class PaperEvaluator(Evaluator):
             "normalized_fetal_snr": self.normalized_fetal_snr,
             "fetal_correlation": self.fetal_correlation,
             "fetal_selectivity": self.fetal_selectivity,
+            "normalized_snr": self.normalized_snr,
         }
         for key, value in normalized_fetal_snr_log.items():
             final_log[f"normalized_fetal_snr_{key}"] = value
