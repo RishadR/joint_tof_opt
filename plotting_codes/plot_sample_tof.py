@@ -1,42 +1,64 @@
 """
 Plot a sample time-of-flight (TOF) spectrum using matplotlib.
 """
-
+from typing import Literal
 import numpy as np
 import matplotlib.pyplot as plt
 import yaml
 from pathlib import Path
 import re
+from scipy.interpolate import UnivariateSpline
+from joint_tof_opt.tof_batch_process import compute_tof_data_series, ToFData
 
 
-def load_plot_config(config_path):
+def load_plot_config():
     """Load matplotlib configuration from YAML file."""
+    config_path = "./plotting_codes/plot_config.yaml"
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     return config
 
 
-def plot_sample_tof(data_path, plot_type="distribution"):
+def get_color_cycle(config) -> list[str]:
+    # Extract colors from the prop_cycle
+    colors_str = config["axes.prop_cycle"]
+    # Parse the cycler string to extract hex colors
+    colors = [color.strip("'\"") for color in colors_str.split("color")[1].split("[")[1].split("]")[0].split(",")]
+    colors = [c.strip() for c in colors]
+    # Add '#' prefix to make them valid hex colors for matplotlib
+    colors = ['#' + c if not c.startswith('#') else c for c in colors]
+    return colors
+
+
+def load_gen_config():
+    config_path = "./experiments/tof_config.yaml"
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    return config
+
+
+def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     """
     Plot a sample time-of-flight histogram.
 
     Parameters:
     -----------
-    data_path : str or Path
-        Path to the .npz file containing the TOF data
+    ppath : str or Path
+        Path to the .npz to the partial path table
     plot_type : str
         Type of plot: 'distribution' or 'density'
     """
+    gen_config = load_gen_config()
+    gen_config["datapoint_count"] = 2  # Only generate 2 ToFs for quick loading
+
     # Load data
-    data = np.load(data_path)
-    tof_dataset = data["tof_dataset"]
-    bin_edges = data["bin_edges"]
+    tof_data = compute_tof_data_series(ppath, gen_config, True, True)
 
     # Get first row (first time point)
-    tof_histogram = tof_dataset[5, :]
+    tof_histogram = tof_data.tof_series.numpy()[0, :]
 
     # Convert from seconds to nanoseconds
-    bin_edges_ns = bin_edges * 1e9
+    bin_edges_ns = tof_data.bin_edges.numpy() * 1e9
 
     # Calculate bin centers for the line plot
     bin_centers = (bin_edges_ns[:-1] + bin_edges_ns[1:]) / 2
@@ -48,40 +70,28 @@ def plot_sample_tof(data_path, plot_type="distribution"):
     if plot_type == "density":
         # Density: histogram / (sum * bin_width)
         y_values = tof_histogram / (np.sum(tof_histogram) * bin_widths)
-        ylabel = "Probability Density (ns$^{-1}$)"
+        ylabel = "Probability Density"
     else:
         # Distribution: raw counts
         y_values = tof_histogram
         ylabel = "Count"
+    
+    # Create smooth interpolated curve
+    spline = UnivariateSpline(bin_centers, y_values, s=0.5, k=3)
+    x_smooth = np.linspace(bin_centers[0], bin_centers[-1], 300)
+    y_smooth = spline(x_smooth)
 
     # Load plot configuration
-    plot_config = load_plot_config("./plotting_codes/plot_config.yaml")
+    plot_config = load_plot_config()
 
     # Apply rcParams
     plt.rcParams.update(plot_config)
-
-    # Get color from the color cycle
-    if "axes.prop_cycle" in plot_config:
-        # Extract colors from the cycler
-        prop_cycle_str = plot_config["axes.prop_cycle"]
-        # Parse the cycler string to extract colors
-        colors_match = re.search(r"\[(.*?)\]", prop_cycle_str)
-        if colors_match:
-            colors_str = colors_match.group(1)
-            colors = [c.strip().strip("'\"") for c in colors_str.split(",")]
-            # Add '#' prefix if not present
-            colors = ["#" + c if not c.startswith("#") else c for c in colors]
-            bar_color = colors[0]  # Use first color
-            line_color = colors[1]  # Use second color for line
-        else:
-            bar_color = "#7fc97f"
-            line_color = "#beaed4"
-    else:
-        bar_color = "#7fc97f"
-        line_color = "#beaed4"
+    # Get first color from the color cycle
+    bar_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][0]
+    line_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][1]
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(4, 3))
 
     # Plot bars with black edge
     ax.bar(
@@ -95,15 +105,12 @@ def plot_sample_tof(data_path, plot_type="distribution"):
         label="Histogram",
     )
 
-    # Plot line connecting bar centers
+    # Plot smooth line connecting bar centers
     ax.plot(
-        bin_centers,
-        y_values,
+        x_smooth,
+        y_smooth,
         color=line_color,
         linewidth=2,
-        marker="o",
-        markersize=4,
-        label="Center line",
     )
 
     # Labels and title
@@ -131,18 +138,16 @@ def plot_sample_tof(data_path, plot_type="distribution"):
     plt.close()
 
 
-def main(
-    data_path="./data/generated_tof_set.npz", plot_type="distribution"
-):
+def main(data_path=Path("data/experiment_0000.npz"), plot_type: Literal["distribution", "density"]="distribution"):
     """Main function to run the plotting script.
 
     Parameters:
     -----------
-    data_path : str
+    data_path : Path
         Path to the data file
-    output_dir : str
+    output_dir : Path
         Output directory for figures
-    plot_type : str
+    plot_type : Literal["distribution", "density"]
         Plot type: 'distribution' (raw counts) or 'density' (normalized)
     """
     plot_sample_tof(data_path, plot_type)

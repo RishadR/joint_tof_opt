@@ -161,7 +161,7 @@ def generate_tof(
         fetal_f=fetal_f,
         maternal_f=maternal_f,
         sampling_rate=sampling_rate,
-        **inner_moments_kwargs,
+        **inner_moments_kwargs,  # pylint: disable=line-too-long
     )
 
 

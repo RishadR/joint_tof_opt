@@ -10,7 +10,7 @@ matplotlib.use('Agg')  # Use non-interactive backend for batch processing
 from plot_sensitivity_comparison import main as plot_sensitivity
 from plot_detector_comparison import main as plot_detector
 from plot_false_fetal_f import main as plot_false_f
-from sample_tof_plot import main as plot_sample_tof
+from plotting_codes.plot_sample_tof import main as plot_sample_tof
 
 
 def main():
