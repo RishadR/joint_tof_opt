@@ -119,7 +119,7 @@ def main(
                 print(
                     f"Depth: {depth} mm |",
                     f"Optimizer: {optimizer_name} |",
-                    f"Sensitivity: {optimized_sensitivity:.4f} |",
+                    f"Sensitivity: {optimized_sensitivity:.4e} |",
                     f"Epochs: {epochs} |",
                 )
                 if print_log:
@@ -146,5 +146,5 @@ if __name__ == "__main__":
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/sensitivity_comparison_results.yaml", "w") as f:
-        yaml.dump(results_dict, f, default_flow_style=False)
+    # with open("./results/sensitivity_comparison_results.yaml", "w") as f:
+    #     yaml.dump(results_dict, f, default_flow_style=False)

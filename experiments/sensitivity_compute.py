@@ -867,7 +867,7 @@ class PaperEvaluator(Evaluator):
         super().__init__(ppath_file, window, measurand, gen_config)
         self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, gen_config, filter_hw)
         self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, gen_config, filter_hw)
-        self.normalized_snr_evaluator = NormalizedSNREvaluator(ppath_file, window, measurand, gen_config)
+        self.normalized_snr_evaluator = SNREvaluator(ppath_file, window, measurand, gen_config)
         self.fetal_correlation_evaluator = CorrelationEvaluator(
             ppath_file, window, measurand, gen_config, filter_hw, signal_type="fetal"
         )
@@ -887,6 +887,9 @@ class PaperEvaluator(Evaluator):
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
         self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
         self.normalized_snr = self.normalized_snr_evaluator.evaluate()
+        # Normalize by total photon count (That would be the highest possible SNR)
+        # Note that we cannot use this during optimization since the scales would be off
+        self.normalized_snr /= self.gen_config["total_photon_count"]
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
         # self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)

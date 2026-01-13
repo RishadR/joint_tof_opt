@@ -24,3 +24,6 @@ selected_sdd_index: 2 # Source-detector distance index
 # Histogram parameters
 bin_count: 20
 weight_threshold_fraction: 0.98
+
+# Others
+total_photon_count: 100000000 # Total number of photons simulated

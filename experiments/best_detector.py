@@ -118,7 +118,7 @@ def main(
                 print(
                     f"Depth: {depth} mm |",
                     f"Optimizer: {optimizer_name} |",
-                    f"Sensitivity: {optimized_sensitivity:.4f} |",
+                    f"Sensitivity: {optimized_sensitivity:.4e} |",
                     f"Epochs: {epochs} |",
                 )
                 if print_log:
