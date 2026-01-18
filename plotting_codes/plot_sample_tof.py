@@ -118,7 +118,7 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     ax.set_ylabel(ylabel)
     ax.set_title("Sample Time-of-Flight Distribution")
     # ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax.grid(True, alpha=0.1)
 
     # Create output directory if it doesn't exist
     output_dir = Path("./figures/")

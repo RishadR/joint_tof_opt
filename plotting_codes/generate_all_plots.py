@@ -10,7 +10,7 @@ matplotlib.use('Agg')  # Use non-interactive backend for batch processing
 from plot_sensitivity_comparison import main as plot_sensitivity
 from plot_detector_comparison import main as plot_detector
 from plot_false_fetal_f import main as plot_false_f
-from plotting_codes.plot_sample_tof import main as plot_sample_tof
+from plot_sample_tof import main as plot_sample_tof
 
 
 def main():
@@ -33,7 +33,8 @@ def main():
     print("=" * 60)
     
     print("\n[4/4] Generating sample time-of-flight plot...")
-    plot_sample_tof()
+    plot_sample_tof(plot_type="distribution")
+    plot_sample_tof(plot_type="density")
     
     print("\n" + "=" * 60)
     print("Sample time-of-flight plot generated successfully!")
