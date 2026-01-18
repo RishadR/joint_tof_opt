@@ -116,7 +116,7 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     # Labels and title
     ax.set_xlabel("Time of Flight (ns)")
     ax.set_ylabel(ylabel)
-    ax.set_title("Sample Time-of-Flight Distribution")
+    ax.set_title("Distribution Time-of-Flight (DTOF)")
     # ax.legend()
     ax.grid(True, alpha=0.1)
 
