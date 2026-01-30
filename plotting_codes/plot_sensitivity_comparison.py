@@ -67,10 +67,10 @@ def main():
     # Plot each optimizer
     ax.plot(digss_data['depths'], digss_data['sensitivities'], 
             marker='o', linewidth=2, markersize=8, label='DIGSS')
-    ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], 
-            marker='s', linewidth=2, markersize=8, label='Liu et al. (Single Harmonic)')
+    # ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], 
+    #         marker='s', linewidth=2, markersize=8, label='Liu et al. (Single Harmonic)')
     ax.plot(liu_data_h2['depths'], liu_data_h2['sensitivities'], 
-            marker='s', linewidth=2, markersize=8, label='Liu et al. (Both Harmonics)')
+            marker='s', linewidth=2, markersize=8, label='Liu et al.')
     ax.plot(cw_data['depths'], cw_data['sensitivities'], 
             marker='^', linewidth=2, markersize=8, label='CW')
 
