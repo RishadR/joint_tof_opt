@@ -9,18 +9,10 @@ import torch.nn as nn
 import yaml
 import pandas as pd
 import numpy as np
+from joint_tof_opt.compact_stat_process import get_named_moment_module
 from optimize_loop_paper import main_optimize
 from sensitivity_compute import *
-from joint_tof_opt import (
-    OptimizationExperiment,
-    Evaluator,
-    OptimizationExperiment,
-    CompactStatProcess,
-    generate_tof,
-    pretty_print_log,
-    get_noise_calculator,
-    NoiseCalculator,
-)
+from joint_tof_opt import *
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
 from optimize_dummy import DummyOptimizationExperiment
@@ -55,9 +47,18 @@ def main(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    lr_list = {"abs": 0.1, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
+    lr_list = {"abs": 0.01, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
     gen_config["selected_sdd_index"] = 2
+    fetal_filter = CombSeparator(
+        gen_config["sampling_rate"],
+        gen_config["fetal_f"],
+        2 * gen_config["fetal_f"],
+        0.3,
+        gen_config["datapoint_count"] / 2 + 1,
+        True
+        )
+    
 
     # Initialize results table and windows storage
     results = []
@@ -100,6 +101,12 @@ def main(
                     final_optimizer_loss = loss_history[-1, :].tolist()
                 else:
                     final_optimizer_loss = []
+                
+                # Compute the unfiltered measurand signal for logging
+                tof_data = ToFData.from_npz(tof_dataset_file)
+                measurand_process = get_named_moment_module(measurand, tof_data)
+                measurand_time_series = measurand_process.forward(window)
+                filtered_signal = fetal_filter(measurand_time_series.unsqueeze(0).unsqueeze(0)).squeeze()
 
                 results.append(
                     {
@@ -111,9 +118,10 @@ def main(
                         "Bin_Edges": bin_edges.tolist(),
                         "Optimized_Window": window.detach().cpu().numpy().tolist(),
                         "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
-                        "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
+                        "filtered_signal": filtered_signal.detach().cpu().numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
                         "final_optimizer_loss": final_optimizer_loss,
+                        "measurand_time_series": measurand_time_series.detach().cpu().numpy().tolist(),
                     }
                 )
                 print(
@@ -130,21 +138,22 @@ def main(
 
 
 if __name__ == "__main__":
+    filter_hw = 0.3  # Hz
     eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
-    # eval_func = lambda ppath, win, meas, noise_calc: FetalSelectivityEvaluator(ppath, win, meas)
+    # eval_func = lambda ppath, win, meas, conf, noise_calc: FetalSelectivityEvaluator(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0),
         lambda tof_file, measurand: LiuOptimizer(
-            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=1, norm=1.0
+            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=filter_hw, harmonic_count=1, norm=1.0
         ),
         lambda tof_file, measurand: LiuOptimizer(
-            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0
+            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=filter_hw, harmonic_count=2, norm=1.0
         ),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    # with open("./results/sensitivity_comparison_results.yaml", "w") as f:
-    #     yaml.dump(results_dict, f, default_flow_style=False)
+    with open("./results/sensitivity_comparison_results2.yaml", "w") as f:
+        yaml.dump(results_dict, f, default_flow_style=False)

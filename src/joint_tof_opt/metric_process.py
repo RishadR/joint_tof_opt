@@ -120,10 +120,10 @@ class RevisedContrastToNoiseMetric(nn.Module):
     
     def forward(self, window: torch.Tensor, measurand_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_calc.compute_noise(self.tof_data, window)
-        noise_var = noise.sum()
+        noise_var = noise.mean()
         assert noise_var.item() > 0, "Noise variance is zero, cannot compute contrast-to-noise ratio."
-        signal_energy = torch.sum(measurand_signal**2)
-        signal_dc_energy = torch.mean(measurand_signal)**2 * measurand_signal.numel()
+        signal_energy = torch.sum(measurand_signal**2) / measurand_signal.numel()
+        signal_dc_energy = torch.mean(measurand_signal)**2
         contrast = (signal_energy - signal_dc_energy) / noise_var
         if self.dB_scale:
             contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)

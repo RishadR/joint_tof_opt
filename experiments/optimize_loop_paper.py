@@ -34,19 +34,7 @@ import torch.optim as optim
 from typing import Callable, Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
-from joint_tof_opt import (
-    CombSeparator,
-    EnergyRatioMetric,
-    ContrastToNoiseMetric,
-    FilteredContrastToNoiseMetric,
-    get_named_moment_module,
-    named_moment_types,
-    get_noise_calculator,
-    NoiseCalculator,
-    OptimizationExperiment,
-    CompactStatProcess,
-    ToFData,
-)
+from joint_tof_opt import *
 from optimize_liu import LiuOptimizer
 
 
@@ -84,6 +72,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         filter_hw: float = 0.3,
         patience: int = 20,
         grad_clip: bool = False,
+        l2_reg: float = 1e-4,
         normalize_tof: bool = False,
     ):
         """
@@ -94,10 +83,12 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param noise_calc: Noise calculator for custom measurands.
         :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param max_epochs: Maximum number of optimization epochs.
+        :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param lr: Learning rate for the optimizer.
         :param filter_hw: Half width of the sinc comb filter (in Hz).
         :param patience: Number of epochs to wait for improvement before early stopping.
         :param grad_clip: Whether to apply gradient clipping.
+        :param l2_reg: L2 regularization weight.
         :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original
         counts. Default is False (keep original counts).
         """
@@ -127,6 +118,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.patience = patience
         self.grad_clip = grad_clip
         self.normalize_tof = normalize_tof
+        self.l2_reg = l2_reg
 
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
@@ -143,10 +135,11 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
         )
         ############### DEBUG CODE - CHANGE LATER ###############
-        self.contrast_to_noise_metric_unfilt = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
-        self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
-            self.noise_calc, self.tof_data, self.fetal_comb_filter, False
-        )
+        # self.contrast_to_noise_metric_unfilt = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
+        # self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
+        #     self.noise_calc, self.tof_data, self.fetal_comb_filter, False
+        # )
+        self.revised_cnr_metric = RevisedContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
         ############### DEBUG CODE - CHANGE LATER ##############
         self.energy_ratio_metric = EnergyRatioMetric()
 
@@ -175,13 +168,13 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=1e-4)
+        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=self.l2_reg)
         self.training_curves = np.zeros((self.max_epochs, 3))
         # Max possible SNR will always occur when choosing an ALL ONES window
         ones_window = torch.ones_like(self.window_exponents)
         ones_window = self._win_norm_func(ones_window)
         max_signal = self.moment_module(ones_window)
-        max_contrast = self.contrast_to_noise_metric_unfilt(ones_window, max_signal)
+        # max_contrast = self.contrast_to_noise_metric_unfilt(ones_window, max_signal)
 
         # Optimization Loop
         epoch = 0
@@ -211,12 +204,26 @@ class DIGSSOptimizer(OptimizationExperiment):
             # DEBUG Code
 
             # contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
-            contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
-            contrast_value /= max_contrast  # Normalize contrast to max possible
+            # contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
+            # contrast_value /= max_contrast  # Normalize contrast to max possible
             # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
-
-            final_metric = energy_ratio * contrast_value
-
+            temp_win = torch.ones_like(self.window_norm)
+            current_cnr = self.revised_cnr_metric(temp_win, fetal_filtered_signal)
+            # max_cnr = self.revised_cnr_metric(, max_signal)
+            # contrast_value = current_cnr / max_cnr  # Normalize contrast to max possible
+            contrast_value = current_cnr
+            
+            # final_metric = energy_ratio * contrast_value
+            # final_metric = contrast_value
+            # final_metric = energy_ratio
+            
+            ## MORE DEBUG CODE
+            current_photon_count = fetal_filtered_signal.mean()
+            max_count = (self.tof_data.tof_series * temp_win.reshape(1, -1)).sum(dim=1).mean()
+            relative_snr = current_photon_count / max_count
+            final_metric = energy_ratio + relative_snr * 10.0
+            ##
+            
             # Log metrics
             self.training_curves[epoch, 0] = energy_ratio.item()
             self.training_curves[epoch, 1] = contrast_value.item()
@@ -261,7 +268,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             "moment_module": self.moment_module,
             "fetal_comb_filter": self.fetal_comb_filter,
             "maternal_comb_filter": self.maternal_comb_filter,
-            "contrast_to_noise_metric": self.contrast_to_noise_metric,
+            "revised_cnr_metric": self.revised_cnr_metric,
             "energy_ratio_metric": self.energy_ratio_metric,
         }
 
@@ -272,9 +279,9 @@ def main_optimize(
     measurand: str | CompactStatProcess,
     noise_calc: None | NoiseCalculator = None,
     max_epochs: int = 2000,
-    lr: float = 0.001,
+    lr: float = 0.01,
     filter_hw: float = 0.3,
-    patience: int = 20,
+    patience: int = 50,
     normalize_tof: bool = False,
 ) -> tuple[torch.Tensor, np.ndarray]:
     """
@@ -381,6 +388,7 @@ def plot_training_curves_and_window(
         plt.plot(curve, label=curve_column_labels[i], linestyle=linestyles[i])
     plt.xlabel("Epoch")
     plt.ylabel("Metric Value")
+    plt.yscale("log")
     axes_title = "Normalized Training Metrics" if normalize_curves else "Training Metrics"
     plt.title(axes_title)
     plt.legend()
@@ -407,7 +415,7 @@ if __name__ == "__main__":
         lr=0.1,
         filter_hw=0.3,
         patience=50,
-        normalize_tof=True,
+        normalize_tof=False,
     )
     print("Optimized Window:", optimized_window.numpy())
     print("Best Final Metric:", training_curves[-1, 2])
@@ -415,4 +423,4 @@ if __name__ == "__main__":
     loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
     print(training_curves[::10, :])
-    plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, grid=True)
+    plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, normalize_curves=False, grid=True)

@@ -883,17 +883,20 @@ class PaperEvaluator(Evaluator):
         return "Computes Product of Normalized SNR and Fetal Selectivity"
 
     def evaluate(self) -> float:
+        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        avg_total_photon_count = tof_data.tof_series.sum().item()
+        
         self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
         self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
         self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
         self.normalized_snr = self.normalized_snr_evaluator.evaluate()
         # Normalize by total photon count (That would be the highest possible SNR)
         # Note that we cannot use this during optimization since the scales would be off
-        self.normalized_snr /= self.gen_config["total_photon_count"]
+        self.normalized_snr /= avg_total_photon_count
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
         # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
         # self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)
-        self.final_metric = abs(self.normalized_snr * self.fetal_selectivity)
+        self.final_metric = abs(self.normalized_snr) + abs(self.fetal_selectivity)
         # self.final_metric = abs(self.normalized_snr * self.fetal_correlation)
         return self.final_metric
 
