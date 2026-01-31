@@ -33,7 +33,6 @@ import yaml
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from typing import Callable, Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -108,9 +107,10 @@ class AltLiuOptimizer(OptimizationExperiment):
         self.maternal_bins = self._compute_f_bins(self.maternal_f, num_timepoints, self.half_width)
 
         # Set training curve labels (empty for this non-iterative method)
-        self.training_curve_labels = []
+        self.training_curve_labels = ["Left Bin Index", "Right Bin Index", "Selectivity"]
+        self.training_curves = np.array([])
 
-    def _compute_f_bins(self, f : float, num_timepoints: int, hw: float) -> list[int]:
+    def _compute_f_bins(self, f: float, num_timepoints: int, hw: float) -> list[int]:
         """
         Compute the FFT bin indices that correspond to FHR harmonics.
 
@@ -146,6 +146,7 @@ class AltLiuOptimizer(OptimizationExperiment):
         Exhaustively searches all rectangular window pairs (b2, b3) to find the one
         that maximizes SNR between fetal signal and noise floor.
         """
+        results = []
         num_timepoints, num_bins = self.tof_data.tof_series.shape
 
         # Step 1: Find bmax (bin with maximum count)
@@ -203,6 +204,10 @@ class AltLiuOptimizer(OptimizationExperiment):
 
                 # Compute Selectivity (SNR)
                 selectivity = (fetal_fft_component - noise_floor) / (maternal_fft_component - noise_floor)
+
+                # Log training curve
+                results.append([b2, b3, selectivity])
+
                 if selectivity >= best_selectivity:  # Bias towards later windows
                     best_selectivity = selectivity
                     best_window = window.clone()
@@ -218,8 +223,74 @@ class AltLiuOptimizer(OptimizationExperiment):
             raise ValueError("Something went wrong; no valid window that improves SNR above 0.")
 
         # No training curves for this non-iterative method
-        self.training_curves = np.array([])
+        self.training_curves = np.array(results)
 
+
+def plot_training_curves_and_window(
+    training_curves: np.ndarray,
+    curve_column_labels: list[str],
+    optimized_window: torch.Tensor,
+    bin_edges: np.ndarray,
+    fig_size: tuple[int, int] = (10, 6),
+    normalize_curves: bool = False,
+    filename: str = "liu_alt_optimization_result",
+) -> None:
+    """
+    Plot the training curves and the optimized window.
+
+    :param training_curves: Numpy array of training curves.
+    :param curve_column_labels: Labels for each column in training_curves.
+    :param optimizer_window: The optimized window tensor.
+    :param bin_edges: The edges of the ToF bins for plotting the window.
+    :param fig_size: Size of the figure.
+    :param normalize_curves: Whether to normalize training curves for plotting.
+    :param filename: Base file name to save the plots.
+    """
+    ## Validity Checks
+    assert training_curves.shape[1] == len(curve_column_labels), "Mismatch between training curves and labels"
+
+    # Bin Centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    bin_centers_ns = bin_centers * 1e9  # Convert to ns for plotting
+    bin_centers_ns = np.round(bin_centers_ns, 2)
+
+    ## Load config for plotting if available
+    config_path = Path("./plotting_codes/plot_config.yaml")
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            plot_config = yaml.safe_load(f)
+            plt.rcParams.update(plot_config)
+
+    plt.subplots(1, 2, figsize=fig_size)
+
+    # Plot Training Curves
+    win_length = len(optimized_window)
+    selectivity_grid = np.zeros((win_length, win_length))
+    for b2, b3, selectivity in training_curves:
+        selectivity_grid[int(b2), int(b3)] = selectivity
+    selectivity_max = np.max(selectivity_grid)
+    if normalize_curves:
+        selectivity_grid /= selectivity_max
+
+    plt.imshow(
+        selectivity_grid.T, origin="lower", cmap="viridis", extent=(1.0, win_length, 1.0, win_length), aspect="auto"
+    )
+    plt.colorbar(label="Selectivity (Normalized)" if normalize_curves else "Selectivity")
+    plt.xlabel("Left Bin Index (b2)")
+    plt.ylabel("Right Bin Index (b3)")
+    plt.title("Selectivity Heatmap")
+    plt.subplot(1, 2, 1)
+
+    # Plot Optimized Window
+    plt.subplot(1, 2, 2)
+    plt.plot(bin_centers_ns, optimized_window.detach().cpu().numpy(), marker="o")
+    plt.xlabel("Bin Center (ns)")
+    plt.ylabel("Window Value")
+    plt.title("Optimized Window")
+    plt.tight_layout()
+
+    plt.savefig(f"./figures/{filename}.svg")
+    plt.savefig(f"./figures/{filename}.pdf")
 
 
 if __name__ == "__main__":
@@ -235,3 +306,10 @@ if __name__ == "__main__":
     optimizer.optimize()
     optimized_window = optimizer.window
     print("Optimized Window:", optimized_window.numpy())
+    plot_training_curves_and_window(
+        optimizer.training_curves,
+        optimizer.training_curve_labels,
+        optimized_window,
+        optimizer.tof_data.bin_edges.numpy(),
+        filename="liu_alt_optimization_result",
+    )

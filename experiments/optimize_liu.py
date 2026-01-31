@@ -69,7 +69,7 @@ class LiuOptimizer(OptimizationExperiment):
         measurand: str | CompactStatProcess,
         fetal_f: float | None = None,
         dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
-        fhr_hw: float = 0.3,
+        half_width: float = 0.3,
         harmonic_count: int = 2,
         norm: None | float = None,
     ):
@@ -80,7 +80,7 @@ class LiuOptimizer(OptimizationExperiment):
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
         :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0 ("mean", "median", or "first").
-        :param fhr_hw: Frequency half-width around FHR for signal extraction (in Hz).
+        :param half_width: Frequency half-width around FHR for signal extraction (in Hz).
         :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
         :param norm: If specified, normalizes the window to have this p-norm. Ex: norm=1 for L1 norm, norm=2 for L2 norm.
         """
@@ -90,7 +90,7 @@ class LiuOptimizer(OptimizationExperiment):
         super().__init__(tof_dataset_path, measurand)
 
         self.dtof_to_find_max_on = dtof_to_find_max_on
-        self.fhr_hw = fhr_hw
+        self.half_width = half_width
         self.harmonic_count = harmonic_count
         self.norm = norm
 
@@ -105,7 +105,7 @@ class LiuOptimizer(OptimizationExperiment):
         self.fetal_bins = self._compute_fetal_bins(num_timepoints)
 
         # Set training curve labels (empty for this non-iterative method)
-        self.training_curve_labels = []
+        self.training_curve_labels = ["Left Bin Index", "Right Bin Index", "SNR"]
 
     def _compute_fetal_bins(self, num_timepoints: int) -> list[int]:
         """
@@ -117,7 +117,7 @@ class LiuOptimizer(OptimizationExperiment):
         fetal_bin = int(self.fetal_f / (self.sampling_rate / num_timepoints))
         fetal_bins = []
         for h in range(1, self.harmonic_count + 1):
-            width_int_in_bins = int(self.fhr_hw / (self.sampling_rate / num_timepoints))
+            width_int_in_bins = int(self.half_width / (self.sampling_rate / num_timepoints))
             left_edge = max(h * fetal_bin - width_int_in_bins, 0)
             right_edge = min(h * fetal_bin + width_int_in_bins, num_timepoints // 2 + 1)
             fetal_bins.extend(list(range(left_edge, right_edge + 1)))
@@ -126,7 +126,7 @@ class LiuOptimizer(OptimizationExperiment):
     def __str__(self) -> str:
         return (
             f"LiuOptimizer(measurand={self.moment_module.__class__.__name__}, "
-            f"dtof_to_find_max_on={self.dtof_to_find_max_on}, fhr_hw={self.fhr_hw},"
+            f"dtof_to_find_max_on={self.dtof_to_find_max_on}, half_width={self.half_width},"
             f"harmonics={self.harmonic_count}, norm={self.norm})"
         )
 
@@ -143,6 +143,7 @@ class LiuOptimizer(OptimizationExperiment):
         Exhaustively searches all rectangular window pairs (b2, b3) to find the one
         that maximizes SNR between fetal signal and noise floor.
         """
+        results = []
         num_timepoints, num_bins = self.tof_data.tof_series.shape
 
         # Step 1: Find bmax (bin with maximum count)
@@ -199,6 +200,10 @@ class LiuOptimizer(OptimizationExperiment):
 
                 # Compute SNR
                 snr = fetal_fft_component / noise_floor
+                
+                # Log training curve data
+                results.append([b2, b3, snr])
+                
                 if snr >= best_snr:  # Bias towards later windows
                     best_snr = snr
                     best_window = window.clone()
@@ -214,53 +219,92 @@ class LiuOptimizer(OptimizationExperiment):
             raise ValueError("Something went wrong; no valid window that improves SNR above 0.")
 
         # No training curves for this non-iterative method
-        self.training_curves = np.array([])
+        self.training_curves = np.array(results)
 
-
-def liu_optimize(
-    tof_dataset_path: Path,
-    measurand: str | CompactStatProcess,
-    dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
-    fhr_hw: float = 0.3,
-    harmonic_count: int = 2,
-    normalize_window: bool = True,
-) -> tuple[torch.Tensor, np.ndarray]:
+def plot_training_curves_and_window(
+    training_curves: np.ndarray,
+    curve_column_labels: list[str],
+    optimized_window: torch.Tensor,
+    bin_edges: np.ndarray,
+    fig_size: tuple[int, int] = (10, 6),
+    normalize_curves: bool = False,
+    filename: str = "liu_optimization_result",
+) -> None:
     """
-    The optimization loop implementation based on Liu et al. (https://doi.org/10.1364/BOE.500898).
+    Plot the training curves and the optimized window.
 
-    :param tof_dataset_path: Path to the ToF dataset (.npz file).
-    :type tof_dataset_path: Path
-    :param measurand: The measurand to optimize for ("abs", "m1", "V") or a custom moment module.
-    Predefined options:
-        - "abs": Windowed Sum
-        - "m1": First Order Moment
-        - "V": Second Order Centered Moment (Variance)
-    :type measurand: str | nn.Module
-    :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0. Options are "mean", "medi    an", and "first".
-    :type dtof_to_find_max_on: Literal["mean", "median", "first"]
-    :param fhr_hw: Helps in computing SNR. How many Hz around FHR to consider when computing signal in SNR
-    :type fhr_hw: float
-    :param harmonic_count: Number of harmonics of FHR and MHR to exclude from noise calculation.
-    :type harmonic_count: int
-    :param normalize_window: Whether to normalize the output window to have unit energy.
-    :type normalize_window: bool
-    :return: Tuple containing the optimized window tensor and an array of training curves (empty in this implementation).
-    This implementation does not return training curves as the optimization is not iterative.
-    :rtype: tuple[torch.Tensor, np.ndarray]
+    :param training_curves: Numpy array of training curves.
+    :param curve_column_labels: Labels for each column in training_curves.
+    :param optimizer_window: The optimized window tensor.
+    :param bin_edges: The edges of the ToF bins for plotting the window.
+    :param fig_size: Size of the figure.
+    :param normalize_curves: Whether to normalize training curves for plotting.
+    :param filename: Base file name to save the plots.
     """
-    optimizer = LiuOptimizer(
-        tof_dataset_path=tof_dataset_path,
-        measurand=measurand,
-        dtof_to_find_max_on=dtof_to_find_max_on,
-        fhr_hw=fhr_hw,
-        harmonic_count=harmonic_count,
-        norm=normalize_window,
+    ## Validity Checks
+    assert training_curves.shape[1] == len(curve_column_labels), "Mismatch between training curves and labels"
+
+    # Bin Centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    bin_centers_ns = bin_centers * 1e9  # Convert to ns for plotting
+    bin_centers_ns = np.round(bin_centers_ns, 2)
+
+    ## Load config for plotting if available
+    config_path = Path("./plotting_codes/plot_config.yaml")
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            plot_config = yaml.safe_load(f)
+            plt.rcParams.update(plot_config)
+
+    plt.subplots(1, 2, figsize=fig_size)
+
+    # Plot Training Curves
+    win_length = len(optimized_window)
+    snr_grid = np.zeros((win_length, win_length))
+    for b2, b3, selectivity in training_curves:
+        snr_grid[int(b2), int(b3)] = selectivity
+    snr_max = np.max(snr_grid)
+    if normalize_curves:
+        snr_grid /= snr_max
+
+    plt.imshow(
+        snr_grid.T, origin="lower", cmap="viridis", extent=(1.0, win_length, 1.0, win_length), aspect="auto"
     )
-    optimizer.optimize()
-    return optimizer.window, optimizer.training_curves
+    plt.colorbar(label="SNR" if not normalize_curves else "SNR (Normalized)")
+    plt.xlabel("Left Bin Index (b2)")
+    plt.ylabel("Right Bin Index (b3)")
+    plt.title("SNR Heatmap")
+    plt.subplot(1, 2, 1)
+
+    # Plot Optimized Window
+    plt.subplot(1, 2, 2)
+    plt.plot(bin_centers_ns, optimized_window.detach().cpu().numpy(), marker="o")
+    plt.xlabel("Bin Center (ns)")
+    plt.ylabel("Window Value")
+    plt.title("Optimized Window")
+    plt.tight_layout()
+
+    plt.savefig(f"./figures/{filename}.svg")
+    plt.savefig(f"./figures/{filename}.pdf")    
 
 
 if __name__ == "__main__":
     tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
-    optimized_window, training_curves = liu_optimize(tof_dataset_path=tof_dataset_path, measurand="abs")
+    optimizer = LiuOptimizer(
+        tof_dataset_path,
+        measurand="abs",
+        dtof_to_find_max_on="mean",
+        half_width=0.3,
+        harmonic_count=2,
+        norm=1.0,
+    )
+    optimizer.optimize()
+    optimized_window = optimizer.window
     print("Optimized Window:", optimized_window.numpy())
+    plot_training_curves_and_window(
+        optimizer.training_curves,
+        optimizer.training_curve_labels,
+        optimized_window,
+        optimizer.tof_data.bin_edges.numpy(),
+        filename="liu_optimization_result",
+    )

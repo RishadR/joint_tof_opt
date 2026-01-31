@@ -145,10 +145,10 @@ if __name__ == "__main__":
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0),
         lambda tof_file, measurand: LiuOptimizer(
-            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=filter_hw, harmonic_count=1, norm=1.0
+            tof_file, measurand, dtof_to_find_max_on="mean", half_width=filter_hw, harmonic_count=1, norm=1.0
         ),
         lambda tof_file, measurand: LiuOptimizer(
-            tof_file, measurand, dtof_to_find_max_on="mean", fhr_hw=filter_hw, harmonic_count=2, norm=1.0
+            tof_file, measurand, dtof_to_find_max_on="mean", half_width=filter_hw, harmonic_count=2, norm=1.0
         ),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
