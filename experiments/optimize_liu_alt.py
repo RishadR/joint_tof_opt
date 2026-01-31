@@ -272,6 +272,7 @@ def plot_training_curves_and_window(
     if normalize_curves:
         selectivity_grid /= selectivity_max
 
+    plt.subplot(1, 2, 1)
     plt.imshow(
         selectivity_grid.T, origin="lower", cmap="viridis", extent=(1.0, win_length, 1.0, win_length), aspect="auto"
     )
@@ -279,7 +280,6 @@ def plot_training_curves_and_window(
     plt.xlabel("Left Bin Index (b2)")
     plt.ylabel("Right Bin Index (b3)")
     plt.title("Selectivity Heatmap")
-    plt.subplot(1, 2, 1)
 
     # Plot Optimized Window
     plt.subplot(1, 2, 2)
