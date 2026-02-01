@@ -269,7 +269,7 @@ def plot_training_curves_and_window(
 
     plt.subplot(1, 2, 1)
     plt.imshow(
-        snr_grid.T, origin="lower", cmap="viridis", extent=(1.0, win_length, 1.0, win_length), aspect="auto"
+        snr_grid.T, origin="lower", cmap="viridis", aspect="auto"
     )
     plt.colorbar(label="SNR" if not normalize_curves else "SNR (Normalized)")
     plt.xlabel("Left Bin Index (b2)")

@@ -77,7 +77,7 @@ class PureFetalSensitivityEvaluator(Evaluator):
         measurand: str | CompactStatProcess,
         gen_config: dict,
         delta_percnt: float = 5.0,
-    ):  
+    ):
         """
         Initialize the FetalSensitivityEvaluator.
 
@@ -115,7 +115,9 @@ class PureFetalSensitivityEvaluator(Evaluator):
         bin_count = self.gen_config["bin_count"]
         assert bin_count == len(self.window), "Window length must match bin count in tof_config.yaml"
         fraction = self.gen_config["weight_threshold_fraction"]
-        filtered_ppath = (ppath[ppath[:, 0] == self.gen_config["selected_sdd_index"]])[:, 1:]  # Drop the sdd index column
+        filtered_ppath = (ppath[ppath[:, 0] == self.gen_config["selected_sdd_index"]])[
+            :, 1:
+        ]  # Drop the sdd index column
 
         # Create base and perturbed tissue models
         base_model = DanModel4LayerX(
@@ -547,6 +549,7 @@ class SNREvaluator(Evaluator):
             "noise_variance": self.noise_var,
         }
 
+
 class NormalizedSNREvaluator(SNREvaluator):
     """
     Normalized Version of SNREvaluator where the computed SNR is always between 0 and 1.
@@ -591,7 +594,6 @@ class NormalizedSNREvaluator(SNREvaluator):
         return base_log
 
 
-
 class FetalSNREvaluator(SNREvaluator):
     """
     Specialized SNREvaluator class for computing Fetal SNR with a given filter with filter_hw(in Hz)
@@ -599,7 +601,9 @@ class FetalSNREvaluator(SNREvaluator):
     Note: This computes noise using FilteredNoiseCalculators internally.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+    ):
         sampling_rate = gen_config["sampling_rate"]
         fetal_f = gen_config["fetal_f"]
         datapoint_count = gen_config["datapoint_count"]
@@ -615,7 +619,9 @@ class FetalSNREvaluator(SNREvaluator):
 
 
 class FetalSelectivityEvaluator(Evaluator):
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+    ):
         super().__init__(ppath_file, window, measurand, gen_config)
         sampling_rate = gen_config["sampling_rate"]
         fetal_f = gen_config["fetal_f"]
@@ -658,14 +664,13 @@ class FetalSelectivityEvaluator(Evaluator):
         self.maternal_energy = float(torch.sum(maternal_filtered_stats**2).item())
         self.final_metric = self.fetal_energy / self.maternal_energy
         return self.final_metric
-    
+
     def get_log(self) -> dict[str, Any]:
         return {
             "fetal_snr": self.fetal_energy,
             "maternal_snr": self.maternal_energy,
             "fetal_selectivity": self.final_metric,
         }
-    
 
 
 class PureFetalSNREvaluator(SNREvaluator):
@@ -704,7 +709,9 @@ class NormalizedFetalSNREvaluator(Evaluator):
     This is done via computing the Best SNR
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+    ):
         super().__init__(ppath_file, window, measurand, gen_config)
         self.fetal_snr_evaluator = FetalSNREvaluator(ppath_file, window, measurand, gen_config, filter_hw)
         unit_window = torch.ones_like(window)
@@ -744,13 +751,22 @@ class NormalizedFetalSensitivityEvaluator(Evaluator):
     """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: dict, filter_hw: float = 0.3
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str | CompactStatProcess,
+        gen_config: dict,
+        filter_hw: float = 0.3,
     ):
         super().__init__(ppath_file, window, measurand, gen_config)
-        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, window, measurand, gen_config, filter_hw)
+        self.fetal_sensitivity_evaluator = FetalSensitivityEvaluator(
+            ppath_file, window, measurand, gen_config, filter_hw
+        )
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
-        self.best_sensitivity_evaluator = FetalSensitivityEvaluator(ppath_file, unit_window, measurand, gen_config, filter_hw)
+        self.best_sensitivity_evaluator = FetalSensitivityEvaluator(
+            ppath_file, unit_window, measurand, gen_config, filter_hw
+        )
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal Sensitivity between 0 and 1"
@@ -863,58 +879,70 @@ class PaperEvaluator(Evaluator):
     :param filter_hw: Half-width of the filter to apply.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3):
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+    ):
         super().__init__(ppath_file, window, measurand, gen_config)
-        self.fetal_selectivity_evaluator = FetalSelectivityEvaluator(ppath_file, window, measurand, gen_config, filter_hw)
-        self.normalized_fetal_snr_evaluator = NormalizedFetalSNREvaluator(ppath_file, window, measurand, gen_config, filter_hw)
-        self.normalized_snr_evaluator = SNREvaluator(ppath_file, window, measurand, gen_config)
-        self.fetal_correlation_evaluator = CorrelationEvaluator(
-            ppath_file, window, measurand, gen_config, filter_hw, signal_type="fetal"
+        self.measurand = measurand  # Overwrite to keep the type a string
+        self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
+        self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
+        self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
+        self.filter_hw = filter_hw
+        self.filter_len = gen_config["datapoint_count"] // 2 + 1
+        self.maternal_comb_filter = CombSeparator(
+            gen_config["sampling_rate"],
+            gen_config["maternal_f"],
+            2 * gen_config["maternal_f"],
+            half_width=filter_hw,
+            filter_length=self.filter_len,
+            phase_preserve=True,
         )
-        self.noise_calc = get_noise_calculator(measurand)
-        
-        # self.fetal_correlation_evaluator = SpectralCorrelationEvaluator(ppath_file, window, measurand, filter_hw, signal_type="fetal")
-        self.fetal_selectivity = 0.0
-        self.normalized_fetal_snr = 0.0
-        self.normalized_snr = 0.0
-        self.fetal_correlation = 0.0
+        self.fetal_comb_filter = CombSeparator(
+            gen_config["sampling_rate"],
+            gen_config["fetal_f"],
+            2 * gen_config["fetal_f"],
+            half_width=filter_hw,
+            filter_length=self.filter_len,
+            phase_preserve=True,
+        )
 
     def __str__(self) -> str:
-        return "Computes Product of Normalized SNR and Fetal Selectivity"
+        return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
+
+    def _compute_baseline_noise_std(self, tof_data: ToFData) -> float:
+        """
+        Computes the baseline noise standard deviation assuming a windowed sum approach.
+        Formula:
+            std = sqrt(sum_i(w_i * N_i)) ;
+        where w_i is the window value at time bin i, and N_i is the photon count at time bin i.
+
+        :param tof_data: The ToF data object computed using compute_tof_data_series. Should be unnormalized!
+        :return: The baseline noise standard deviation.
+        :rtype: float
+        """
+        avg_tof_frame = tof_data.tof_series.sum(dim=0, keepdim=True)  # Shape: (1, num_timepoints)
+        windowed_avg_tof_frame = avg_tof_frame * self.window.unsqueeze(0)  # Shape: (1, num_timepoints)
+        baseline_noise_var = windowed_avg_tof_frame.sum().item()
+        baseline_noise_std = sqrt(baseline_noise_var)
+        return baseline_noise_std
 
     def evaluate(self) -> float:
         tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
-        avg_total_photon_count = tof_data.tof_series.sum().item()
-        
-        self.normalized_fetal_snr = self.normalized_fetal_snr_evaluator.evaluate()
-        self.fetal_correlation = self.fetal_correlation_evaluator.evaluate()
-        self.fetal_selectivity = self.fetal_selectivity_evaluator.evaluate()
-        self.normalized_snr = self.normalized_snr_evaluator.evaluate()
-        # Normalize by total photon count (That would be the highest possible SNR)
-        # Note that we cannot use this during optimization since the scales would be off
-        self.normalized_snr /= avg_total_photon_count
-        # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation)
-        # self.final_metric = abs((self.normalized_fetal_snr**0.5) * self.fetal_correlation * self.fetal_selectivity**0.5)
-        # self.final_metric = abs(self.normalized_fetal_snr * self.fetal_selectivity)
-        self.final_metric = abs(self.normalized_snr) + abs(self.fetal_selectivity)
-        # self.final_metric = abs(self.normalized_snr * self.fetal_correlation)
+        self.baseline_noise_std = self._compute_baseline_noise_std(tof_data)
+        moment_module = get_named_moment_module(self.measurand, tof_data)
+        compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
+        fetal_component = self.fetal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
+        maternal_component = self.maternal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
+        self.fetal_ac_energy = float(torch.sum(fetal_component**2).item())
+        maternal_ac_energy = float(torch.sum(maternal_component**2).item())
+        self.maternal_ac_amp = sqrt(maternal_ac_energy)
+        self.final_metric = self.fetal_ac_energy / (self.baseline_noise_std * self.maternal_ac_amp)
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:
-        normalized_fetal_snr_log = self.normalized_fetal_snr_evaluator.get_log()
-        fetal_correlation_log = self.fetal_correlation_evaluator.get_log()
-        fetal_selectivity_log = self.fetal_selectivity_evaluator.get_log()
-        final_log = {
+        return {
+            "fetal_ac_energy": self.fetal_ac_energy,
+            "baseline_noise_std": self.baseline_noise_std,
+            "maternal_ac_amp": self.maternal_ac_amp,
             "final_metric": self.final_metric,
-            "normalized_fetal_snr": self.normalized_fetal_snr,
-            "fetal_correlation": self.fetal_correlation,
-            "fetal_selectivity": self.fetal_selectivity,
-            "normalized_snr": self.normalized_snr,
         }
-        for key, value in normalized_fetal_snr_log.items():
-            final_log[f"normalized_fetal_snr_{key}"] = value
-        for key, value in fetal_correlation_log.items():
-            final_log[f"fetal_correlation_{key}"] = value
-        for key, value in fetal_selectivity_log.items():
-            final_log[f"fetal_selectivity_{key}"] = value
-        return final_log

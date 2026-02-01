@@ -175,10 +175,13 @@ class AltLiuOptimizer(OptimizationExperiment):
                 self.bf = b
                 break
 
-        # Step 3: Exhaustive search over all (b2, b3) window pairs
+        # Step 3: Exhaustive search over all (b2, b3) window pairs (Both inclusive)
         best_selectivity = 0.0
         best_window = None
 
+        ## DEBUG CODE : TODO REMOVE LATER
+        self.b0 = 0
+        ##################################
         for b2 in range(self.b0, self.bf):
             for b3 in range(b2 + 1, self.bf):
                 # Create rectangular window
@@ -274,7 +277,7 @@ def plot_training_curves_and_window(
 
     plt.subplot(1, 2, 1)
     plt.imshow(
-        selectivity_grid.T, origin="lower", cmap="viridis", extent=(1.0, win_length, 1.0, win_length), aspect="auto"
+        selectivity_grid.T, origin="lower", cmap="viridis", aspect="auto"
     )
     plt.colorbar(label="Selectivity (Normalized)" if normalize_curves else "Selectivity")
     plt.xlabel("Left Bin Index (b2)")
