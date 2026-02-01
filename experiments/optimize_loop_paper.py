@@ -200,38 +200,48 @@ class DIGSSOptimizer(OptimizationExperiment):
             # Compute metrics
             # DEBUG Code
             # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, compact_stats)
-            energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
-            # DEBUG Code
+            # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
+            # # DEBUG Code
 
-            # contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
-            # contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
-            # contrast_value /= max_contrast  # Normalize contrast to max possible
-            # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
-            temp_win = torch.ones_like(self.window_norm)
-            current_cnr = self.revised_cnr_metric(temp_win, fetal_filtered_signal)
-            # max_cnr = self.revised_cnr_metric(, max_signal)
-            # contrast_value = current_cnr / max_cnr  # Normalize contrast to max possible
-            contrast_value = current_cnr
+            # # contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
+            # # contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
+            # # contrast_value /= max_contrast  # Normalize contrast to max possible
+            # # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
+            # temp_win = torch.ones_like(self.window_norm)
+            # current_cnr = self.revised_cnr_metric(temp_win, fetal_filtered_signal)
+            # # max_cnr = self.revised_cnr_metric(, max_signal)
+            # # contrast_value = current_cnr / max_cnr  # Normalize contrast to max possible
+            # contrast_value = current_cnr
             
-            # final_metric = energy_ratio * contrast_value
-            # final_metric = contrast_value
-            # final_metric = energy_ratio
+            # # final_metric = energy_ratio * contrast_value
+            # # final_metric = contrast_value
+            # # final_metric = energy_ratio
             
-            ## MORE DEBUG CODE
-            current_photon_count = fetal_filtered_signal.mean()
-            max_count = (self.tof_data.tof_series * temp_win.reshape(1, -1)).sum(dim=1).mean()
-            relative_snr = current_photon_count / max_count
-            final_metric = energy_ratio + relative_snr * 10.0
+            # ## MORE DEBUG CODE
+            # current_photon_count = fetal_filtered_signal.mean()
+            # max_count = (self.tof_data.tof_series * temp_win.reshape(1, -1)).sum(dim=1).mean()
+            # relative_snr = current_photon_count / max_count
+            # final_metric = energy_ratio + relative_snr * 10.0
             ##
             
+            ## Optimize the Target Directly
+            fetal_energy = torch.sum(fetal_filtered_signal ** 2)
+            maternal_energy = torch.sum(maternal_filtered_signal ** 2)
+            avergae_tof_frame = self.tof_data.tof_series.sum(dim=0, keepdim=True)
+            windowed_average_tof_frame = avergae_tof_frame * self.window_norm.reshape(1, -1)
+            baseline_noise_var = windowed_average_tof_frame.sum()
+            baseline_noise_std = torch.sqrt(baseline_noise_var)
+            final_metric = (fetal_energy) / (torch.sqrt(maternal_energy) * baseline_noise_std)
+            
             # Log metrics
-            self.training_curves[epoch, 0] = energy_ratio.item()
-            self.training_curves[epoch, 1] = contrast_value.item()
+            self.training_curves[epoch, 0] = fetal_energy.item()
+            self.training_curves[epoch, 1] = (torch.sqrt(maternal_energy) * baseline_noise_std).item()
             self.training_curves[epoch, 2] = final_metric.item()
 
             # Backpropagation
-            loss = -final_metric  # DEBUG CODE: TODO Check which one is better
-            # loss = -torch.log(final_metric)
+            ## Divisions and Products are very unstable - Use Logarithms
+            ## Also, we want to maximize the final metric, so minimize negative final metric
+            loss = - (torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
             loss.backward()
             if self.grad_clip:
                 torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)

@@ -129,10 +129,6 @@ def main(
 
 
 if __name__ == "__main__":
-    # Our actual evaluator (PaperEvaluator) uses Normalized SNR - which is not ideal for inter-detector comparison
-    # eval_func = lambda ppath, win, meas, conf, noise_calc: ProductEvaluator(
-    #     FetalSelectivityEvaluator(ppath, win, meas, conf), SNREvaluator(ppath, win, meas, conf)
-    # )
     eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [

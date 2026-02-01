@@ -144,7 +144,7 @@ if __name__ == "__main__":
     # eval_func = lambda ppath, win, meas, conf, noise_calc: FetalSelectivityEvaluator(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.01),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
@@ -152,5 +152,5 @@ if __name__ == "__main__":
 
     exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/sensitivity_comparison_results2.yaml", "w") as f:
+    with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
