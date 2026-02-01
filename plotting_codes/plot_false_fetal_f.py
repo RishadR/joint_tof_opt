@@ -64,7 +64,7 @@ def main():
 
     # Configure axes
     ax.set_xlabel('Fetal Depth (mm)')
-    ax.set_ylabel('SNR x Selectivity')
+    ax.set_ylabel('Figure of Merit')
     ax.legend()
     ax.grid(True, alpha=0.3)
 

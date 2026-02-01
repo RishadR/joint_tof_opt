@@ -70,7 +70,7 @@ def main():
 
     # Configure axes
     ax.set_xlabel('Fetal Depth (mm)')
-    ax.set_ylabel('SNR (Unnormalized) x Selectivity')
+    ax.set_ylabel('Figure of Merit')
     ax.set_yscale('log')
     ax.legend(loc='upper right')
     ax.grid(True, alpha=0.3)

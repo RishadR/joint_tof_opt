@@ -132,7 +132,7 @@ if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=True, patience=100),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100),
         lambda tof_file, measurand: LiuOptimizer(
             tof_file, measurand, dtof_to_find_max_on="mean", half_width=0.3, harmonic_count=2, norm=1.0
         ),
