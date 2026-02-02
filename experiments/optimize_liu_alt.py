@@ -128,7 +128,7 @@ class AltLiuOptimizer(OptimizationExperiment):
 
     def __str__(self) -> str:
         return (
-            f"LiuOptimizer(measurand={self.moment_module.__class__.__name__}, "
+            f"AltLiuOptimizer(measurand={self.moment_module.__class__.__name__}, "
             f"dtof_to_find_max_on={self.dtof_to_find_max_on}, half_width={self.half_width},"
             f"harmonics={self.harmonic_count}, norm={self.norm})"
         )

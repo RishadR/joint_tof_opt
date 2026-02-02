@@ -27,6 +27,8 @@ def main():
     digss_data = {'depths': [], 'sensitivities': []}
     liu_data_h1 = {'depths': [], 'sensitivities': []}
     liu_data_h2 = {'depths': [], 'sensitivities': []}
+    alt_liu_data_h1 = {'depths': [], 'sensitivities': []}
+    alt_liu_data_h2 = {'depths': [], 'sensitivities': []}
     cw_data = {'depths': [], 'sensitivities': []}
 
     for exp_key, exp_data in results.items():
@@ -40,22 +42,29 @@ def main():
         if depth is None or sensitivity is None:
             continue
         
-        if 'DIGSSOptimizer' in str(optimizer):
+        if str(optimizer).startswith('DIGSSOptimizer'):
             digss_data['depths'].append(depth)
             digss_data['sensitivities'].append(sensitivity)
-        elif 'LiuOptimizer' in str(optimizer):
+        elif str(optimizer).startswith('LiuOptimizer'):
             if 'harmonics=1' in str(optimizer):
                 liu_data_h1['depths'].append(depth)
                 liu_data_h1['sensitivities'].append(sensitivity)
             elif 'harmonics=2' in str(optimizer):
                 liu_data_h2['depths'].append(depth) 
                 liu_data_h2['sensitivities'].append(sensitivity)
-        elif 'DummyUnitWindowGenerator' in str(optimizer):
+        elif str(optimizer).startswith('AltLiuOptimizer'):
+            if 'harmonics=1' in str(optimizer):
+                alt_liu_data_h1['depths'].append(depth)
+                alt_liu_data_h1['sensitivities'].append(sensitivity)
+            elif 'harmonics=2' in str(optimizer):
+                alt_liu_data_h2['depths'].append(depth) 
+                alt_liu_data_h2['sensitivities'].append(sensitivity)
+        elif str(optimizer).startswith('DummyUnitWindowGenerator'):
             cw_data['depths'].append(depth)
             cw_data['sensitivities'].append(sensitivity)
 
     # Sort data by depth
-    for data in [digss_data, liu_data_h1, liu_data_h2, cw_data]:
+    for data in [digss_data, liu_data_h1, liu_data_h2, alt_liu_data_h1, alt_liu_data_h2, cw_data]:
         if data['depths']:
             sorted_indices = np.argsort(data['depths'])
             data['depths'] = np.array(data['depths'])[sorted_indices].tolist()
@@ -71,6 +80,10 @@ def main():
     #         marker='s', linewidth=2, markersize=8, label='Liu et al. (Single Harmonic)')
     ax.plot(liu_data_h2['depths'], liu_data_h2['sensitivities'], 
             marker='s', linewidth=2, markersize=8, label='Liu et al.')
+    # ax.plot(alt_liu_data_h1['depths'], alt_liu_data_h1['sensitivities'], 
+    #         marker='d', linewidth=2, markersize=8, label='Alt Liu et al. (Single Harmonic)')
+    ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], 
+            marker='d', linewidth=2, markersize=8, label='Modified Liu et al.')
     ax.plot(cw_data['depths'], cw_data['sensitivities'], 
             marker='^', linewidth=2, markersize=8, label='CW')
 
