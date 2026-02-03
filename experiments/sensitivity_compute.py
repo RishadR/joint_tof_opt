@@ -171,7 +171,7 @@ class PureFetalSensitivityEvaluator(Evaluator):
 
         # Compute sensitivity
         self.delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
-        self.delta_measurand = measurand_values[1] - measurand_values[0]
+        self.delta_measurand = float(measurand_values[1] - measurand_values[0])
         self.final_metric = -self.delta_measurand / self.delta_mu_a_fetal
         return self.final_metric
 

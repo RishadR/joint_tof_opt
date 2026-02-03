@@ -1,10 +1,6 @@
 """
 Comparing our optimizers performance when the Fetal F is off by some margin
 """
-
-"""
-Compare the sensitivity of our metric between different detector indices
-"""
 from typing import Any, Literal, Callable
 from pathlib import Path
 import torch
