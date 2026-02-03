@@ -139,12 +139,13 @@ def main(
 
 
 if __name__ == "__main__":
-    filter_hw = 0.3  # Hz
-    eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
+    filter_hw = 0.01  # Hz
+    # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
+    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf)
     # eval_func = lambda ppath, win, meas, conf, noise_calc: FetalSelectivityEvaluator(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.01),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0001),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),

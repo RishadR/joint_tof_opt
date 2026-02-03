@@ -120,10 +120,11 @@ def main(
 
 
 if __name__ == "__main__":
+    filter_hw = 0.01  # Hz
     eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]] = [
         lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
-            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100
+            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw
         ),
         # lambda tof_file, measurand, new_fetal_f: LiuOptimizer(
         #     tof_file, measurand, fetal_f=new_fetal_f, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0

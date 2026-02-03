@@ -31,7 +31,7 @@ from joint_tof_opt import (
 )
 
 __all__ = [
-    "PureFetalSensitivityEvaluator",
+    "PureSensitivityEvaluator",
     "NormalizedPureFetalSensitivityEvaluator",
     "FetalSensitivityEvaluator",
     "CorrelationEvaluator",
@@ -43,6 +43,8 @@ __all__ = [
     "SpectralCorrelationEvaluator",
     "FetalSelectivityEvaluator",
     "NormalizedSNREvaluator",
+    "AltPaperEvaluator",
+    "AltPaperEvaluator2",
 ]
 
 
@@ -52,30 +54,29 @@ def _metadata_check(moment_module: CompactStatProcess, required_fields: list[str
         assert field in moment_module.meta_data, f"{field} must be in the meta data!"
 
 
-class PureFetalSensitivityEvaluator(Evaluator):
+class PureSensitivityEvaluator(Evaluator):
     """
-    Evaluator for computing fetal sensitivity w.r.t. fetal mu_a using partial path data.
+    Evaluator for computing fetal/maternal sensitivity w.r.t. fetal/maternal mu_a using partial path data.
+    Computes (Delta Measurand) / (Delta mu_a) for the respective layer
 
-    This evaluator computes how much the measurand changes per unit change in fetal mu_a
+
+    This evaluator computes how much the measurand changes per unit change in fetal/maternal mu_a
     (absorption coefficient). It does this by:
     1. Loading photon partial path data
-    2. Computing TOF distributions for base and perturbed (increased fetal mu_a) models
+    2. Computing TOF distributions for base and perturbed (increased fetal/maternal mu_a) models
     3. Computing the measurand for both distributions
-    4. Computing sensitivity as delta measurand / delta mu_a_fetal
+    4. Computing sensitivity as self.delta_measurand / self.delta_mu_a for the respective layer
 
     The result is stored in self.final_metric as a float.
-
-    Extra Note: If the measurand is a string, it uses the ppath & the tof_config.yaml to compute the TOF distributions.
-    If the measurand is a custom nn.Module, it directly uses the measurand's internal TOF for computation - skipping
-    the ppath generation step.
     """
 
     def __init__(
         self,
         ppath_file: Path,
         window: torch.Tensor,
-        measurand: str | CompactStatProcess,
+        measurand: str,
         gen_config: dict,
+        layer_to_alter: Literal["maternal", "fetal"] = "fetal",
         delta_percnt: float = 5.0,
     ):
         """
@@ -83,27 +84,26 @@ class PureFetalSensitivityEvaluator(Evaluator):
 
         :param ppath_file: Path to the ppath dataset (.npz file).
         :param window: The time-gating window to apply.
-        :param measurand: The measurand to compute sensitivity for ("abs", "m1", "V") or custom module.
+        :param measurand: The measurand to compute sensitivity for ("abs", "m1", "V").
         :param gen_config: DTOF generation configs. This will be used on the ppath file to generate the ToF data.
-        :param delta_percnt: Percentage increase in fetal mu_a for sensitivity computation. (Default: 2.5)
+        :param layer_to_alter: The layer to alter for sensitivity computation ("maternal" or "fetal").
+        :param delta_percnt: Percentage increase in fetal/maternal mu_a for sensitivity computation. (Default: 2.5)
         """
         super().__init__(ppath_file, window, measurand, gen_config)
+        self.measurand = measurand
         self.delta_percnt = delta_percnt
-        self.measurand_str = ""
-        if isinstance(measurand, str):
-            assert measurand in named_moment_types, f"Measurand string '{measurand}' not recognized"
-            self.measurand_str = measurand
-        self.delta_mu_a_fetal = 0.0
+        self.delta_mu_a = 0.0
         self.delta_measurand = 0.0
+        self.layer_to_alter = layer_to_alter
 
     def __str__(self) -> str:
-        return "Computes Fetal Sensitivity as delta measurand / delta mu_a_fetal assuming no maternal interference"
+        return f"Computes Sensitivity as delta measurand / delta {self.layer_to_alter} mu_a"
 
     def evaluate(self) -> float:
         """
         Compute the fetal sensitivity.
 
-        :return: The computed sensitivity value as delta measurand / delta mu_a_fetal.
+        :return: The computed sensitivity value as delta measurand / delta mu_a for the respective layer.
         The value could be negative. The units are (mm^-1 times units of measurand).
         """
         # Load configuration
@@ -115,9 +115,8 @@ class PureFetalSensitivityEvaluator(Evaluator):
         bin_count = self.gen_config["bin_count"]
         assert bin_count == len(self.window), "Window length must match bin count in tof_config.yaml"
         fraction = self.gen_config["weight_threshold_fraction"]
-        filtered_ppath = (ppath[ppath[:, 0] == self.gen_config["selected_sdd_index"]])[
-            :, 1:
-        ]  # Drop the sdd index column
+        filtered_ppath = (ppath[ppath[:, 0] == self.gen_config["selected_sdd_index"]])[:, 1:]
+        # Drop the sdd index column
 
         # Create base and perturbed tissue models
         base_model = DanModel4LayerX(
@@ -129,58 +128,73 @@ class PureFetalSensitivityEvaluator(Evaluator):
             self.gen_config["fetal_saturation"],
             self.gen_config["fetal_hb_base"],
         )
-        perturbed_model = DanModel4LayerX(
-            self.gen_config["wavelength"],
-            self.gen_config["epi_thickness_mm"],
-            self.gen_config["derm_thickness_mm"],
-            self.gen_config["maternal_hb_base"],
-            self.gen_config["maternal_saturation"],
-            self.gen_config["fetal_saturation"],
-            self.gen_config["fetal_hb_base"] * (1 + self.delta_percnt / 100),
-        )
-
-        if isinstance(self.measurand, str):
-            # Compute TOF distributions
-            base_tof, bin_edges, base_var = compute_tof_discrete(
-                filtered_ppath, light_speeds, base_model, bin_count, fraction, None
+        if self.layer_to_alter == "fetal":
+            perturbed_model = DanModel4LayerX(
+                self.gen_config["wavelength"],
+                self.gen_config["epi_thickness_mm"],
+                self.gen_config["derm_thickness_mm"],
+                self.gen_config["maternal_hb_base"],
+                self.gen_config["maternal_saturation"],
+                self.gen_config["fetal_saturation"],
+                self.gen_config["fetal_hb_base"] * (1 + self.delta_percnt / 100),
             )
-            time_limits = (bin_edges[0], bin_edges[-1])
-            perturbed_tof, _, perturbed_var = compute_tof_discrete(
-                filtered_ppath,
-                light_speeds,
-                perturbed_model,
-                bin_count,
-                None,
-                time_limits,
-            )
-            tof_dataset = np.vstack([base_tof, perturbed_tof])  # Shape: (2, bin_count)
-            var_dataset = np.vstack([base_var, perturbed_var])  # Shape: (2, bin_count)
-
-            # Compute measurand
-            tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
-            var_dataset_tensor = torch.tensor(var_dataset, dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-            bin_centers_tensor = 0.5 * (bin_edges_tensor[:-1] + bin_edges_tensor[1:])
-            tof_data = ToFData(tof_series_tensor, bin_edges_tensor, bin_centers_tensor, var_dataset_tensor)
-            moment_calculator = get_named_moment_module(self.measurand, tof_data)
         else:
-            moment_calculator = self.measurand
+            perturbed_model = DanModel4LayerX(
+                self.gen_config["wavelength"],
+                self.gen_config["epi_thickness_mm"],
+                self.gen_config["derm_thickness_mm"],
+                self.gen_config["maternal_hb_base"] * (1 + self.delta_percnt / 100),
+                self.gen_config["maternal_saturation"],
+                self.gen_config["fetal_saturation"],
+                self.gen_config["fetal_hb_base"],
+            )
+
+        base_tof, bin_edges, base_var = compute_tof_discrete(
+            filtered_ppath, light_speeds, base_model, bin_count, fraction, None
+        )
+        time_limits = (bin_edges[0], bin_edges[-1])
+        perturbed_tof, _, perturbed_var = compute_tof_discrete(
+            filtered_ppath,
+            light_speeds,
+            perturbed_model,
+            bin_count,
+            None,
+            time_limits,
+        )
+        tof_dataset = np.vstack([base_tof, perturbed_tof])  # Shape: (2, bin_count)
+        var_dataset = np.vstack([base_var, perturbed_var])  # Shape: (2, bin_count)
+
+        # Compute measurand
+        tof_series_tensor = torch.tensor(tof_dataset, dtype=torch.float32)
+        var_dataset_tensor = torch.tensor(var_dataset, dtype=torch.float32)
+        bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
+        bin_centers_tensor = 0.5 * (bin_edges_tensor[:-1] + bin_edges_tensor[1:])
+        tof_data = ToFData(tof_series_tensor, bin_edges_tensor, bin_centers_tensor, var_dataset_tensor)
+        moment_calculator = get_named_moment_module(self.measurand, tof_data)
 
         measurand_values = moment_calculator.forward(self.window)
         measurand_values = measurand_values.detach().cpu().numpy()
 
         # Compute sensitivity
-        self.delta_mu_a_fetal = perturbed_model.prop[-1][0] - base_model.prop[-1][0]  # Change in fetal mu_a in mm-1
+        if self.layer_to_alter == "fetal":
+            self.delta_mu_a = float(
+                perturbed_model.prop[-1][0] - base_model.prop[-1][0]
+            )  # Change in fetal mu_a in mm-1
+        else:
+            self.delta_mu_a = float(
+                perturbed_model.prop[1][0] - base_model.prop[1][0]
+            )  # Change in maternal mu_a in mm-1
         self.delta_measurand = float(measurand_values[1] - measurand_values[0])
-        self.final_metric = -self.delta_measurand / self.delta_mu_a_fetal
+        self.final_metric = -self.delta_measurand / self.delta_mu_a
         return self.final_metric
 
     def get_log(self) -> dict[str, Any]:
         return {
-            "fetal_sensitivity": self.final_metric,
-            "delta_percnt": self.delta_percnt,
-            "delta_mu_a_fetal": self.delta_mu_a_fetal,
+            "sensitivity": self.final_metric,
+            "delta_mu_a": self.delta_mu_a,
             "delta_measurand": self.delta_measurand,
+            "delta_percnt": self.delta_percnt,
+            "layer_altered": self.layer_to_alter,
         }
 
 
@@ -798,12 +812,12 @@ class NormalizedPureFetalSensitivityEvaluator(Evaluator):
     This is done via computing the Best Sensitivity
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: dict):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict):
         super().__init__(ppath_file, window, measurand, gen_config)
-        self.fetal_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, window, measurand, gen_config)
+        self.fetal_sensitivity_evaluator = PureSensitivityEvaluator(ppath_file, window, measurand, gen_config)
         unit_window = torch.ones_like(window)
         unit_window /= unit_window.norm(p=2)
-        self.best_sensitivity_evaluator = PureFetalSensitivityEvaluator(ppath_file, unit_window, measurand, gen_config)
+        self.best_sensitivity_evaluator = PureSensitivityEvaluator(ppath_file, unit_window, measurand, gen_config)
 
     def __str__(self) -> str:
         return "Computes Normalized Fetal Sensitivity between 0 and 1"
@@ -863,21 +877,27 @@ class ProductEvaluator(Evaluator):
         return final_log
 
 
+def _compute_baseline_noise_std(window: torch.Tensor, tof_data: ToFData) -> float:
+    """
+    Computes the baseline noise standard deviation assuming a windowed sum approach.
+    Formula:
+        std = sqrt(sum_i(w_i * N_i)) ;
+    where w_i is the window value at time bin i, and N_i is the photon count at time bin i.
+
+    :param window: The window used for the ToF Data. Should be a 1D Tensor on the same device as ToF.tof_series
+    :param tof_data: The ToF data object computed using compute_tof_data_series. Should be unnormalized!
+    :return: The baseline noise standard deviation.
+    :rtype: float
+    """
+    avg_tof_frame = tof_data.tof_series.sum(dim=0, keepdim=True)  # Shape: (1, num_timepoints)
+    windowed_avg_tof_frame = avg_tof_frame * window.unsqueeze(0)  # Shape: (1, num_timepoints)
+    baseline_noise_var = windowed_avg_tof_frame.sum().item()
+    baseline_noise_std = sqrt(baseline_noise_var)
+    return baseline_noise_std
+
+
 class PaperEvaluator(Evaluator):
-    """
-    The final evaluator used in the paper! Uses the following equation:
-    Final Metric = Fetal Selectivity x Normalized Fetal SNR x Fetal Correlation
-
-    where,
-    Fetal Selectivity: Computed using FetalSelectivityEvaluator
-    Normalized Fetal SNR: Computed using NormalizedFetalSNREvaluator
-    Fetal Correlation: Computed using CorrelationEvaluator
-
-    :param ppath_file: Path to the ppath dataset (.npz file).
-    :param window: The time-gating window to apply.
-    :param measurand: The measurand to compute SNR for ("abs", "m1", "V") or custom module.
-    :param filter_hw: Half-width of the filter to apply.
-    """
+    """ """
 
     def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
@@ -909,26 +929,10 @@ class PaperEvaluator(Evaluator):
     def __str__(self) -> str:
         return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
 
-    def _compute_baseline_noise_std(self, tof_data: ToFData) -> float:
-        """
-        Computes the baseline noise standard deviation assuming a windowed sum approach.
-        Formula:
-            std = sqrt(sum_i(w_i * N_i)) ;
-        where w_i is the window value at time bin i, and N_i is the photon count at time bin i.
-
-        :param tof_data: The ToF data object computed using compute_tof_data_series. Should be unnormalized!
-        :return: The baseline noise standard deviation.
-        :rtype: float
-        """
-        avg_tof_frame = tof_data.tof_series.sum(dim=0, keepdim=True)  # Shape: (1, num_timepoints)
-        windowed_avg_tof_frame = avg_tof_frame * self.window.unsqueeze(0)  # Shape: (1, num_timepoints)
-        baseline_noise_var = windowed_avg_tof_frame.sum().item()
-        baseline_noise_std = sqrt(baseline_noise_var)
-        return baseline_noise_std
 
     def evaluate(self) -> float:
         tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
-        self.baseline_noise_std = self._compute_baseline_noise_std(tof_data)
+        self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data)
         moment_module = get_named_moment_module(self.measurand, tof_data)
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
         fetal_component = self.fetal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
@@ -945,4 +949,93 @@ class PaperEvaluator(Evaluator):
             "baseline_noise_std": self.baseline_noise_std,
             "maternal_ac_amp": self.maternal_ac_amp,
             "final_metric": self.final_metric,
+        }
+
+
+class AltPaperEvaluator(Evaluator):
+    """
+    An alternate version of the Paper Evaluator that uses the exact same equations but replaces the energy-based
+    equations with their counterpart amplitude based ones. It also uses Pure Sensitivity when computing maternal and
+    fetal ac amplitudes. Which is to say - it runs a separate simulation where only one layer is changed slightly to
+    compute the delta measurand values.
+    """
+    
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, delta: float = 15.0):
+        super().__init__(ppath_file, window, measurand, gen_config)
+        self.measurand = measurand  # Overwrite to keep the type a string
+        self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
+        self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
+        self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
+        self.delta = delta
+        self.fetal_sensitivity_eval = PureSensitivityEvaluator(
+            ppath_file, window, measurand, gen_config, "fetal", delta
+        )
+        self.maternal_sensitivity_eval = PureSensitivityEvaluator(
+            ppath_file, window, measurand, gen_config, "maternal", delta
+        )
+
+    def __str__(self) -> str:
+        return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
+
+    def evaluate(self) -> float:
+        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data)
+        # Run these evals to actually compute the values for delta_measurands!
+        fetal_sensitivity = self.fetal_sensitivity_eval.evaluate()
+        maternal_sensitivity = self.maternal_sensitivity_eval.evaluate()
+        # assert self.fetal_sensitivity_eval.delta_measurand != 0.0, "Sensitivity Evaluator Needs to be run first"
+        # assert self.maternal_sensitivity_eval.delta_measurand != 0.0, "Sensitivity Evaluator Needs to be run first"
+        self.fetal_ac_energy = self.fetal_sensitivity_eval.delta_measurand ** 2
+        self.maternal_ac_amp = abs(self.maternal_sensitivity_eval.delta_measurand)
+        self.final_metric = self.fetal_ac_energy / (self.baseline_noise_std * self.maternal_ac_amp)
+        return self.final_metric
+
+    def get_log(self) -> dict[str, Any]:
+        maternal_eval_log = self.maternal_sensitivity_eval.get_log()
+        fetal_eval_log = self.fetal_sensitivity_eval.get_log()
+        return {
+            "final_metric": self.final_metric,
+            "fetal_ac_energy": self.fetal_ac_energy,
+            "baseline_noise_std": self.baseline_noise_std,
+            "maternal_ac_amp": self.maternal_ac_amp,
+            "maternal_measurand_delta": maternal_eval_log["delta_measurand"],
+            "fetal_measurand_delta": fetal_eval_log["delta_measurand"],
+            "maternal_delta_mu_a": maternal_eval_log["delta_mu_a"],
+            "fetal_delta_mu_a": fetal_eval_log["delta_mu_a"],
+        }
+
+class AltPaperEvaluator2(Evaluator):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict):
+        super().__init__(ppath_file, window, measurand, gen_config)
+        self.measurand = measurand  # Overwrite to keep the type a string
+        self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
+        self.maternal_ac_energy = 0.0 
+        self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
+        self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
+
+    def __str__(self) -> str:
+        return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
+
+    def evaluate(self) -> float:
+        baseline_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        self.baseline_noise_std = _compute_baseline_noise_std(self.window, baseline_tof_data)
+        
+        only_maternal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, False)
+        only_fetal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, False, True)
+        pure_maternal_measurand = get_named_moment_module(self.measurand, only_maternal_tof_data).forward(self.window)
+        pure_fetal_measurand = get_named_moment_module(self.measurand, only_fetal_tof_data).forward(self.window)
+        self.maternal_ac_energy = (pure_maternal_measurand - pure_maternal_measurand.mean()).square().sum().item()
+        self.fetal_ac_energy = (pure_fetal_measurand - pure_fetal_measurand.mean()).square().sum().item()
+        self.maternal_ac_amp = sqrt(self.maternal_ac_energy)
+        self.final_metric = self.fetal_ac_energy / (self.baseline_noise_std * self.maternal_ac_amp)
+        return self.final_metric
+        
+
+    def get_log(self) -> dict[str, Any]:
+        return {
+            "final_metric": self.final_metric,
+            "fetal_ac_energy": self.fetal_ac_energy,
+            "maternal_ac_energy": self.maternal_ac_energy,
+            "baseline_noise_std": self.baseline_noise_std,
+            "maternal_ac_amp": self.maternal_ac_amp,
         }

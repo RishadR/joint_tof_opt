@@ -134,14 +134,6 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.maternal_comb_filter = CombSeparator(
             self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
         )
-        ############### DEBUG CODE - CHANGE LATER ###############
-        # self.contrast_to_noise_metric_unfilt = ContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
-        # self.contrast_to_noise_metric = FilteredContrastToNoiseMetric(
-        #     self.noise_calc, self.tof_data, self.fetal_comb_filter, False
-        # )
-        self.revised_cnr_metric = RevisedContrastToNoiseMetric(self.noise_calc, self.tof_data, False)
-        ############### DEBUG CODE - CHANGE LATER ##############
-        self.energy_ratio_metric = EnergyRatioMetric()
 
         # Parameters
         self.window_exponents = nn.Parameter(0.5 * torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
@@ -196,33 +188,6 @@ class DIGSSOptimizer(OptimizationExperiment):
             fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
             maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
-
-            # Compute metrics
-            # DEBUG Code
-            # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, compact_stats)
-            # energy_ratio = self.energy_ratio_metric(fetal_filtered_signal, maternal_filtered_signal)
-            # # DEBUG Code
-
-            # # contrast_value = self.contrast_to_noise_metric(self.window_norm, fetal_filtered_signal)
-            # # contrast_value = self.contrast_to_noise_metric(self.window_norm, compact_stats)
-            # # contrast_value /= max_contrast  # Normalize contrast to max possible
-            # # contrast_value = torch.tensor(1.0)  # DEBUG CODE: TODO Remove later
-            # temp_win = torch.ones_like(self.window_norm)
-            # current_cnr = self.revised_cnr_metric(temp_win, fetal_filtered_signal)
-            # # max_cnr = self.revised_cnr_metric(, max_signal)
-            # # contrast_value = current_cnr / max_cnr  # Normalize contrast to max possible
-            # contrast_value = current_cnr
-            
-            # # final_metric = energy_ratio * contrast_value
-            # # final_metric = contrast_value
-            # # final_metric = energy_ratio
-            
-            # ## MORE DEBUG CODE
-            # current_photon_count = fetal_filtered_signal.mean()
-            # max_count = (self.tof_data.tof_series * temp_win.reshape(1, -1)).sum(dim=1).mean()
-            # relative_snr = current_photon_count / max_count
-            # final_metric = energy_ratio + relative_snr * 10.0
-            ##
             
             ## Optimize the Target Directly
             fetal_energy = torch.sum(fetal_filtered_signal ** 2)
@@ -241,7 +206,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             # Backpropagation
             ## Divisions and Products are very unstable - Use Logarithms
             ## Also, we want to maximize the final metric, so minimize negative final metric
-            loss = - (torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
+            loss = - (10 * torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - 10.0 * torch.log(baseline_noise_std))
             loss.backward()
             if self.grad_clip:
                 torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
@@ -278,8 +243,6 @@ class DIGSSOptimizer(OptimizationExperiment):
             "moment_module": self.moment_module,
             "fetal_comb_filter": self.fetal_comb_filter,
             "maternal_comb_filter": self.maternal_comb_filter,
-            "revised_cnr_metric": self.revised_cnr_metric,
-            "energy_ratio_metric": self.energy_ratio_metric,
         }
 
 
