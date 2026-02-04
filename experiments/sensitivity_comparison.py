@@ -57,9 +57,8 @@ def main(
         2 * gen_config["fetal_f"],
         0.3,
         gen_config["datapoint_count"] / 2 + 1,
-        True
-        )
-    
+        True,
+    )
 
     # Initialize results table and windows storage
     results = []
@@ -102,7 +101,7 @@ def main(
                     final_optimizer_loss = loss_history[-1, :].tolist()
                 else:
                     final_optimizer_loss = []
-                
+
                 # Compute the unfiltered measurand signal for logging
                 tof_data = ToFData.from_npz(tof_dataset_file)
                 measurand_process = get_named_moment_module(measurand, tof_data)
@@ -139,13 +138,14 @@ def main(
 
 
 if __name__ == "__main__":
-    filter_hw = 0.01  # Hz
+    filter_hw = 0.001  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf)
-    # eval_func = lambda ppath, win, meas, conf, noise_calc: FetalSelectivityEvaluator(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0001),
+        lambda tof_file, measurand: DIGSSOptimizer(
+            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.01, filter_hw=filter_hw
+        ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),

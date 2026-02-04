@@ -96,15 +96,15 @@ def main(target_depth: int = 25):
     if digss_data['separations']:
         ax.plot(digss_data['separations'], digss_data[y_key], 
                 marker='o', linewidth=2, markersize=8, label='DIGSS')
-    # if liu_data['separations']:
-    #     ax.plot(liu_data['separations'], liu_data[y_key], 
-    #             marker='s', linewidth=2, markersize=8, label='Liu et al.')
-    # if alt_liu_data['separations']:
-    #     ax.plot(alt_liu_data['separations'], alt_liu_data[y_key], 
-    #             marker='d', linewidth=2, markersize=8, label='Modified Liu et al.')
-    # if cw_data['separations']:
-    #     ax.plot(cw_data['separations'], cw_data[y_key], 
-    #             marker='^', linewidth=2, markersize=8, label='CW')
+    if liu_data['separations']:
+        ax.plot(liu_data['separations'], liu_data[y_key], 
+                marker='s', linewidth=2, markersize=8, label='Liu et al.')
+    if alt_liu_data['separations']:
+        ax.plot(alt_liu_data['separations'], alt_liu_data[y_key], 
+                marker='d', linewidth=2, markersize=8, label='Modified Liu et al.')
+    if cw_data['separations']:
+        ax.plot(cw_data['separations'], cw_data[y_key], 
+                marker='^', linewidth=2, markersize=8, label='CW')
 
     # Configure axes
     ax.set_xlabel('Frequency Separation (Hz)')

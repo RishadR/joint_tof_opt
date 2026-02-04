@@ -1,11 +1,12 @@
 """
 Code to process the generated compact stats signal to extract FHR
 """
-
+import math
 import numpy as np
 from typing import Tuple
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 def create_sinc_bandpass_filter(fs: float, lowcut: float, highcut: float, filter_length: int) -> np.ndarray:
@@ -40,14 +41,6 @@ def create_sinc_bandpass_filter(fs: float, lowcut: float, highcut: float, filter
 
     # Bandpass filter is the difference of the two lowpass filters
     bandpass_filter = sinc_high - sinc_low
-
-    # Apply a Hamming window to reduce side lobes
-    hamming_window = np.hamming(filter_length)
-    bandpass_filter *= hamming_window
-
-    # Normalize filter to have unit energy
-    bandpass_filter /= np.sqrt(np.sum(bandpass_filter**2))
-
     return bandpass_filter
 
 
@@ -72,6 +65,11 @@ def create_sinc_comb_filter(fs: float, f0: float, f1: float, half_width: float, 
     filter1 = create_sinc_bandpass_filter(fs, f0 - half_width, f0 + half_width, filter_length)
     filter2 = create_sinc_bandpass_filter(fs, f1 - half_width, f1 + half_width, filter_length)
     comb_filter = filter1 + filter2
+    
+    # Apply Hamming Window to reduce ripples
+    hamming_window = np.hamming(filter_length)
+    comb_filter *= hamming_window
+    
     # Normalize filter to have unit energy
     comb_filter /= np.sqrt(np.sum(comb_filter**2))
     return comb_filter
@@ -103,10 +101,24 @@ class CombSeparator(nn.Module):
         """
         # TODO: Consider if using pure Sinc filters is the way to go here (Plus a windowing function)
         super().__init__()
-        comb_filter = create_sinc_comb_filter(fs, f0, f1, half_width, filter_length)
-        comb_filter_tensor = torch.tensor(comb_filter, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        self.comb_filter = nn.Parameter(comb_filter_tensor, requires_grad=False)
+        if filter_length % 2 == 0:
+            filter_length += 1  # FIR filters for bandpass usually need to be odd
+            
+        self.fs = fs
+        self.filter_len = int(filter_length)
         self.phase_preserve = phase_preserve
+        
+        # Define parameters (requires_grad=False as requested)
+        self.low_mid = nn.Parameter(torch.tensor(float(f0)), requires_grad=False)
+        self.high_mid = nn.Parameter(torch.tensor(float(f1)), requires_grad=False)
+        self.width = nn.Parameter(torch.tensor(float(half_width)), requires_grad=False)
+        
+        # Pre-compute coefficients
+
+        self.comb_filter : torch.Tensor
+        filter_coeffs = create_sinc_comb_filter(fs, f0, f1, half_width, filter_length)
+        self.register_buffer('comb_filter', torch.tensor(filter_coeffs, dtype=torch.float32).view(1, 1, -1))
+
 
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         """
@@ -117,12 +129,21 @@ class CombSeparator(nn.Module):
         :return: Filtered signal tensor of shape (batch_size, 1, signal_length).
         :rtype: torch.Tensor
         """
-        # TODO: Consider what padding needs to be set - currently using half filter length
-        filtered_signal = nn.functional.conv1d(signal, self.comb_filter, padding=self.comb_filter.shape[-1] // 2)
+        pad_size = self.filter_len // 2
         
-        # Apply the filter in reverse to preserve phase if needed
+        def apply_conv(data):
+            # We use circular padding for periodicity
+            padded = F.pad(data, (pad_size, pad_size), mode='circular')
+            return F.conv1d(padded, self.comb_filter, padding='valid')
+
         if self.phase_preserve:
-            filtered_signal = nn.functional.conv1d(
-                filtered_signal, self.comb_filter.flip(-1), padding=self.comb_filter.shape[-1] // 2
-            )
-        return filtered_signal.flatten()
+            # Forward pass
+            signal = apply_conv(signal)
+            # Reverse, apply again, and reverse back (Zero-Phase)
+            signal = torch.flip(signal, dims=[-1])
+            signal = apply_conv(signal)
+            signal = torch.flip(signal, dims=[-1])
+        else:
+            signal = apply_conv(signal)
+            
+        return signal.flatten()

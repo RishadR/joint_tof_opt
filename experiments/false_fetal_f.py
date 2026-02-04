@@ -56,15 +56,13 @@ def main(
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
     for percent_error in percent_errors:
+        print(f"Running experiments for percent error: {percent_error*100:.1f}%")
         gen_config_true = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         true_fetal_f: float = gen_config_true["fetal_f"]
         error_value = true_fetal_f * percent_error
-        new_fetal_f = true_fetal_f + error_value
+        new_fetal_f = true_fetal_f - error_value
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
-
-        ## Run experiments
-        print(f"Starting sensitivity comparison for measurand: {measurand}")
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
         for experiment in experiments:
@@ -98,11 +96,7 @@ def main(
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
-                        # Not exactly needed right now - maybe useul later
-                        # "Bin_Edges": bin_edges.tolist(),
-                        # "Optimized_Window": window.detach().cpu().numpy().tolist(),
-                        # "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
-                        # "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
+                        "Optimized_Window": window.detach().cpu().numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
                     }
                 )

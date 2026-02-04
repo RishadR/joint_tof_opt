@@ -905,6 +905,7 @@ class PaperEvaluator(Evaluator):
         super().__init__(ppath_file, window, measurand, gen_config)
         self.measurand = measurand  # Overwrite to keep the type a string
         self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
+        self.maternal_ac_energy = 0.0  # For selectivity calculation
         self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
         self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
         self.filter_hw = filter_hw
@@ -938,8 +939,8 @@ class PaperEvaluator(Evaluator):
         fetal_component = self.fetal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
         maternal_component = self.maternal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
         self.fetal_ac_energy = float(torch.sum(fetal_component**2).item())
-        maternal_ac_energy = float(torch.sum(maternal_component**2).item())
-        self.maternal_ac_amp = sqrt(maternal_ac_energy)
+        self.maternal_ac_energy = float(torch.sum(maternal_component**2).item())
+        self.maternal_ac_amp = sqrt(self.maternal_ac_energy)
         self.final_metric = self.fetal_ac_energy / (self.baseline_noise_std * self.maternal_ac_amp)
         return self.final_metric
 
@@ -949,6 +950,8 @@ class PaperEvaluator(Evaluator):
             "baseline_noise_std": self.baseline_noise_std,
             "maternal_ac_amp": self.maternal_ac_amp,
             "final_metric": self.final_metric,
+            "selectivity": (self.fetal_ac_energy / self.maternal_ac_energy) ** (1/2),
+            "fetal_snr": (self.fetal_ac_energy) ** (1/2) / self.baseline_noise_std,
         }
 
 
@@ -965,6 +968,7 @@ class AltPaperEvaluator(Evaluator):
         self.measurand = measurand  # Overwrite to keep the type a string
         self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
         self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
+        self.maternal_ac_energy = 0.0  # Reflects the (M1 - M0)^2 term
         self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
         self.delta = delta
         self.fetal_sensitivity_eval = PureSensitivityEvaluator(

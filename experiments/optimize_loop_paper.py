@@ -185,8 +185,10 @@ class DIGSSOptimizer(OptimizationExperiment):
 
             # Apply comb filters
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
-            fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
-            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
+            # Account for the filter's attenuation of energy by scaling
+            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped) * 4.0
+            residual_signal = compact_stats - maternal_filtered_signal - compact_stats.mean()
+            fetal_filtered_signal = self.fetal_comb_filter(residual_signal.unsqueeze(0).unsqueeze(0)) * 4.0
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
             
             ## Optimize the Target Directly
@@ -206,7 +208,8 @@ class DIGSSOptimizer(OptimizationExperiment):
             # Backpropagation
             ## Divisions and Products are very unstable - Use Logarithms
             ## Also, we want to maximize the final metric, so minimize negative final metric
-            loss = - (10 * torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - 10.0 * torch.log(baseline_noise_std))
+            loss = - (torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
+            # loss = - (torch.log(fetal_energy * 3.0) - 0.5 * torch.log(maternal_energy*9) - torch.log(baseline_noise_std))
             loss.backward()
             if self.grad_clip:
                 torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
