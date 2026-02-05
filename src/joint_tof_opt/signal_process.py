@@ -67,8 +67,8 @@ def create_sinc_comb_filter(fs: float, f0: float, f1: float, half_width: float, 
     comb_filter = filter1 + filter2
     
     # Apply Hamming Window to reduce ripples
-    hamming_window = np.hamming(filter_length)
-    comb_filter *= hamming_window
+    # hamming_window = np.hamming(filter_length)
+    # comb_filter *= hamming_window
     
     # Normalize filter to have unit energy
     comb_filter /= np.sqrt(np.sum(comb_filter**2))

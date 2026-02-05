@@ -184,11 +184,12 @@ class DIGSSOptimizer(OptimizationExperiment):
             compact_stats = self.moment_module(self.window_norm)
 
             # Apply comb filters
+            compact_stats = compact_stats - compact_stats.mean()
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
             # Account for the filter's attenuation of energy by scaling
-            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped) * 4.0
-            residual_signal = compact_stats - maternal_filtered_signal - compact_stats.mean()
-            fetal_filtered_signal = self.fetal_comb_filter(residual_signal.unsqueeze(0).unsqueeze(0)) * 4.0
+            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped) / 11.0
+            residual_signal = compact_stats - maternal_filtered_signal
+            fetal_filtered_signal = self.fetal_comb_filter(residual_signal.unsqueeze(0).unsqueeze(0)) / 8.0
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
             
             ## Optimize the Target Directly
@@ -358,7 +359,7 @@ def plot_training_curves_and_window(
     plt.subplot(1, 2, 1)
     for i in range(training_curves.shape[1]):
         if normalize_curves:
-            curve = training_curves[:, i] / (np.max(np.abs(training_curves[:, i])) + 1e-20)
+            curve = training_curves[:, i] / (np.max(np.abs(training_curves[:, i])) + 1e-40)
         else:
             curve = training_curves[:, i]
         plt.plot(curve, label=curve_column_labels[i], linestyle=linestyles[i])
@@ -383,20 +384,20 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
+    tof_dataset_path = Path("./data/generated_tof_set_experiment_0002.npz")
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
         measurand="abs",
         max_epochs=2000,
-        lr=0.1,
-        filter_hw=0.3,
-        patience=50,
+        lr=0.01,
+        filter_hw=0.001,
+        patience=100,
         normalize_tof=False,
     )
     print("Optimized Window:", optimized_window.numpy())
     print("Best Final Metric:", training_curves[-1, 2])
     print("Total Epochs:", training_curves.shape[0])
-    loss_names = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+    loss_names = ["Fetal Energy", "Noise x Maternal Amp", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
     print(training_curves[::10, :])
     plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, normalize_curves=False, grid=True)

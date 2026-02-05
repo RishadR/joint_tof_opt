@@ -1,11 +1,8 @@
 """
-Compare the performance of all 4 methods for different levels of overlap(separation) between fetal and the second
-harmonic of maternal for the deepest model (The last one!)
+Compare the performance for different levels of overlap(separation) between fetal and the second
+harmonic of maternal for our optimizer for different filter half-widths.
 """
 
-"""
-Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
-"""
 
 from typing import Any, Literal, Callable
 from pathlib import Path
@@ -18,11 +15,7 @@ from joint_tof_opt.compact_stat_process import get_named_moment_module
 from optimize_loop_paper import main_optimize
 from sensitivity_compute import *
 from joint_tof_opt import *
-from optimize_liu import LiuOptimizer
-from optimize_liu_alt import AltLiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
-from optimize_dummy import DummyOptimizationExperiment
-from sensitivity_compute import AltPaperEvaluator
 from sensitivity_compute import AltPaperEvaluator2
 
 
@@ -156,21 +149,18 @@ def main(
 
 
 if __name__ == "__main__":
-    filter_hw = 0.001  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=filter_hw
-        ),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
-        lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.001),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.01),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.1),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=1.0),
     ]
     separations_to_test = np.arange(0.0, 1.1, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
 
     exp_results = main(eval_func, optimizer_funcs_to_test, separations_to_test, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/overlap_comparison_results.yaml", "w") as f:
+    with open("./results/overlap_comparison_results2.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
