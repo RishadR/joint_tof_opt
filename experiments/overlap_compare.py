@@ -67,7 +67,6 @@ def main(
         ## Run experiments
         print(f"Starting sensitivity comparison for measurand: abs with fetal f separation: {separation} Hz")
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        gen_config["selected_sdd_index"] = 2
 
         # Switch fetal f based on separation
         maternal_f = gen_config["maternal_f"]
@@ -80,7 +79,7 @@ def main(
             gen_config["fetal_f"],
             2 * gen_config["fetal_f"],
             0.3,
-            gen_config["datapoint_count"] / 2 + 1,
+            gen_config["datapoint_count"] // 2 + 1,
             True,
         )
         ppath_file_mapping = read_parameter_mapping()

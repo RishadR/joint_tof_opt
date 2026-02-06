@@ -66,7 +66,7 @@ def generate_tof(
     ## Generate the time serieses
     # Assume a sampling rate of 10 Hz - Nyquist frequency 5 Hz
     time_axis = np.linspace(0, end_sec, datapoint_count)
-    sampling_rate = 1 / (time_axis[1] - time_axis[0])
+    sampling_rate = gen_config["sampling_rate"]
     if pulse_maternal:
         maternal_hb_series = (
             maternal_hb_base

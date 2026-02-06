@@ -35,7 +35,7 @@ from typing import Callable, Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
 from joint_tof_opt import *
-from optimize_liu import LiuOptimizer
+from sensitivity_compute import *
 
 
 class DIGSSOptimizer(OptimizationExperiment):
@@ -126,6 +126,22 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.fetal_f = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
         self.maternal_f = self.tof_data.meta_data["maternal_f"]
         num_timepoints, num_bins = self.tof_data.tof_series.shape
+        
+        # Compute the Average ToF Frame
+        average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
+        ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
+        max_index = int(torch.argmax(average_tof_frame).item()) + 1
+        self.learnable_component_exponents = torch.nn.Parameter(torch.zeros(num_bins - max_index), requires_grad=True)
+        self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
+        self.fixed_components = torch.zeros(
+            max_index,
+            dtype=self.learnable_component_exponents.dtype,
+            device=self.learnable_component_exponents.device,
+        )
+        self.window = torch.cat([self.fixed_components, self.learnable_component], dim=0)
+        self.window_norm = self._win_norm_func(self.window)
+        
+        
 
         # Initialize components (to be created in optimize())
         self.fetal_comb_filter = CombSeparator(
@@ -135,10 +151,6 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
         )
 
-        # Parameters
-        self.window_exponents = nn.Parameter(0.5 * torch.ones(num_bins, dtype=torch.float32, requires_grad=True))
-        self.window = self._winexp_to_win_func(self.window_exponents)
-        self.window_norm = self._win_norm_func(self.window)
 
         # Set training curve labels
         self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
@@ -160,25 +172,16 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam([self.window_exponents], lr=self.lr, weight_decay=self.l2_reg)
+        optimizer = optim.Adam([self.learnable_component_exponents], lr=self.lr, weight_decay=self.l2_reg)
         self.training_curves = np.zeros((self.max_epochs, 3))
-        # Max possible SNR will always occur when choosing an ALL ONES window
-        ones_window = torch.ones_like(self.window_exponents)
-        ones_window = self._win_norm_func(ones_window)
-        max_signal = self.moment_module(ones_window)
-        # max_contrast = self.contrast_to_noise_metric_unfilt(ones_window, max_signal)
 
         # Optimization Loop
         epoch = 0
         for epoch in range(self.max_epochs):
             optimizer.zero_grad()
-            # Reparameterize window using exponentiation to ensure positivity
-            # self.window = torch.exp(self.window_exponents)
-
-            self.window = self._winexp_to_win_func(self.window_exponents)
+            self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
+            self.window = torch.cat([self.fixed_components, self.learnable_component], dim=0)
             self.window_norm = self._win_norm_func(self.window)
-
-            # Normalize window to unit energy
 
             # Compute compact statistics
             compact_stats = self.moment_module(self.window_norm)
@@ -212,7 +215,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             # loss = - (torch.log(fetal_energy * 3.0) - 0.5 * torch.log(maternal_energy*9) - torch.log(baseline_noise_std))
             loss.backward()
             if self.grad_clip:
-                torch.nn.utils.clip_grad_norm_([self.window_exponents], max_norm=1.0)
+                torch.nn.utils.clip_grad_norm_([self.learnable_component_exponents], max_norm=1.0)
             optimizer.step()
 
             # Early stopping check
@@ -231,7 +234,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.training_curves = self.training_curves[: epoch + 1]
 
         # Set the normalized window as final window
-        self.window = self.window / torch.norm(self.window, p=1)
+        self.window = self.window_norm.detach()
 
     def __str__(self) -> str:
         return (
@@ -383,13 +386,21 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    tof_dataset_path = Path("./data/generated_tof_set_experiment_0002.npz")
+    file_idx = 4
+    measurand = "abs"
+    ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
+    print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")
+    tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
+    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    filter_hw = 0.001
+    generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
+    
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
-        measurand="abs",
+        measurand=measurand,
         max_epochs=2000,
-        lr=0.1,
-        filter_hw=0.001,
+        lr=0.01,
+        filter_hw=filter_hw,
         patience=100,
         normalize_tof=False,
     )
@@ -398,5 +409,11 @@ if __name__ == "__main__":
     print("Total Epochs:", training_curves.shape[0])
     loss_names = ["Fetal Energy", "Noise x Maternal Amp", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
-    print(training_curves[::10, :])
+    print(training_curves[::50, :])
     plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, normalize_curves=False, grid=True)
+    
+    # Evaluate using an Evaluator and print log
+    evaluator = AltPaperEvaluator2(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+    eval_results = evaluator.evaluate()
+    print(f"Evaluation Results: {eval_results}")
+    print(f"Evaluator log: {evaluator.get_log()}")

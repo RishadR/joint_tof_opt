@@ -67,11 +67,10 @@ def main(
         lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
 
-        ## Run experiments
-        print(f"Starting sensitivity comparison for measurand: {measurand}")
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
         for experiment in experiments:
+            print(f"Running Experiment: {experiment['filename']} | Measurand: {measurand}")
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
@@ -140,7 +139,7 @@ def main(
 if __name__ == "__main__":
     filter_hw = 0.001  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(

@@ -2,7 +2,7 @@
 
 # Time series parameters
 # Note: I messed up a little bit. Need to update both datapoint_count/end_sec and sampling_rate together
-datapoint_count: 80
+datapoint_count: 81 # Gotta add 1 to include the endpoint (0 seconds) in the time series
 maternal_f: 1.0 # Maternal heartbeat frequency (Hz)
 fetal_f: 3.0 # Fetal heartbeat frequency (Hz)
 end_sec: 4.0 # Duration of the time series (seconds)
@@ -19,7 +19,7 @@ epi_thickness_mm: 2 # Epidermis thickness in mm - does not affect optical proper
 derm_thickness_mm: 4 # Dermis thickness in mm - does not affect optical properties - can be ignored
 
 # Data selection
-selected_sdd_index: 7 # Source-detector distance index
+selected_sdd_index: 2 # Source-detector distance index
 
 # Histogram parameters
 bin_count: 20
