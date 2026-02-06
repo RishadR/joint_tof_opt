@@ -930,7 +930,6 @@ class PaperEvaluator(Evaluator):
     def __str__(self) -> str:
         return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
 
-
     def evaluate(self) -> float:
         tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
         self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data)
@@ -950,8 +949,8 @@ class PaperEvaluator(Evaluator):
             "baseline_noise_std": self.baseline_noise_std,
             "maternal_ac_amp": self.maternal_ac_amp,
             "final_metric": self.final_metric,
-            "selectivity": (self.fetal_ac_energy / self.maternal_ac_energy) ** (1/2),
-            "fetal_snr": (self.fetal_ac_energy) ** (1/2) / self.baseline_noise_std,
+            "selectivity": (self.fetal_ac_energy / self.maternal_ac_energy) ** (1 / 2),
+            "fetal_snr": (self.fetal_ac_energy) ** (1 / 2) / self.baseline_noise_std,
         }
 
 
@@ -962,7 +961,7 @@ class AltPaperEvaluator(Evaluator):
     fetal ac amplitudes. Which is to say - it runs a separate simulation where only one layer is changed slightly to
     compute the delta measurand values.
     """
-    
+
     def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, delta: float = 15.0):
         super().__init__(ppath_file, window, measurand, gen_config)
         self.measurand = measurand  # Overwrite to keep the type a string
@@ -989,7 +988,7 @@ class AltPaperEvaluator(Evaluator):
         maternal_sensitivity = self.maternal_sensitivity_eval.evaluate()
         # assert self.fetal_sensitivity_eval.delta_measurand != 0.0, "Sensitivity Evaluator Needs to be run first"
         # assert self.maternal_sensitivity_eval.delta_measurand != 0.0, "Sensitivity Evaluator Needs to be run first"
-        self.fetal_ac_energy = self.fetal_sensitivity_eval.delta_measurand ** 2
+        self.fetal_ac_energy = self.fetal_sensitivity_eval.delta_measurand**2
         self.maternal_ac_amp = abs(self.maternal_sensitivity_eval.delta_measurand)
         self.final_metric = self.fetal_ac_energy / (self.baseline_noise_std * self.maternal_ac_amp)
         return self.final_metric
@@ -1008,12 +1007,15 @@ class AltPaperEvaluator(Evaluator):
             "fetal_delta_mu_a": fetal_eval_log["delta_mu_a"],
         }
 
-class AltPaperEvaluator2(Evaluator):
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict):
-        super().__init__(ppath_file, window, measurand, gen_config)
+
+class AltPaperEvaluator2(PaperEvaluator):
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+    ):
+        super().__init__(ppath_file, window, measurand, gen_config, filter_hw)
         self.measurand = measurand  # Overwrite to keep the type a string
         self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
-        self.maternal_ac_energy = 0.0 
+        self.maternal_ac_energy = 0.0
         self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
         self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
 
@@ -1023,17 +1025,21 @@ class AltPaperEvaluator2(Evaluator):
     def evaluate(self) -> float:
         baseline_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
         self.baseline_noise_std = _compute_baseline_noise_std(self.window, baseline_tof_data)
-        
+
         only_maternal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, False)
         only_fetal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, False, True)
         pure_maternal_measurand = get_named_moment_module(self.measurand, only_maternal_tof_data).forward(self.window)
         pure_fetal_measurand = get_named_moment_module(self.measurand, only_fetal_tof_data).forward(self.window)
-        self.maternal_ac_energy = (pure_maternal_measurand - pure_maternal_measurand.mean()).square().sum().item()
-        self.fetal_ac_energy = (pure_fetal_measurand - pure_fetal_measurand.mean()).square().sum().item()
+        pure_maternal_measurand = pure_maternal_measurand - pure_maternal_measurand.mean()
+        pure_maternal_measurand = self.maternal_comb_filter(pure_maternal_measurand.unsqueeze(0).unsqueeze(0))
+        pure_fetal_measurand = pure_fetal_measurand - pure_fetal_measurand.mean()
+        pure_fetal_measurand = self.fetal_comb_filter(pure_fetal_measurand.unsqueeze(0).unsqueeze(0))
+
+        self.maternal_ac_energy = pure_maternal_measurand.square().sum().item()
+        self.fetal_ac_energy = pure_fetal_measurand.square().sum().item()
         self.maternal_ac_amp = sqrt(self.maternal_ac_energy)
         self.final_metric = self.fetal_ac_energy / (self.baseline_noise_std * self.maternal_ac_amp)
         return self.final_metric
-        
 
     def get_log(self) -> dict[str, Any]:
         return {

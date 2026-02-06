@@ -187,9 +187,8 @@ class DIGSSOptimizer(OptimizationExperiment):
             compact_stats = compact_stats - compact_stats.mean()
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
             # Account for the filter's attenuation of energy by scaling
-            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped) / 11.0
-            residual_signal = compact_stats - maternal_filtered_signal
-            fetal_filtered_signal = self.fetal_comb_filter(residual_signal.unsqueeze(0).unsqueeze(0)) / 8.0
+            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
+            fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
             
             ## Optimize the Target Directly
@@ -389,7 +388,7 @@ if __name__ == "__main__":
         tof_dataset_path=tof_dataset_path,
         measurand="abs",
         max_epochs=2000,
-        lr=0.01,
+        lr=0.1,
         filter_hw=0.001,
         patience=100,
         normalize_tof=False,
