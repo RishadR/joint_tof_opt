@@ -74,6 +74,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         grad_clip: bool = False,
         l2_reg: float = 1e-4,
         normalize_tof: bool = False,
+        filter_type: Literal[
+            "comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"
+        ] = "psafe_same_width",
     ):
         """
         Initialize the PaperOptimizer.
@@ -91,6 +94,12 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param l2_reg: L2 regularization weight.
         :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original
         counts. Default is False (keep original counts).
+        :param filter_type: Type of filter to use ("comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid").
+         - "comb": Standard sinc comb filter
+         - "fourier": Uses the RFFT to manually zero out irrelevant frequencies
+         - "psafe_same_width": Uses the PSAFE filter with the outputs being the same length as the input
+         - "psafe_true_width": Uses the PSAFE filter with the outputs being the length of the true fetal/maternal period
+         - "comb_psafe_hybrid": Uses the comb for maternal/psafe for fetal to account for FHR being a multiple of MHR
         """
         # Handle measurand and noise function
         if isinstance(measurand, str):
@@ -119,6 +128,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.grad_clip = grad_clip
         self.normalize_tof = normalize_tof
         self.l2_reg = l2_reg
+        self.filter_type = filter_type
 
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
@@ -126,7 +136,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.fetal_f = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
         self.maternal_f = self.tof_data.meta_data["maternal_f"]
         num_timepoints, num_bins = self.tof_data.tof_series.shape
-        
+
         # Compute the Average ToF Frame
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
         ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
@@ -140,22 +150,36 @@ class DIGSSOptimizer(OptimizationExperiment):
         )
         self.window = torch.cat([self.fixed_components, self.learnable_component], dim=0)
         self.window_norm = self._win_norm_func(self.window)
-        
-        
 
-        # Initialize components (to be created in optimize())
-        # self.fetal_comb_filter = CombSeparator(
-        #     self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1, True
-        # )
-        # self.maternal_comb_filter = CombSeparator(
-        #     self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
-        # )
-        self.fetal_comb_filter = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
-        self.maternal_comb_filter = PSAFESeparator(self.sampling_rate, self.maternal_f, True)
-
+        self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
 
         # Set training curve labels
         self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+
+    def _get_filters(self, filter_type: str):
+        filter_len = int(2 * self.sampling_rate / self.fetal_f)  # Ensure at least 2 periods are captured
+        if filter_type == "comb":
+            f1 = CombSeparator(self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw, filter_len, True)
+            f2 = CombSeparator(
+                self.sampling_rate, self.maternal_f, self.maternal_f * 2, self.filter_hw, filter_len, True
+            )
+        elif filter_type == "fourier":
+            f1 = FourierSeparator(self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw)
+            f2 = FourierSeparator(self.sampling_rate, self.maternal_f, self.maternal_f * 2, self.filter_hw)
+        elif filter_type == "psafe_same_width":
+            f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
+            f2 = PSAFESeparator(self.sampling_rate, self.maternal_f, True)
+        elif filter_type == "psafe_true_width":
+            f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, False)
+            f2 = PSAFESeparator(self.sampling_rate, self.maternal_f, False)
+        elif filter_type == "comb_psafe_hybrid":
+            f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
+            f2 = CombSeparator(
+                self.sampling_rate, self.maternal_f, self.maternal_f * 2, self.filter_hw, filter_len, True
+            )
+        else:
+            raise NotImplementedError(f"Filter type {filter_type} not recognized")
+        return f1, f2
 
     @staticmethod
     def _win_norm_func(win: torch.Tensor) -> torch.Tensor:
@@ -192,19 +216,19 @@ class DIGSSOptimizer(OptimizationExperiment):
             compact_stats = compact_stats - compact_stats.mean()
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
             # Account for the filter's attenuation of energy by scaling
-            maternal_filtered_signal = self.maternal_comb_filter(compact_stats_reshaped)
-            fetal_filtered_signal = self.fetal_comb_filter(compact_stats_reshaped)
+            maternal_filtered_signal = self.maternal_filter(compact_stats_reshaped)
+            fetal_filtered_signal = self.fetal_filter(compact_stats_reshaped)
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
-            
+
             ## Optimize the Target Directly
-            fetal_energy = torch.sum(fetal_filtered_signal ** 2)
-            maternal_energy = torch.sum(maternal_filtered_signal ** 2)
+            fetal_energy = torch.sum(fetal_filtered_signal**2)
+            maternal_energy = torch.sum(maternal_filtered_signal**2)
             avergae_tof_frame = self.tof_data.tof_series.sum(dim=0, keepdim=True)
             windowed_average_tof_frame = avergae_tof_frame * self.window_norm.reshape(1, -1)
             baseline_noise_var = windowed_average_tof_frame.sum()
             baseline_noise_std = torch.sqrt(baseline_noise_var)
             final_metric = (fetal_energy) / (torch.sqrt(maternal_energy) * baseline_noise_std)
-            
+
             # Log metrics
             self.training_curves[epoch, 0] = fetal_energy.item()
             self.training_curves[epoch, 1] = (torch.sqrt(maternal_energy) * baseline_noise_std).item()
@@ -213,7 +237,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             # Backpropagation
             ## Divisions and Products are very unstable - Use Logarithms
             ## Also, we want to maximize the final metric, so minimize negative final metric
-            loss = - (torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
+            loss = -(torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
             # loss = - (torch.log(fetal_energy * 3.0) - 0.5 * torch.log(maternal_energy*9) - torch.log(baseline_noise_std))
             loss.backward()
             if self.grad_clip:
@@ -242,15 +266,15 @@ class DIGSSOptimizer(OptimizationExperiment):
         return (
             f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
             f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience}, grad_clip={self.grad_clip},"
-            f"normalize_tof={self.normalize_tof}, fetal_f={self.fetal_f})"
+            f"normalize_tof={self.normalize_tof}, fetal_f={self.fetal_f}), type={self.filter_type}"
         )
 
     def components(self) -> dict[str, nn.Module]:
         """Return the internal components/modules used in optimization."""
         return {
             "moment_module": self.moment_module,
-            "fetal_comb_filter": self.fetal_comb_filter,
-            "maternal_comb_filter": self.maternal_comb_filter,
+            "fetal_comb_filter": self.fetal_filter,
+            "maternal_comb_filter": self.maternal_filter,
         }
 
 
@@ -398,7 +422,7 @@ if __name__ == "__main__":
     gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
     filter_hw = 0.001
     generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
-    
+
     optimized_window, training_curves = main_optimize(
         tof_dataset_path=tof_dataset_path,
         measurand=measurand,
@@ -414,8 +438,10 @@ if __name__ == "__main__":
     loss_names = ["Fetal Energy", "Noise x Maternal Amp", "Final Metric"]
     bin_edges = np.load(tof_dataset_path)["bin_edges"]
     print(training_curves[::50, :])
-    plot_training_curves_and_window(training_curves, loss_names, optimized_window, bin_edges, normalize_curves=False, grid=True)
-    
+    plot_training_curves_and_window(
+        training_curves, loss_names, optimized_window, bin_edges, normalize_curves=False, grid=True
+    )
+
     # Evaluate using an Evaluator and print log
     evaluator = AltPaperEvaluator2(ppath_file, optimized_window, measurand, gen_config, filter_hw)
     eval_results = evaluator.evaluate()

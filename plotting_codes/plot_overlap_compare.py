@@ -10,7 +10,7 @@ import numpy as np
 from pathlib import Path
 
 
-def main(target_depth: int = 5):
+def main(target_depth: int = 6):
     """Generate overlap comparison plot."""
     # Load matplotlib configuration
     config_path = Path(__file__).parent / 'plot_config.yaml'
@@ -124,4 +124,4 @@ def main(target_depth: int = 5):
 
 
 if __name__ == "__main__":
-    main(target_depth=5)
+    main(target_depth=6)

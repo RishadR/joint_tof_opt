@@ -76,10 +76,10 @@ def main():
     # Plot each optimizer
     ax.plot(digss_data['depths'], digss_data['sensitivities'], 
             marker='o', linewidth=2, markersize=8, label='DIGSS')
-    # ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], 
-    #         marker='s', linewidth=2, markersize=8, label='Liu et al. (Single Harmonic)')
-    ax.plot(liu_data_h2['depths'], liu_data_h2['sensitivities'], 
-            marker='s', linewidth=2, markersize=8, label='Liu et al.')
+    ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], 
+            marker='s', linewidth=2, markersize=8, label='Liu et al. (Single Harmonic)')
+    # ax.plot(liu_data_h2['depths'], liu_data_h2['sensitivities'], 
+    #         marker='s', linewidth=2, markersize=8, label='Liu et al.')
     # ax.plot(alt_liu_data_h1['depths'], alt_liu_data_h1['sensitivities'], 
     #         marker='d', linewidth=2, markersize=8, label='Alt Liu et al. (Single Harmonic)')
     ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], 
@@ -90,8 +90,9 @@ def main():
     # Configure axes
     ax.set_xlabel('Fetal Depth (mm)')
     ax.set_ylabel('Figure of Merit')
+    ax.set_yscale('log')
     ax.legend()
-    ax.set_ylim(top=0.9)
+    ax.set_ylim(top=0.02)
     ax.grid(True, alpha=0.3)
 
     # Save figure

@@ -144,16 +144,16 @@ def main(
 
 
 if __name__ == "__main__":
-    filter_hw = 0.1  # Hz
+    filter_hw = 0.3  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=filter_hw, lr=0.01
+            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=filter_hw, lr=0.01, filter_type="comb"
         ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
-        lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
+        # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
     separations_to_test = np.arange(0.0, 1.1, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
