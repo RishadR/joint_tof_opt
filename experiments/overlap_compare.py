@@ -85,19 +85,13 @@ def main(
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config, tof_dataset_file)
-
-            # Get TOF data tensors
-            tof_data = np.load(tof_dataset_file)
-            meta_data = dict(tof_data)
-            bin_edges = tof_data["bin_edges"]
-
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
-                window = optimizer_experiment.window
+                window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
                 evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
                 optimized_sensitivity = evaluator.evaluate()
@@ -110,6 +104,8 @@ def main(
 
                 # Compute the unfiltered measurand signal for logging
                 tof_data = ToFData.from_npz(tof_dataset_file)
+                assert tof_data.meta_data is not None, "ToFData meta_data was not found!"
+                bin_edges = tof_data.bin_edges
                 measurand_process = get_named_moment_module(measurand, tof_data)
                 measurand_time_series = measurand_process.forward(window)
                 filtered_signal = fetal_filter(measurand_time_series.unsqueeze(0).unsqueeze(0)).squeeze()
@@ -125,12 +121,12 @@ def main(
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
                         "Bin_Edges": bin_edges.tolist(),
-                        "Optimized_Window": window.detach().cpu().numpy().tolist(),
-                        "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
-                        "filtered_signal": filtered_signal.detach().cpu().numpy().tolist(),
+                        "Optimized_Window": window.numpy().tolist(),
+                        "fetal_hb_series": tof_data.meta_data["fetal_hb_series"].tolist(),
+                        "filtered_signal": filtered_signal.numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
                         "final_optimizer_loss": final_optimizer_loss,
-                        "measurand_time_series": measurand_time_series.detach().cpu().numpy().tolist(),
+                        "measurand_time_series": measurand_time_series.numpy().tolist(),
                     }
                 )
                 print(
@@ -150,7 +146,7 @@ def main(
 if __name__ == "__main__":
     filter_hw = 0.1  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(

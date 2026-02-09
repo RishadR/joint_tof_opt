@@ -47,17 +47,9 @@ def main(
     :return: List of dictionaries containing results for each experiment.
     :rtype: list[dict[str, Any]]
     """
-    ## Params
-    lr_list = {"abs": 0.1, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
-    # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
     for separation in fetal_f_separations:
-        # for measurand in named_moment_types:
-        lr = lr_list.get("abs", 0.01)  # only using abs measurand for this experiment
-        # Get the noise function for the measurand
-
-        ## Run experiments
         print(f"Starting sensitivity comparison for measurand: abs with fetal f separation: {separation} Hz")
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         gen_config["selected_sdd_index"] = 2
@@ -94,7 +86,6 @@ def main(
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
-                optimizer_experiment.lr = lr
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
@@ -150,13 +141,13 @@ def main(
 
 if __name__ == "__main__":
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw=0.01)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.001),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.01),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.1),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=1.0),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.001, lr=0.01),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.01, lr=0.01),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.1, lr=0.01),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=1.0, lr=0.01),
     ]
     separations_to_test = np.arange(0.0, 1.1, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
 

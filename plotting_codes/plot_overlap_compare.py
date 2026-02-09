@@ -10,7 +10,7 @@ import numpy as np
 from pathlib import Path
 
 
-def main(target_depth: int = 25):
+def main(target_depth: int = 5):
     """Generate overlap comparison plot."""
     # Load matplotlib configuration
     config_path = Path(__file__).parent / 'plot_config.yaml'
@@ -109,7 +109,7 @@ def main(target_depth: int = 25):
     # Configure axes
     ax.set_xlabel('Frequency Separation (Hz)')
     ax.set_ylabel('Figure of Merit (' + y_key + ')')
-    ax.legend()
+    ax.legend(loc='lower right')
     ax.grid(True, alpha=0.3)
 
     # Save figure

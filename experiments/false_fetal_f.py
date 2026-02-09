@@ -28,7 +28,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]],
     percent_errors: list[float],
     print_log: bool = False,
@@ -37,8 +37,8 @@ def main(
     Main function to run sensitivity comparison experiments across measurands and depths.
 
     :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, NoiseCalculator], Evaluator]
+    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module) and return an Evaluator instance.
+    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
@@ -49,9 +49,6 @@ def main(
     :return: List of dictionaries containing results for each experiment.
     :rtype: list[dict[str, Any]]
     """
-    ## Params
-    lr_list = {"abs": 0.01, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
-
     # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
@@ -60,8 +57,7 @@ def main(
         gen_config_true = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         true_fetal_f: float = gen_config_true["fetal_f"]
         error_value = true_fetal_f * percent_error
-        new_fetal_f = true_fetal_f - error_value
-        lr = lr_list.get(measurand, 0.01)
+        new_fetal_f = true_fetal_f + error_value
         # Get the noise function for the measurand
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
@@ -76,13 +72,11 @@ def main(
             for optimizer_func in optimizers_to_compare:
                 # Optimize with the new (errored) fetal F as the BPF Center Freq
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand, new_fetal_f)
-                optimizer_experiment.lr = lr
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
-                window = optimizer_experiment.window
+                window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
-                noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -96,7 +90,7 @@ def main(
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
-                        "Optimized_Window": window.detach().cpu().numpy().tolist(),
+                        "Optimized_Window": window.numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
                     }
                 )
@@ -115,10 +109,11 @@ def main(
 
 if __name__ == "__main__":
     filter_hw = 0.01  # Hz
-    eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
+    # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw)
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]] = [
         lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
-            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw
+            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw, lr=0.01
         ),
         # lambda tof_file, measurand, new_fetal_f: LiuOptimizer(
         #     tof_file, measurand, fetal_f=new_fetal_f, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0

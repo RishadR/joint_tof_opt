@@ -18,6 +18,7 @@ from joint_tof_opt.tof_process import compute_tof_discrete
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 from joint_tof_opt import (
     CombSeparator,
+    PSAFESeparator,
     EnergyRatioMetric,
     named_moment_types,
     get_named_moment_module,
@@ -45,6 +46,7 @@ __all__ = [
     "NormalizedSNREvaluator",
     "AltPaperEvaluator",
     "AltPaperEvaluator2",
+    "AltPaperEvaluator3",
 ]
 
 
@@ -1009,6 +1011,12 @@ class AltPaperEvaluator(Evaluator):
 
 
 class AltPaperEvaluator2(PaperEvaluator):
+    """
+    An alternate version of AltPaperEvaluator that actually generates two time series rather than a 2 points. One series
+    contains pure maternal and the other contains pure fetal pulsation. Both are passed through a CombFilter to filter
+    out the respective AC components. 
+    
+    """
     def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
     ):
@@ -1049,3 +1057,28 @@ class AltPaperEvaluator2(PaperEvaluator):
             "baseline_noise_std": self.baseline_noise_std,
             "maternal_ac_amp": self.maternal_ac_amp,
         }
+
+class AltPaperEvaluator3(AltPaperEvaluator2):
+    """
+    Another version of AltPaperEvaluator2 that uses the PSAFE filter instead of the bandpass
+    """
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+    ):
+        super().__init__(ppath_file, window, measurand, gen_config, filter_hw)
+        self.measurand = measurand  # Overwrite to keep the type a string
+        self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
+        self.maternal_ac_energy = 0.0
+        self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
+        self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
+        self.fetal_comb_filter = PSAFESeparator(
+            gen_config["sampling_rate"],
+            gen_config["fetal_f"],
+            True
+        )
+        self.maternal_comb_filter = PSAFESeparator(
+            gen_config["sampling_rate"],
+            gen_config["maternal_f"],
+            True
+        )
+        
