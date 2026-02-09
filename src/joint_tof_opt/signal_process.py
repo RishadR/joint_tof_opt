@@ -1,6 +1,7 @@
 """
 Code to process the generated compact stats signal to extract FHR
 """
+
 import math
 import numpy as np
 from typing import Tuple
@@ -65,11 +66,11 @@ def create_sinc_comb_filter(fs: float, f0: float, f1: float, half_width: float, 
     filter1 = create_sinc_bandpass_filter(fs, f0 - half_width, f0 + half_width, filter_length)
     filter2 = create_sinc_bandpass_filter(fs, f1 - half_width, f1 + half_width, filter_length)
     comb_filter = filter1 + filter2
-    
+
     # Apply Hamming Window to reduce ripples
     # hamming_window = np.hamming(filter_length)
     # comb_filter *= hamming_window
-    
+
     # Normalize filter to have unit energy
     comb_filter /= np.sqrt(np.sum(comb_filter**2))
     return comb_filter
@@ -103,22 +104,21 @@ class CombSeparator(nn.Module):
         super().__init__()
         if filter_length % 2 == 0:
             filter_length += 1  # FIR filters for bandpass usually need to be odd
-            
+
         self.fs = fs
         self.filter_len = int(filter_length)
         self.phase_preserve = phase_preserve
-        
+
         # Define parameters (requires_grad=False as requested)
         self.low_mid = nn.Parameter(torch.tensor(float(f0)), requires_grad=False)
         self.high_mid = nn.Parameter(torch.tensor(float(f1)), requires_grad=False)
         self.width = nn.Parameter(torch.tensor(float(half_width)), requires_grad=False)
-        
+
         # Pre-compute coefficients
 
-        self.comb_filter : torch.Tensor
+        self.comb_filter: torch.Tensor
         filter_coeffs = create_sinc_comb_filter(fs, f0, f1, half_width, filter_length)
-        self.register_buffer('comb_filter', torch.tensor(filter_coeffs, dtype=torch.float32).view(1, 1, -1))
-
+        self.register_buffer("comb_filter", torch.tensor(filter_coeffs, dtype=torch.float32).view(1, 1, -1))
 
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         """
@@ -130,11 +130,11 @@ class CombSeparator(nn.Module):
         :rtype: torch.Tensor
         """
         pad_size = self.filter_len // 2
-        
+
         def apply_conv(data):
             # We use circular padding for periodicity
-            padded = F.pad(data, (pad_size, pad_size), mode='circular')
-            return F.conv1d(padded, self.comb_filter, padding='valid')
+            padded = F.pad(data, (pad_size, pad_size), mode="circular")
+            return F.conv1d(padded, self.comb_filter, padding="valid")
 
         if self.phase_preserve:
             # Forward pass
@@ -145,5 +145,70 @@ class CombSeparator(nn.Module):
             signal = torch.flip(signal, dims=[-1])
         else:
             signal = apply_conv(signal)
-            
+
         return signal.flatten()
+
+
+class FourierSeparator(nn.Module):
+    """
+    An alternative to the CombSeparator that zero's out the unwanted frequencies in the Fourier domain.
+
+    args:
+        fs: Sampling frequency of the signal to be filtered (in Hz).
+        f0: Center frequency of the first sinc lobe (in Hz).
+        f1: Center frequency of the second sinc lobe (in Hz).
+        half_width: bins to keep on each side of the center frequency (in Hz).
+    """
+
+    def __init__(self, fs: float, f0: float, f1: float, half_width: float):
+        super().__init__()
+        self.fs = fs
+        self.f0 = f0
+        self.f1 = f1
+        self.half_width = half_width
+
+    def forward(self, signal: torch.Tensor) -> torch.Tensor:
+        # Compute FFT
+        fft_signal = torch.fft.rfft(signal)
+        freqs = torch.fft.rfftfreq(signal.shape[-1], d=1 / self.fs)
+
+        # Create mask for frequencies to keep
+        mask = ((freqs >= (self.f0 - self.half_width)) & (freqs <= (self.f0 + self.half_width))) | (
+            (freqs >= (self.f1 - self.half_width)) & (freqs <= (self.f1 + self.half_width))
+        )
+        # Apply mask
+        fft_signal = fft_signal * mask.float()
+        # Inverse FFT
+        filtered_signal = torch.fft.irfft(fft_signal, n=signal.shape[-1])
+        return filtered_signal.flatten()
+
+class PSAFESeparator(nn.Module):
+    """
+    Base on Lambert's PSAFE paper. The method is as follows (Given that freq. doesn't change):
+    1. Compute a window length using the given center frequency and sampling rate
+    2. Divide the entire signal into non-overlapping windows of that length
+    3. Demean each window and average them together to get an estimate of the periodic component
+    4. Return the average window
+    """
+    def __init__(self, fs: float, center_freq: float, equate_length: bool = False):
+        super().__init__()
+        self.fs = fs
+        self.center_freq = center_freq
+        self.window_len = int(round(fs / center_freq))
+        self.equate_length = equate_length
+    
+    def forward(self, signal: torch.Tensor) -> torch.Tensor:
+        # Step 1: Divide signal into non-overlapping windows
+        num_windows = signal.shape[-1] // self.window_len
+        windows = signal[..., :num_windows * self.window_len].view(-1, num_windows, self.window_len)
+
+        # Step 2: Demean each window and average
+        windows = windows - windows.mean(dim=-1, keepdim=True)
+        avg_window = windows.mean(dim=1)
+        
+        if self.equate_length and avg_window.shape[-1] != signal.shape[-1]:
+            # Repeat the average window to match the original signal length
+            repeat_factor = math.ceil(signal.shape[-1] / avg_window.shape[-1])
+            avg_window = avg_window.repeat(1, repeat_factor)[:, :signal.shape[-1]]
+
+        return avg_window.flatten()

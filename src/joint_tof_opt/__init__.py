@@ -7,7 +7,7 @@ from joint_tof_opt.compact_stat_process import (
     get_named_moment_module,
     named_moment_types,
 )
-from joint_tof_opt.signal_process import CombSeparator
+from joint_tof_opt.signal_process import CombSeparator, FourierSeparator, PSAFESeparator
 from joint_tof_opt.metric_process import (
     EnergyRatioMetric,
     ContrastToNoiseMetric,
@@ -32,6 +32,8 @@ __all__ = [
     "NthOrderCenteredMoment",
     "get_named_moment_module",
     "CombSeparator",
+    "FourierSeparator",
+    "PSAFESeparator",
     "EnergyRatioMetric",
     "ContrastToNoiseMetric",
     "FilteredContrastToNoiseMetric",

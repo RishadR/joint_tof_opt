@@ -144,12 +144,14 @@ class DIGSSOptimizer(OptimizationExperiment):
         
 
         # Initialize components (to be created in optimize())
-        self.fetal_comb_filter = CombSeparator(
-            self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1, True
-        )
-        self.maternal_comb_filter = CombSeparator(
-            self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
-        )
+        # self.fetal_comb_filter = CombSeparator(
+        #     self.sampling_rate, self.fetal_f, 2 * self.fetal_f, self.filter_hw, num_timepoints // 2 + 1, True
+        # )
+        # self.maternal_comb_filter = CombSeparator(
+        #     self.sampling_rate, self.maternal_f, 2 * self.maternal_f, self.filter_hw, num_timepoints // 2 + 1, True
+        # )
+        self.fetal_comb_filter = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
+        self.maternal_comb_filter = PSAFESeparator(self.sampling_rate, self.maternal_f, True)
 
 
         # Set training curve labels
@@ -259,6 +261,7 @@ def main_optimize(
     noise_calc: None | NoiseCalculator = None,
     max_epochs: int = 2000,
     lr: float = 0.01,
+    l2_reg: float = 1e-4,
     filter_hw: float = 0.3,
     patience: int = 50,
     normalize_tof: bool = False,
@@ -299,6 +302,7 @@ def main_optimize(
         noise_calc=noise_calc,
         max_epochs=max_epochs,
         lr=lr,
+        l2_reg=l2_reg,
         filter_hw=filter_hw,
         patience=patience,
         normalize_tof=normalize_tof,
@@ -386,7 +390,7 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    file_idx = 4
+    file_idx = 0
     measurand = "abs"
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")

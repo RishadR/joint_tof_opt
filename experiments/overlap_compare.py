@@ -33,7 +33,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     fetal_f_separations: list[float],
     print_log: bool = False,
@@ -55,15 +55,10 @@ def main(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    lr_list = {"abs": 0.1, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
     # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
     for separation in fetal_f_separations:
-        # for measurand in named_moment_types:
-        lr = lr_list.get("abs", 0.01)  # only using abs measurand for this experiment
-        # Get the noise function for the measurand
-
         ## Run experiments
         print(f"Starting sensitivity comparison for measurand: abs with fetal f separation: {separation} Hz")
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
@@ -100,13 +95,11 @@ def main(
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
-                optimizer_experiment.lr = lr
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
-                noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -155,13 +148,13 @@ def main(
 
 
 if __name__ == "__main__":
-    filter_hw = 0.001  # Hz
+    filter_hw = 0.1  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=filter_hw
+            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=filter_hw, lr=0.01
         ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
