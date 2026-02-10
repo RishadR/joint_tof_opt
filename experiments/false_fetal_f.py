@@ -113,14 +113,15 @@ if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw)
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]] = [
         lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
-            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw, lr=0.01
+            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw, lr=0.01, filter_type="comb",
         ),
-        # lambda tof_file, measurand, new_fetal_f: LiuOptimizer(
-        #     tof_file, measurand, fetal_f=new_fetal_f, dtof_to_find_max_on="mean", fhr_hw=0.3, harmonic_count=2, norm=1.0
-        # ),
-        # lambda tof_file, measurand, new_fetal_f: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
+            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw, lr=0.01, filter_type="psafe_same_width",
+        ),
+        lambda tof_file, measurand, new_fetal_f: LiuOptimizer(tof_file, measurand, new_fetal_f, 'mean', filter_hw, 2, 1.0),
+        lambda tof_file, measurand, new_fetal_f: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
-    error_rates = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.4, 0.45, 0.5]  # 5%, 10%, 15%, 20% error in fetal F
+    error_rates = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35]  # 5%, 10%, 15%, 20% error in fetal F
     exp_results = main(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/false_fetal_f_results.yaml", "w") as f:

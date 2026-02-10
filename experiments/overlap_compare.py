@@ -156,7 +156,7 @@ if __name__ == "__main__":
         # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
-    separations_to_test = np.arange(0.0, 1.1, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
+    separations_to_test = np.arange(0.0, 0.45, 0.05).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
 
     exp_results = main(eval_func, optimizer_funcs_to_test, separations_to_test, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
