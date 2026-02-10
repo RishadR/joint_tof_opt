@@ -128,6 +128,7 @@ def main():
     ax.set_xlabel('Fetal SNR')
     ax.set_ylabel('Selectivity')
     ax.set_yscale('log')
+    ax.set_xscale('log')
     ax.legend(loc='lower right')
     ax.grid(True, alpha=0.3)
     # ax.set_ylim(top=1.3)
