@@ -33,7 +33,7 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     sdd_indices_to_test: list[int],
     print_log: bool = False,
@@ -42,8 +42,8 @@ def main(
     Main function to run sensitivity comparison experiments across measurands and depths.
 
     :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, NoiseCalculator], Evaluator]
+    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module) and return an Evaluator instance.
+    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
     :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
@@ -54,8 +54,6 @@ def main(
     :return: List of dictionaries containing results for each experiment.
     :rtype: list[dict[str, Any]]
     """
-    ## Params
-    lr_list = {"abs": 0.01, "m1": 0.01, "V": 0.01}  # Learning rates for different measurands
 
     # Initialize results table and windows storage
     results = []
@@ -63,39 +61,27 @@ def main(
     for sdd_index in sdd_indices_to_test:
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         gen_config["selected_sdd_index"] = sdd_index
-        lr = lr_list.get(measurand, 0.01)
         # Get the noise function for the measurand
 
         ## Run experiments
-        print(f"Starting sensitivity comparison for measurand: {measurand}")
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
         for experiment in experiments:
+            print(f"Running experiment: {experiment} with SDD index: {sdd_index}")
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config, tof_dataset_file)
-
-            # Get TOF data tensors
-            tof_data = np.load(tof_dataset_file)
-            meta_data = dict(tof_data)
-            tof_series = tof_data["tof_dataset"]
-            bin_edges = tof_data["bin_edges"]
-            tof_series_tensor = torch.tensor(tof_series, dtype=torch.float32)
-            bin_edges_tensor = torch.tensor(bin_edges, dtype=torch.float32)
-
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
-                optimizer_experiment.lr = lr
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
-                noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -107,7 +93,7 @@ def main(
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
-                        # Not exactly needed right now - maybe useul later
+                        # Not exactly needed right now - maybe useful later
                         # "Bin_Edges": bin_edges.tolist(),
                         # "Optimized_Window": window.detach().cpu().numpy().tolist(),
                         # "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
@@ -129,17 +115,13 @@ def main(
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100),
-        lambda tof_file, measurand: LiuOptimizer(
-            tof_file, measurand, dtof_to_find_max_on="mean", half_width=0.3, harmonic_count=2, norm=1.0
-        ),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, lr=0.01),
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4], print_log=False)
+    exp_results = main(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/detector_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)

@@ -174,7 +174,8 @@ class LiuOptimizer(OptimizationExperiment):
 
         # Step 3: Exhaustive search over all (b2, b3) window pairs
         best_snr = 0.0
-        best_window = None
+        best_window = torch.zeros(num_bins, dtype=torch.float32)
+        best_window[self.b0] = 1.0  # Default to single bin window at b0 if no better window is found
 
         for b2 in range(self.b0, self.bf):
             for b3 in range(b2 + 1, self.bf):
@@ -210,13 +211,10 @@ class LiuOptimizer(OptimizationExperiment):
                     self.final_signal = measurand_series.detach().cpu()
 
         # Store results
-        if best_window is not None:
-            if self.norm is not None:
-                self.window = best_window / torch.norm(best_window, p=self.norm)
-            else:
-                self.window = best_window
+        if self.norm is not None:
+            self.window = best_window / torch.norm(best_window, p=self.norm)
         else:
-            raise ValueError("Something went wrong; no valid window that improves SNR above 0.")
+            self.window = best_window
 
         # No training curves for this non-iterative method
         self.training_curves = np.array(results)

@@ -1,760 +1,784 @@
 exp 000:
-  Depth_mm: 5
-  Epochs: 650
+  Depth_mm: 6
+  Epochs: 578
   Measurand: abs
-  Optimized_Sensitivity: 29.75999806619803
+  Optimized_Sensitivity: 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 1
   evaluator_log:
-    baseline_noise_std: 3222.8721662517114
-    fetal_ac_energy: 46856368128.0
-    final_metric: 29.75999806619803
-    maternal_ac_amp: 488531.58194737014
+    baseline_noise_std: 2454.998370671557
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3101.1010947726295
+    maternal_ac_energy: 9616828.0
 exp 001:
-  Depth_mm: 5
-  Epochs: 120
+  Depth_mm: 8
+  Epochs: 590
   Measurand: abs
-  Optimized_Sensitivity: 3.4404858368109106
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 364.372855911359
-    fetal_ac_energy: 7925642.0
-    final_metric: 3.4404858368109106
-    maternal_ac_amp: 6322.206260475848
-exp 002:
-  Depth_mm: 5
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 13.955716771310545
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 1509.1814834538623
-    fetal_ac_energy: 2258121728.0
-    final_metric: 13.955716771310545
-    maternal_ac_amp: 107214.55184815166
-exp 003:
-  Depth_mm: 10
-  Epochs: 634
-  Measurand: abs
-  Optimized_Sensitivity: 30.162132358867773
+  Optimized_Sensitivity: 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 1
   evaluator_log:
-    baseline_noise_std: 3266.4191402819083
-    fetal_ac_energy: 49440677888.0
-    final_metric: 30.162132358867773
-    maternal_ac_amp: 501822.8858551591
+    baseline_noise_std: 2480.303912830039
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3138.31594967747
+    maternal_ac_energy: 9849027.0
+exp 002:
+  Depth_mm: 10
+  Epochs: 531
+  Measurand: abs
+  Optimized_Sensitivity: 0.0
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 2491.702229400616
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3147.772704627829
+    maternal_ac_energy: 9908473.0
+exp 003:
+  Depth_mm: 12
+  Epochs: 564
+  Measurand: abs
+  Optimized_Sensitivity: 0.0
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 2490.494629586661
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3148.1928149336723
+    maternal_ac_energy: 9911118.0
 exp 004:
-  Depth_mm: 10
-  Epochs: 120
+  Depth_mm: 14
+  Epochs: 565
   Measurand: abs
-  Optimized_Sensitivity: 11.704108404704662
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
+  Optimized_Sensitivity: 0.0
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 1
   evaluator_log:
-    baseline_noise_std: 1261.1997264509694
-    fetal_ac_energy: 1107359232.0
-    final_metric: 11.704108404704662
-    maternal_ac_amp: 75018.14607146727
+    baseline_noise_std: 2487.8638427373794
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3151.316867596783
+    maternal_ac_energy: 9930798.0
 exp 005:
-  Depth_mm: 10
-  Epochs: 0
+  Depth_mm: 16
+  Epochs: 571
   Measurand: abs
-  Optimized_Sensitivity: 13.961590005224267
-  Optimizer: DummyUnitWindowGenerator
+  Optimized_Sensitivity: 0.0
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 1
   evaluator_log:
-    baseline_noise_std: 1509.7979169412044
-    fetal_ac_energy: 2261857792.0
-    final_metric: 13.961590005224267
-    maternal_ac_amp: 107302.93326838741
+    baseline_noise_std: 2474.0148544420667
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3132.074073198142
+    maternal_ac_energy: 9809888.0
 exp 006:
-  Depth_mm: 15
+  Depth_mm: 18
+  Epochs: 546
+  Measurand: abs
+  Optimized_Sensitivity: 0.0
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 2485.9741551351653
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3145.192680902078
+    maternal_ac_energy: 9892237.0
+exp 007:
+  Depth_mm: 20
   Epochs: 625
   Measurand: abs
-  Optimized_Sensitivity: 30.158265376137102
+  Optimized_Sensitivity: 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 1
   evaluator_log:
-    baseline_noise_std: 3265.9986221674985
-    fetal_ac_energy: 49415258112.0
-    final_metric: 30.158265376137102
-    maternal_ac_amp: 501693.77522149903
-exp 007:
-  Depth_mm: 15
-  Epochs: 120
-  Measurand: abs
-  Optimized_Sensitivity: 18.686029319797626
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 2018.4391246703478
-    fetal_ac_energy: 7237271552.0
-    final_metric: 18.686029319797626
-    maternal_ac_amp: 191885.51253286423
+    baseline_noise_std: 2463.4050621040788
+    fetal_ac_energy: 0.0
+    final_metric: 0.0
+    maternal_ac_amp: 3136.4832216991053
+    maternal_ac_energy: 9837527.0
 exp 008:
-  Depth_mm: 15
-  Epochs: 0
+  Depth_mm: 6
+  Epochs: 636
   Measurand: abs
-  Optimized_Sensitivity: 13.964074028910629
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 1
+  Optimized_Sensitivity: 0.037909644437045316
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 1510.0647337117705
-    fetal_ac_energy: 2263461376.0
-    final_metric: 13.964074028910629
-    maternal_ac_amp: 107340.93660854652
+    baseline_noise_std: 22.00757953817062
+    fetal_ac_energy: 0.7309048175811768
+    final_metric: 0.037909644437045316
+    maternal_ac_amp: 0.8760700494898562
+    maternal_ac_energy: 0.7674987316131592
 exp 009:
-  Depth_mm: 20
-  Epochs: 635
+  Depth_mm: 8
+  Epochs: 809
   Measurand: abs
-  Optimized_Sensitivity: 30.17545552634173
+  Optimized_Sensitivity: 0.019542108771343818
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 1
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 3267.8622982004613
-    fetal_ac_energy: 49528098816.0
-    final_metric: 30.17545552634173
-    maternal_ac_amp: 502266.3404370235
+    baseline_noise_std: 20.721758271660747
+    fetal_ac_energy: 0.273401141166687
+    final_metric: 0.019542108771343818
+    maternal_ac_amp: 0.6751531427228492
+    maternal_ac_energy: 0.45583176612854004
 exp 010:
-  Depth_mm: 20
-  Epochs: 120
+  Depth_mm: 10
+  Epochs: 760
   Measurand: abs
-  Optimized_Sensitivity: 15.014957753297544
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 1
+  Optimized_Sensitivity: 0.004857461094522408
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 1619.8329389168503
-    fetal_ac_energy: 3007816704.0
-    final_metric: 15.014957753297544
-    maternal_ac_amp: 123667.9114402762
+    baseline_noise_std: 22.872148846820092
+    fetal_ac_energy: 0.08960780501365662
+    final_metric: 0.004857461094522408
+    maternal_ac_amp: 0.8065467391899965
+    maternal_ac_energy: 0.6505176424980164
 exp 011:
-  Depth_mm: 20
-  Epochs: 0
+  Depth_mm: 12
+  Epochs: 654
   Measurand: abs
-  Optimized_Sensitivity: 13.963893730548355
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 1
+  Optimized_Sensitivity: 0.0012054785488245544
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 1510.0408107067835
-    fetal_ac_energy: 2263328000.0
-    final_metric: 13.963893730548355
-    maternal_ac_amp: 107337.69783258815
+    baseline_noise_std: 26.455834778884906
+    fetal_ac_energy: 0.03584976866841316
+    final_metric: 0.0012054785488245544
+    maternal_ac_amp: 1.124101173768535
+    maternal_ac_energy: 1.2636034488677979
 exp 012:
-  Depth_mm: 25
-  Epochs: 635
+  Depth_mm: 14
+  Epochs: 616
   Measurand: abs
-  Optimized_Sensitivity: 30.19031489113485
+  Optimized_Sensitivity: 1.2229648302665623e-10
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 1
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 3269.469222977944
-    fetal_ac_energy: 49625628672.0
-    final_metric: 30.19031489113485
-    maternal_ac_amp: 502760.4719545879
+    baseline_noise_std: 100.54087127569066
+    fetal_ac_energy: 1.821054951278711e-07
+    final_metric: 1.2229648302665623e-10
+    maternal_ac_amp: 14.81038808454538
+    maternal_ac_energy: 219.34759521484375
 exp 013:
-  Depth_mm: 25
-  Epochs: 120
+  Depth_mm: 16
+  Epochs: 553
   Measurand: abs
-  Optimized_Sensitivity: 15.42668743513078
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 1663.834577113963
-    fetal_ac_energy: 3349452800.0
-    final_metric: 15.42668743513078
-    maternal_ac_amp: 130494.14809867913
-exp 014:
-  Depth_mm: 25
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 13.966174004645048
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 1510.2916936803963
-    fetal_ac_energy: 2264823040.0
-    final_metric: 13.966174004645048
-    maternal_ac_amp: 107373.2236267497
-exp 015:
-  Depth_mm: 5
-  Epochs: 561
-  Measurand: abs
-  Optimized_Sensitivity: 0.5923413276158311
+  Optimized_Sensitivity: 2.6879597052432522e-11
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 63.30346446507687
-    fetal_ac_energy: 7165.51611328125
-    final_metric: 0.5923413276158311
-    maternal_ac_amp: 191.09440157288753
+    baseline_noise_std: 98.179970669302
+    fetal_ac_energy: 3.7041090195089055e-08
+    final_metric: 2.6879597052432522e-11
+    maternal_ac_amp: 14.035830287530253
+    maternal_ac_energy: 197.00453186035156
+exp 014:
+  Depth_mm: 18
+  Epochs: 569
+  Measurand: abs
+  Optimized_Sensitivity: 2.4706674321713115e-12
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
+  evaluator_log:
+    baseline_noise_std: 97.79100702358832
+    fetal_ac_energy: 3.331479092594236e-09
+    final_metric: 2.4706674321713115e-12
+    maternal_ac_amp: 13.788717794027127
+    maternal_ac_energy: 190.1287384033203
+exp 015:
+  Depth_mm: 20
+  Epochs: 603
+  Measurand: abs
+  Optimized_Sensitivity: 4.4094970005058195e-13
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 2
+  evaluator_log:
+    baseline_noise_std: 99.79980449160459
+    fetal_ac_energy: 6.431137844487012e-10
+    final_metric: 4.4094970005058195e-13
+    maternal_ac_amp: 14.613999101086687
+    maternal_ac_energy: 213.5689697265625
 exp 016:
-  Depth_mm: 5
-  Epochs: 45
+  Depth_mm: 6
+  Epochs: 696
   Measurand: abs
-  Optimized_Sensitivity: 0.2591144575661932
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 2
+  Optimized_Sensitivity: 0.02438360578100289
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 27.532121244018096
-    fetal_ac_energy: 256.1800231933594
-    final_metric: 0.2591144575661932
-    maternal_ac_amp: 35.909878991437544
+    baseline_noise_std: 9.542240397655082
+    fetal_ac_energy: 0.02885182946920395
+    final_metric: 0.02438360578100289
+    maternal_ac_amp: 0.1240009677987632
+    maternal_ac_energy: 0.015376240015029907
 exp 017:
-  Depth_mm: 5
-  Epochs: 0
+  Depth_mm: 8
+  Epochs: 653
   Measurand: abs
-  Optimized_Sensitivity: 0.3740696544656299
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 2
+  Optimized_Sensitivity: 0.014463755708017056
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 40.923186011359284
-    fetal_ac_energy: 1220.842041015625
-    final_metric: 0.3740696544656299
-    maternal_ac_amp: 79.75126125570053
+    baseline_noise_std: 6.380719480215776
+    fetal_ac_energy: 0.0049549276009202
+    final_metric: 0.014463755708017056
+    maternal_ac_amp: 0.05368915679773818
+    maternal_ac_energy: 0.002882525557652116
 exp 018:
   Depth_mm: 10
-  Epochs: 497
+  Epochs: 644
   Measurand: abs
-  Optimized_Sensitivity: 0.5921259825353521
+  Optimized_Sensitivity: 0.008659234222402458
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 2
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 61.908328303074455
-    fetal_ac_energy: 6739.833984375
-    final_metric: 0.5921259825353521
-    maternal_ac_amp: 183.85946994239922
+    baseline_noise_std: 4.0088417560863885
+    fetal_ac_energy: 0.0008266711374744773
+    final_metric: 0.008659234222402458
+    maternal_ac_amp: 0.023814111051540614
+    maternal_ac_energy: 0.0005671118851751089
 exp 019:
-  Depth_mm: 10
-  Epochs: 45
+  Depth_mm: 12
+  Epochs: 780
   Measurand: abs
-  Optimized_Sensitivity: 0.3876638557470852
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 2
+  Optimized_Sensitivity: 0.0022527090233865725
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 40.94813196861061
-    fetal_ac_energy: 1274.88671875
-    final_metric: 0.3876638557470852
-    maternal_ac_amp: 80.31232368657689
+    baseline_noise_std: 5.30833379405133
+    fetal_ac_energy: 0.0005168832722119987
+    final_metric: 0.0022527090233865725
+    maternal_ac_amp: 0.043224418040127846
+    maternal_ac_energy: 0.0018683503149077296
 exp 020:
-  Depth_mm: 10
-  Epochs: 0
+  Depth_mm: 14
+  Epochs: 801
   Measurand: abs
-  Optimized_Sensitivity: 0.38307373625111363
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 2
+  Optimized_Sensitivity: 0.0018046327187795726
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 40.29211269843175
-    fetal_ac_energy: 1201.67138671875
-    final_metric: 0.38307373625111363
-    maternal_ac_amp: 77.85442520138146
+    baseline_noise_std: 3.4969972263550986
+    fetal_ac_energy: 0.00011494639329612255
+    final_metric: 0.0018046327187795726
+    maternal_ac_amp: 0.018214247514941544
+    maternal_ac_energy: 0.00033175881253555417
 exp 021:
-  Depth_mm: 15
-  Epochs: 580
+  Depth_mm: 16
+  Epochs: 788
   Measurand: abs
-  Optimized_Sensitivity: 0.623738541283811
+  Optimized_Sensitivity: 0.0004727601708612058
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 2
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 65.12937845166343
-    fetal_ac_energy: 8271.552734375
-    final_metric: 0.623738541283811
-    maternal_ac_amp: 203.61394997641983
+    baseline_noise_std: 5.905552737136763
+    fetal_ac_energy: 0.00013085365935694426
+    final_metric: 0.0004727601708612058
+    maternal_ac_amp: 0.046868865287205054
+    maternal_ac_energy: 0.002196690533310175
 exp 022:
-  Depth_mm: 15
-  Epochs: 55
+  Depth_mm: 18
+  Epochs: 709
   Measurand: abs
-  Optimized_Sensitivity: 0.21041574384942427
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 2
+  Optimized_Sensitivity: 0.0003153585354197407
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 21.965458195989576
-    fetal_ac_energy: 107.17562866210938
-    final_metric: 0.21041574384942427
-    maternal_ac_amp: 23.18876081056699
+    baseline_noise_std: 3.9313519632916796
+    fetal_ac_energy: 2.6938638256979175e-05
+    final_metric: 0.0003153585354197407
+    maternal_ac_amp: 0.02172846874489174
+    maternal_ac_energy: 0.00047212635399773717
 exp 023:
-  Depth_mm: 15
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.3845472102764474
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 40.15181000502577
-    fetal_ac_energy: 1195.1954345703125
-    final_metric: 0.3845472102764474
-    maternal_ac_amp: 77.40769452628724
-exp 024:
   Depth_mm: 20
-  Epochs: 597
-  Measurand: abs
-  Optimized_Sensitivity: 0.611897943582683
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 63.889960102923254
-    fetal_ac_energy: 7660.24560546875
-    final_metric: 0.611897943582683
-    maternal_ac_amp: 195.94360038350322
-exp 025:
-  Depth_mm: 20
-  Epochs: 55
-  Measurand: abs
-  Optimized_Sensitivity: 0.15036453952459153
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 15.661223636141909
-    fetal_ac_energy: 27.772857666015625
-    final_metric: 0.15036453952459153
-    maternal_ac_amp: 11.793682954938273
-exp 026:
-  Depth_mm: 20
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.3856750509548482
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 40.26255839360481
-    fetal_ac_energy: 1208.5552978515625
-    final_metric: 0.3856750509548482
-    maternal_ac_amp: 77.82938760017805
-exp 027:
-  Depth_mm: 25
-  Epochs: 575
-  Measurand: abs
-  Optimized_Sensitivity: 0.6383004240690812
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 66.79185836424976
-    fetal_ac_energy: 9118.63671875
-    final_metric: 0.6383004240690812
-    maternal_ac_amp: 213.8854559834539
-exp 028:
-  Depth_mm: 25
-  Epochs: 66
-  Measurand: abs
-  Optimized_Sensitivity: 0.3355502364302902
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 34.98301415397014
-    fetal_ac_energy: 690.2590942382812
-    final_metric: 0.3355502364302902
-    maternal_ac_amp: 58.802712804794346
-exp 029:
-  Depth_mm: 25
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.38515945546074476
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 40.220360119770966
-    fetal_ac_energy: 1202.9580078125
-    final_metric: 0.38515945546074476
-    maternal_ac_amp: 77.65402096901518
-exp 030:
-  Depth_mm: 5
-  Epochs: 634
-  Measurand: abs
-  Optimized_Sensitivity: 0.12231650489880347
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 3
-  evaluator_log:
-    baseline_noise_std: 13.513951192417956
-    fetal_ac_energy: 14.252933502197266
-    final_metric: 0.12231650489880347
-    maternal_ac_amp: 8.622572405193969
-exp 031:
-  Depth_mm: 5
-  Epochs: 91
-  Measurand: abs
-  Optimized_Sensitivity: 0.05798555522364257
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 3
-  evaluator_log:
-    baseline_noise_std: 4.874156781166623
-    fetal_ac_energy: 0.31576600670814514
-    final_metric: 0.05798555522364257
-    maternal_ac_amp: 1.1172389305387531
-exp 032:
-  Depth_mm: 5
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.07660661789828618
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 3
-  evaluator_log:
-    baseline_noise_std: 8.465387669275003
-    fetal_ac_energy: 2.1961605548858643
-    final_metric: 0.07660661789828618
-    maternal_ac_amp: 3.3864989599870916
-exp 033:
-  Depth_mm: 10
   Epochs: 544
   Measurand: abs
-  Optimized_Sensitivity: 0.0849468212046862
+  Optimized_Sensitivity: 3.522520521313851e-10
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 9.184707320964415
-    fetal_ac_energy: 3.147447109222412
-    final_metric: 0.0849468212046862
-    maternal_ac_amp: 4.034093755703946
+    baseline_noise_std: 12.2981009157029
+    fetal_ac_energy: 1.2408851723932912e-09
+    final_metric: 3.522520521313851e-10
+    maternal_ac_amp: 0.28644418536996685
+    maternal_ac_energy: 0.08205027133226395
+exp 024:
+  Depth_mm: 6
+  Epochs: 713
+  Measurand: abs
+  Optimized_Sensitivity: 0.07683918270628275
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 1.7410843439985526
+    fetal_ac_energy: 0.00023747635714244097
+    final_metric: 0.07683918270628275
+    maternal_ac_amp: 0.0017750795925132168
+    maternal_ac_energy: 3.150907559756888e-06
+exp 025:
+  Depth_mm: 8
+  Epochs: 676
+  Measurand: abs
+  Optimized_Sensitivity: 0.02115220060434888
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 1.6869164623523005
+    fetal_ac_energy: 0.00014323463256005198
+    final_metric: 0.02115220060434888
+    maternal_ac_amp: 0.0040141990630386416
+    maternal_ac_energy: 1.611379411770031e-05
+exp 026:
+  Depth_mm: 10
+  Epochs: 782
+  Measurand: abs
+  Optimized_Sensitivity: 0.009502768292938734
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 1.2630934179888809
+    fetal_ac_energy: 2.9193266527727246e-05
+    final_metric: 0.009502768292938734
+    maternal_ac_amp: 0.0024321876579560084
+    maternal_ac_energy: 5.9155368035135325e-06
+exp 027:
+  Depth_mm: 12
+  Epochs: 661
+  Measurand: abs
+  Optimized_Sensitivity: 0.004117781811074986
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 3.1268616281117114
+    fetal_ac_energy: 9.84598373179324e-05
+    final_metric: 0.004117781811074986
+    maternal_ac_amp: 0.007646930092850908
+    maternal_ac_energy: 5.84755398449488e-05
+exp 028:
+  Depth_mm: 14
+  Epochs: 824
+  Measurand: abs
+  Optimized_Sensitivity: 0.010557690416469359
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 1.4761844534538686
+    fetal_ac_energy: 3.9681333873886615e-05
+    final_metric: 0.010557690416469359
+    maternal_ac_amp: 0.002546107359086241
+    maternal_ac_energy: 6.482662683993112e-06
+exp 029:
+  Depth_mm: 16
+  Epochs: 918
+  Measurand: abs
+  Optimized_Sensitivity: 0.006297609476191109
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 0.49683106066198823
+    fetal_ac_energy: 9.505803291176562e-07
+    final_metric: 0.006297609476191109
+    maternal_ac_amp: 0.00030381160427952244
+    maternal_ac_energy: 9.230149089489714e-08
+exp 030:
+  Depth_mm: 18
+  Epochs: 837
+  Measurand: abs
+  Optimized_Sensitivity: 0.0008863191925221874
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 1.5267869954115767
+    fetal_ac_energy: 2.9433144845825154e-06
+    final_metric: 0.0008863191925221874
+    maternal_ac_amp: 0.002175044074681164
+    maternal_ac_energy: 4.730816726805642e-06
+exp 031:
+  Depth_mm: 20
+  Epochs: 866
+  Measurand: abs
+  Optimized_Sensitivity: 0.001240460361535681
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 4
+  evaluator_log:
+    baseline_noise_std: 0.550388168860127
+    fetal_ac_energy: 4.1634302760940045e-07
+    final_metric: 0.001240460361535681
+    maternal_ac_amp: 0.0006098167024231548
+    maternal_ac_energy: 3.7187641055425047e-07
+exp 032:
+  Depth_mm: 6
+  Epochs: 766
+  Measurand: abs
+  Optimized_Sensitivity: 0.012838634177837238
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
+  evaluator_log:
+    baseline_noise_std: 1.6360410320527357
+    fetal_ac_energy: 7.128070865292102e-05
+    final_metric: 0.012838634177837238
+    maternal_ac_amp: 0.0033935870410900055
+    maternal_ac_energy: 1.1516433005454019e-05
+exp 033:
+  Depth_mm: 8
+  Epochs: 808
+  Measurand: abs
+  Optimized_Sensitivity: 0.009053700070337083
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
+  evaluator_log:
+    baseline_noise_std: 1.3175388523721305
+    fetal_ac_energy: 3.431585355428979e-05
+    final_metric: 0.009053700070337083
+    maternal_ac_amp: 0.0028767708658455045
+    maternal_ac_energy: 8.275810614577495e-06
 exp 034:
   Depth_mm: 10
-  Epochs: 45
+  Epochs: 790
   Measurand: abs
-  Optimized_Sensitivity: 0.02646260117405888
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 3
-  evaluator_log:
-    baseline_noise_std: 2.718028268713397
-    fetal_ac_energy: 0.025099866092205048
-    final_metric: 0.02646260117405888
-    maternal_ac_amp: 0.34896743700858734
-exp 035:
-  Depth_mm: 10
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.05676119974197301
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 3
-  evaluator_log:
-    baseline_noise_std: 6.196729769714603
-    fetal_ac_energy: 0.6433169841766357
-    final_metric: 0.05676119974197301
-    maternal_ac_amp: 1.8289881567720183
-exp 036:
-  Depth_mm: 15
-  Epochs: 542
-  Measurand: abs
-  Optimized_Sensitivity: 0.08523478504828319
+  Optimized_Sensitivity: 0.01208438333289557
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 3
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 8.903430371923807
-    fetal_ac_energy: 2.8876094818115234
-    final_metric: 0.08523478504828319
-    maternal_ac_amp: 3.8050837692283106
+    baseline_noise_std: 0.638084725015946
+    fetal_ac_energy: 2.88974524664809e-06
+    final_metric: 0.01208438333289557
+    maternal_ac_amp: 0.00037476300837551677
+    maternal_ac_energy: 1.4044731244666764e-07
+exp 035:
+  Depth_mm: 12
+  Epochs: 761
+  Measurand: abs
+  Optimized_Sensitivity: 0.004772848993055124
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
+  evaluator_log:
+    baseline_noise_std: 1.268596974432313
+    fetal_ac_energy: 9.829210284806322e-06
+    final_metric: 0.004772848993055124
+    maternal_ac_amp: 0.001623369047421631
+    maternal_ac_energy: 2.6353270641266135e-06
+exp 036:
+  Depth_mm: 14
+  Epochs: 730
+  Measurand: abs
+  Optimized_Sensitivity: 0.00447531026710386
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
+  evaluator_log:
+    baseline_noise_std: 1.3197900765561725
+    fetal_ac_energy: 1.2689835784840398e-05
+    final_metric: 0.00447531026710386
+    maternal_ac_amp: 0.002148463568407368
+    maternal_ac_energy: 4.61589570477372e-06
 exp 037:
-  Depth_mm: 15
-  Epochs: 66
+  Depth_mm: 16
+  Epochs: 780
   Measurand: abs
-  Optimized_Sensitivity: 0.06558552343739416
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 3
+  Optimized_Sensitivity: 0.002928447954773634
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 6.83453222162838
-    fetal_ac_energy: 1.009544849395752
-    final_metric: 0.06558552343739416
-    maternal_ac_amp: 2.2522097438890434
+    baseline_noise_std: 0.099860878931729
+    fetal_ac_energy: 3.5074676496549273e-09
+    final_metric: 0.002928447954773634
+    maternal_ac_amp: 1.1993909840326549e-05
+    maternal_ac_energy: 1.4385387325788201e-10
 exp 038:
-  Depth_mm: 15
-  Epochs: 0
+  Depth_mm: 18
+  Epochs: 884
   Measurand: abs
-  Optimized_Sensitivity: 0.05525981554029231
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 3
+  Optimized_Sensitivity: 0.00168483830069228
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 5.81139043246493
-    fetal_ac_energy: 0.5213896632194519
-    final_metric: 0.05525981554029231
-    maternal_ac_amp: 1.6235771552368425
+    baseline_noise_std: 0.18879320299157273
+    fetal_ac_energy: 1.832816742819432e-08
+    final_metric: 0.00168483830069228
+    maternal_ac_amp: 5.762016031990074e-05
+    maternal_ac_energy: 3.320082875291064e-09
 exp 039:
   Depth_mm: 20
-  Epochs: 541
+  Epochs: 782
   Measurand: abs
-  Optimized_Sensitivity: 0.08896832375811142
+  Optimized_Sensitivity: 0.00015622679906075764
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 3
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 9.337484753454545
-    fetal_ac_energy: 3.467406988143921
-    final_metric: 0.08896832375811142
-    maternal_ac_amp: 4.17387565046644
+    baseline_noise_std: 0.255274679681489
+    fetal_ac_energy: 5.226658217338809e-09
+    final_metric: 0.00015622679906075764
+    maternal_ac_amp: 0.0001310571824764507
+    maternal_ac_energy: 1.717598507866569e-08
 exp 040:
-  Depth_mm: 20
-  Epochs: 105
+  Depth_mm: 6
+  Epochs: 635
   Measurand: abs
-  Optimized_Sensitivity: 0.03351697525778975
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 3
+  Optimized_Sensitivity: 0.021688248687966594
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 3.453020879634299
-    fetal_ac_energy: 0.06684985756874084
-    final_metric: 0.03351697525778975
-    maternal_ac_amp: 0.5776123402885452
+    baseline_noise_std: 1.8507548313018551
+    fetal_ac_energy: 0.0001700500724837184
+    final_metric: 0.021688248687966594
+    maternal_ac_amp: 0.004236463267610247
+    maternal_ac_energy: 1.794762101781089e-05
 exp 041:
-  Depth_mm: 20
-  Epochs: 0
+  Depth_mm: 8
+  Epochs: 663
   Measurand: abs
-  Optimized_Sensitivity: 0.05537601310673438
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 3
+  Optimized_Sensitivity: 0.004758295071577668
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 5.747334401456729
-    fetal_ac_energy: 0.5065474510192871
-    final_metric: 0.05537601310673438
-    maternal_ac_amp: 1.5915928622139184
+    baseline_noise_std: 0.13086539582023535
+    fetal_ac_energy: 1.658557557959739e-08
+    final_metric: 0.004758295071577668
+    maternal_ac_amp: 2.6635101406882025e-05
+    maternal_ac_energy: 7.094286269548888e-10
 exp 042:
-  Depth_mm: 25
-  Epochs: 541
+  Depth_mm: 10
+  Epochs: 768
   Measurand: abs
-  Optimized_Sensitivity: 0.08201161169333437
+  Optimized_Sensitivity: 0.004161177964409978
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 3
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 8.55775264365935
-    fetal_ac_energy: 2.4684202671051025
-    final_metric: 0.08201161169333437
-    maternal_ac_amp: 3.517094419477188
+    baseline_noise_std: 0.1994559708215564
+    fetal_ac_energy: 1.9701996478715955e-08
+    final_metric: 0.004161177964409978
+    maternal_ac_amp: 2.3738151947577657e-05
+    maternal_ac_energy: 5.634998578862849e-10
 exp 043:
-  Depth_mm: 25
-  Epochs: 91
+  Depth_mm: 12
+  Epochs: 741
   Measurand: abs
-  Optimized_Sensitivity: 0.0698458154219825
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 3
+  Optimized_Sensitivity: 0.0023403088198388346
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 7.292947304300284
-    fetal_ac_energy: 1.3006291389465332
-    final_metric: 0.0698458154219825
-    maternal_ac_amp: 2.553348015111374
+    baseline_noise_std: 1.549505520978498
+    fetal_ac_energy: 1.1212191566301044e-05
+    final_metric: 0.0023403088198388346
+    maternal_ac_amp: 0.003091891262446794
+    maternal_ac_energy: 9.55979157879483e-06
 exp 044:
-  Depth_mm: 25
-  Epochs: 0
+  Depth_mm: 14
+  Epochs: 684
   Measurand: abs
-  Optimized_Sensitivity: 0.056266019131844626
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 3
+  Optimized_Sensitivity: 0.0005659815511111882
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 5.850448930257136
-    fetal_ac_energy: 0.5422362685203552
-    final_metric: 0.056266019131844626
-    maternal_ac_amp: 1.6472259697631155
+    baseline_noise_std: 0.05085652073089231
+    fetal_ac_energy: 1.3774922869025374e-10
+    final_metric: 0.0005659815511111882
+    maternal_ac_amp: 4.78564253171485e-06
+    maternal_ac_energy: 2.290237444135812e-11
 exp 045:
-  Depth_mm: 5
-  Epochs: 549
+  Depth_mm: 16
+  Epochs: 666
   Measurand: abs
-  Optimized_Sensitivity: 0.06672049924764614
+  Optimized_Sensitivity: 0.0012034607766333392
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 4
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 7.328057327446063
-    fetal_ac_energy: 1.2444745302200317
-    final_metric: 0.06672049924764614
-    maternal_ac_amp: 2.545293492479818
+    baseline_noise_std: 0.08276528663522878
+    fetal_ac_energy: 7.610205243757662e-10
+    final_metric: 0.0012034607766333392
+    maternal_ac_amp: 7.640401935795115e-06
+    maternal_ac_energy: 5.837574174050175e-11
 exp 046:
-  Depth_mm: 5
-  Epochs: 78
+  Depth_mm: 18
+  Epochs: 760
   Measurand: abs
-  Optimized_Sensitivity: 0.02316823383300286
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 2.0216439446757652
-    fetal_ac_energy: 0.008975161239504814
-    final_metric: 0.02316823383300286
-    maternal_ac_amp: 0.19162168834571866
-exp 047:
-  Depth_mm: 5
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.031211639215190712
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 3.439629051479212
-    fetal_ac_energy: 0.060305893421173096
-    final_metric: 0.031211639215190712
-    maternal_ac_amp: 0.5617351099849692
-exp 048:
-  Depth_mm: 10
-  Epochs: 595
-  Measurand: abs
-  Optimized_Sensitivity: 0.037043560849926944
+  Optimized_Sensitivity: 0.0009487342622743333
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 4
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 3.8831850790339915
-    fetal_ac_energy: 0.10448151081800461
-    final_metric: 0.037043560849926944
-    maternal_ac_amp: 0.7263377672695882
-exp 049:
-  Depth_mm: 10
-  Epochs: 153
+    baseline_noise_std: 0.045332460179532845
+    fetal_ac_energy: 8.094964976113062e-11
+    final_metric: 0.0009487342622743333
+    maternal_ac_amp: 1.8821797668172998e-06
+    maternal_ac_energy: 3.542600674616425e-12
+exp 047:
+  Depth_mm: 20
+  Epochs: 857
   Measurand: abs
-  Optimized_Sensitivity: 0.013994873067035089
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 4
+  Optimized_Sensitivity: 0.0008074928805785624
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 6
   evaluator_log:
-    baseline_noise_std: 1.4771036438112752
-    fetal_ac_energy: 0.0021514338441193104
-    final_metric: 0.013994873067035089
-    maternal_ac_amp: 0.10407539382303843
+    baseline_noise_std: 0.04248544510380704
+    fetal_ac_energy: 6.981594469213093e-11
+    final_metric: 0.0008074928805785624
+    maternal_ac_amp: 2.0350530942241843e-06
+    maternal_ac_energy: 4.141441096311427e-12
+exp 048:
+  Depth_mm: 6
+  Epochs: 732
+  Measurand: abs
+  Optimized_Sensitivity: 0.0019916530574018766
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
+  evaluator_log:
+    baseline_noise_std: 1.356531259932326
+    fetal_ac_energy: 1.465673358325148e-05
+    final_metric: 0.0019916530574018766
+    maternal_ac_amp: 0.005424924523970352
+    maternal_ac_energy: 2.9429806090774946e-05
+exp 049:
+  Depth_mm: 8
+  Epochs: 721
+  Measurand: abs
+  Optimized_Sensitivity: 0.015697720060492516
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
+  evaluator_log:
+    baseline_noise_std: 0.6515047537190345
+    fetal_ac_energy: 4.434101356309839e-06
+    final_metric: 0.015697720060492516
+    maternal_ac_amp: 0.00043356223587109357
+    maternal_ac_energy: 1.8797621237354178e-07
 exp 050:
   Depth_mm: 10
-  Epochs: 0
+  Epochs: 663
   Measurand: abs
-  Optimized_Sensitivity: 0.014704555982354213
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 4
+  Optimized_Sensitivity: 0.0003124465968099367
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
   evaluator_log:
-    baseline_noise_std: 1.612538238190293
-    fetal_ac_energy: 0.0029368300456553698
-    final_metric: 0.014704555982354213
-    maternal_ac_amp: 0.12385595081216404
+    baseline_noise_std: 0.15579955021263198
+    fetal_ac_energy: 4.3941179583839585e-09
+    final_metric: 0.0003124465968099367
+    maternal_ac_amp: 9.026714631643756e-05
+    maternal_ac_energy: 8.148157704113146e-09
 exp 051:
-  Depth_mm: 15
-  Epochs: 562
+  Depth_mm: 12
+  Epochs: 679
   Measurand: abs
-  Optimized_Sensitivity: 0.024060153914268058
+  Optimized_Sensitivity: 0.0019864309950571443
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 4
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
   evaluator_log:
-    baseline_noise_std: 2.302615097101639
-    fetal_ac_energy: 0.014822481200098991
-    final_metric: 0.024060153914268058
-    maternal_ac_amp: 0.26754766137675273
+    baseline_noise_std: 0.0469657471546194
+    fetal_ac_energy: 2.2743776306732855e-10
+    final_metric: 0.0019864309950571443
+    maternal_ac_amp: 2.4378549193593127e-06
+    maternal_ac_energy: 5.9431366078444015e-12
 exp 052:
-  Depth_mm: 15
-  Epochs: 60
+  Depth_mm: 14
+  Epochs: 656
   Measurand: abs
-  Optimized_Sensitivity: 0.011165272172914546
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 1.1865234375
-    fetal_ac_energy: 0.000886560941580683
-    final_metric: 0.011165272172914546
-    maternal_ac_amp: 0.06692108267787801
-exp 053:
-  Depth_mm: 15
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.011372224662618408
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 1.2062780999582068
-    fetal_ac_energy: 0.000962358433753252
-    final_metric: 0.011372224662618408
-    maternal_ac_amp: 0.0701526341058706
-exp 054:
-  Depth_mm: 20
-  Epochs: 600
-  Measurand: abs
-  Optimized_Sensitivity: 0.024086004822895628
+  Optimized_Sensitivity: 2.587418172076606e-05
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 4
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
   evaluator_log:
-    baseline_noise_std: 2.3072152451602777
-    fetal_ac_energy: 0.01491632778197527
-    final_metric: 0.024086004822895628
-    maternal_ac_amp: 0.2684163933917098
+    baseline_noise_std: 0.0003036426870820801
+    fetal_ac_energy: 2.546286091384221e-18
+    final_metric: 2.587418172076606e-05
+    maternal_ac_amp: 3.2409904233829025e-10
+    maternal_ac_energy: 1.0504018924459685e-19
+exp 053:
+  Depth_mm: 16
+  Epochs: 622
+  Measurand: abs
+  Optimized_Sensitivity: 7.586542297067848e-05
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
+  evaluator_log:
+    baseline_noise_std: 0.0011422304932180798
+    fetal_ac_energy: 1.9005018527376626e-16
+    final_metric: 7.586542297067848e-05
+    maternal_ac_amp: 2.19316175460548e-09
+    maternal_ac_energy: 4.809958481864187e-18
+exp 054:
+  Depth_mm: 18
+  Epochs: 100
+  Measurand: abs
+  Optimized_Sensitivity: .nan
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
+  evaluator_log:
+    baseline_noise_std: .nan
+    fetal_ac_energy: .nan
+    final_metric: .nan
+    maternal_ac_amp: .nan
+    maternal_ac_energy: .nan
 exp 055:
   Depth_mm: 20
-  Epochs: 105
+  Epochs: 663
   Measurand: abs
-  Optimized_Sensitivity: 0.01362826079960294
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 1.4334078052306647
-    fetal_ac_energy: 0.001921609858982265
-    final_metric: 0.01362826079960294
-    maternal_ac_amp: 0.09836826633476493
-exp 056:
-  Depth_mm: 20
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.011728706549944653
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 1.2128886592928918
-    fetal_ac_energy: 0.0010140559170395136
-    final_metric: 0.011728706549944653
-    maternal_ac_amp: 0.07128380076704001
-exp 057:
-  Depth_mm: 25
-  Epochs: 575
-  Measurand: abs
-  Optimized_Sensitivity: 0.024053588084915343
+  Optimized_Sensitivity: 2.4809594573452233e-05
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,normalize_tof=True, fetal_f=2.2)
-  SDD_Index: 4
+    grad_clip=False,normalize_tof=False, fetal_f=2.5), type=psafe_same_width
+  SDD_Index: 7
   evaluator_log:
-    baseline_noise_std: 2.3031270579687315
-    fetal_ac_energy: 0.014820529147982597
-    final_metric: 0.024053588084915343
-    maternal_ac_amp: 0.2675259671575818
-exp 058:
-  Depth_mm: 25
-  Epochs: 153
-  Measurand: abs
-  Optimized_Sensitivity: 0.010512712402509844
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.3,harmonics=2,
-    norm=1.0)
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 1.1282808359988226
-    fetal_ac_energy: 0.0007136753993108869
-    final_metric: 0.010512712402509844
-    maternal_ac_amp: 0.06016843721865798
-exp 059:
-  Depth_mm: 25
-  Epochs: 0
-  Measurand: abs
-  Optimized_Sensitivity: 0.011818840807104014
-  Optimizer: DummyUnitWindowGenerator
-  SDD_Index: 4
-  evaluator_log:
-    baseline_noise_std: 1.220312681698755
-    fetal_ac_energy: 0.0010378473671153188
-    final_metric: 0.011818840807104014
-    maternal_ac_amp: 0.07195939119061075
+    baseline_noise_std: 0.0061075057457838314
+    fetal_ac_energy: 1.1605251773406846e-14
+    final_metric: 2.4809594573452233e-05
+    maternal_ac_amp: 7.658981408299389e-08
+    maternal_ac_energy: 5.865999621267569e-15
