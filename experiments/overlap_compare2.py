@@ -26,8 +26,8 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict, NoiseCalculator], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
+    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]],
     fetal_f_separations: list[float],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
@@ -36,10 +36,10 @@ def main(
 
     :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
     (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, NoiseCalculator], Evaluator]
+    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
-    (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
-    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
+    (ppath_file: Path, measurand: CompactStatProcess) and return an DIGSSOptimizer instance.
+    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], DIGSSOptimizer]]
     :param fetal_f_separations: List of fetal f separations to test (e.g., [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]).
     :type fetal_f_separations: list[float]
     :param print_log: Whether to print log messages during execution. (Default: False)
@@ -52,8 +52,7 @@ def main(
     for separation in fetal_f_separations:
         print(f"Starting sensitivity comparison for measurand: abs with fetal f separation: {separation} Hz")
         gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        gen_config["selected_sdd_index"] = 2
-
+        
         # Switch fetal f based on separation
         maternal_f = gen_config["maternal_f"]
         fetal_f_no_shift = 2 * maternal_f
@@ -70,17 +69,13 @@ def main(
         )
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
-        for experiment in [experiments[0]]:
+        for experiment in [experiments[-1]]:
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config, tof_dataset_file)
 
-            # Get TOF data tensors
-            tof_data = np.load(tof_dataset_file)
-            meta_data = dict(tof_data)
-            bin_edges = tof_data["bin_edges"]
 
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
@@ -88,10 +83,9 @@ def main(
                 optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
-                window = optimizer_experiment.window
+                window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
-                noise_calculator = get_noise_calculator(measurand)
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config, noise_calculator)
+                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config,)
                 optimized_sensitivity = evaluator.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
@@ -102,6 +96,8 @@ def main(
 
                 # Compute the unfiltered measurand signal for logging
                 tof_data = ToFData.from_npz(tof_dataset_file)
+                assert tof_data.meta_data is not None, "ToFData meta_data was not found!"
+                bin_edges = tof_data.bin_edges.numpy()
                 measurand_process = get_named_moment_module(measurand, tof_data)
                 measurand_time_series = measurand_process.forward(window)
                 filtered_signal = fetal_filter(measurand_time_series.unsqueeze(0).unsqueeze(0)).squeeze()
@@ -117,12 +113,12 @@ def main(
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
                         "Bin_Edges": bin_edges.tolist(),
-                        "Optimized_Window": window.detach().cpu().numpy().tolist(),
-                        "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
-                        "filtered_signal": filtered_signal.detach().cpu().numpy().tolist(),
+                        "Optimized_Window": window.numpy().tolist(),
+                        "fetal_hb_series": tof_data.meta_data["fetal_hb_series"].tolist(),
+                        "filtered_signal": filtered_signal.numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
                         "final_optimizer_loss": final_optimizer_loss,
-                        "measurand_time_series": measurand_time_series.detach().cpu().numpy().tolist(),
+                        "measurand_time_series": measurand_time_series.numpy().tolist(),
                     }
                 )
                 print(
@@ -140,16 +136,16 @@ def main(
 
 
 if __name__ == "__main__":
-    # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf, noise_calc: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw=0.01)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.001, lr=0.01),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.01, lr=0.01),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=0.1, lr=0.01),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=1.0, lr=0.01),
+    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
+        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=0.001, lr=0.01, filter_type='comb'),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=0.01, lr=0.1, filter_type='comb'),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=0.1, lr=0.1, filter_type='comb'),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=1.0, lr=0.1, filter_type='comb'),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, lr=0.1, filter_hw=3.0, filter_type='psafe_same_width'),
     ]
-    separations_to_test = np.arange(0.0, 1.1, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
+    separations_to_test = np.arange(0.0, 0.6, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
 
     exp_results = main(eval_func, optimizer_funcs_to_test, separations_to_test, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}

@@ -146,7 +146,7 @@ def main(
 if __name__ == "__main__":
     filter_hw = 0.3  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(

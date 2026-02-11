@@ -26,7 +26,7 @@ exp 000:
   Fetal_F_Hz: 2.0
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.00506280738466594
+  Optimized_Sensitivity: 0.010752831188019611
   Optimized_Window:
   - 0.0
   - 0.0022745549213141203
@@ -53,13 +53,10 @@ exp 000:
   Separation_Hz: 0.0
   evaluator_log:
     baseline_noise_std: 1.6132501409824085
-    fetal_ac_energy: 1.6695433347094918e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0040860045701265335
-    final_metric: 0.00506280738466594
-    maternal_ac_amp: 0.002044111490249634
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.002044111490249634
+    fetal_ac_energy: 6.577598105650395e-05
+    final_metric: 0.010752831188019611
+    maternal_ac_amp: 0.0037917770608896953
+    maternal_ac_energy: 1.4377573279489297e-05
   fetal_hb_series:
   - 15.0
   - 15.338312447522773
@@ -548,7 +545,7 @@ exp 001:
   Fetal_F_Hz: 2.0
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0008203906193598263
+  Optimized_Sensitivity: 0.0016532910905369127
   Optimized_Window:
   - 0.0
   - 0.0
@@ -575,13 +572,10 @@ exp 001:
   Separation_Hz: 0.0
   evaluator_log:
     baseline_noise_std: 1.2135766096637197
-    fetal_ac_energy: 1.4990675817000768e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0012243641540408134
-    final_metric: 0.0008203906193598263
-    maternal_ac_amp: 0.0015056822448968887
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0015056822448968887
+    fetal_ac_energy: 5.747979230363853e-06
+    final_metric: 0.0016532910905369127
+    maternal_ac_amp: 0.002864828757362442
+    maternal_ac_energy: 8.207243809010834e-06
   fetal_hb_series:
   - 15.0
   - 15.338312447522773
@@ -1070,7 +1064,7 @@ exp 002:
   Fetal_F_Hz: 2.0
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013616117084982867
+  Optimized_Sensitivity: 0.0027447722763336052
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -1096,13 +1090,10 @@ exp 002:
   Separation_Hz: 0.0
   evaluator_log:
     baseline_noise_std: 1.2951844008252698
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013616117084982867
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 1.0206378647126257e-05
+    final_metric: 0.0027447722763336052
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.338312447522773
@@ -1588,7 +1579,7 @@ exp 003:
   Fetal_F_Hz: 2.05
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005648223174445132
+  Optimized_Sensitivity: 0.008528006234713387
   Optimized_Window:
   - 0.0
   - 0.0017805775860324502
@@ -1615,13 +1606,10 @@ exp 003:
   Separation_Hz: 0.05
   evaluator_log:
     baseline_noise_std: 1.6221457136015882
-    fetal_ac_energy: 1.7383405848128697e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004169341176748276
-    final_metric: 0.005648223174445132
-    maternal_ac_amp: 0.001897287555038929
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001897287555038929
+    fetal_ac_energy: 4.833129423786886e-05
+    final_metric: 0.008528006234713387
+    maternal_ac_amp: 0.0034937437840340565
+    maternal_ac_energy: 1.2206245628476609e-05
   fetal_hb_series:
   - 15.0
   - 15.345354061010589
@@ -2110,7 +2098,7 @@ exp 004:
   Fetal_F_Hz: 2.05
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.00014305285031714453
+  Optimized_Sensitivity: 0.00018582797793869184
   Optimized_Window:
   - 0.0
   - 0.0
@@ -2137,13 +2125,10 @@ exp 004:
   Separation_Hz: 0.05
   evaluator_log:
     baseline_noise_std: 1.105554098871657
-    fetal_ac_energy: 2.3396395991501923e-07
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.00048369821161031723
-    final_metric: 0.00014305285031714453
-    maternal_ac_amp: 0.001479355152696371
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001479355152696371
+    fetal_ac_energy: 5.911160769755952e-07
+    final_metric: 0.00018582797793869184
+    maternal_ac_amp: 0.002877276979474269
+    maternal_ac_energy: 8.278722816612571e-06
   fetal_hb_series:
   - 15.0
   - 15.345354061010589
@@ -2632,7 +2617,7 @@ exp 005:
   Fetal_F_Hz: 2.05
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013621853795269328
+  Optimized_Sensitivity: 0.0019355624752146817
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -2658,13 +2643,10 @@ exp 005:
   Separation_Hz: 0.05
   evaluator_log:
     baseline_noise_std: 1.2946389466024635
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013621853795269328
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 7.194317731773481e-06
+    final_metric: 0.0019355624752146817
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.345354061010589
@@ -3150,7 +3132,7 @@ exp 006:
   Fetal_F_Hz: 2.1
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005871074902376081
+  Optimized_Sensitivity: 0.00945738638458529
   Optimized_Window:
   - 0.0
   - 0.0017440892988815904
@@ -3177,13 +3159,10 @@ exp 006:
   Separation_Hz: 0.1
   evaluator_log:
     baseline_noise_std: 1.6252351003919465
-    fetal_ac_energy: 1.7603237565697732e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004195621237158775
-    final_metric: 0.005871074902376081
-    maternal_ac_amp: 0.0018448401242494583
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018448401242494583
+    fetal_ac_energy: 5.206280911806971e-05
+    final_metric: 0.00945738638458529
+    maternal_ac_amp: 0.0033871955603308667
+    maternal_ac_energy: 1.1473093763925135e-05
   fetal_hb_series:
   - 15.0
   - 15.35229554503085
@@ -3672,7 +3651,7 @@ exp 007:
   Fetal_F_Hz: 2.1
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0043601033573803846
+  Optimized_Sensitivity: 0.007036895119553307
   Optimized_Window:
   - 0.0
   - 0.0
@@ -3699,13 +3678,10 @@ exp 007:
   Separation_Hz: 0.1
   evaluator_log:
     baseline_noise_std: 1.1686454522194334
-    fetal_ac_energy: 4.723133282902173e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.002173277083784342
-    final_metric: 0.0043601033573803846
-    maternal_ac_amp: 0.0009269379079341888
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0009269379079341888
+    fetal_ac_energy: 1.3952466360933613e-05
+    final_metric: 0.007036895119553307
+    maternal_ac_amp: 0.001696629963257088
+    maternal_ac_energy: 2.8785532322217477e-06
   fetal_hb_series:
   - 15.0
   - 15.35229554503085
@@ -4194,7 +4170,7 @@ exp 008:
   Fetal_F_Hz: 2.1
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013623228777629628
+  Optimized_Sensitivity: 0.002058792269442238
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -4220,13 +4196,10 @@ exp 008:
   Separation_Hz: 0.1
   evaluator_log:
     baseline_noise_std: 1.2945082796553258
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013623228777629628
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 7.651579835510347e-06
+    final_metric: 0.002058792269442238
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.35229554503085
@@ -4712,7 +4685,7 @@ exp 009:
   Fetal_F_Hz: 2.15
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005922494772990827
+  Optimized_Sensitivity: 0.01242706481618895
   Optimized_Window:
   - 0.0
   - 0.0017694843700155616
@@ -4739,13 +4712,10 @@ exp 009:
   Separation_Hz: 0.15000000000000002
   evaluator_log:
     baseline_noise_std: 1.6271130688140405
-    fetal_ac_energy: 1.7676226585161547e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004204310476779938
-    final_metric: 0.005922494772990827
-    maternal_ac_amp: 0.0018342863768339157
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018342863768339157
+    fetal_ac_energy: 6.804626900702715e-05
+    final_metric: 0.01242706481618895
+    maternal_ac_amp: 0.0033652553310958796
+    maternal_ac_energy: 1.1324943443469238e-05
   fetal_hb_series:
   - 15.0
   - 15.359135026596082
@@ -5234,7 +5204,7 @@ exp 010:
   Fetal_F_Hz: 2.15
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 5.935817749345646e-05
+  Optimized_Sensitivity: 9.57760891267192e-05
   Optimized_Window:
   - 0.0
   - 0.0
@@ -5261,13 +5231,10 @@ exp 010:
   Separation_Hz: 0.15000000000000002
   evaluator_log:
     baseline_noise_std: 1.7052541600405768
-    fetal_ac_energy: 2.7994010937462677e-07
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0005290936678647995
-    final_metric: 5.935817749345646e-05
-    maternal_ac_amp: 0.002765638753771782
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.002765638753771782
+    fetal_ac_energy: 8.460797289444599e-07
+    final_metric: 9.57760891267192e-05
+    maternal_ac_amp: 0.005180421212261044
+    maternal_ac_energy: 2.6836763936444186e-05
   fetal_hb_series:
   - 15.0
   - 15.359135026596082
@@ -5756,7 +5723,7 @@ exp 011:
   Fetal_F_Hz: 2.15
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.001362187801616204
+  Optimized_Sensitivity: 0.0026793770572915636
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -5782,13 +5749,10 @@ exp 011:
   Separation_Hz: 0.15000000000000002
   evaluator_log:
     baseline_noise_std: 1.2946366446209758
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.001362187801616204
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 9.958994269254617e-06
+    final_metric: 0.0026793770572915636
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.359135026596082
@@ -6274,7 +6238,7 @@ exp 012:
   Fetal_F_Hz: 2.2
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005917569579135938
+  Optimized_Sensitivity: 0.008572974114491101
   Optimized_Window:
   - 0.0
   - 0.0017757598543539643
@@ -6301,13 +6265,10 @@ exp 012:
   Separation_Hz: 0.2
   evaluator_log:
     baseline_noise_std: 1.6277465351145781
-    fetal_ac_energy: 1.766890522891893e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004203439690172672
-    final_metric: 0.005917569579135938
-    maternal_ac_amp: 0.0018343385308980942
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018343385308980942
+    fetal_ac_energy: 4.6963414206402376e-05
+    final_metric: 0.008572974114491101
+    maternal_ac_amp: 0.0033654362654602318
+    maternal_ac_energy: 1.1326161256874911e-05
   fetal_hb_series:
   - 15.0
   - 15.365870671700398
@@ -6796,7 +6757,7 @@ exp 013:
   Fetal_F_Hz: 2.2
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.004357154224603514
+  Optimized_Sensitivity: 0.006320406305092596
   Optimized_Window:
   - 0.0
   - 0.0
@@ -6823,13 +6784,10 @@ exp 013:
   Separation_Hz: 0.2
   evaluator_log:
     baseline_noise_std: 1.1694364480001702
-    fetal_ac_energy: 4.723133282902173e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.002173277083784342
-    final_metric: 0.004357154224603514
-    maternal_ac_amp: 0.0009269379079341888
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0009269379079341888
+    fetal_ac_energy: 1.2540323950815946e-05
+    final_metric: 0.006320406305092596
+    maternal_ac_amp: 0.001696629963257088
+    maternal_ac_energy: 2.8785532322217477e-06
   fetal_hb_series:
   - 15.0
   - 15.365870671700398
@@ -7318,7 +7276,7 @@ exp 014:
   Fetal_F_Hz: 2.2
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013617672300014964
+  Optimized_Sensitivity: 0.0018493600198057388
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -7344,13 +7302,10 @@ exp 014:
   Separation_Hz: 0.2
   evaluator_log:
     baseline_noise_std: 1.2950364834569321
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013617672300014964
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 6.876021416246658e-06
+    final_metric: 0.0018493600198057388
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.365870671700398
@@ -7836,7 +7791,7 @@ exp 015:
   Fetal_F_Hz: 2.25
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005925600033938732
+  Optimized_Sensitivity: 0.007890131493901298
   Optimized_Window:
   - 0.0
   - 0.0017226757481694221
@@ -7863,13 +7818,10 @@ exp 015:
   Separation_Hz: 0.25
   evaluator_log:
     baseline_noise_std: 1.6276767399184737
-    fetal_ac_energy: 1.7707071221576866e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004207977093756199
-    final_metric: 0.005925600033938732
-    maternal_ac_amp: 0.0018358882516622543
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018358882516622543
+    fetal_ac_energy: 4.325627378420904e-05
+    final_metric: 0.007890131493901298
+    maternal_ac_amp: 0.0033681909686532874
+    maternal_ac_energy: 1.134471040131757e-05
   fetal_hb_series:
   - 15.0
   - 15.372500685996068
@@ -8358,7 +8310,7 @@ exp 016:
   Fetal_F_Hz: 2.25
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.00014305644317645655
+  Optimized_Sensitivity: 0.00016329603475515825
   Optimized_Window:
   - 0.0
   - 0.0
@@ -8385,13 +8337,10 @@ exp 016:
   Separation_Hz: 0.25
   evaluator_log:
     baseline_noise_std: 1.1055263329056448
-    fetal_ac_energy: 2.3396395991501923e-07
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.00048369821161031723
-    final_metric: 0.00014305644317645655
-    maternal_ac_amp: 0.001479355152696371
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001479355152696371
+    fetal_ac_energy: 5.194292498345021e-07
+    final_metric: 0.00016329603475515825
+    maternal_ac_amp: 0.002877276979474269
+    maternal_ac_energy: 8.278722816612571e-06
   fetal_hb_series:
   - 15.0
   - 15.372500685996068
@@ -8880,7 +8829,7 @@ exp 017:
   Fetal_F_Hz: 2.25
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013622236500480944
+  Optimized_Sensitivity: 0.0017005604524916083
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -8906,13 +8855,10 @@ exp 017:
   Separation_Hz: 0.25
   evaluator_log:
     baseline_noise_std: 1.2946025748163763
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013622236500480944
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 6.320658030745108e-06
+    final_metric: 0.0017005604524916083
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.372500685996068
@@ -9398,7 +9344,7 @@ exp 018:
   Fetal_F_Hz: 2.3
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005919058753328793
+  Optimized_Sensitivity: 0.012584849197462484
   Optimized_Window:
   - 0.0
   - 0.001831904985010624
@@ -9425,13 +9371,10 @@ exp 018:
   Separation_Hz: 0.30000000000000004
   evaluator_log:
     baseline_noise_std: 1.62591629603965
-    fetal_ac_energy: 1.763135917588147e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004198971204459667
-    final_metric: 0.005919058753328793
-    maternal_ac_amp: 0.0018320400267839432
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018320400267839432
+    fetal_ac_energy: 6.877593841636553e-05
+    final_metric: 0.012584849197462484
+    maternal_ac_amp: 0.0033611688123475077
+    maternal_ac_energy: 1.1297455785097554e-05
   fetal_hb_series:
   - 15.0
   - 15.379023315453374
@@ -9920,7 +9863,7 @@ exp 019:
   Fetal_F_Hz: 2.3
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.00021291494970569682
+  Optimized_Sensitivity: 0.0004497850869877488
   Optimized_Window:
   - 0.0
   - 0.0
@@ -9947,13 +9890,10 @@ exp 019:
   Separation_Hz: 0.30000000000000004
   evaluator_log:
     baseline_noise_std: 0.6124833377206625
-    fetal_ac_energy: 9.18902761174443e-08
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0003031340893357992
-    final_metric: 0.00021291494970569682
-    maternal_ac_amp: 0.0007046429673209786
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0007046429673209786
+    fetal_ac_energy: 3.997251099008281e-07
+    final_metric: 0.0004497850869877488
+    maternal_ac_amp: 0.0014509822516974317
+    maternal_ac_energy: 2.105349494740949e-06
   fetal_hb_series:
   - 15.0
   - 15.379023315453374
@@ -10442,7 +10382,7 @@ exp 020:
   Fetal_F_Hz: 2.3
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013622743755702454
+  Optimized_Sensitivity: 0.0027149561817568077
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -10468,13 +10408,10 @@ exp 020:
   Separation_Hz: 0.30000000000000004
   evaluator_log:
     baseline_noise_std: 1.2945543691151145
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013622743755702454
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 1.0090597243106458e-05
+    final_metric: 0.0027149561817568077
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.379023315453374
@@ -10960,7 +10897,7 @@ exp 021:
   Fetal_F_Hz: 2.35
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005951795277828724
+  Optimized_Sensitivity: 0.009900670625869749
   Optimized_Window:
   - 0.0
   - 0.0018073193496093154
@@ -10987,13 +10924,10 @@ exp 021:
   Separation_Hz: 0.35000000000000003
   evaluator_log:
     baseline_noise_std: 1.6279318843247774
-    fetal_ac_energy: 1.7710316289041607e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.00420836266130209
-    final_metric: 0.005951795277828724
-    maternal_ac_amp: 0.0018278565257787704
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018278565257787704
+    fetal_ac_energy: 5.4025378631195053e-05
+    final_metric: 0.009900670625869749
+    maternal_ac_amp: 0.0033519457206650826
+    maternal_ac_energy: 1.1235540114284959e-05
   fetal_hb_series:
   - 15.0
   - 15.38543684700342
@@ -11482,7 +11416,7 @@ exp 022:
   Fetal_F_Hz: 2.35
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 5.9357729754037215e-05
+  Optimized_Sensitivity: 7.589348015738682e-05
   Optimized_Window:
   - 0.0
   - 0.0
@@ -11509,13 +11443,10 @@ exp 022:
   Separation_Hz: 0.35000000000000003
   evaluator_log:
     baseline_noise_std: 1.70526702288945
-    fetal_ac_energy: 2.7994010937462677e-07
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0005290936678647995
-    final_metric: 5.9357729754037215e-05
-    maternal_ac_amp: 0.002765638753771782
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.002765638753771782
+    fetal_ac_energy: 6.704431143589318e-07
+    final_metric: 7.589348015738682e-05
+    maternal_ac_amp: 0.005180421212261044
+    maternal_ac_energy: 2.6836763936444186e-05
   fetal_hb_series:
   - 15.0
   - 15.38543684700342
@@ -12004,7 +11935,7 @@ exp 023:
   Fetal_F_Hz: 2.35
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013621273501310954
+  Optimized_Sensitivity: 0.0021232994165574495
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -12030,13 +11961,10 @@ exp 023:
   Separation_Hz: 0.35000000000000003
   evaluator_log:
     baseline_noise_std: 1.2946941008550314
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013621273501310954
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 7.8924558692961e-06
+    final_metric: 0.0021232994165574495
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.38543684700342
@@ -12522,7 +12450,7 @@ exp 024:
   Fetal_F_Hz: 2.4
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.005972678925360772
+  Optimized_Sensitivity: 0.0038261669346798233
   Optimized_Window:
   - 0.0
   - 0.0017295280704274774
@@ -12549,13 +12477,10 @@ exp 024:
   Separation_Hz: 0.4
   evaluator_log:
     baseline_noise_std: 1.630580270606259
-    fetal_ac_energy: 1.7800065082399646e-05
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.004219012334942818
-    final_metric: 0.005972678925360772
-    maternal_ac_amp: 0.0018277224153280258
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0018277224153280258
+    fetal_ac_energy: 2.0905186829622835e-05
+    final_metric: 0.0038261669346798233
+    maternal_ac_amp: 0.003350795748279419
+    maternal_ac_energy: 1.1227832146687433e-05
   fetal_hb_series:
   - 15.0
   - 15.391739609163647
@@ -13044,7 +12969,7 @@ exp 025:
   Fetal_F_Hz: 2.4
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.004357154224603514
+  Optimized_Sensitivity: 0.0027934002264198825
   Optimized_Window:
   - 0.0
   - 0.0
@@ -13071,13 +12996,10 @@ exp 025:
   Separation_Hz: 0.4
   evaluator_log:
     baseline_noise_std: 1.1694364480001702
-    fetal_ac_energy: 4.723133282902173e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.002173277083784342
-    final_metric: 0.004357154224603514
-    maternal_ac_amp: 0.0009269379079341888
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.0009269379079341888
+    fetal_ac_energy: 5.542387953028083e-06
+    final_metric: 0.0027934002264198825
+    maternal_ac_amp: 0.001696629963257088
+    maternal_ac_energy: 2.8785532322217477e-06
   fetal_hb_series:
   - 15.0
   - 15.391739609163647
@@ -13566,7 +13488,7 @@ exp 026:
   Fetal_F_Hz: 2.4
   Maternal_2nd_Harmonic_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.0013617672300014964
+  Optimized_Sensitivity: 0.000817281219998503
   Optimized_Window:
   - 0.05000000074505806
   - 0.05000000074505806
@@ -13592,13 +13514,10 @@ exp 026:
   Separation_Hz: 0.4
   evaluator_log:
     baseline_noise_std: 1.2950364834569321
-    fetal_ac_energy: 2.6786062843099645e-06
-    fetal_delta_mu_a: 0.006224603297093033
-    fetal_measurand_delta: -0.0016366448253393173
-    final_metric: 0.0013617672300014964
-    maternal_ac_amp: 0.001518881879746914
-    maternal_delta_mu_a: 0.008161316502906989
-    maternal_measurand_delta: -0.001518881879746914
+    fetal_ac_energy: 3.038696149815223e-06
+    final_metric: 0.000817281219998503
+    maternal_ac_amp: 0.002871003702746128
+    maternal_ac_energy: 8.242662261181977e-06
   fetal_hb_series:
   - 15.0
   - 15.391739609163647

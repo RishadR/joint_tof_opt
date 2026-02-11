@@ -5,6 +5,7 @@ Compares DIGSS, Liu et al., Modified Liu et al., and CW methods at a fixed depth
 """
 
 import yaml
+from cycler import cycler
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
@@ -16,6 +17,12 @@ def main(target_depth: int = 6):
     config_path = Path(__file__).parent / 'plot_config.yaml'
     with open(config_path, 'r') as f:
         plot_config = yaml.safe_load(f)
+        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
+                         # Turning off line styles - makes it too messy
+                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+                 cycler(marker=plot_config['plotting']['markers']))
+        plt.rcParams['axes.prop_cycle'] = custom_cycler
+        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
         plt.rcParams.update(plot_config)
 
     # Load overlap comparison results
@@ -95,16 +102,16 @@ def main(target_depth: int = 6):
     y_key = 'sensitivities'  # Change this key to plot different metrics
     if digss_data['separations']:
         ax.plot(digss_data['separations'], digss_data[y_key], 
-                marker='o', linewidth=2, markersize=8, label='DIGSS')
+                linewidth=2, markersize=8, label='DIGSS')
     if liu_data['separations']:
         ax.plot(liu_data['separations'], liu_data[y_key], 
-                marker='s', linewidth=2, markersize=8, label='Liu et al.')
+                linewidth=2, markersize=8, label='Liu et al.')
     if alt_liu_data['separations']:
         ax.plot(alt_liu_data['separations'], alt_liu_data[y_key], 
-                marker='d', linewidth=2, markersize=8, label='Modified Liu et al.')
+                linewidth=2, markersize=8, label='Modified Liu et al.')
     if cw_data['separations']:
         ax.plot(cw_data['separations'], cw_data[y_key], 
-                marker='^', linewidth=2, markersize=8, label='CW')
+                linewidth=2, markersize=8, label='CW')
 
     # Configure axes
     ax.set_xlabel('Frequency Separation (Hz)')

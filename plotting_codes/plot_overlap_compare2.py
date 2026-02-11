@@ -9,14 +9,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 from pathlib import Path
+from cycler import cycler
 
 
-def main(target_depth: int = 5):
+def main(target_depth: int = 6):
     """Generate filter halfwidth comparison plot."""
     # Load matplotlib configuration
     config_path = Path(__file__).parent / 'plot_config.yaml'
     with open(config_path, 'r') as f:
         plot_config = yaml.safe_load(f)
+        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
+                         # Turning off line styles - makes it too messy
+                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+                 cycler(marker=plot_config['plotting']['markers']))
+        plt.rcParams['axes.prop_cycle'] = custom_cycler
+        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
         plt.rcParams.update(plot_config)
 
     # Load overlap comparison results
@@ -77,14 +84,13 @@ def main(target_depth: int = 5):
     # Sort each filter_hw's data by separation
     for filter_hw in filter_hw_data:
         data = filter_hw_data[filter_hw]
-        if data['separations']:
-            sorted_indices = np.argsort(data['separations'])
-            data['separations'] = np.array(data['separations'])[sorted_indices].tolist()
-            data['sensitivities'] = np.array(data['sensitivities'])[sorted_indices].tolist()
-            data['depths'] = np.array(data['depths'])[sorted_indices].tolist()
-            data['baseline_noise_std'] = np.array(data['baseline_noise_std'])[sorted_indices].tolist()
-            data['fetal_ac_energy'] = np.array(data['fetal_ac_energy'])[sorted_indices].tolist()
-            data['maternal_ac_amp'] = np.array(data['maternal_ac_amp'])[sorted_indices].tolist()
+        sorted_indices = np.argsort(data['separations'])
+        data['separations'] = np.array(data['separations'])[sorted_indices].tolist()
+        data['sensitivities'] = np.array(data['sensitivities'])[sorted_indices].tolist()
+        data['depths'] = np.array(data['depths'])[sorted_indices].tolist()
+        data['baseline_noise_std'] = np.array(data['baseline_noise_std'])[sorted_indices].tolist()
+        data['fetal_ac_energy'] = np.array(data['fetal_ac_energy'])[sorted_indices].tolist()
+        data['maternal_ac_amp'] = np.array(data['maternal_ac_amp'])[sorted_indices].tolist()
 
     # Create figure
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -92,9 +98,10 @@ def main(target_depth: int = 5):
     # Plot each filter_hw as a separate line
     for filter_hw in sorted(filter_hw_data.keys()):
         data = filter_hw_data[filter_hw]
+        y_to_plot = np.array(data['fetal_ac_energy']) ** (1/2) / np.array(data['maternal_ac_amp'])
         if data['separations']:
-            ax.plot(data['separations'], data['sensitivities'],
-                    marker='o', linewidth=2, markersize=8,
+            ax.plot(data['separations'], y_to_plot,
+                    linewidth=2, markersize=8,
                     label=f'filter_hw={filter_hw} Hz')
 
     # Configure axes
@@ -115,4 +122,4 @@ def main(target_depth: int = 5):
 
 
 if __name__ == "__main__":
-    main(target_depth=5)
+    main(target_depth=20)

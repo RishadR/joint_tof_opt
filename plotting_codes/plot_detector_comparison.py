@@ -6,6 +6,7 @@ Only for DIGSS optimizer.
 
 import yaml
 import matplotlib.pyplot as plt
+from cycler import cycler
 import numpy as np
 from pathlib import Path
 
@@ -16,6 +17,12 @@ def main():
     config_path = Path(__file__).parent / 'plot_config.yaml'
     with open(config_path, 'r') as f:
         plot_config = yaml.safe_load(f)
+        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
+                         # Turning off line styles - makes it too messy
+                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+                 cycler(marker=plot_config['plotting']['markers']))
+        plt.rcParams['axes.prop_cycle'] = custom_cycler
+        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
         plt.rcParams.update(plot_config)
 
     # Load detector comparison results
@@ -40,6 +47,7 @@ def main():
         
         if depth is None or sensitivity is None or sdd_index is None:
             continue
+        depth = round(depth / 10, 1)  # Convert to cm
         
         # Only process DIGSS optimizer
         if 'DIGSSOptimizer' not in str(optimizer):
@@ -62,17 +70,20 @@ def main():
     fig, ax = plt.subplots(figsize=(6, 4))
 
     # Plot each SDD index
-    for sdd_index in sorted(sdd_data.keys()):
+    for idx, sdd_index in enumerate(sorted(sdd_data.keys())):
+        # Too many options - let's only plot alternate ones to avoid clutter
+        if idx % 2 == 0:
+            continue
         sdd_distance = sdd_distances[sdd_index - 1]  # SDD_Index is 1-based
         ax.plot(sdd_data[sdd_index]['depths'], sdd_data[sdd_index]['sensitivities'], 
-                marker='o', linewidth=2, markersize=8, 
-                label=f'SDD = {sdd_distance} mm')
+                linewidth=2, markersize=8, 
+                label=f'SDD = {round(sdd_distance / 10, 1)} cm')
 
     # Configure axes
-    ax.set_xlabel('Fetal Depth (mm)')
+    ax.set_xlabel('Fetal Depth (cm)')
     ax.set_ylabel('Figure of Merit')
     ax.set_yscale('log')
-    ax.legend(loc='upper right')
+    ax.legend(loc='lower left')
     ax.grid(True, alpha=0.3)
     # ax.set_ylim(top=1.3)
 

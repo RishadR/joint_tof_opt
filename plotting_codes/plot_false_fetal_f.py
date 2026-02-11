@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Plot DIGSS figure of merit vs. fetal frequency error percentage."""
 
-import argparse
 from pathlib import Path
-
+from cycler import cycler
 import matplotlib.pyplot as plt
 import yaml
 
@@ -14,6 +13,12 @@ def main(depth=10):
     config_path = Path(__file__).parent / 'plot_config.yaml'
     with open(config_path, 'r') as f:
         plot_config = yaml.safe_load(f)
+        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
+                         # Turning off line styles - makes it too messy
+                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+                 cycler(marker=plot_config['plotting']['markers']))
+        plt.rcParams['axes.prop_cycle'] = custom_cycler
+        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
         plt.rcParams.update(plot_config)
 
     # Load false fetal frequency results
@@ -73,7 +78,6 @@ def main(depth=10):
         ax.plot(
             [error * 100 for error in percent_errors],
             sensitivities,
-            marker='o',
             linewidth=2,
             markersize=6,
             label=label,
@@ -82,6 +86,7 @@ def main(depth=10):
     # Configure axes
     ax.set_xlabel('Error Percentage (%)')
     ax.set_ylabel('Figure of Merit')
+    ax.set_yscale('log')
     ax.legend()
     ax.grid(True, alpha=0.3)
 
