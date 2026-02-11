@@ -72,7 +72,7 @@ def main():
     # Plot each SDD index
     for idx, sdd_index in enumerate(sorted(sdd_data.keys())):
         # Too many options - let's only plot alternate ones to avoid clutter
-        if idx % 2 == 0:
+        if idx not in [1, 2, 3, 4]:
             continue
         sdd_distance = sdd_distances[sdd_index - 1]  # SDD_Index is 1-based
         ax.plot(sdd_data[sdd_index]['depths'], sdd_data[sdd_index]['sensitivities'], 
