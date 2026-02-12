@@ -8,8 +8,14 @@ from matplotlib.patches import Rectangle
 import yaml
 
 
-def _random_increments(total, count, rng):
-    weights = rng.uniform(0.2, 1.0, size=count)
+def _random_increments(total, count, rng, allow_negative=False):
+    if allow_negative:
+        mask = rng.random(size=count) < 0.1
+        weights = np.empty(count)
+        weights[mask] = rng.uniform(-0.2, -0.1, size=mask.sum())
+        weights[~mask] = rng.uniform(0.2, 1.0, size=(~mask).sum())
+    else:
+        weights = rng.uniform(0.2, 1.0, size=count)
     return total * weights / weights.sum()
 
 
@@ -18,7 +24,7 @@ def generate_photon_path(num_sections, depth, rng, start, dx_half):
         raise ValueError("num_sections must be even.")
 
     half = num_sections // 2
-    first_dx = _random_increments(dx_half, half, rng)
+    first_dx = _random_increments(dx_half, half, rng, allow_negative=True)
     first_dy = _random_increments(depth, half, rng)
     second_dx = _random_increments(dx_half, half, rng)
     second_dy = -_random_increments(depth, half, rng)
@@ -33,6 +39,7 @@ def generate_photon_path(num_sections, depth, rng, start, dx_half):
 
 
 def main():
+    plt.xkcd(scale=0.1, length=0.1)
     # Load configs
     config_path = "./plotting_codes/plot_config.yaml"
     with open(config_path, "r") as f:
