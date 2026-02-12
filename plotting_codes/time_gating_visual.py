@@ -146,8 +146,8 @@ def main():
 
     ax_right.bar(times, weights, width=width, color=colors_sorted, edgecolor="none")
     ax_right.set_xlabel("Arrival time")
-    ax_right.set_ylabel("Log(Packet Intensity)")
-    ax_right.set_title("Time-of-flight distribution")
+    ax_right.set_ylabel("Log(Chance of Survival)")
+    ax_right.set_title("Time-of-Flight")
     ax_right.set_yscale("log")
     # Remove the tick labels but keep the ticks themselves for visual clarity
     ax_right.set_xticklabels([])
