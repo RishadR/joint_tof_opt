@@ -79,7 +79,7 @@ def main(
         )
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
-        for experiment in [experiments[0]]:
+        for experiment in [experiments[-1]]:
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
@@ -145,18 +145,18 @@ def main(
 
 if __name__ == "__main__":
     filter_hw = 0.3  # Hz
-    # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
+    eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf, filter_hw)
+    # eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.001, filter_hw=filter_hw, lr=0.01, filter_type="comb"
+            tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0001, filter_hw=filter_hw, lr=0.01, filter_type="comb"
         ),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
+        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
         # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
-    separations_to_test = np.arange(0.0, 0.45, 0.05).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
+    separations_to_test = np.arange(0.0, 1.0, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
 
     exp_results = main(eval_func, optimizer_funcs_to_test, separations_to_test, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}

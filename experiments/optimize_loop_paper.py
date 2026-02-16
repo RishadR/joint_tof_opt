@@ -141,6 +141,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
         ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
         max_index = int(torch.argmax(average_tof_frame).item()) + 1
+        # max_index = 0
         self.learnable_component_exponents = torch.nn.Parameter(torch.zeros(num_bins - max_index), requires_grad=True)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
         self.fixed_components = torch.zeros(
