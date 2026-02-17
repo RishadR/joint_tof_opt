@@ -20,8 +20,8 @@ from optimize_dummy import DummyOptimizationExperiment
 
 
 def read_parameter_mapping():
-    with open("./data/parameter_mapping.json", "r") as f:
-        parameter_mapping = yaml.safe_load(f)
+    with open("./data/parameter_mapping.json", "r") as tof_config_file:
+        parameter_mapping = yaml.safe_load(tof_config_file)
     return parameter_mapping
 
 

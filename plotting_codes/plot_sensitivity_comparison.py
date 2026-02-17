@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Plot Optimized Sensitivity vs. Fetal Depth for different optimizers.
 Compares DIGSS, Liu et al., and CW methods.
@@ -8,7 +7,7 @@ import yaml
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
-
+from cycler import cycler
 
 def main():
     """Generate sensitivity comparison plot."""
@@ -16,6 +15,12 @@ def main():
     config_path = Path(__file__).parent / 'plot_config.yaml'
     with open(config_path, 'r') as f:
         plot_config = yaml.safe_load(f)
+        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
+                         # Turning off line styles - makes it too messy
+                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+                 cycler(marker=plot_config['plotting']['markers']))
+        plt.rcParams['axes.prop_cycle'] = custom_cycler
+        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
         plt.rcParams.update(plot_config)
 
     # Load sensitivity comparison results
@@ -103,7 +108,7 @@ def main():
     fig.savefig(figures_dir / 'sensitivity_comparison.svg', format='svg')
 
     print(f"Sensitivity comparison plots saved to {figures_dir}")
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
