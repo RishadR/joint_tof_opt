@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Plot DIGSS figure of merit vs. fetal frequency error percentage."""
 
 from pathlib import Path
@@ -66,7 +65,7 @@ def main(depth=10):
 
     for optimizer_key, label in [
         ('comb', 'DIGSS w Comb Separator'),
-        ('psafe_same_width', 'DIGSS w PSAFE Separator'),
+        ('psafe_same_width', 'DIGSS w TSA Separator'),
         ('liu', 'Liu Optimizer'),
         ('cw', 'CW'),
     ]:
@@ -103,7 +102,7 @@ def main(depth=10):
     fig.savefig(figures_dir / 'false_fetal_f_comparison.svg', format='svg')
 
     print(f"False fetal frequency comparison plots saved to {figures_dir}")
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":

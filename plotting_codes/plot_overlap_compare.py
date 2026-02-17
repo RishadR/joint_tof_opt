@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Plot Optimized Sensitivity vs. Frequency Separation for different optimizers.
 Compares DIGSS, Liu et al., Modified Liu et al., and CW methods at a fixed depth.
