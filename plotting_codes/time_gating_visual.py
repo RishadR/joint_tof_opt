@@ -39,7 +39,7 @@ def generate_photon_path(num_sections, depth, rng, start, dx_half):
 
 
 def main():
-    plt.xkcd(scale=0.6, length=0.6, randomness=0.2)
+    # plt.xkcd(scale=0.6, length=0.6, randomness=0.2)
     # Load configs
     config_path = "./plotting_codes/plot_config.yaml"
     with open(config_path, "r") as f:
