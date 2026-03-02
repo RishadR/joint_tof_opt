@@ -3,10 +3,6 @@ Compare the performance of all 4 methods for different levels of overlap(separat
 harmonic of maternal for the deepest model (The last one!)
 """
 
-"""
-Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
-"""
-
 from typing import Any, Literal, Callable
 from pathlib import Path
 import torch
@@ -33,27 +29,12 @@ def read_parameter_mapping():
 
 
 def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
+    evaluator_gen_func1: Callable[[Path, torch.Tensor, str, dict], Evaluator],
+    evaluator_gen_func2: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     fetal_f_separations: list[float],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
-    """
-    Main function to test the performance difference for different levels of overlap across different methods.
-
-    :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module, NoiseCalculator], Evaluator]
-    :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
-    (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
-    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
-    :param fetal_f_separations: List of fetal f separations to test (e.g., [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]).
-    :type fetal_f_separations: list[float]
-    :param print_log: Whether to print log messages during execution. (Default: False)
-    :type print_log: bool
-    :return: List of dictionaries containing results for each experiment.
-    :rtype: list[dict[str, Any]]
-    """
     ## Params
     # Initialize results table and windows storage
     results = []
@@ -93,8 +74,10 @@ def main(
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
-                optimized_sensitivity = evaluator.evaluate()
+                evaluator1 = evaluator_gen_func1(ppath_file, window, measurand, gen_config)
+                evaluator2 = evaluator_gen_func2(ppath_file, window, measurand, gen_config)
+                optimized_sensitivity1 = evaluator1.evaluate()
+                optimized_sensitivity2 = evaluator2.evaluate()
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 if epochs > 0:
@@ -118,13 +101,15 @@ def main(
                         "Maternal_2nd_Harmonic_F_Hz": fetal_f_no_shift,
                         "Fetal_F_Hz": new_fetal_f,
                         "Optimizer": optimizer_name,
-                        "Optimized_Sensitivity": optimized_sensitivity,
+                        "Optimized_Sensitivity1": optimized_sensitivity1,
+                        "Optimized_Sensitivity2": optimized_sensitivity2,
                         "Epochs": epochs,
                         "Bin_Edges": bin_edges.tolist(),
                         "Optimized_Window": window.numpy().tolist(),
                         "fetal_hb_series": tof_data.meta_data["fetal_hb_series"].tolist(),
                         "filtered_signal": filtered_signal.numpy().tolist(),
-                        "evaluator_log": evaluator.get_log(),
+                        "evaluator_log1": evaluator1.get_log(),
+                        "evaluator_log2": evaluator2.get_log(),
                         "final_optimizer_loss": final_optimizer_loss,
                         "measurand_time_series": measurand_time_series.numpy().tolist(),
                     }
@@ -133,32 +118,34 @@ def main(
                     f"Depth: {depth} mm |",
                     f"Optimizer: {optimizer_name} |",
                     f"Separation: {separation} Hz |",
-                    f"Sensitivity: {optimized_sensitivity:.4e} |",
+                    f"Sensitivity1: {optimized_sensitivity1:.4e} |",
+                    f"Sensitivity2: {optimized_sensitivity2:.4e} |",
                     f"Epochs: {epochs} |",
                 )
                 if print_log:
-                    log_dict = evaluator.get_log()
-                    print("Log Details:")
-                    pretty_print_log(log_dict)
+                    log_dict1 = evaluator1.get_log()
+                    log_dict2 = evaluator2.get_log()
+                    print("Log Details for Evaluator 1:")
+                    pretty_print_log(log_dict1)
+                    print("Log Details for Evaluator 2:")
+                    pretty_print_log(log_dict2)
     return results
 
 
 if __name__ == "__main__":
-    filter_hw = 0.3  # Hz
+    filter_hw = 0.1  # Hz
+    eval_func1 = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw)
+    eval_func2 = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_file, measurand: DIGSSOptimizer(
             tof_file, measurand, normalize_tof=False, patience=100, l2_reg=0.0001, filter_hw=filter_hw, lr=0.01, filter_type="comb"
         ),
-        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, 1.0),
-        # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
-        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
-    separations_to_test = np.arange(0.0, 1.0, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
+    separations_to_test = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, separations_to_test, print_log=False)
+    exp_results = main(eval_func1, eval_func2, optimizer_funcs_to_test, separations_to_test, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/overlap_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)

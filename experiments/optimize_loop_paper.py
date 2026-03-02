@@ -313,37 +313,8 @@ def main_optimize(
     filter_hw: float = 0.3,
     patience: int = 50,
     normalize_tof: bool = False,
+    filter_type: str = "psafe_same_width",
 ) -> tuple[torch.Tensor, np.ndarray]:
-    """
-    The optimization loop implementation used in the paper.
-
-    :param tof_dataset_path: Path to the ToF dataset (.npz file).
-    :type tof_dataset_path: Path
-    :param measurand: The measurand to optimize for ("abs", "m1", "V") or a custom moment module. If a custom module is
-    provided, noise_func must also be provided.
-    Predefined options:
-        - "abs": Windowed Sum
-        - "m1": First Order Moment
-        - "V": Second Order Centered Moment (Variance)
-    :type measurand: str | nn.Module
-    :param noise_calc: Noise calculator for the given measurand. Required if a custom measurand module is
-    provided. Note: The function signature should be:
-        noise_calc(tof_series: torch.Tensor, bin_edges: torch.Tensor, window: torch.Tensor, ) -> torch.Tensor
-    :type noise_calc: None | NoiseCalculator
-    :param max_epochs: Maximum number of optimization epochs.
-    :type max_epochs: int
-    :param lr: Learning rate for the optimizer.
-    :type lr: float
-    :param filter_hw: Half width of the sinc comb filter(in Hz).
-    :type filter_hw: float
-    :param patience: Number of epochs to wait for improvement before early stopping.
-    :type patience: int
-    :param normalize_tof: Whether to normalize the TOF data before optimization. Defaults to False.
-    :type normalize_tof: bool
-    :return: Tuple containing the optimized window tensor and a numpy array of training curves. The training curves
-    array has shape (max_epochs, 3) corresponding to [Energy Ratio, Contrast-to-Noise, Final Metric] at each epoch.
-    :rtype: tuple[torch.Tensor, np.ndarray]
-    """
     optimizer = DIGSSOptimizer(
         tof_dataset_path=tof_dataset_path,
         measurand=measurand,
@@ -354,6 +325,7 @@ def main_optimize(
         filter_hw=filter_hw,
         patience=patience,
         normalize_tof=normalize_tof,
+        filter_type=filter_type,    # type: ignore
     )
     optimizer.optimize()
     return optimizer.window.detach(), optimizer.training_curves
@@ -442,13 +414,14 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    file_idx = 0
+    file_idx = 7
     measurand = "abs"
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")
     tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-    filter_hw = 0.001
+    gen_config : dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.3
+    filter_hw = 0.01
     generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
 
     optimized_window, training_curves = main_optimize(
@@ -471,7 +444,7 @@ if __name__ == "__main__":
     )
 
     # Evaluate using an Evaluator and print log
-    evaluator = AltPaperEvaluator2(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+    evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
     eval_results = evaluator.evaluate()
     print(f"Evaluation Results: {eval_results}")
     print(f"Evaluator log: {evaluator.get_log()}")
