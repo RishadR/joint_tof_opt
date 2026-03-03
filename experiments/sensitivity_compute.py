@@ -8,28 +8,21 @@ use internal data (if measurand is a custom module) - in which case the DTOF com
 """
 
 from math import sqrt
-from typing import Any, Callable, Literal
-import torch
-import yaml
-import torch.nn as nn
-import numpy as np
 from pathlib import Path
-from joint_tof_opt.tof_process import compute_tof_discrete
+from typing import Any, Callable, Literal
+
+import numpy as np
+import torch
+import torch.nn as nn
+import yaml
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
-from joint_tof_opt import (
-    CombSeparator,
-    PSAFESeparator,
-    EnergyRatioMetric,
-    named_moment_types,
-    get_named_moment_module,
-    Evaluator,
-    CompactStatProcess,
-    generate_tof,
-    NoiseCalculator,
-    get_noise_calculator,
-    ToFData,
-    compute_tof_data_series,
-)
+
+from joint_tof_opt import (CombSeparator, CompactStatProcess,
+                           EnergyRatioMetric, Evaluator, NoiseCalculator,
+                           PSAFESeparator, ToFData, compute_tof_data_series,
+                           generate_tof, get_named_moment_module,
+                           get_noise_calculator, named_moment_types)
+from joint_tof_opt.tof_process import compute_tof_discrete
 
 __all__ = [
     "PureSensitivityEvaluator",

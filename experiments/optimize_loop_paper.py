@@ -29,6 +29,7 @@ the window energy.
 import yaml
 import numpy as np
 import torch
+from cycler import cycler
 import torch.nn as nn
 import torch.optim as optim
 from typing import Callable, Literal
@@ -94,7 +95,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param l2_reg: L2 regularization weight.
         :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original
         counts. Default is False (keep original counts).
-        :param filter_type: Type of filter to use ("comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid").
+        :param filter_type: Type of filter to use
          - "comb": Standard sinc comb filter
          - "fourier": Uses the RFFT to manually zero out irrelevant frequencies
          - "psafe_same_width": Uses the PSAFE filter with the outputs being the same length as the input
@@ -135,12 +136,30 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.sampling_rate = self.tof_data.meta_data["sampling_rate"]
         self.fetal_f = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
         self.maternal_f = self.tof_data.meta_data["maternal_f"]
-        num_timepoints, num_bins = self.tof_data.tof_series.shape
+        _, num_bins = self.tof_data.tof_series.shape
+        self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
 
         # Compute the Average ToF Frame
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
         ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
         max_index = int(torch.argmax(average_tof_frame).item()) + 1
+
+        ## Compute Best Case Windows
+        max_snr_window = torch.zeros(num_bins)
+        max_snr_window[max_index - 1] = 1.0 # Need to subtract 1 because of how we defined the max_index
+        max_selectivity_window = torch.zeros(num_bins)
+        max_selectivity_window[-1] = 1.0
+        windowed_average_tof_frame = average_tof_frame * max_snr_window.reshape(1, -1)
+        self.max_snr = torch.sqrt(torch.sum(windowed_average_tof_frame)).item()
+        temp_compact_stats = self.moment_module(max_selectivity_window)
+        temp_compact_stats = temp_compact_stats - temp_compact_stats.mean()
+        temp_compact_stats_reshaped = temp_compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
+        maternal_filtered_signal = self.maternal_filter(temp_compact_stats_reshaped)
+        fetal_filtered_signal = self.fetal_filter(temp_compact_stats_reshaped)
+        self.max_selectivity = torch.sqrt(
+            torch.sum(fetal_filtered_signal**2) / (torch.sum(maternal_filtered_signal**2))
+        ).item()
+
         # max_index = 0
         self.learnable_component_exponents = torch.nn.Parameter(torch.zeros(num_bins - max_index), requires_grad=True)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
@@ -151,8 +170,6 @@ class DIGSSOptimizer(OptimizationExperiment):
         )
         self.window = torch.cat([self.fixed_components, self.learnable_component], dim=0)
         self.window_norm = self._win_norm_func(self.window)
-
-        self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
 
         # Set training curve labels
         self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
@@ -228,17 +245,23 @@ class DIGSSOptimizer(OptimizationExperiment):
             windowed_average_tof_frame = avergae_tof_frame * self.window_norm.reshape(1, -1)
             baseline_noise_var = windowed_average_tof_frame.sum()
             baseline_noise_std = torch.sqrt(baseline_noise_var)
-            final_metric = (fetal_energy) / (torch.sqrt(maternal_energy) * baseline_noise_std)
+            selectivity = torch.sqrt(fetal_energy / maternal_energy)
+            snr = torch.sqrt(fetal_energy) / baseline_noise_std
+            # Normalize by the best possble values
+            snr = snr / float(self.max_snr)
+            selectivity = selectivity / float(self.max_selectivity)
+            final_metric = selectivity * snr
 
             # Log metrics
-            self.training_curves[epoch, 0] = fetal_energy.item()
-            self.training_curves[epoch, 1] = (torch.sqrt(maternal_energy) * baseline_noise_std).item()
+            self.training_curves[epoch, 0] = snr.item()
+            self.training_curves[epoch, 1] = selectivity.item()
             self.training_curves[epoch, 2] = final_metric.item()
 
             # Backpropagation
             ## Divisions and Products are very unstable - Use Logarithms
             ## Also, we want to maximize the final metric, so minimize negative final metric
-            loss = -(torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
+            # loss = -(torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
+            loss = -torch.log(final_metric)
             # loss = - (torch.log(fetal_energy * 3.0) - 0.5 * torch.log(maternal_energy*9) - torch.log(baseline_noise_std))
             loss.backward()
             if self.grad_clip:
@@ -290,37 +313,8 @@ def main_optimize(
     filter_hw: float = 0.3,
     patience: int = 50,
     normalize_tof: bool = False,
+    filter_type: str = "psafe_same_width",
 ) -> tuple[torch.Tensor, np.ndarray]:
-    """
-    The optimization loop implementation used in the paper.
-
-    :param tof_dataset_path: Path to the ToF dataset (.npz file).
-    :type tof_dataset_path: Path
-    :param measurand: The measurand to optimize for ("abs", "m1", "V") or a custom moment module. If a custom module is
-    provided, noise_func must also be provided.
-    Predefined options:
-        - "abs": Windowed Sum
-        - "m1": First Order Moment
-        - "V": Second Order Centered Moment (Variance)
-    :type measurand: str | nn.Module
-    :param noise_calc: Noise calculator for the given measurand. Required if a custom measurand module is
-    provided. Note: The function signature should be:
-        noise_calc(tof_series: torch.Tensor, bin_edges: torch.Tensor, window: torch.Tensor, ) -> torch.Tensor
-    :type noise_calc: None | NoiseCalculator
-    :param max_epochs: Maximum number of optimization epochs.
-    :type max_epochs: int
-    :param lr: Learning rate for the optimizer.
-    :type lr: float
-    :param filter_hw: Half width of the sinc comb filter(in Hz).
-    :type filter_hw: float
-    :param patience: Number of epochs to wait for improvement before early stopping.
-    :type patience: int
-    :param normalize_tof: Whether to normalize the TOF data before optimization. Defaults to False.
-    :type normalize_tof: bool
-    :return: Tuple containing the optimized window tensor and a numpy array of training curves. The training curves
-    array has shape (max_epochs, 3) corresponding to [Energy Ratio, Contrast-to-Noise, Final Metric] at each epoch.
-    :rtype: tuple[torch.Tensor, np.ndarray]
-    """
     optimizer = DIGSSOptimizer(
         tof_dataset_path=tof_dataset_path,
         measurand=measurand,
@@ -331,6 +325,7 @@ def main_optimize(
         filter_hw=filter_hw,
         patience=patience,
         normalize_tof=normalize_tof,
+        filter_type=filter_type,    # type: ignore
     )
     optimizer.optimize()
     return optimizer.window.detach(), optimizer.training_curves
@@ -377,12 +372,16 @@ def plot_training_curves_and_window(
 
     ## Load config for plotting if available
     config_path = Path("./plotting_codes/plot_config.yaml")
-    if config_path.exists():
-        with open(config_path, "r") as f:
-            plot_config = yaml.safe_load(f)
-            plt.rcParams.update(plot_config)
-
-    linestyles = ["-", "--", "-.", ":", (0, (3, 1, 1, 1)), (0, (5, 2, 1, 2))]
+    with open(config_path, "r") as f:
+        plot_config = yaml.safe_load(f)
+        custom_cycler = (
+            cycler(color=plot_config["plotting"]["colors"]) +
+            #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+            cycler(marker=plot_config["plotting"]["markers"])
+        )
+        plt.rcParams["axes.prop_cycle"] = custom_cycler
+        plot_config.pop("plotting", None)  # Remove custom plotting config from rcParams
+        plt.rcParams.update(plot_config)
 
     plt.subplots(1, 2, figsize=fig_size)
 
@@ -393,7 +392,7 @@ def plot_training_curves_and_window(
             curve = training_curves[:, i] / (np.max(np.abs(training_curves[:, i])) + 1e-40)
         else:
             curve = training_curves[:, i]
-        plt.plot(curve, label=curve_column_labels[i], linestyle=linestyles[i])
+        plt.plot(curve, label=curve_column_labels[i])
     plt.xlabel("Epoch")
     plt.ylabel("Metric Value")
     plt.yscale("log")
@@ -415,13 +414,14 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    file_idx = 0
+    file_idx = 7
     measurand = "abs"
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")
     tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-    filter_hw = 0.001
+    gen_config : dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.3
+    filter_hw = 0.01
     generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
 
     optimized_window, training_curves = main_optimize(
@@ -444,7 +444,7 @@ if __name__ == "__main__":
     )
 
     # Evaluate using an Evaluator and print log
-    evaluator = AltPaperEvaluator2(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+    evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
     eval_results = evaluator.evaluate()
     print(f"Evaluation Results: {eval_results}")
     print(f"Evaluator log: {evaluator.get_log()}")
