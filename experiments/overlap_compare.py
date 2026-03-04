@@ -35,7 +35,6 @@ def run_overlap_sweep(
     patience: int = 50,
     reg_type: str = "l1",
     reg_weight: float = 0.1,
-    normalize_tof: bool = False,
     output_yaml: Path = Path("./results/overlap_results.yaml"),
 ) -> dict[str, Any]:
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
@@ -49,7 +48,7 @@ def run_overlap_sweep(
                 gen_config: dict[str, Any] = yaml.safe_load(f)
 
             maternal_f = float(gen_config["maternal_f"])
-            fetal_f = maternal_f + float(separation)
+            fetal_f = 2 * maternal_f + float(separation)
             gen_config["fetal_f"] = fetal_f
 
             sep_tag = f"{separation:.3f}".replace(".", "p")
@@ -70,7 +69,6 @@ def run_overlap_sweep(
                 patience=patience,
                 reg_type=reg_type,  # type: ignore
                 reg_weight=reg_weight,
-                normalize_tof=normalize_tof,
                 filter_type=filter_type,  # type: ignore
             )
             experiment.optimize()
@@ -81,10 +79,16 @@ def run_overlap_sweep(
             best_snr = float(training_curves[-1, 1])
             epochs = int(training_curves.shape[0])
 
-            evaluator1 = AltPaperEvaluator2(ppath_file, experiment.window, measurand, gen_config, 0.1)
-            eval_results1 = float(evaluator1.evaluate())
-            evaluator2 = PaperEvaluator(ppath_file, experiment.window, measurand, gen_config, 0.1)
-            eval_results2 = float(evaluator2.evaluate())
+            evaluator1 = AltPaperEvaluator2(ppath_file, experiment.window, measurand, gen_config, 0.01)
+            evaluator1.evaluate()
+            eval_log1 = evaluator1.get_log()
+            eval_results1 = float(eval_log1["final_metric"])
+            # eval_results1 = float(eval_log1["fetal_ac_energy"] / eval_log1["maternal_ac_energy"])
+            evaluator2 = PaperEvaluator(ppath_file, experiment.window, measurand, gen_config, 0.01)
+            evaluator2.evaluate()
+            eval_log2 = evaluator2.get_log()
+            # eval_results2 = float(eval_log2["fetal_ac_energy"] / eval_log2["maternal_ac_amp"] ** 2)
+            eval_results2 = float(eval_log2["final_metric"])
 
             exp_key = f"exp {exp_idx:03d}"
             results[exp_key] = {
@@ -119,7 +123,8 @@ def run_overlap_sweep(
 
 
 if __name__ == "__main__":
-    separations = [0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # Hz
+    # separations = [0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # Hz
+    separations = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]  # Hz
     filter_combos = [
         ("comb", 0.10),
         ("comb", 0.30),
@@ -128,10 +133,11 @@ if __name__ == "__main__":
     ]
 
     run_overlap_sweep(
-        file_idx=7,
+        file_idx=3,
         measurand="abs",
         separations_hz=separations,
         filter_setups=filter_combos,
         output_yaml=Path("./results/overlap_results.yaml"),
-        reg_weight=0.1,
+        reg_weight=0.0001,
+        reg_type='l2'
     )

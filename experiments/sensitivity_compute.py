@@ -17,11 +17,20 @@ import torch.nn as nn
 import yaml
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 
-from joint_tof_opt import (CombSeparator, CompactStatProcess,
-                           EnergyRatioMetric, Evaluator, NoiseCalculator,
-                           PSAFESeparator, ToFData, compute_tof_data_series,
-                           generate_tof, get_named_moment_module,
-                           get_noise_calculator, named_moment_types)
+from joint_tof_opt import (
+    CombSeparator,
+    CompactStatProcess,
+    EnergyRatioMetric,
+    Evaluator,
+    NoiseCalculator,
+    PSAFESeparator,
+    ToFData,
+    compute_tof_data_series,
+    generate_tof,
+    get_named_moment_module,
+    get_noise_calculator,
+    named_moment_types,
+)
 from joint_tof_opt.tof_process import compute_tof_discrete
 
 __all__ = [
@@ -932,6 +941,15 @@ class PaperEvaluator(Evaluator):
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
         fetal_component = self.fetal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
         maternal_component = self.maternal_comb_filter(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
+        # Remove DC component and apply Hamming window
+        fetal_component = fetal_component - fetal_component.mean()
+        maternal_component = maternal_component - maternal_component.mean()
+        hamming_window = torch.hamming_window(
+            len(fetal_component), dtype=fetal_component.dtype, device=fetal_component.device
+        )
+        fetal_component = fetal_component * hamming_window
+        maternal_component = maternal_component * hamming_window
+
         self.fetal_ac_energy = float(torch.sum(fetal_component**2).item())
         self.maternal_ac_energy = float(torch.sum(maternal_component**2).item())
         self.maternal_ac_amp = sqrt(self.maternal_ac_energy)
@@ -1007,9 +1025,10 @@ class AltPaperEvaluator2(PaperEvaluator):
     """
     An alternate version of AltPaperEvaluator that actually generates two time series rather than a 2 points. One series
     contains pure maternal and the other contains pure fetal pulsation. Both are passed through a CombFilter to filter
-    out the respective AC components. 
-    
+    out the respective AC components.
+
     """
+
     def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
     ):
@@ -1035,6 +1054,11 @@ class AltPaperEvaluator2(PaperEvaluator):
         pure_maternal_measurand = self.maternal_comb_filter(pure_maternal_measurand.unsqueeze(0).unsqueeze(0))
         pure_fetal_measurand = pure_fetal_measurand - pure_fetal_measurand.mean()
         pure_fetal_measurand = self.fetal_comb_filter(pure_fetal_measurand.unsqueeze(0).unsqueeze(0))
+        hamming_window = torch.hamming_window(
+            len(pure_fetal_measurand.squeeze()), dtype=pure_fetal_measurand.dtype, device=pure_fetal_measurand.device
+        )
+        pure_maternal_measurand = pure_maternal_measurand.squeeze() * hamming_window
+        pure_fetal_measurand = pure_fetal_measurand.squeeze() * hamming_window
 
         self.maternal_ac_energy = pure_maternal_measurand.square().sum().item()
         self.fetal_ac_energy = pure_fetal_measurand.square().sum().item()
@@ -1051,10 +1075,12 @@ class AltPaperEvaluator2(PaperEvaluator):
             "maternal_ac_amp": self.maternal_ac_amp,
         }
 
+
 class AltPaperEvaluator3(AltPaperEvaluator2):
     """
     Another version of AltPaperEvaluator2 that uses the PSAFE filter instead of the bandpass
     """
+
     def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
     ):
@@ -1064,14 +1090,5 @@ class AltPaperEvaluator3(AltPaperEvaluator2):
         self.maternal_ac_energy = 0.0
         self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
         self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
-        self.fetal_comb_filter = PSAFESeparator(
-            gen_config["sampling_rate"],
-            gen_config["fetal_f"],
-            True
-        )
-        self.maternal_comb_filter = PSAFESeparator(
-            gen_config["sampling_rate"],
-            gen_config["maternal_f"],
-            True
-        )
-        
+        self.fetal_comb_filter = PSAFESeparator(gen_config["sampling_rate"], gen_config["fetal_f"], True)
+        self.maternal_comb_filter = PSAFESeparator(gen_config["sampling_rate"], gen_config["maternal_f"], True)

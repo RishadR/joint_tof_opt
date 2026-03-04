@@ -75,7 +75,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         grad_clip: bool = False,
         reg_type: Literal["l1", "l2"] = "l2",
         reg_weight: float = 1e-4,
-        normalize_tof: bool = False,
+        window_smoothening: bool = True,
         filter_type: Literal[
             "comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"
         ] = "psafe_same_width",
@@ -95,8 +95,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param grad_clip: Whether to apply gradient clipping.
         :param reg_type: Regularization type ("l1" or "l2").
         :param reg_weight: Regularization weight (must be non-negative).
-        :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original
-        counts. Default is False (keep original counts).
+        :param window_smoothening: If true - sets all window weights below 1% of the max weight to 0
+
         :param filter_type: Type of filter to use
          - "comb": Standard sinc comb filter
          - "fourier": Uses the RFFT to manually zero out irrelevant frequencies
@@ -118,21 +118,18 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         if isinstance(measurand, str):
             tof_data = ToFData.from_npz(tof_dataset_path)
-            if normalize_tof:
-                tof_data.tof_series /= torch.sum(tof_data.tof_series, dim=1, keepdim=True)
             measurand = get_named_moment_module(measurand, tof_data)
-            if normalize_tof:
-                measurand.tof_data.tof_series /= torch.sum(measurand.tof_data.tof_series, dim=1, keepdim=True)
+
         super().__init__(tof_dataset_path, measurand, lr)
 
         self.max_epochs = max_epochs
         self.filter_hw = filter_hw
         self.patience = patience
         self.grad_clip = grad_clip
-        self.normalize_tof = normalize_tof
         self.reg_type = reg_type
         self.reg_weight = reg_weight
         self.filter_type = filter_type
+        self.window_smoothening = window_smoothening
 
         if self.reg_type not in ("l1", "l2"):
             raise ValueError(f"Unsupported reg_type: {self.reg_type}. Use 'l1' or 'l2'.")
@@ -155,20 +152,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         # max_index = 1
 
         ## Compute Best Case Windows
-        max_snr_window = torch.zeros(num_bins)
-        max_snr_window[max_index - 1] = 1.0  # Need to subtract 1 because of how we defined the max_index
-        max_selectivity_window = torch.zeros(num_bins)
-        max_selectivity_window[-1] = 1.0
-        windowed_average_tof_frame = average_tof_frame * max_snr_window.reshape(1, -1)
-        self.max_snr = torch.sqrt(torch.sum(windowed_average_tof_frame)).item()
-        temp_compact_stats = self.moment_module(max_selectivity_window)
-        temp_compact_stats = temp_compact_stats - temp_compact_stats.mean()
-        temp_compact_stats_reshaped = temp_compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
-        maternal_filtered_signal = self.maternal_filter(temp_compact_stats_reshaped)
-        fetal_filtered_signal = self.fetal_filter(temp_compact_stats_reshaped)
-        self.max_selectivity = torch.sqrt(
-            torch.sum(fetal_filtered_signal**2) / (torch.sum(maternal_filtered_signal**2))
-        ).item()
+        self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
 
         # max_index = 0
         self.learnable_component_exponents = torch.nn.Parameter(torch.zeros(num_bins - max_index), requires_grad=True)
@@ -217,6 +201,54 @@ class DIGSSOptimizer(OptimizationExperiment):
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
         return torch.exp(win_exp)
 
+    def _compute_max_values(self):
+        """
+        Compute the maximum possible SNR and Selectivity by brute force turning each bin "on" individually.
+        Returns:
+            max_snr: The maximum SNR achieved by any single-bin window
+            max_selectivity: The maximum selectivity achieved by any single-bin window
+            max_snr_index: The index of the bin that achieves the maximum SNR
+            max_selectivity_index: The index of the bin that achieves the maximum selectivity
+        """
+        _, num_bins = self.tof_data.tof_series.shape
+        best_snr = 0.0
+        best_selectivity = 0.0
+        best_snr_index = -1
+        best_selectivity_index = -1
+        for i in range(num_bins):
+            window = torch.zeros(num_bins)
+            window[i] = 1.0
+            windowed_average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False) * window.reshape(1, -1)
+            noise_var = windowed_average_tof_frame.sum()
+            noise_std = torch.sqrt(noise_var)
+            compact_stats = self.moment_module(window)
+            compact_stats = compact_stats - compact_stats.mean()
+            compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)
+            maternal_filtered_signal = self.maternal_filter(compact_stats_reshaped)
+            fetal_filtered_signal = self.fetal_filter(compact_stats_reshaped)
+            fetal_energy = torch.sum(fetal_filtered_signal**2)
+            maternal_energy = torch.sum(maternal_filtered_signal**2)
+            snr = torch.sqrt(fetal_energy) / noise_std
+            selectivity = torch.sqrt(fetal_energy / maternal_energy)
+            if snr > best_snr:
+                best_snr = snr.item()
+                best_snr_index = i
+            if selectivity > best_selectivity:
+                best_selectivity = selectivity.item()
+                best_selectivity_index = i
+        return best_snr, best_selectivity, best_snr_index, best_selectivity_index
+
+    def _smoothen_window(self):
+        """
+        Smoothen the window & window norm by zeroing out values below a certain threshold.
+        """
+        if self.window_smoothening:
+            max_weight = torch.max(self.window)
+            threshold = 0.01 * max_weight
+            self.window = torch.where(self.window < threshold, torch.zeros_like(self.window), self.window)
+            self.window_norm = self._win_norm_func(self.window)
+        
+    
     def optimize(self):
         """
         Perform the optimization loop and populate self.window and self.training_curves.
@@ -261,11 +293,11 @@ class DIGSSOptimizer(OptimizationExperiment):
             snr = snr / float(self.max_snr)
             selectivity = selectivity / float(self.max_selectivity)
             final_metric = selectivity * snr
-        
+
             # Base objective (maximize final_metric)
             loss = -torch.log(final_metric)
+            # loss = -selectivity
 
-            
             self.training_curves[epoch, 0] = selectivity.item()
             self.training_curves[epoch, 1] = snr.item()
             self.training_curves[epoch, 2] = final_metric.item()
@@ -298,13 +330,14 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.training_curves = self.training_curves[: epoch + 1]
 
         # Set the normalized window as final window
+        self._smoothen_window()
         self.window = self.window_norm.detach()
 
     def __str__(self) -> str:
         return (
             f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
             f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience}, grad_clip={self.grad_clip},"
-            f"normalize_tof={self.normalize_tof}, fetal_f={self.fetal_f}), type={self.filter_type}"
+            f"fetal_f={self.fetal_f}), type={self.filter_type}"
         )
 
     def components(self) -> dict[str, nn.Module]:
@@ -400,7 +433,7 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    file_idx = 7
+    file_idx = 6
     measurand = "abs"
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")
@@ -415,9 +448,8 @@ if __name__ == "__main__":
         lr=0.1,
         filter_hw=filter_hw,
         patience=50,
-        reg_type="l1",
-        reg_weight=0.1,
-        normalize_tof=False,
+        reg_type="l2",
+        reg_weight=0.0001,
         filter_type="comb",
     )
     experiment.optimize()
@@ -438,3 +470,5 @@ if __name__ == "__main__":
     eval_results = evaluator.evaluate()
     print(f"Evaluation Results: {eval_results}")
     print(f"Evaluator log: {evaluator.get_log()}")
+    print(f"Max SNR achieved (Single bin): {experiment.max_snr:.4f} at i {experiment.max_snr_index}")
+    print(f"Max Selectivity (Single bin): {experiment.max_selectivity:.4f} at i {experiment.max_selectivity_index}")
