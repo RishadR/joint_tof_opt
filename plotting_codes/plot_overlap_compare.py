@@ -1,93 +1,81 @@
-"""
-Plot Optimized Reward-to-FoM ratio vs separation for DIGSS results.
-"""
-import yaml
-from cycler import cycler
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-import numpy as np
 from pathlib import Path
+from collections import defaultdict
+
+import yaml
+import matplotlib.pyplot as plt
+from cycler import cycler
 
 
-def main():
-    """Generate DIGSS Optimized Reward-to-FoM ratio vs separation plot."""
-    # Load matplotlib configuration
-    config_path = Path(__file__).parent / 'plot_config.yaml'
-    with open(config_path, 'r') as f:
+def _combo_label(filter_type: str, filter_hw: float) -> str:
+    if filter_type == "psafe_same_width":
+        return "TSA"
+    return f"{filter_type} (HW={filter_hw:g})"
+
+
+def plot_overlap_compare(
+    input_yaml: Path = Path("./results/overlap_results.yaml"),
+    output_base: Path = Path("./figures/overlap_compare"),
+) -> None:
+    # Load matplotlib configuration (same implementation as plot_detector_comparison.py)
+    config_path = Path(__file__).parent / "plot_config.yaml"
+    with open(config_path, "r") as f:
         plot_config = yaml.safe_load(f)
-        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
-                         # Turning off line styles - makes it too messy
-                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
-                 cycler(marker=plot_config['plotting']['markers']))
-        plt.rcParams['axes.prop_cycle'] = custom_cycler
-        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
+        custom_cycler = (
+            cycler(color=plot_config["plotting"]["colors"])
+            + cycler(marker=plot_config["plotting"]["markers"])
+        )
+        plt.rcParams["axes.prop_cycle"] = custom_cycler
+        plot_config.pop("plotting", None)
         plt.rcParams.update(plot_config)
 
-    # Load overlap comparison results
-    results_path = Path(__file__).parent.parent / 'results' / 'overlap_comparison_results.yaml'
-    with open(results_path, 'r') as f:
-        results = yaml.safe_load(f)
+    with open(input_yaml, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
 
-    digss_data = {
-        'ratio': [],
-        'separations': []
-    }
+    grouped_s1 = defaultdict(list)
+    grouped_s2 = defaultdict(list)
 
-    for _, exp_data in results.items():
-        if not isinstance(exp_data, dict):
-            continue
-        
-        separation = round(float(exp_data.get('Separation_Hz', 0.0)), 1)
-        fom = exp_data.get('Optimized_Sensitivity1')
-        reward = exp_data.get('Optimized_Sensitivity2')
-        optimizer = exp_data.get('Optimizer', '')
+    for _, entry in data.items():
+        sep = float(entry["Separation_Hz"])
+        hw = float(entry["Filter_HW"])
+        ftype = str(entry["Filter_Type"])
+        s1 = float(entry["Sensitivity1"])
+        # s2 = float(entry["Sensitivity2"])
+        # s2 = float(entry["Optimizer Best Metric"])
+        # s2 = float(entry["Optimizer Best Selectivity"])
+        s2 = float(entry["Optimizer Best SNR"])
+        grouped_s1[(ftype, hw)].append((sep, s1))
+        grouped_s2[(ftype, hw)].append((sep, s2))
 
-        if fom is None or reward is None or separation is None:
-            continue
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True, sharey=False)
 
-        if fom == 0:
-            continue
+    for (ftype, hw) in sorted(grouped_s1.keys(), key=lambda k: (k[0], k[1])):
+        label = _combo_label(ftype, hw)
 
-        if str(optimizer).startswith('DIGSSOptimizer'):
-            digss_data['ratio'].append(reward / fom)
-            digss_data['separations'].append(separation)
+        points1 = sorted(grouped_s1[(ftype, hw)], key=lambda t: t[0])
+        x1 = [p[0] for p in points1]
+        y1 = [p[1] for p in points1]
+        axes[0].plot(x1, y1, linewidth=2, markersize=8, label=label)
 
-    if digss_data['ratio']:
-        sorted_indices = np.argsort(digss_data['separations'])
-        digss_data['ratio'] = np.array(digss_data['ratio'])[sorted_indices].tolist()
-        digss_data['separations'] = np.array(digss_data['separations'])[sorted_indices].tolist()
+        points2 = sorted(grouped_s2[(ftype, hw)], key=lambda t: t[0])
+        x2 = [p[0] for p in points2]
+        y2 = [p[1] for p in points2]
+        axes[1].plot(x2, y2, linewidth=2, markersize=8, label=label)
 
-    # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    axes[0].set_xlabel("Fetal & Maternal Heart Rate Separation (Hz)")
+    axes[0].set_ylabel("Figure of Merit(FoM)")
+    axes[0].legend(title="Filter Setup")
+    axes[0].grid(True, alpha=0.3)
 
-    # Plot DIGSS points
-    if digss_data['ratio']:
-        ax.scatter(
-            digss_data['separations'],
-            digss_data['ratio'],
-            s=50,
-        )
+    axes[1].set_xlabel("Fetal & Maternal Heart Rate Separation (Hz)")
+    axes[1].set_ylabel("Reward Metric")
+    axes[1].legend(title="Filter Setup")
+    axes[1].grid(True, alpha=0.3)
 
-    ax.axhline(1.0, linestyle='--', linewidth=1.2)
-
-    # Configure axes
-    ax.set_xlabel('Separation (Hz)')
-    ax.set_ylabel('Optimized Reward / FoM')
-    # ax.set_yscale('log')
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.grid(True, which='major', alpha=0.3)
-    ax.grid(True, which='minor', alpha=0.15)
-
-    # Save figure
-    figures_dir = Path(__file__).parent.parent / 'figures'
-    figures_dir.mkdir(exist_ok=True)
-
-    fig.savefig(figures_dir / 'overlap_comparison.pdf', format='pdf')
-    fig.savefig(figures_dir / 'overlap_comparison.svg', format='svg')
-
-    print(f"Overlap comparison plots saved to {figures_dir}")
+    output_base.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(output_base.with_suffix(".pdf"), format="pdf")
+    fig.savefig(output_base.with_suffix(".svg"), format="svg")
 
 
 if __name__ == "__main__":
-    main()
+    plot_overlap_compare()

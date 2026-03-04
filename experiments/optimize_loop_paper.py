@@ -73,7 +73,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         filter_hw: float = 0.3,
         patience: int = 20,
         grad_clip: bool = False,
-        l2_reg: float = 1e-4,
+        reg_type: Literal["l1", "l2"] = "l2",
+        reg_weight: float = 1e-4,
         normalize_tof: bool = False,
         filter_type: Literal[
             "comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"
@@ -92,7 +93,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param filter_hw: Half width of the sinc comb filter (in Hz).
         :param patience: Number of epochs to wait for improvement before early stopping.
         :param grad_clip: Whether to apply gradient clipping.
-        :param l2_reg: L2 regularization weight.
+        :param reg_type: Regularization type ("l1" or "l2").
+        :param reg_weight: Regularization weight (must be non-negative).
         :param normalize_tof: Whether to convert tof series into a probability density (Sums to 1) or keep original
         counts. Default is False (keep original counts).
         :param filter_type: Type of filter to use
@@ -128,8 +130,14 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.patience = patience
         self.grad_clip = grad_clip
         self.normalize_tof = normalize_tof
-        self.l2_reg = l2_reg
+        self.reg_type = reg_type
+        self.reg_weight = reg_weight
         self.filter_type = filter_type
+
+        if self.reg_type not in ("l1", "l2"):
+            raise ValueError(f"Unsupported reg_type: {self.reg_type}. Use 'l1' or 'l2'.")
+        if self.reg_weight < 0:
+            raise ValueError("reg_weight must be non-negative.")
 
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
@@ -138,15 +146,17 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.maternal_f = self.tof_data.meta_data["maternal_f"]
         _, num_bins = self.tof_data.tof_series.shape
         self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
+        self.training_curves: np.ndarray = np.zeros((self.max_epochs, 3))
 
         # Compute the Average ToF Frame
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
         ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
         max_index = int(torch.argmax(average_tof_frame).item()) + 1
+        # max_index = 1
 
         ## Compute Best Case Windows
         max_snr_window = torch.zeros(num_bins)
-        max_snr_window[max_index - 1] = 1.0 # Need to subtract 1 because of how we defined the max_index
+        max_snr_window[max_index - 1] = 1.0  # Need to subtract 1 because of how we defined the max_index
         max_selectivity_window = torch.zeros(num_bins)
         max_selectivity_window[-1] = 1.0
         windowed_average_tof_frame = average_tof_frame * max_snr_window.reshape(1, -1)
@@ -172,7 +182,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.window_norm = self._win_norm_func(self.window)
 
         # Set training curve labels
-        self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+        self.training_curve_labels = ["Normalized Selectivity", "Normalized SNR", "Final Metric"]
 
     def _get_filters(self, filter_type: str):
         filter_len = int(2 * self.sampling_rate / self.fetal_f)  # Ensure at least 2 periods are captured
@@ -205,21 +215,21 @@ class DIGSSOptimizer(OptimizationExperiment):
 
     @staticmethod
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
-        # return torch.sigmoid(win_exp)
-        # return torch.clamp(torch.relu(win_exp), min=1e-9, max=1.0)
         return torch.exp(win_exp)
 
     def optimize(self):
         """
         Perform the optimization loop and populate self.window and self.training_curves.
         """
-        # Prep for optimization loop
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam([self.learnable_component_exponents], lr=self.lr, weight_decay=self.l2_reg)
-        self.training_curves = np.zeros((self.max_epochs, 3))
+        optimizer = optim.Adam(
+            [self.learnable_component_exponents],
+            lr=self.lr,
+            weight_decay=self.reg_weight if self.reg_type == "l2" else 0.0,
+        )
+        print(f"[DIGSSOptimizer] Using {self.reg_type.upper()} regularization (weight={self.reg_weight:g})")
 
-        # Optimization Loop
         epoch = 0
         for epoch in range(self.max_epochs):
             optimizer.zero_grad()
@@ -251,21 +261,25 @@ class DIGSSOptimizer(OptimizationExperiment):
             snr = snr / float(self.max_snr)
             selectivity = selectivity / float(self.max_selectivity)
             final_metric = selectivity * snr
+        
+            # Base objective (maximize final_metric)
+            loss = -torch.log(final_metric)
 
-            # Log metrics
-            self.training_curves[epoch, 0] = snr.item()
-            self.training_curves[epoch, 1] = selectivity.item()
+            
+            self.training_curves[epoch, 0] = selectivity.item()
+            self.training_curves[epoch, 1] = snr.item()
             self.training_curves[epoch, 2] = final_metric.item()
 
-            # Backpropagation
-            ## Divisions and Products are very unstable - Use Logarithms
-            ## Also, we want to maximize the final metric, so minimize negative final metric
-            # loss = -(torch.log(fetal_energy) - 0.5 * torch.log(maternal_energy) - torch.log(baseline_noise_std))
-            loss = -torch.log(final_metric)
-            # loss = - (torch.log(fetal_energy * 3.0) - 0.5 * torch.log(maternal_energy*9) - torch.log(baseline_noise_std))
+            # L1 regularization (L2 is already in Adam weight_decay)
+            if self.reg_type == "l1" and self.reg_weight > 0:
+                loss = loss + self.reg_weight * torch.sum(torch.abs(self.learnable_component_exponents))
+
+            optimizer.zero_grad()
             loss.backward()
+
             if self.grad_clip:
                 torch.nn.utils.clip_grad_norm_([self.learnable_component_exponents], max_norm=1.0)
+
             optimizer.step()
 
             # Early stopping check
@@ -300,35 +314,6 @@ class DIGSSOptimizer(OptimizationExperiment):
             "fetal_comb_filter": self.fetal_filter,
             "maternal_comb_filter": self.maternal_filter,
         }
-
-
-# Functional Interface
-def main_optimize(
-    tof_dataset_path: Path,
-    measurand: str | CompactStatProcess,
-    noise_calc: None | NoiseCalculator = None,
-    max_epochs: int = 2000,
-    lr: float = 0.01,
-    l2_reg: float = 1e-4,
-    filter_hw: float = 0.3,
-    patience: int = 50,
-    normalize_tof: bool = False,
-    filter_type: str = "psafe_same_width",
-) -> tuple[torch.Tensor, np.ndarray]:
-    optimizer = DIGSSOptimizer(
-        tof_dataset_path=tof_dataset_path,
-        measurand=measurand,
-        noise_calc=noise_calc,
-        max_epochs=max_epochs,
-        lr=lr,
-        l2_reg=l2_reg,
-        filter_hw=filter_hw,
-        patience=patience,
-        normalize_tof=normalize_tof,
-        filter_type=filter_type,    # type: ignore
-    )
-    optimizer.optimize()
-    return optimizer.window.detach(), optimizer.training_curves
 
 
 def plot_training_curves_and_window(
@@ -375,7 +360,8 @@ def plot_training_curves_and_window(
     with open(config_path, "r") as f:
         plot_config = yaml.safe_load(f)
         custom_cycler = (
-            cycler(color=plot_config["plotting"]["colors"]) +
+            cycler(color=plot_config["plotting"]["colors"])
+            +
             #  cycler(linestyle=plot_config['plotting']['line_styles']) +
             cycler(marker=plot_config["plotting"]["markers"])
         )
@@ -419,20 +405,24 @@ if __name__ == "__main__":
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")
     tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    gen_config : dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-    gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.3
-    filter_hw = 0.01
+    gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.7
+    filter_hw = 0.1
     generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
-
-    optimized_window, training_curves = main_optimize(
+    experiment = DIGSSOptimizer(
         tof_dataset_path=tof_dataset_path,
         measurand=measurand,
-        max_epochs=2000,
-        lr=0.01,
+        lr=0.1,
         filter_hw=filter_hw,
-        patience=100,
+        patience=50,
+        reg_type="l1",
+        reg_weight=0.1,
         normalize_tof=False,
+        filter_type="comb",
     )
+    experiment.optimize()
+    optimized_window = experiment.window
+    training_curves = experiment.training_curves
     print("Optimized Window:", optimized_window.numpy())
     print("Best Final Metric:", training_curves[-1, 2])
     print("Total Epochs:", training_curves.shape[0])
