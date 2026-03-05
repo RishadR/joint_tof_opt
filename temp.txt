@@ -1,0 +1,107 @@
+2026-03-05 02:20:58,372 | INFO | __main__ | Running optimization loop for file: 0000.npz | Measurand: abs
+2026-03-05 02:20:58,600 | INFO | __main__ | Best Product : 0.6802 at index 5
+2026-03-05 02:21:00,620 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:01,063 | INFO | __main__ | Early stopping at epoch 165
+2026-03-05 02:21:01,064 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+2026-03-05 02:21:01,064 | INFO | __main__ | Best Selectivity: 0.9830415844917297
+2026-03-05 02:21:01,065 | INFO | __main__ | Best SNR: 0.07837111502885818
+2026-03-05 02:21:01,065 | INFO | __main__ | Best Final Metric: 0.07704206556081772
+2026-03-05 02:21:01,065 | INFO | __main__ | Total Epochs: 165
+2026-03-05 02:21:03,024 | INFO | __main__ | Evaluation Results: 0.13790840500863835
+2026-03-05 02:21:03,025 | INFO | __main__ | Evaluator log: {'final_metric': 0.13790840500863835, 'fetal_ac_energy': 0.010015884414315224, 'maternal_ac_energy': 0.001930488389916718, 'baseline_noise_std': 1.6529699992038036, 'maternal_ac_amp': 0.043937323426862476}
+2026-03-05 02:21:03,025 | INFO | __main__ | Max SNR(SB): 0.3933 at i 0
+2026-03-05 02:21:03,025 | INFO | __main__ | Max Selectivity(SB): 1.8213 at i 14
+2026-03-05 02:21:03,025 | INFO | __main__ | Running optimization loop for file: 0001.npz | Measurand: abs
+2026-03-05 02:21:03,249 | INFO | __main__ | Best Product : 0.5047 at index 16
+2026-03-05 02:21:03,249 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:03,715 | INFO | __main__ | Early stopping at epoch 182
+2026-03-05 02:21:03,715 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0.]
+2026-03-05 02:21:03,715 | INFO | __main__ | Best Selectivity: 0.7703353762626648
+2026-03-05 02:21:03,715 | INFO | __main__ | Best SNR: 0.07219401746988297
+2026-03-05 02:21:03,715 | INFO | __main__ | Best Final Metric: 0.05561360716819763
+2026-03-05 02:21:03,716 | INFO | __main__ | Total Epochs: 182
+2026-03-05 02:21:05,182 | INFO | __main__ | Evaluation Results: 0.09700390411653656
+2026-03-05 02:21:05,182 | INFO | __main__ | Evaluator log: {'final_metric': 0.09700390411653656, 'fetal_ac_energy': 0.004573176149278879, 'maternal_ac_energy': 0.0013204219285398722, 'baseline_noise_std': 1.2973953949467998, 'maternal_ac_amp': 0.03633761038565789}
+2026-03-05 02:21:05,182 | INFO | __main__ | Max SNR(SB): 0.3678 at i 2
+2026-03-05 02:21:05,182 | INFO | __main__ | Max Selectivity(SB): 2.0005 at i 18
+2026-03-05 02:21:05,182 | INFO | __main__ | Running optimization loop for file: 0002.npz | Measurand: abs
+2026-03-05 02:21:05,415 | INFO | __main__ | Best Product : 0.5050 at index 17
+2026-03-05 02:21:05,416 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:05,754 | INFO | __main__ | Early stopping at epoch 146
+2026-03-05 02:21:05,754 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0.]
+2026-03-05 02:21:05,755 | INFO | __main__ | Best Selectivity: 0.8193159103393555
+2026-03-05 02:21:05,755 | INFO | __main__ | Best SNR: 0.0571201853454113
+2026-03-05 02:21:05,755 | INFO | __main__ | Best Final Metric: 0.04679947718977928
+2026-03-05 02:21:05,755 | INFO | __main__ | Total Epochs: 146
+2026-03-05 02:21:07,199 | INFO | __main__ | Evaluation Results: 0.14066553613088628
+2026-03-05 02:21:07,199 | INFO | __main__ | Evaluator log: {'final_metric': 0.14066553613088628, 'fetal_ac_energy': 0.0003760045801755041, 'maternal_ac_energy': 1.841431367211044e-05, 'baseline_noise_std': 0.62291338216964, 'maternal_ac_amp': 0.004291190239561798}
+2026-03-05 02:21:07,199 | INFO | __main__ | Max SNR(SB): 0.2773 at i 6
+2026-03-05 02:21:07,199 | INFO | __main__ | Max Selectivity(SB): 3.1518 at i 18
+2026-03-05 02:21:07,199 | INFO | __main__ | Running optimization loop for file: 0003.npz | Measurand: abs
+2026-03-05 02:21:07,440 | INFO | __main__ | Best Product : 0.2715 at index 9
+2026-03-05 02:21:07,440 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:07,734 | INFO | __main__ | Early stopping at epoch 127
+2026-03-05 02:21:07,735 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+2026-03-05 02:21:07,735 | INFO | __main__ | Best Selectivity: 0.9003825783729553
+2026-03-05 02:21:07,735 | INFO | __main__ | Best SNR: 0.08104792982339859
+2026-03-05 02:21:07,735 | INFO | __main__ | Best Final Metric: 0.07297414541244507
+2026-03-05 02:21:07,735 | INFO | __main__ | Total Epochs: 127
+2026-03-05 02:21:09,202 | INFO | __main__ | Evaluation Results: 0.05152993044920864
+2026-03-05 02:21:09,203 | INFO | __main__ | Evaluator log: {'final_metric': 0.05152993044920864, 'fetal_ac_energy': 0.001429160707630217, 'maternal_ac_energy': 0.00046171603025868535, 'baseline_noise_std': 1.2907259294333167, 'maternal_ac_amp': 0.021487578510820744}
+2026-03-05 02:21:09,203 | INFO | __main__ | Max SNR(SB): 0.1836 at i 9
+2026-03-05 02:21:09,203 | INFO | __main__ | Max Selectivity(SB): 1.6368 at i 19
+2026-03-05 02:21:09,203 | INFO | __main__ | Running optimization loop for file: 0004.npz | Measurand: abs
+2026-03-05 02:21:09,447 | INFO | __main__ | Best Product : 0.3521 at index 9
+2026-03-05 02:21:09,448 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:09,843 | INFO | __main__ | Early stopping at epoch 170
+2026-03-05 02:21:09,843 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+2026-03-05 02:21:09,844 | INFO | __main__ | Best Selectivity: 0.9973923563957214
+2026-03-05 02:21:09,844 | INFO | __main__ | Best SNR: 0.05545748025178909
+2026-03-05 02:21:09,844 | INFO | __main__ | Best Final Metric: 0.0553128682076931
+2026-03-05 02:21:09,844 | INFO | __main__ | Total Epochs: 170
+2026-03-05 02:21:11,284 | INFO | __main__ | Evaluation Results: 0.09590385634471323
+2026-03-05 02:21:11,284 | INFO | __main__ | Evaluator log: {'final_metric': 0.09590385634471323, 'fetal_ac_energy': 9.717663488117978e-05, 'maternal_ac_energy': 5.090490049042273e-06, 'baseline_noise_std': 0.4491030336694178, 'maternal_ac_amp': 0.0022562114371313417}
+2026-03-05 02:21:11,284 | INFO | __main__ | Max SNR(SB): 0.2014 at i 3
+2026-03-05 02:21:11,285 | INFO | __main__ | Max Selectivity(SB): 2.5634 at i 9
+2026-03-05 02:21:11,285 | INFO | __main__ | Running optimization loop for file: 0005.npz | Measurand: abs
+2026-03-05 02:21:11,532 | INFO | __main__ | Best Product : 0.1158 at index 7
+2026-03-05 02:21:11,533 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:11,870 | INFO | __main__ | Early stopping at epoch 139
+2026-03-05 02:21:11,871 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+2026-03-05 02:21:11,871 | INFO | __main__ | Best Selectivity: 0.9961250424385071
+2026-03-05 02:21:11,871 | INFO | __main__ | Best SNR: 0.08108575642108917
+2026-03-05 02:21:11,871 | INFO | __main__ | Best Final Metric: 0.0807715505361557
+2026-03-05 02:21:11,872 | INFO | __main__ | Total Epochs: 139
+2026-03-05 02:21:13,388 | INFO | __main__ | Evaluation Results: 0.03300973622291773
+2026-03-05 02:21:13,388 | INFO | __main__ | Evaluator log: {'final_metric': 0.03300973622291773, 'fetal_ac_energy': 4.893329332844587e-07, 'maternal_ac_energy': 2.2253669129668197e-08, 'baseline_noise_std': 0.09937143892229533, 'maternal_ac_amp': 0.00014917663734535712}
+2026-03-05 02:21:13,388 | INFO | __main__ | Max SNR(SB): 0.0441 at i 7
+2026-03-05 02:21:13,388 | INFO | __main__ | Max Selectivity(SB): 2.6286 at i 7
+2026-03-05 02:21:13,388 | INFO | __main__ | Running optimization loop for file: 0006.npz | Measurand: abs
+2026-03-05 02:21:13,654 | INFO | __main__ | Best Product : 0.1006 at index 3
+2026-03-05 02:21:13,654 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:14,104 | INFO | __main__ | Early stopping at epoch 188
+2026-03-05 02:21:14,104 | INFO | __main__ | Optimized Window: [0.         0.         0.         0.95971304 0.         0.
+ 0.04028695 0.         0.         0.         0.         0.
+ 0.         0.         0.         0.         0.         0.
+ 0.         0.        ]
+2026-03-05 02:21:14,105 | INFO | __main__ | Best Selectivity: 0.6832509636878967
+2026-03-05 02:21:14,105 | INFO | __main__ | Best SNR: 0.08070268481969833
+2026-03-05 02:21:14,105 | INFO | __main__ | Best Final Metric: 0.055140186101198196
+2026-03-05 02:21:14,105 | INFO | __main__ | Total Epochs: 188
+2026-03-05 02:21:15,654 | INFO | __main__ | Evaluation Results: 0.019978219044279863
+2026-03-05 02:21:15,655 | INFO | __main__ | Evaluator log: {'final_metric': 0.019978219044279863, 'fetal_ac_energy': 6.497244612546638e-06, 'maternal_ac_energy': 1.4029797057446558e-06, 'baseline_noise_std': 0.27456599743510934, 'maternal_ac_amp': 0.001184474442841489}
+2026-03-05 02:21:15,655 | INFO | __main__ | Max SNR(SB): 0.0584 at i 3
+2026-03-05 02:21:15,655 | INFO | __main__ | Max Selectivity(SB): 2.5176 at i 12
+2026-03-05 02:21:15,655 | INFO | __main__ | Running optimization loop for file: 0007.npz | Measurand: abs
+2026-03-05 02:21:15,907 | INFO | __main__ | Best Product : 0.0273 at index 15
+2026-03-05 02:21:15,907 | INFO | __main__ | [DIGSSOptimizer] Using L2 regularization (weight=0)
+2026-03-05 02:21:16,228 | INFO | __main__ | Early stopping at epoch 134
+2026-03-05 02:21:16,229 | INFO | __main__ | Optimized Window: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+2026-03-05 02:21:16,230 | INFO | __main__ | Best Selectivity: 0.15001915395259857
+2026-03-05 02:21:16,230 | INFO | __main__ | Best SNR: 0.0809517651796341
+2026-03-05 02:21:16,230 | INFO | __main__ | Best Final Metric: 0.012144315056502819
+2026-03-05 02:21:16,230 | INFO | __main__ | Total Epochs: 134
+2026-03-05 02:21:17,723 | INFO | __main__ | Evaluation Results: 0.0016897293725048424
+2026-03-05 02:21:17,723 | INFO | __main__ | Evaluator log: {'final_metric': 0.0016897293725048424, 'fetal_ac_energy': 7.592752808704972e-07, 'maternal_ac_energy': 3.0328410502988845e-06, 'baseline_noise_std': 0.2580223241128207, 'maternal_ac_amp': 0.0017415053977231552}
+2026-03-05 02:21:17,724 | INFO | __main__ | Max SNR(SB): 0.0218 at i 10
+2026-03-05 02:21:17,724 | INFO | __main__ | Max Selectivity(SB): 3.1977 at i 15

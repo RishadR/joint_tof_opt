@@ -1,33 +1,15 @@
 """
 Plot a sample time-of-flight (TOF) spectrum using matplotlib.
 """
+
 from typing import Literal
 import numpy as np
 import matplotlib.pyplot as plt
 import yaml
 from pathlib import Path
-import re
 from scipy.interpolate import UnivariateSpline
 from joint_tof_opt.tof_batch_process import compute_tof_data_series, ToFData
-
-
-def load_plot_config():
-    """Load matplotlib configuration from YAML file."""
-    config_path = "./plotting_codes/plot_config.yaml"
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    return config
-
-
-def get_color_cycle(config) -> list[str]:
-    # Extract colors from the prop_cycle
-    colors_str = config["axes.prop_cycle"]
-    # Parse the cycler string to extract hex colors
-    colors = [color.strip("'\"") for color in colors_str.split("color")[1].split("[")[1].split("]")[0].split(",")]
-    colors = [c.strip() for c in colors]
-    # Add '#' prefix to make them valid hex colors for matplotlib
-    colors = ['#' + c if not c.startswith('#') else c for c in colors]
-    return colors
+from joint_tof_opt.plotting import load_plot_config
 
 
 def load_gen_config():
@@ -49,14 +31,14 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
         Type of plot: 'distribution' or 'density'
     """
     gen_config = load_gen_config()
-    gen_config["datapoint_count"] = 2  # Only generate 2 ToFs for quick loading
+    gen_config["datapoint_count"] = 10  # Only generate 10 ToFs for quick loading
 
     # Load data
-    tof_data = compute_tof_data_series(ppath, gen_config, True, True)
+    tof_data = compute_tof_data_series(ppath, gen_config, False, False)
 
     # Get first row (first time point)
-    tof_histogram = tof_data.tof_series.numpy()[0, :]
-
+    tof_histogram = tof_data.tof_series.numpy()
+    tof_histogram = np.mean(tof_histogram, axis=0)
     # Convert from seconds to nanoseconds
     bin_edges_ns = tof_data.bin_edges.numpy() * 1e9
 
@@ -75,23 +57,25 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
         # Distribution: raw counts
         y_values = tof_histogram
         ylabel = "Count"
-    
+
     # Create smooth interpolated curve
     spline = UnivariateSpline(bin_centers, y_values, s=0.5, k=3)
     x_smooth = np.linspace(bin_centers[0], bin_centers[-1], 300)
     y_smooth = spline(x_smooth)
 
     # Load plot configuration
-    plot_config = load_plot_config()
+    load_plot_config()
 
     # Apply rcParams
-    plt.rcParams.update(plot_config)
+    load_plot_config()
     # Get first color from the color cycle
-    bar_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][0]
-    line_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][1]
+    bar_color = plt.rcParams["axes.prop_cycle"].by_key()["color"][0]
+    line_color = plt.rcParams["axes.prop_cycle"].by_key()["color"][1]
 
     # Create figure
     fig, ax = plt.subplots(figsize=(4, 3))
+    ax.grid(True)
+    plt.gca().set_axisbelow(True)
 
     # Plot bars with black edge
     ax.bar(
@@ -101,24 +85,17 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
         color=bar_color,
         edgecolor="black",
         linewidth=0.5,
-        alpha=0.7,
         label="Histogram",
     )
 
     # Plot smooth line connecting bar centers
-    ax.plot(
-        x_smooth,
-        y_smooth,
-        color=line_color,
-        linewidth=2,
-    )
+    # ax.plot(x_smooth, y_smooth, color=line_color, linewidth=1.5, marker="")
 
     # Labels and title
     ax.set_xlabel("Time of Flight (ns)")
     ax.set_ylabel(ylabel)
     ax.set_title("Distribution Time-of-Flight (DTOF)")
     # ax.legend()
-    ax.grid(True, alpha=0.1)
 
     # Create output directory if it doesn't exist
     output_dir = Path("./figures/")
@@ -138,7 +115,7 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     plt.close()
 
 
-def main(data_path=Path("data/experiment_0000.npz"), plot_type: Literal["distribution", "density"]="distribution"):
+def main(data_path=Path("data/experiment_0000.npz"), plot_type: Literal["distribution", "density"] = "distribution"):
     """Main function to run the plotting script.
 
     Parameters:

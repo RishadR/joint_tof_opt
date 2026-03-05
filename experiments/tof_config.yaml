@@ -19,7 +19,7 @@ epi_thickness_mm: 2 # Epidermis thickness in mm - does not affect optical proper
 derm_thickness_mm: 4 # Dermis thickness in mm - does not affect optical properties - can be ignored
 
 # Data selection
-selected_sdd_index: 5 # Source-detector distance index
+selected_sdd_index: 3 # Source-detector distance index
 
 # Histogram parameters
 bin_count: 20

@@ -29,14 +29,18 @@ the window energy.
 import yaml
 import numpy as np
 import torch
-from cycler import cycler
 import torch.nn as nn
+import logging
+from cycler import cycler
 import torch.optim as optim
 from typing import Callable, Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
 from joint_tof_opt import *
 from sensitivity_compute import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class DIGSSOptimizer(OptimizationExperiment):
@@ -109,7 +113,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             if measurand not in named_moment_types:
                 raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
             if noise_calc is not None:
-                print("Warning: noise_calc is ignored since a predefined measurand string is given")
+                logger.warning("noise_calc is ignored since a predefined measurand string is given")
             self.noise_calc = get_noise_calculator(measurand)
         else:
             if noise_calc is None:
@@ -149,6 +153,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
         ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
         max_index = int(torch.argmax(average_tof_frame).item()) + 1
+        max_index = 0  # Ablation - Learnable parameters across the entire window
         # max_index = 1
 
         ## Compute Best Case Windows
@@ -213,6 +218,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         _, num_bins = self.tof_data.tof_series.shape
         best_snr = 0.0
         best_selectivity = 0.0
+        best_product = 0.0
+        best_product_index = -1
         best_snr_index = -1
         best_selectivity_index = -1
         for i in range(num_bins):
@@ -236,6 +243,10 @@ class DIGSSOptimizer(OptimizationExperiment):
             if selectivity > best_selectivity:
                 best_selectivity = selectivity.item()
                 best_selectivity_index = i
+            if snr * selectivity > best_product:
+                best_product = (snr * selectivity).item()
+                best_product_index = i
+        logger.info("Best Product : %.4f at index %d", best_product, best_product_index)
         return best_snr, best_selectivity, best_snr_index, best_selectivity_index
 
     def _smoothen_window(self):
@@ -247,8 +258,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             threshold = 0.01 * max_weight
             self.window = torch.where(self.window < threshold, torch.zeros_like(self.window), self.window)
             self.window_norm = self._win_norm_func(self.window)
-        
-    
+
     def optimize(self):
         """
         Perform the optimization loop and populate self.window and self.training_curves.
@@ -260,7 +270,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             lr=self.lr,
             weight_decay=self.reg_weight if self.reg_type == "l2" else 0.0,
         )
-        print(f"[DIGSSOptimizer] Using {self.reg_type.upper()} regularization (weight={self.reg_weight:g})")
+        logger.info("[DIGSSOptimizer] Using %s regularization (weight=%g)", self.reg_type.upper(), self.reg_weight)
 
         epoch = 0
         for epoch in range(self.max_epochs):
@@ -321,7 +331,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             else:
                 epochs_no_improve += 1
                 if epochs_no_improve >= self.patience:
-                    print(f"Early stopping at epoch {epoch + 1}")
+                    logger.info("Early stopping at epoch %d", epoch + 1)
                     self.training_curves = self.training_curves[: epoch + 1]
                     break
 
@@ -433,42 +443,53 @@ def plot_training_curves_and_window(
 
 
 if __name__ == "__main__":
-    file_idx = 6
-    measurand = "abs"
-    ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
-    print(f"Running optimization loop for file: {file_idx:04d}.npz | Measurand: {measurand}")
-    tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-    gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.7
-    filter_hw = 0.1
-    generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
-    experiment = DIGSSOptimizer(
-        tof_dataset_path=tof_dataset_path,
-        measurand=measurand,
-        lr=0.1,
-        filter_hw=filter_hw,
-        patience=50,
-        reg_type="l2",
-        reg_weight=0.0001,
-        filter_type="comb",
-    )
-    experiment.optimize()
-    optimized_window = experiment.window
-    training_curves = experiment.training_curves
-    print("Optimized Window:", optimized_window.numpy())
-    print("Best Final Metric:", training_curves[-1, 2])
-    print("Total Epochs:", training_curves.shape[0])
-    loss_names = ["Fetal Energy", "Noise x Maternal Amp", "Final Metric"]
-    bin_edges = np.load(tof_dataset_path)["bin_edges"]
-    print(training_curves[::50, :])
-    plot_training_curves_and_window(
-        training_curves, loss_names, optimized_window, bin_edges, normalize_curves=False, grid=True
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
-    # Evaluate using an Evaluator and print log
-    evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
-    eval_results = evaluator.evaluate()
-    print(f"Evaluation Results: {eval_results}")
-    print(f"Evaluator log: {evaluator.get_log()}")
-    print(f"Max SNR achieved (Single bin): {experiment.max_snr:.4f} at i {experiment.max_snr_index}")
-    print(f"Max Selectivity (Single bin): {experiment.max_selectivity:.4f} at i {experiment.max_selectivity_index}")
+    # file_idx = 7
+    for file_idx in range(8):
+        measurand = "abs"
+        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
+        logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
+        tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
+        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.7
+        filter_hw = 0.1
+        generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
+        experiment = DIGSSOptimizer(
+            tof_dataset_path=tof_dataset_path,
+            measurand=measurand,
+            lr=0.1,
+            filter_hw=filter_hw,
+            patience=50,
+            reg_type="l2",
+            reg_weight=0.0000,
+            filter_type="comb",
+        )
+        experiment.optimize()
+
+        # Temp - Test with this window
+        # optimzied_window = torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.])
+
+        optimized_window = experiment.window  # type: ignore
+        result_curves = experiment.training_curves
+        logger.info("Optimized Window: %s", optimized_window.numpy())
+        logger.info("Best Selectivity: %s", result_curves[-1, 0])
+        logger.info("Best SNR: %s", result_curves[-1, 1])
+        logger.info("Best Final Metric: %s", result_curves[-1, 2])
+        logger.info("Total Epochs: %s", result_curves.shape[0])
+        loss_names = experiment.training_curve_labels
+        bin_edges = np.load(tof_dataset_path)["bin_edges"]
+        # logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])
+        plot_training_curves_and_window(result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False)
+
+        # Evaluate using an Evaluator and print log
+        evaluator = AltPaperEvaluator2(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+        eval_results = evaluator.evaluate()
+        logger.info("Evaluation Results: %s", eval_results)
+        logger.info("Evaluator log: %s", evaluator.get_log())
+        logger.info("Max SNR(SB): %.4f at i %d", experiment.max_snr, experiment.max_snr_index)
+        logger.info("Max Selectivity(SB): %.4f at i %d", experiment.max_selectivity, experiment.max_selectivity_index)
+        
+        # Clean up
+        tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
+        
