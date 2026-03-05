@@ -1,125 +1,99 @@
-#!/usr/bin/env python3
-"""
-Plot Optimized Sensitivity vs. Frequency Separation for DIGSSOptimizer.
-Compares different filter_hw values at a fixed fetal depth.
-"""
+from pathlib import Path
+from collections import defaultdict
 
 import yaml
 import matplotlib.pyplot as plt
-import numpy as np
-import re
-from pathlib import Path
 from cycler import cycler
 
 
-def main(target_depth: int = 6):
-    """Generate filter halfwidth comparison plot."""
-    # Load matplotlib configuration
-    config_path = Path(__file__).parent / 'plot_config.yaml'
-    with open(config_path, 'r') as f:
+def _combo_label(filter_type: str, filter_hw: float) -> str:
+    if filter_type == "psafe_same_width":
+        return "TSA"
+    return f"{filter_type} (HW={filter_hw:g})"
+
+
+def main(
+    input_yaml: Path = Path("./results/overlap_results2.yaml"),
+    output_base: Path = Path("./figures/overlap_compare2"),
+) -> None:
+    # Load matplotlib configuration (same implementation as plot_detector_comparison.py)
+    config_path = Path(__file__).parent / "plot_config.yaml"
+    with open(config_path, "r") as f:
         plot_config = yaml.safe_load(f)
-        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
-                         # Turning off line styles - makes it too messy
-                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
-                 cycler(marker=plot_config['plotting']['markers']))
-        plt.rcParams['axes.prop_cycle'] = custom_cycler
-        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
+        custom_cycler = (
+            cycler(color=plot_config["plotting"]["colors"])
+            + cycler(marker=plot_config["plotting"]["markers"])
+        )
+        plt.rcParams["axes.prop_cycle"] = custom_cycler
+        plot_config.pop("plotting", None)
         plt.rcParams.update(plot_config)
 
-    # Load overlap comparison results
-    results_path = Path(__file__).parent.parent / 'results' / 'overlap_comparison_results2.yaml'
-    with open(results_path, 'r') as f:
-        results = yaml.safe_load(f)
+    with open(input_yaml, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
 
-    # Store data grouped by filter_hw value
-    filter_hw_data = {}
+    grouped_s1 = defaultdict(list)
+    grouped_s2 = defaultdict(list)
+    grouped_diff = defaultdict(list)
 
-    for exp_key, exp_data in results.items():
-        if not isinstance(exp_data, dict):
-            continue
-        
-        depth = exp_data.get('Depth_mm')
-        sensitivity = exp_data.get('Optimized_Sensitivity')
-        evaluator_log = exp_data.get('evaluator_log', {})
-        baseline_noise_std = evaluator_log.get('baseline_noise_std', 1.0)
-        fetal_ac_energy = evaluator_log.get('fetal_ac_energy', 1.0)
-        maternal_ac_amp = evaluator_log.get('maternal_ac_amplitude', 1.0)
-        separation = exp_data.get('Separation_Hz')
-        optimizer = exp_data.get('Optimizer', '')
-        
-        # Only process DIGSSOptimizer experiments at the target depth
-        if not str(optimizer).startswith('DIGSSOptimizer'):
-            continue
-        if depth != target_depth or sensitivity is None:
-            continue
-        
-        # Extract filter_hw from optimizer string using regex
-        match = re.search(r'filter_hw=([\d.]+)', str(optimizer))
-        if not match:
-            continue
-        
-        filter_hw = float(match.group(1))
-        
-        # Initialize data dict for this filter_hw if not exists
-        if filter_hw not in filter_hw_data:
-            filter_hw_data[filter_hw] = {
-                'filter_hw_values': [],
-                'sensitivities': [],
-                'depths': [],
-                'baseline_noise_std': [],
-                'fetal_ac_energy': [],
-                'maternal_ac_amp': [],
-                'separations': []
-            }
-        
-        # Append data
-        filter_hw_data[filter_hw]['filter_hw_values'].append(filter_hw)
-        filter_hw_data[filter_hw]['sensitivities'].append(sensitivity)
-        filter_hw_data[filter_hw]['depths'].append(depth)
-        filter_hw_data[filter_hw]['baseline_noise_std'].append(baseline_noise_std)
-        filter_hw_data[filter_hw]['fetal_ac_energy'].append(fetal_ac_energy)
-        filter_hw_data[filter_hw]['maternal_ac_amp'].append(maternal_ac_amp)
-        filter_hw_data[filter_hw]['separations'].append(separation)
+    for _, entry in data.items():
+        depth = float(entry["Depth_mm"])
+        hw = float(entry["Filter_HW"])
+        ftype = str(entry["Filter_Type"])
+        s1 = float(entry["Sensitivity1"])
+        s2 = float(entry["Sensitivity2"])
+        grouped_s1[(ftype, hw)].append((depth, s1))
+        grouped_s2[(ftype, hw)].append((depth, s2))
+        grouped_diff[(ftype, hw)].append((depth, abs(s1 - s2)))
 
-    # Sort each filter_hw's data by separation
-    for filter_hw in filter_hw_data:
-        data = filter_hw_data[filter_hw]
-        sorted_indices = np.argsort(data['separations'])
-        data['separations'] = np.array(data['separations'])[sorted_indices].tolist()
-        data['sensitivities'] = np.array(data['sensitivities'])[sorted_indices].tolist()
-        data['depths'] = np.array(data['depths'])[sorted_indices].tolist()
-        data['baseline_noise_std'] = np.array(data['baseline_noise_std'])[sorted_indices].tolist()
-        data['fetal_ac_energy'] = np.array(data['fetal_ac_energy'])[sorted_indices].tolist()
-        data['maternal_ac_amp'] = np.array(data['maternal_ac_amp'])[sorted_indices].tolist()
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True, sharey=False)
 
-    # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    for (ftype, hw) in sorted(grouped_s1.keys(), key=lambda k: (k[0], k[1])):
+        label = _combo_label(ftype, hw)
 
-    # Plot each filter_hw as a separate line
-    for filter_hw in sorted(filter_hw_data.keys()):
-        data = filter_hw_data[filter_hw]
-        y_to_plot = np.array(data['fetal_ac_energy']) ** (1/2) / np.array(data['maternal_ac_amp'])
-        if data['separations']:
-            ax.plot(data['separations'], y_to_plot,
-                    linewidth=2, markersize=8,
-                    label=f'filter_hw={filter_hw} Hz')
+        points1 = sorted(grouped_s1[(ftype, hw)], key=lambda t: t[0])
+        x1 = [p[0] for p in points1]
+        y1 = [p[1] for p in points1]
+        axes[0].plot(x1, y1, linewidth=2, markersize=8, label=label)
 
-    # Configure axes
-    ax.set_xlabel('Frequency Separation (Hz)')
-    ax.set_ylabel('Figure of Merit')
-    ax.legend()
-    ax.grid(True, alpha=0.3)
+        points2 = sorted(grouped_s2[(ftype, hw)], key=lambda t: t[0])
+        x2 = [p[0] for p in points2]
+        y2 = [p[1] for p in points2]
+        axes[1].plot(x2, y2, linewidth=2, markersize=8, label=label)
 
-    # Save figure
-    figures_dir = Path(__file__).parent.parent / 'figures'
-    figures_dir.mkdir(exist_ok=True)
+    axes[0].set_xlabel("Fetal Depth (mm)")
+    axes[0].set_ylabel("Figure of Merit(FoM)")
+    axes[0].legend(title="Filter Setup")
+    axes[0].grid(True, alpha=0.3)
 
-    fig.savefig(figures_dir / 'overlap_comparison2.pdf', format='pdf')
-    fig.savefig(figures_dir / 'overlap_comparison2.svg', format='svg')
+    axes[1].set_xlabel("Fetal Depth (mm)")
+    axes[1].set_ylabel("Reward Metric")
+    axes[1].legend(title="Filter Setup")
+    axes[1].grid(True, alpha=0.3)
 
-    print(f"Filter halfwidth comparison plots saved to {figures_dir}")
-    plt.show()
+    output_base.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(output_base.with_suffix(".pdf"), format="pdf")
+    fig.savefig(output_base.with_suffix(".svg"), format="svg")
+
+    fig_alt, ax_alt = plt.subplots(1, 1, figsize=(6, 4), sharex=True, sharey=False)
+
+    for (ftype, hw) in sorted(grouped_diff.keys(), key=lambda k: (k[0], k[1])):
+        label = _combo_label(ftype, hw)
+        points = sorted(grouped_diff[(ftype, hw)], key=lambda t: t[0])
+        x = [p[0] for p in points]
+        y = [p[1] for p in points]
+        ax_alt.plot(x, y, linewidth=2, markersize=8, label=label)
+
+    ax_alt.set_xlabel("Fetal Depth (mm)")
+    ax_alt.set_ylabel("|FoM - Reward Metric|")
+    ax_alt.legend(title="Filter Setup")
+    ax_alt.grid(True, alpha=0.3)
+
+    output_alt_base = output_base.with_name(f"{output_base.name}_alt")
+    fig_alt.tight_layout()
+    fig_alt.savefig(output_alt_base.with_suffix(".pdf"), format="pdf")
+    fig_alt.savefig(output_alt_base.with_suffix(".svg"), format="svg")
 
 
 if __name__ == "__main__":
-    main(target_depth=20)
+    main()

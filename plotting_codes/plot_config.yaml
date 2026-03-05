@@ -6,23 +6,41 @@ figure.dpi: 400
 savefig.dpi: 400
 
 # Font settings
-font.family: serif
-font.serif: ["Times New Roman", "Times", "serif"]
+font.sans-serif: ["Helvetica", "Arial", "sans-serif"]
+font.family: sans-serif
 font.size: 12
 
 # Text settings
 text.usetex: false
 
 # Axes settings
-axes.labelsize: 12
+axes.labelsize: 14
+xtick.labelsize: 10
+ytick.labelsize: 10
 axes.titlesize: 14
+axes.grid: true
+grid.color: '#e0e0e0'
+grid.alpha: 0.7
 
 # Legend settings
-legend.fontsize: 12
+legend.fontsize: 10
+legend.frameon: false
+legend.facecolor: white
 
 # Xtick and Ytick settings
 xtick.labelsize: 12
 ytick.labelsize: 12
+xtick.direction: in
+ytick.direction: in
+xtick.major.size: 4
+ytick.major.size: 4
+
+# Line and marker settings
+lines.linewidth: 1.6
+lines.markersize: 6
+lines.markeredgecolor: white
+lines.markeredgewidth: 0.5
+
 
 # Save format settings
 savefig.format: "pdf"
@@ -42,4 +60,4 @@ image.cmap: Accent
 plotting:
   colors: ['#213C51', '#6594B1', '#DDAED3', '#D02752']
   line_styles: ['-', '--', ':', '-.']
-  markers: ['o', 's', '^', 'v']
+  markers: ['s', 'o', '^', 'v']

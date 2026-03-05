@@ -17,7 +17,7 @@ def main():
         plot_config = yaml.safe_load(f)
         custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
                          # Turning off line styles - makes it too messy
-                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
+                 cycler(linestyle=plot_config['plotting']['line_styles']) +
                  cycler(marker=plot_config['plotting']['markers']))
         plt.rcParams['axes.prop_cycle'] = custom_cycler
         plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
@@ -79,26 +79,17 @@ def main():
     fig, ax = plt.subplots(figsize=(6, 4))
 
     # Plot each optimizer
-    ax.plot(digss_data['depths'], digss_data['sensitivities'], 
-            marker='o', linewidth=2, markersize=8, label='DIGSS')
-    ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], 
-            marker='s', linewidth=2, markersize=8, label='Liu et al. (Single Harmonic)')
-    # ax.plot(liu_data_h2['depths'], liu_data_h2['sensitivities'], 
-    #         marker='s', linewidth=2, markersize=8, label='Liu et al.')
-    # ax.plot(alt_liu_data_h1['depths'], alt_liu_data_h1['sensitivities'], 
-    #         marker='d', linewidth=2, markersize=8, label='Alt Liu et al. (Single Harmonic)')
-    ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], 
-            marker='d', linewidth=2, markersize=8, label='Modified Liu et al.')
-    ax.plot(cw_data['depths'], cw_data['sensitivities'], 
-            marker='^', linewidth=2, markersize=8, label='CW')
+    ax.plot(digss_data['depths'], digss_data['sensitivities'], label='DIGSS')
+    ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], label='Liu et al.')
+    ax.plot(cw_data['depths'], cw_data['sensitivities'], label='CW')
 
     # Configure axes
     ax.set_xlabel('Fetal Depth (mm)')
-    ax.set_ylabel('Figure of Merit')
+    ax.set_ylabel('Selectivity $\\times$ SNR')
     ax.set_yscale('log')
-    ax.legend()
+    ax.legend(loc='upper right')
     ax.set_ylim(top=0.02)
-    ax.grid(True, alpha=0.3)
+    ax.grid(True)
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / 'figures'

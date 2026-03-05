@@ -128,8 +128,8 @@ if __name__ == "__main__":
     filter_combos = [
         ("comb", 0.10),
         ("comb", 0.30),
-        ("comb", 0.50),
-        # ("psafe_same_width", 0.0),  # filter_hw not used for this filter type
+        # ("comb", 0.50),
+        ("psafe_same_width", 0.0),  # filter_hw not used for this filter type
     ]
 
     run_overlap_sweep(

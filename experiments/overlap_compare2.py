@@ -1,153 +1,162 @@
 """
-Compare the performance for different levels of overlap(separation) between fetal and the second
-harmonic of maternal for our optimizer for different filter half-widths.
+Compare the performance across different tissue depths (file_idx sweep).
 """
+from __future__ import annotations
 
-
-from typing import Any, Literal, Callable
+from copy import deepcopy
 from pathlib import Path
-import torch
-import torch.nn as nn
-import yaml
-import pandas as pd
+from typing import Any
+import json
+
 import numpy as np
-from joint_tof_opt.compact_stat_process import get_named_moment_module
-from optimize_loop_paper import main_optimize
-from sensitivity_compute import *
-from joint_tof_opt import *
+import yaml
+
+from joint_tof_opt import generate_tof
+from sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 from optimize_loop_paper import DIGSSOptimizer
-from sensitivity_compute import AltPaperEvaluator2
 
 
-def read_parameter_mapping():
-    with open("./data/parameter_mapping.json", "r") as f:
-        parameter_mapping = yaml.safe_load(f)
-    return parameter_mapping
+def _to_builtin(obj: Any) -> Any:
+    """Convert numpy/torch scalars and containers to YAML-safe Python types."""
+    if isinstance(obj, dict):
+        return {str(k): _to_builtin(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_to_builtin(v) for v in obj]
+    if isinstance(obj, np.generic):
+        return obj.item()
+    return obj
 
 
-def main(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]],
-    fetal_f_separations: list[float],
-    print_log: bool = False,
-) -> list[dict[str, Any]]:
-    """
-    Main function to test the performance difference for different levels of overlap across different methods.
+def _get_depth_mm(file_idx: int, param_mapping_path: Path) -> float:
+    """Extract depth_mm from parameter_mapping.json for given file_idx."""
+    with open(param_mapping_path, "r", encoding="utf-8") as f:
+        param_data = json.load(f)
+    
+    for exp in param_data["experiments"]:
+        if exp["index"] == file_idx:
+            derm_thickness = exp["sweep_parameters"]["derm_thickness"]["value"]
+            return float(derm_thickness + 2)
+    
+    raise ValueError(f"file_idx {file_idx} not found in parameter_mapping.json")
 
-    :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
-    :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
-    :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
-    (ppath_file: Path, measurand: CompactStatProcess) and return an DIGSSOptimizer instance.
-    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], DIGSSOptimizer]]
-    :param fetal_f_separations: List of fetal f separations to test (e.g., [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]).
-    :type fetal_f_separations: list[float]
-    :param print_log: Whether to print log messages during execution. (Default: False)
-    :type print_log: bool
-    :return: List of dictionaries containing results for each experiment.
-    :rtype: list[dict[str, Any]]
-    """
-    results = []
-    measurand = "abs"  # Fixed measurand for this experiment
-    for separation in fetal_f_separations:
-        print(f"Starting sensitivity comparison for measurand: abs with fetal f separation: {separation} Hz")
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+
+def run_depth_sweep(
+    file_idx_list: list[int],
+    separation_hz: float,
+    filter_setups: list[tuple[str, float]],  # (filter_type, filter_hw)
+    measurand: str = "abs",
+    lr: float = 0.1,
+    patience: int = 50,
+    reg_type: str = "l1",
+    reg_weight: float = 0.1,
+    param_mapping_path: Path = Path("./data/parameter_mapping.json"),
+    output_yaml: Path = Path("./results/overlap_results2.yaml"),
+) -> dict[str, Any]:
+    results: dict[str, Any] = {}
+    exp_idx = 0
+
+    for file_idx in file_idx_list:
+        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
+        depth_mm = _get_depth_mm(file_idx, param_mapping_path)
         
-        # Switch fetal f based on separation
-        maternal_f = gen_config["maternal_f"]
-        fetal_f_no_shift = 2 * maternal_f
-        new_fetal_f = fetal_f_no_shift + separation
-        gen_config["fetal_f"] = new_fetal_f
+        for filter_type, filter_hw in filter_setups:
+            # Read config each run, then modify fetal_f
+            with open("./experiments/tof_config.yaml", "r", encoding="utf-8") as f:
+                gen_config: dict[str, Any] = yaml.safe_load(f)
 
-        fetal_filter = CombSeparator(
-            gen_config["sampling_rate"],
-            gen_config["fetal_f"],
-            2 * gen_config["fetal_f"],
-            0.3,
-            gen_config["datapoint_count"] / 2 + 1,
-            True,
-        )
-        ppath_file_mapping = read_parameter_mapping()
-        experiments = ppath_file_mapping["experiments"]
-        for experiment in [experiments[-1]]:
-            ppath_filename = experiment["filename"]
-            derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
-            ppath_file: Path = Path("./data") / ppath_filename
-            tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-            generate_tof(ppath_file, gen_config, tof_dataset_file)
+            maternal_f = float(gen_config["maternal_f"])
+            fetal_f = 2 * maternal_f + float(separation_hz)
+            gen_config["fetal_f"] = fetal_f
 
+            sep_tag = f"{separation_hz:.3f}".replace(".", "p")
+            hw_tag = f"{float(filter_hw):.3f}".replace(".", "p")
+            type_tag = str(filter_type).replace(" ", "_")
+            tof_dataset_path = (
+                Path("./data")
+                / f"generated_tof_set_{ppath_file.stem}_sep_{sep_tag}_{type_tag}_hw_{hw_tag}.npz"
+            )
 
-            # Run Optimizers
-            # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
-            for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
-                optimizer_experiment.optimize()
-                optimizer_name = str(optimizer_experiment)
-                window = optimizer_experiment.window.detach().cpu()
-                loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config,)
-                optimized_sensitivity = evaluator.evaluate()
-                depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
-                epochs = len(loss_history)
-                if epochs > 0:
-                    final_optimizer_loss = loss_history[-1, :].tolist()
-                else:
-                    final_optimizer_loss = []
+            generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
 
-                # Compute the unfiltered measurand signal for logging
-                tof_data = ToFData.from_npz(tof_dataset_file)
-                assert tof_data.meta_data is not None, "ToFData meta_data was not found!"
-                bin_edges = tof_data.bin_edges.numpy()
-                measurand_process = get_named_moment_module(measurand, tof_data)
-                measurand_time_series = measurand_process.forward(window)
-                filtered_signal = fetal_filter(measurand_time_series.unsqueeze(0).unsqueeze(0)).squeeze()
+            experiment = DIGSSOptimizer(
+                tof_dataset_path=tof_dataset_path,
+                measurand=measurand,
+                lr=lr,
+                filter_hw=float(filter_hw),
+                patience=patience,
+                reg_type=reg_type,  # type: ignore
+                reg_weight=reg_weight,
+                filter_type=filter_type,  # type: ignore
+            )
+            experiment.optimize()
 
-                results.append(
-                    {
-                        "Measurand": measurand,
-                        "Depth_mm": depth,
-                        "Separation_Hz": separation,
-                        "Maternal_2nd_Harmonic_F_Hz": fetal_f_no_shift,
-                        "Fetal_F_Hz": new_fetal_f,
-                        "Optimizer": optimizer_name,
-                        "Optimized_Sensitivity": optimized_sensitivity,
-                        "Epochs": epochs,
-                        "Bin_Edges": bin_edges.tolist(),
-                        "Optimized_Window": window.numpy().tolist(),
-                        "fetal_hb_series": tof_data.meta_data["fetal_hb_series"].tolist(),
-                        "filtered_signal": filtered_signal.numpy().tolist(),
-                        "evaluator_log": evaluator.get_log(),
-                        "final_optimizer_loss": final_optimizer_loss,
-                        "measurand_time_series": measurand_time_series.numpy().tolist(),
-                    }
-                )
-                print(
-                    f"Depth: {depth} mm |",
-                    f"Optimizer: {optimizer_name} |",
-                    f"Separation: {separation} Hz |",
-                    f"Sensitivity: {optimized_sensitivity:.4e} |",
-                    f"Epochs: {epochs} |",
-                )
-                if print_log:
-                    log_dict = evaluator.get_log()
-                    print("Log Details:")
-                    pretty_print_log(log_dict)
+            training_curves = experiment.training_curves
+            best_final_metric = float(training_curves[-1, 2])
+            best_selectivity = float(training_curves[-1, 0])
+            best_snr = float(training_curves[-1, 1])
+            epochs = int(training_curves.shape[0])
+
+            evaluator1 = AltPaperEvaluator2(ppath_file, experiment.window, measurand, gen_config, 0.01)
+            evaluator1.evaluate()
+            eval_log1 = evaluator1.get_log()
+            eval_results1 = float(eval_log1["final_metric"])
+            # eval_results1 = float(eval_log1["fetal_ac_energy"] / eval_log1["maternal_ac_energy"])
+            evaluator2 = PaperEvaluator(ppath_file, experiment.window, measurand, gen_config, 0.01)
+            evaluator2.evaluate()
+            eval_log2 = evaluator2.get_log()
+            # eval_results2 = float(eval_log2["fetal_ac_energy"] / eval_log2["maternal_ac_amp"] ** 2)
+            eval_results2 = float(eval_log2["final_metric"])
+
+            exp_key = f"exp {exp_idx:03d}"
+            results[exp_key] = {
+                "File_Idx": file_idx,
+                "Depth_mm": depth_mm,
+                "Separation_Hz": float(separation_hz),
+                "Filter_Type": str(filter_type),
+                "Filter_HW": float(filter_hw),
+                "Maternal_F_Hz": maternal_f,
+                "Fetal_F_Hz": fetal_f,
+                "Epochs": epochs,
+                "Optimizer Best Metric": best_final_metric,
+                "Optimizer Best Selectivity": best_selectivity,
+                "Optimizer Best SNR": best_snr,
+                "Sensitivity1": eval_results1,
+                "Sensitivity2": eval_results2,
+                "Experiment": str(experiment),
+                "Optimized_Window": experiment.window.detach().cpu().tolist(),
+            }
+
+            print(
+                f"[{exp_key}] file_idx={file_idx} | depth={depth_mm:.1f} mm | type={filter_type} | "
+                f"hw={filter_hw:.3f} | fetal={fetal_f:.3f} Hz | epochs={epochs} | "
+                f"best_metric={best_final_metric:.6g} | eval_results1={eval_results1:.6g} | "
+                f"eval_results2={eval_results2:.6g}"
+            )
+            exp_idx += 1
+
+    output_yaml.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_yaml, "w", encoding="utf-8") as f:
+        yaml.safe_dump(results, f, sort_keys=False, default_flow_style=False)
+
+    print(f"Saved depth sweep results to: {output_yaml}")
     return results
 
 
 if __name__ == "__main__":
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
-
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
-        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=0.001, lr=0.01, filter_type='comb'),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=0.01, lr=0.1, filter_type='comb'),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=0.1, lr=0.1, filter_type='comb'),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, filter_hw=1.0, lr=0.1, filter_type='comb'),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, lr=0.1, filter_hw=3.0, filter_type='psafe_same_width'),
+    file_indices = list(range(8))  # 0 to 7
+    separation = 0.5  # Hz - fixed separation
+    filter_combos = [
+        ("comb", 0.10),
+        ("comb", 0.30),
+        # ("comb", 0.50),
+        ("psafe_same_width", 0.0),  # filter_hw not used for this filter type
     ]
-    separations_to_test = np.arange(0.0, 0.6, 0.1).tolist()  # From 0 Hz to 1 Hz with 0.1 Hz step
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, separations_to_test, print_log=False)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/overlap_comparison_results2.yaml", "w") as f:
-        yaml.dump(results_dict, f, default_flow_style=False)
+    run_depth_sweep(
+        file_idx_list=file_indices,
+        separation_hz=separation,
+        measurand="abs",
+        filter_setups=filter_combos,
+        reg_weight=0.001,
+        reg_type='l2'
+    )

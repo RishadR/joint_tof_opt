@@ -12,7 +12,7 @@ def _combo_label(filter_type: str, filter_hw: float) -> str:
     return f"{filter_type} (HW={filter_hw:g})"
 
 
-def plot_overlap_compare(
+def main(
     input_yaml: Path = Path("./results/overlap_results.yaml"),
     output_base: Path = Path("./figures/overlap_compare"),
 ) -> None:
@@ -99,4 +99,4 @@ def plot_overlap_compare(
 
 
 if __name__ == "__main__":
-    plot_overlap_compare()
+    main()
