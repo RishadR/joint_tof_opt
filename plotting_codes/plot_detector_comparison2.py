@@ -33,7 +33,7 @@ def main():
         results = yaml.safe_load(f)
 
     # SDD distances in cm
-    sdd_distances = [2, 1.3, 2.4, 3.5, 4.6, 5.6, 6.7, 7.8, 8.9]
+    sdd_distances = [1., 2., 3., 4., 5., 6., 7., 8., 9. ,10.]
 
     # Extract data for each SDD index (only DIGSS optimizer)
     sdd_data = {}
@@ -111,7 +111,6 @@ def main():
         depth_cm = sdd_data[sdd_index]["depth_cm"]
 
         (line,) = ax.plot(fetal_snr, selectivity, linewidth=2, markersize=8, label=f"SDD = {sdd_distance} cm")
-        line_color = line.get_color()
 
         for idx, (x, y, d_cm) in enumerate(zip(fetal_snr, selectivity, depth_cm)):
             x_offset = 8

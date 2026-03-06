@@ -24,12 +24,11 @@ grid.alpha: 0.7
 
 # Legend settings
 legend.fontsize: 10
-legend.frameon: false
+legend.frameon: true
 legend.facecolor: white
+legend.edgecolor: none
 
 # Xtick and Ytick settings
-xtick.labelsize: 12
-ytick.labelsize: 12
 xtick.direction: in
 ytick.direction: in
 xtick.major.size: 4
@@ -58,6 +57,7 @@ image.cmap: Accent
 
 # Custom line styles and markers for plotting
 plotting:
-  colors: ['#213C51', '#6594B1', '#DDAED3', '#D02752']
-  line_styles: ['-', '--', ':', '-.']
-  markers: ['s', 'o', '^', 'v']
+  # colors: ['#213C51', '#6594B1', '#DDAED3', '#D02752']  # old
+  colors: ["#2d3047","#d1345b","#ff9b71", "#1b998b", "#FFB100"]
+  line_styles: ['-', '--', ':', '-.', ' ']
+  markers: ['s', 'o', '^', 'v', '<']

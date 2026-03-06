@@ -2,13 +2,10 @@
 Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
 """
 
-from typing import Any, Literal, Callable
+from typing import Any, Callable
 from pathlib import Path
 import torch
-import torch.nn as nn
 import yaml
-import pandas as pd
-import numpy as np
 from joint_tof_opt.compact_stat_process import get_named_moment_module
 from sensitivity_compute import *
 from joint_tof_opt import *

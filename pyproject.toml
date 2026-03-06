@@ -31,3 +31,6 @@ packages = ["joint_tof_opt"]
 
 [tool.setuptools.package-dir]
 "" = "src"
+
+[tool.setuptools.package-data]
+joint_tof_opt = ["*.yaml", "*.yml"]

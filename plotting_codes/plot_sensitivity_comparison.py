@@ -7,21 +7,12 @@ import yaml
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
-from cycler import cycler
+from joint_tof_opt.plotting import load_plot_config
 
 def main():
     """Generate sensitivity comparison plot."""
     # Load matplotlib configuration
-    config_path = Path(__file__).parent / 'plot_config.yaml'
-    with open(config_path, 'r') as f:
-        plot_config = yaml.safe_load(f)
-        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
-                         # Turning off line styles - makes it too messy
-                 cycler(linestyle=plot_config['plotting']['line_styles']) +
-                 cycler(marker=plot_config['plotting']['markers']))
-        plt.rcParams['axes.prop_cycle'] = custom_cycler
-        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
-        plt.rcParams.update(plot_config)
+    load_plot_config()
 
     # Load sensitivity comparison results
     results_path = Path(__file__).parent.parent / 'results' / 'sensitivity_comparison_results.yaml'
@@ -81,6 +72,7 @@ def main():
     # Plot each optimizer
     ax.plot(digss_data['depths'], digss_data['sensitivities'], label='DIGSS')
     ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], label='Liu et al.')
+    # ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], label='Modified Liu et al.')
     ax.plot(cw_data['depths'], cw_data['sensitivities'], label='CW')
 
     # Configure axes
@@ -88,7 +80,7 @@ def main():
     ax.set_ylabel('Selectivity $\\times$ SNR')
     ax.set_yscale('log')
     ax.legend(loc='upper right')
-    ax.set_ylim(top=0.02)
+    # ax.set_ylim(top=0.02)
     ax.grid(True)
 
     # Save figure
