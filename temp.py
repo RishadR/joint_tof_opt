@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 
 for idx in range(8):
-    in_path = Path(rf"C:\Users\sadip\Desktop\joint_tof_opt\data\experiment_000{idx}.npz")
-    out_path = Path(rf"C:\Users\sadip\Desktop\joint_tof_opt\data\experiment_000{idx}.npz")
+    in_path = Path(__file__).parent / "data" / f"experiment_000{idx}.npz"
+    out_path = Path(__file__).parent / "data" / f"experiment_000{idx}.npz"
     field_name = "ppath"
 
     # np.load on .npz returns a read-only NpzFile mapping; copy to a mutable dict first.
@@ -16,7 +16,9 @@ for idx in range(8):
         data = {key: npz[key] for key in npz.files}
 
     if field_name not in data:
-        raise KeyError(f"Field '{field_name}' not found. Available fields: {list(data.keys())}")
+        raise KeyError(
+            f"Field '{field_name}' not found. Available fields: {list(data.keys())}"
+        )
 
     ppath_array = data[field_name].copy()
     # Safety Check: Ensure that the this has not be run before
