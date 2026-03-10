@@ -3,8 +3,7 @@ from collections import defaultdict
 
 import yaml
 import matplotlib.pyplot as plt
-from cycler import cycler
-
+from joint_tof_opt.plotting import load_plot_config
 
 def _combo_label(filter_type: str, filter_hw: float) -> str:
     if filter_type == "psafe_same_width":
@@ -17,16 +16,7 @@ def main(
     output_base: Path = Path("./figures/overlap_compare2"),
 ) -> None:
     # Load matplotlib configuration (same implementation as plot_detector_comparison.py)
-    config_path = Path(__file__).parent / "plot_config.yaml"
-    with open(config_path, "r") as f:
-        plot_config = yaml.safe_load(f)
-        custom_cycler = (
-            cycler(color=plot_config["plotting"]["colors"])
-            + cycler(marker=plot_config["plotting"]["markers"])
-        )
-        plt.rcParams["axes.prop_cycle"] = custom_cycler
-        plot_config.pop("plotting", None)
-        plt.rcParams.update(plot_config)
+    load_plot_config()
 
     with open(input_yaml, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)

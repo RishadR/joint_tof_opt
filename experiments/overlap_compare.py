@@ -132,7 +132,7 @@ if __name__ == "__main__":
         ("psafe_same_width", 0.0),  # filter_hw not used for this filter type
     ]
 
-    run_overlap_sweep(
+    _ = run_overlap_sweep(
         file_idx=3,
         measurand="abs",
         separations_hz=separations,

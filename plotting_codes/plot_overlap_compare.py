@@ -58,12 +58,12 @@ def main(
         y2 = [p[1] for p in points2]
         axes[1].plot(x2, y2, linewidth=2, markersize=8, label=label)
 
-    axes[0].set_xlabel("Fetal & Maternal Heart Rate Separation (Hz)")
+    axes[0].set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
     axes[0].set_ylabel("Figure of Merit(FoM)")
     axes[0].legend(title="Filter Setup")
     axes[0].grid(True, alpha=0.3)
 
-    axes[1].set_xlabel("Fetal & Maternal Heart Rate Separation (Hz)")
+    axes[1].set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
     axes[1].set_ylabel("Reward Metric")
     axes[1].legend(title="Filter Setup")
     axes[1].grid(True, alpha=0.3)
@@ -82,7 +82,7 @@ def main(
         y = [p[1] for p in points]
         ax_alt.plot(x, y, linewidth=2, markersize=8, label=label)
 
-    ax_alt.set_xlabel("Fetal & Maternal Heart Rate Separation (Hz)")
+    ax_alt.set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
     ax_alt.set_ylabel("|FoM - Reward Metric|")
     ax_alt.legend(title="Filter Setup")
     ax_alt.grid(True, alpha=0.3)
