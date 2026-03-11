@@ -360,7 +360,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         return (
             f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
             f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience}, grad_clip={self.grad_clip},"
-            f"fetal_f={self.fetal_f}), type={self.filter_type}"
+            f"fetal_f={self.fetal_f}), type={self.filter_type}, filter_smoothening={self.window_smoothening},"
+            f"reg_type={self.reg_type}, reg_weight={self.reg_weight}, normalize_reward={self.normalize_reward}"
         )
 
     def components(self) -> dict[str, nn.Module]:

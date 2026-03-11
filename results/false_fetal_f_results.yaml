@@ -1,27 +1,8 @@
 exp 000:
   Depth_mm: 6
   Epochs: 660
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - &id001 !!python/object/apply:numpy.dtype
-    args:
-    - f8
-    - false
-    - true
-    state: !!python/tuple
-    - 3
-    - <
-    - null
-    - null
-    - null
-    - -1
-    - -1
-    - 0
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
+  Error: 0.0
+  Errored_Fetal_F_Hz: 2.5
   Measurand: abs
   Optimized_Sensitivity: 0.061495224276100824
   Optimized_Window:
@@ -46,7 +27,8 @@ exp 000:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
+    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 191.35626220703125
   Optimizer(Maternal Energy): 148.02308654785156
   Optimizer(Noise Std): 30.329755783081055
@@ -60,14 +42,8 @@ exp 000:
 exp 001:
   Depth_mm: 6
   Epochs: 660
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
+  Error: 0.0
+  Errored_Fetal_F_Hz: 2.5
   Measurand: abs
   Optimized_Sensitivity: 0.0614940150230942
   Optimized_Window:
@@ -92,7 +68,8 @@ exp 001:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
+    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 191.6597900390625
   Optimizer(Maternal Energy): 148.29953002929688
   Optimizer(Noise Std): 30.34111976623535
@@ -105,63 +82,11 @@ exp 001:
     maternal_ac_energy: 0.8847541213035583
 exp 002:
   Depth_mm: 6
-  Epochs: 669
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06148979676674575
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9062758088111877
-  - 0.012930086813867092
-  - 0.08079401403665543
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
-  Optimizer(Fetal Energy): 192.738037109375
-  Optimizer(Maternal Energy): 149.26968383789062
-  Optimizer(Noise Std): 30.382736206054688
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.03710270752657
-    fetal_ac_energy: 1.7433058023452759
-    final_metric: 0.06148979676674575
-    maternal_ac_amp: 0.9438706428266612
-    maternal_ac_energy: 0.8908917903900146
-exp 003:
-  Depth_mm: 6
   Epochs: 660
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
+  Error: 0.0
+  Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.06148508258465579
+  Optimized_Sensitivity: 0.061494008860450595
   Optimized_Window:
   - 0.0
   - 0.0
@@ -178,80 +103,29 @@ exp 003:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9109857678413391
-  - 0.013144725002348423
-  - 0.07586946338415146
+  - 0.8970973491668701
+  - 0.013708584010601044
+  - 0.08919408172369003
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
-  Optimizer(Fetal Energy): 193.4830322265625
-  Optimizer(Maternal Energy): 150.31011962890625
-  Optimizer(Noise Std): 30.427152633666992
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 191.6598358154297
+  Optimizer(Maternal Energy): 148.29969787597656
+  Optimizer(Noise Std): 30.34111976623535
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.067843210188855
-    fetal_ac_energy: 1.7482255697250366
-    final_metric: 0.06148508258465579
-    maternal_ac_amp: 0.9456391203759564
-    maternal_ac_energy: 0.8942333459854126
-exp 004:
-  Depth_mm: 6
-  Epochs: 664
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06123511681565061
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.010225987993180752
-  - 0.0
-  - 0.0
-  - 0.9897739887237549
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width
-  Optimizer(Fetal Energy): 5.008144855499268
-  Optimizer(Maternal Energy): 4.055687427520752
-  Optimizer(Noise Std): 31.00098991394043
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.758705457573814
-    fetal_ac_energy: 1.8557535409927368
-    final_metric: 0.06123511681565061
-    maternal_ac_amp: 0.985261911145497
-    maternal_ac_energy: 0.9707410335540771
-exp 005:
+    baseline_noise_std: 29.980434904296857
+    fetal_ac_energy: 1.7341316938400269
+    final_metric: 0.061494008860450595
+    maternal_ac_amp: 0.9406137890321897
+    maternal_ac_energy: 0.8847543001174927
+exp 003:
   Depth_mm: 8
   Epochs: 719
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
+  Error: 0.0
+  Errored_Fetal_F_Hz: 2.5
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -276,7 +150,8 @@ exp 005:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
+    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 45.13833999633789
   Optimizer(Maternal Energy): 36.62507629394531
   Optimizer(Noise Std): 21.328601837158203
@@ -287,17 +162,11 @@ exp 005:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 006:
+exp 004:
   Depth_mm: 8
   Epochs: 719
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
+  Error: 0.0
+  Errored_Fetal_F_Hz: 2.5
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -322,7 +191,8 @@ exp 006:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
+    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 45.16282653808594
   Optimizer(Maternal Energy): 36.64453887939453
   Optimizer(Noise Std): 21.32866096496582
@@ -333,17 +203,11 @@ exp 006:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 007:
+exp 005:
   Depth_mm: 8
-  Epochs: 694
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
+  Epochs: 719
+  Error: 0.0
+  Errored_Fetal_F_Hz: 2.5
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -367,11 +231,12 @@ exp 007:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
-  Optimizer(Fetal Energy): 45.27107238769531
-  Optimizer(Maternal Energy): 36.79142761230469
-  Optimizer(Noise Std): 21.345516204833984
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 45.16282272338867
+  Optimizer(Maternal Energy): 36.644527435302734
+  Optimizer(Noise Std): 21.32866096496582
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -379,109 +244,11 @@ exp 007:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 008:
-  Depth_mm: 8
-  Epochs: 646
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.5), type=comb
-  Optimizer(Fetal Energy): 45.4265022277832
-  Optimizer(Maternal Energy): 37.094566345214844
-  Optimizer(Noise Std): 21.387104034423828
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 009:
-  Depth_mm: 8
-  Epochs: 696
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAAAAA=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width
-  Optimizer(Fetal Energy): 1.1199313402175903
-  Optimizer(Maternal Energy): 0.9302502870559692
-  Optimizer(Noise Std): 21.392906188964844
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 010:
+exp 006:
   Depth_mm: 6
   Epochs: 678
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
+  Error: 0.05
+  Errored_Fetal_F_Hz: 2.55
   Measurand: abs
   Optimized_Sensitivity: 0.061494601870962964
   Optimized_Window:
@@ -506,7 +273,8 @@ exp 010:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
+    grad_clip=False,fetal_f=2.55), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 111.32535552978516
   Optimizer(Maternal Energy): 152.39585876464844
   Optimizer(Noise Std): 30.787151336669922
@@ -517,17 +285,11 @@ exp 010:
     final_metric: 0.061494601870962964
     maternal_ac_amp: 0.9690717962533221
     maternal_ac_energy: 0.9391001462936401
-exp 011:
+exp 007:
   Depth_mm: 6
   Epochs: 678
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
+  Error: 0.05
+  Errored_Fetal_F_Hz: 2.55
   Measurand: abs
   Optimized_Sensitivity: 0.061494465699865025
   Optimized_Window:
@@ -552,7 +314,8 @@ exp 011:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
+    grad_clip=False,fetal_f=2.55), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 111.44999694824219
   Optimizer(Maternal Energy): 152.5413055419922
   Optimizer(Noise Std): 30.789335250854492
@@ -563,19 +326,13 @@ exp 011:
     final_metric: 0.061494465699865025
     maternal_ac_amp: 0.9691754299127342
     maternal_ac_energy: 0.9393010139465332
-exp 012:
+exp 008:
   Depth_mm: 6
   Epochs: 678
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
+  Error: 0.05
+  Errored_Fetal_F_Hz: 2.55
   Measurand: abs
-  Optimized_Sensitivity: 0.061493990610484245
+  Optimized_Sensitivity: 0.061494436100715255
   Optimized_Window:
   - 0.0
   - 0.0
@@ -592,126 +349,29 @@ exp 012:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9813486337661743
+  - 0.980516254901886
   - 0.0
-  - 0.018651386722922325
+  - 0.019483689218759537
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
-  Optimizer(Fetal Energy): 111.79432678222656
-  Optimizer(Maternal Energy): 152.9585723876953
-  Optimizer(Noise Std): 30.795846939086914
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.55), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 111.44998931884766
+  Optimizer(Maternal Energy): 152.54127502441406
+  Optimizer(Noise Std): 30.78933334350586
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.478713314902766
-    fetal_ac_energy: 1.81705904006958
-    final_metric: 0.061493990610484245
-    maternal_ac_amp: 0.9694819607681949
-    maternal_ac_energy: 0.9398952722549438
-exp 013:
-  Depth_mm: 6
-  Epochs: 645
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06149490081760803
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9797080755233765
-  - 0.0
-  - 0.020291928201913834
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
-  Optimizer(Fetal Energy): 112.34832000732422
-  Optimizer(Maternal Energy): 154.0181121826172
-  Optimizer(Noise Std): 30.838476181030273
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.46835837088054
-    fetal_ac_energy: 1.8153363466262817
-    final_metric: 0.06149490081760803
-    maternal_ac_amp: 0.9688776608921366
-    maternal_ac_energy: 0.9387239217758179
-exp 014:
-  Depth_mm: 6
-  Epochs: 664
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06123511681565061
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.010225987993180752
-  - 0.0
-  - 0.0
-  - 0.9897739887237549
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.55), type=psafe_same_width
-  Optimizer(Fetal Energy): 5.008144855499268
-  Optimizer(Maternal Energy): 4.055687427520752
-  Optimizer(Noise Std): 31.00098991394043
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.758705457573814
-    fetal_ac_energy: 1.8557535409927368
-    final_metric: 0.06123511681565061
-    maternal_ac_amp: 0.985261911145497
-    maternal_ac_energy: 0.9707410335540771
-exp 015:
+    baseline_noise_std: 30.47345917133773
+    fetal_ac_energy: 1.8161851167678833
+    final_metric: 0.061494436100715255
+    maternal_ac_amp: 0.9691757374145212
+    maternal_ac_energy: 0.939301609992981
+exp 009:
   Depth_mm: 8
   Epochs: 657
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
+  Error: 0.05
+  Errored_Fetal_F_Hz: 2.55
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -736,7 +396,8 @@ exp 015:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
+    grad_clip=False,fetal_f=2.55), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 25.27694320678711
   Optimizer(Maternal Energy): 35.984169006347656
   Optimizer(Noise Std): 21.381784439086914
@@ -747,17 +408,11 @@ exp 015:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 016:
+exp 010:
   Depth_mm: 8
   Epochs: 657
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
+  Error: 0.05
+  Errored_Fetal_F_Hz: 2.55
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -782,7 +437,8 @@ exp 016:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
+    grad_clip=False,fetal_f=2.55), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 25.30070686340332
   Optimizer(Maternal Energy): 36.0091438293457
   Optimizer(Noise Std): 21.381818771362305
@@ -793,17 +449,11 @@ exp 016:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 017:
+exp 011:
   Depth_mm: 8
-  Epochs: 661
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
+  Epochs: 657
+  Error: 0.05
+  Errored_Fetal_F_Hz: 2.55
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -827,11 +477,12 @@ exp 017:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
-  Optimizer(Fetal Energy): 25.35764503479004
-  Optimizer(Maternal Energy): 36.058597564697266
-  Optimizer(Noise Std): 21.37803840637207
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.55), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 25.30071449279785
+  Optimizer(Maternal Energy): 36.0091438293457
+  Optimizer(Noise Std): 21.381818771362305
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -839,109 +490,11 @@ exp 017:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 018:
-  Depth_mm: 8
-  Epochs: 685
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.55), type=comb
-  Optimizer(Fetal Energy): 25.397863388061523
-  Optimizer(Maternal Energy): 36.0440788269043
-  Optimizer(Noise Std): 21.35710906982422
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 019:
-  Depth_mm: 8
-  Epochs: 696
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZqT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.55), type=psafe_same_width
-  Optimizer(Fetal Energy): 1.1199313402175903
-  Optimizer(Maternal Energy): 0.9302502870559692
-  Optimizer(Noise Std): 21.392906188964844
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 020:
+exp 012:
   Depth_mm: 6
   Epochs: 659
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
+  Error: 0.1
+  Errored_Fetal_F_Hz: 2.6
   Measurand: abs
   Optimized_Sensitivity: 0.06146636705641873
   Optimized_Window:
@@ -966,7 +519,8 @@ exp 020:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
+    grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 109.3411865234375
   Optimizer(Maternal Energy): 150.16062927246094
   Optimizer(Noise Std): 30.662126541137695
@@ -977,17 +531,11 @@ exp 020:
     final_metric: 0.06146636705641873
     maternal_ac_amp: 0.9586723425995143
     maternal_ac_energy: 0.9190526604652405
-exp 021:
+exp 013:
   Depth_mm: 6
   Epochs: 659
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
+  Error: 0.1
+  Errored_Fetal_F_Hz: 2.6
   Measurand: abs
   Optimized_Sensitivity: 0.06146617013814723
   Optimized_Window:
@@ -1012,7 +560,8 @@ exp 021:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
+    grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 109.5198974609375
   Optimizer(Maternal Energy): 150.33750915527344
   Optimizer(Noise Std): 30.66623878479004
@@ -1023,19 +572,13 @@ exp 021:
     final_metric: 0.06146617013814723
     maternal_ac_amp: 0.9589026701824467
     maternal_ac_energy: 0.9194943308830261
-exp 022:
+exp 014:
   Depth_mm: 6
-  Epochs: 661
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
+  Epochs: 659
+  Error: 0.1
+  Errored_Fetal_F_Hz: 2.6
   Measurand: abs
-  Optimized_Sensitivity: 0.061465897825164525
+  Optimized_Sensitivity: 0.06146610538516014
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1052,126 +595,29 @@ exp 022:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9501456022262573
-  - 0.01114738266915083
-  - 0.03870709612965584
+  - 0.9477429986000061
+  - 0.011430235579609871
+  - 0.04082673043012619
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
-  Optimizer(Fetal Energy): 110.03612518310547
-  Optimizer(Maternal Energy): 150.84405517578125
-  Optimizer(Noise Std): 30.67780876159668
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 109.51991271972656
+  Optimizer(Maternal Energy): 150.3374481201172
+  Optimizer(Noise Std): 30.66623878479004
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.311823446058142
-    fetal_ac_energy: 1.7881395816802979
-    final_metric: 0.061465897825164525
-    maternal_ac_amp: 0.9597433780860057
-    maternal_ac_energy: 0.9211073517799377
-exp 023:
-  Depth_mm: 6
-  Epochs: 692
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06150130835179223
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9684897065162659
-  - 0.0
-  - 0.031510286033153534
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
-  Optimizer(Fetal Energy): 110.85945892333984
-  Optimizer(Maternal Energy): 151.5198516845703
-  Optimizer(Noise Std): 30.686307907104492
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.3974546471154
-    fetal_ac_energy: 1.8035792112350464
-    final_metric: 0.06150130835179223
-    maternal_ac_amp: 0.9647474665612228
-    maternal_ac_energy: 0.9307376742362976
-exp 024:
-  Depth_mm: 6
-  Epochs: 664
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06123511681565061
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.010225987993180752
-  - 0.0
-  - 0.0
-  - 0.9897739887237549
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.6), type=psafe_same_width
-  Optimizer(Fetal Energy): 5.008144855499268
-  Optimizer(Maternal Energy): 4.055687427520752
-  Optimizer(Noise Std): 31.00098991394043
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.758705457573814
-    fetal_ac_energy: 1.8557535409927368
-    final_metric: 0.06123511681565061
-    maternal_ac_amp: 0.985261911145497
-    maternal_ac_energy: 0.9707410335540771
-exp 025:
+    baseline_noise_std: 30.297351441908766
+    fetal_ac_energy: 1.7857271432876587
+    final_metric: 0.06146610538516014
+    maternal_ac_amp: 0.9589031363765048
+    maternal_ac_energy: 0.9194952249526978
+exp 015:
   Depth_mm: 8
   Epochs: 632
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
+  Error: 0.1
+  Errored_Fetal_F_Hz: 2.6
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -1196,7 +642,8 @@ exp 025:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
+    grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 25.170705795288086
   Optimizer(Maternal Energy): 36.129722595214844
   Optimizer(Noise Std): 21.409984588623047
@@ -1207,17 +654,11 @@ exp 025:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 026:
+exp 016:
   Depth_mm: 8
   Epochs: 632
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
+  Error: 0.1
+  Errored_Fetal_F_Hz: 2.6
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -1242,7 +683,8 @@ exp 026:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
+    grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 25.202983856201172
   Optimizer(Maternal Energy): 36.15510940551758
   Optimizer(Noise Std): 21.410064697265625
@@ -1253,17 +695,11 @@ exp 026:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 027:
+exp 017:
   Depth_mm: 8
   Epochs: 632
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
+  Error: 0.1
+  Errored_Fetal_F_Hz: 2.6
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -1287,11 +723,12 @@ exp 027:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
-  Optimizer(Fetal Energy): 25.293245315551758
-  Optimizer(Maternal Energy): 36.22658157348633
-  Optimizer(Noise Std): 21.410295486450195
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 25.202960968017578
+  Optimizer(Maternal Energy): 36.155128479003906
+  Optimizer(Noise Std): 21.410064697265625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -1299,109 +736,11 @@ exp 027:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 028:
-  Depth_mm: 8
-  Epochs: 644
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.6), type=comb
-  Optimizer(Fetal Energy): 25.392179489135742
-  Optimizer(Maternal Energy): 36.25407028198242
-  Optimizer(Noise Std): 21.397052764892578
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 029:
-  Depth_mm: 8
-  Epochs: 696
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZuT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.6), type=psafe_same_width
-  Optimizer(Fetal Energy): 1.1199313402175903
-  Optimizer(Maternal Energy): 0.9302502870559692
-  Optimizer(Noise Std): 21.392906188964844
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 030:
+exp 018:
   Depth_mm: 6
   Epochs: 695
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
+  Error: 0.15000000000000002
+  Errored_Fetal_F_Hz: 2.65
   Measurand: abs
   Optimized_Sensitivity: 0.061476915194712614
   Optimized_Window:
@@ -1426,7 +765,8 @@ exp 030:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
+    grad_clip=False,fetal_f=2.65), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 106.88615417480469
   Optimizer(Maternal Energy): 147.57713317871094
   Optimizer(Noise Std): 30.504472732543945
@@ -1437,17 +777,11 @@ exp 030:
     final_metric: 0.061476915194712614
     maternal_ac_amp: 0.9525911055320032
     maternal_ac_energy: 0.9074298143386841
-exp 031:
+exp 019:
   Depth_mm: 6
   Epochs: 695
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
+  Error: 0.15000000000000002
+  Errored_Fetal_F_Hz: 2.65
   Measurand: abs
   Optimized_Sensitivity: 0.06147645145248243
   Optimized_Window:
@@ -1472,7 +806,8 @@ exp 031:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
+    grad_clip=False,fetal_f=2.65), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 107.09324645996094
   Optimizer(Maternal Energy): 147.77867126464844
   Optimizer(Noise Std): 30.510183334350586
@@ -1483,19 +818,13 @@ exp 031:
     final_metric: 0.06147645145248243
     maternal_ac_amp: 0.9529216737091619
     maternal_ac_energy: 0.9080597162246704
-exp 032:
+exp 020:
   Depth_mm: 6
   Epochs: 695
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
+  Error: 0.15000000000000002
+  Errored_Fetal_F_Hz: 2.65
   Measurand: abs
-  Optimized_Sensitivity: 0.061475301166267406
+  Optimized_Sensitivity: 0.06147645895627142
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1512,126 +841,29 @@ exp 032:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9341579675674438
-  - 0.011425701901316643
-  - 0.05441630259156227
+  - 0.9314315319061279
+  - 0.011581914499402046
+  - 0.056986499577760696
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
-  Optimizer(Fetal Energy): 107.68744659423828
-  Optimizer(Maternal Energy): 148.36265563964844
-  Optimizer(Noise Std): 30.52712631225586
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.65), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 107.09329986572266
+  Optimizer(Maternal Energy): 147.77871704101562
+  Optimizer(Noise Std): 30.510181427001953
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.21097083493118
-    fetal_ac_energy: 1.7716120481491089
-    final_metric: 0.061475301166267406
-    maternal_ac_amp: 0.9539009437757119
-    maternal_ac_energy: 0.9099270105361938
-exp 033:
-  Depth_mm: 6
-  Epochs: 663
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06147232352204892
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9290396571159363
-  - 0.012954095378518105
-  - 0.058006200939416885
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
-  Optimizer(Fetal Energy): 108.26763916015625
-  Optimizer(Maternal Energy): 149.0098114013672
-  Optimizer(Noise Std): 30.54635238647461
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.182587470688812
-    fetal_ac_energy: 1.7668098211288452
-    final_metric: 0.06147232352204892
-    maternal_ac_amp: 0.9522559785021776
-    maternal_ac_energy: 0.9067914485931396
-exp 034:
-  Depth_mm: 6
-  Epochs: 604
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04861896238750406
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.08079370856285095
-  - 0.8159822821617126
-  - 0.08924546837806702
-  - 0.013978543691337109
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.65), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.16201885044574738
-  Optimizer(Maternal Energy): 16.342559814453125
-  Optimizer(Noise Std): 48.08198928833008
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 48.04050262620204
-    fetal_ac_energy: 5.140888214111328
-    final_metric: 0.04861896238750406
-    maternal_ac_amp: 2.201024779149516
-    maternal_ac_energy: 4.844510078430176
-exp 035:
+    baseline_noise_std: 30.194038014823803
+    fetal_ac_energy: 1.768833875656128
+    final_metric: 0.06147645895627142
+    maternal_ac_amp: 0.9529212358635123
+    maternal_ac_energy: 0.9080588817596436
+exp 021:
   Depth_mm: 8
   Epochs: 663
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
+  Error: 0.15000000000000002
+  Errored_Fetal_F_Hz: 2.65
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -1656,7 +888,8 @@ exp 035:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
+    grad_clip=False,fetal_f=2.65), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 24.83110809326172
   Optimizer(Maternal Energy): 35.94734191894531
   Optimizer(Noise Std): 21.377159118652344
@@ -1667,17 +900,11 @@ exp 035:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 036:
+exp 022:
   Depth_mm: 8
   Epochs: 681
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
+  Error: 0.15000000000000002
+  Errored_Fetal_F_Hz: 2.65
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -1702,7 +929,8 @@ exp 036:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
+    grad_clip=False,fetal_f=2.65), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 24.838903427124023
   Optimizer(Maternal Energy): 35.888816833496094
   Optimizer(Noise Std): 21.361576080322266
@@ -1713,17 +941,11 @@ exp 036:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 037:
+exp 023:
   Depth_mm: 8
-  Epochs: 663
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
+  Epochs: 681
+  Error: 0.15000000000000002
+  Errored_Fetal_F_Hz: 2.65
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -1747,11 +969,12 @@ exp 037:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
-  Optimizer(Fetal Energy): 24.967060089111328
-  Optimizer(Maternal Energy): 36.04380798339844
-  Optimizer(Noise Std): 21.37748908996582
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.65), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 24.838903427124023
+  Optimizer(Maternal Energy): 35.888790130615234
+  Optimizer(Noise Std): 21.361576080322266
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -1759,109 +982,11 @@ exp 037:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 038:
-  Depth_mm: 8
-  Epochs: 664
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.65), type=comb
-  Optimizer(Fetal Energy): 25.108266830444336
-  Optimizer(Maternal Energy): 36.140079498291016
-  Optimizer(Noise Std): 21.37697982788086
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 039:
-  Depth_mm: 8
-  Epochs: 581
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMzwz8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.027205842459978157
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.04073059931397438
-  - 0.9125231504440308
-  - 0.0316031239926815
-  - 0.01514312345534563
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.65), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.06367579847574234
-  Optimizer(Maternal Energy): 7.377063751220703
-  Optimizer(Noise Std): 40.56188201904297
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 40.53461098246781
-    fetal_ac_energy: 1.7057456970214844
-    final_metric: 0.027205842459978157
-    maternal_ac_amp: 1.5467712675820977
-    maternal_ac_energy: 2.3925013542175293
-exp 040:
+exp 024:
   Depth_mm: 6
   Epochs: 750
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
+  Error: 0.2
+  Errored_Fetal_F_Hz: 2.7
   Measurand: abs
   Optimized_Sensitivity: 0.06148862686165491
   Optimized_Window:
@@ -1886,7 +1011,8 @@ exp 040:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
+    grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 104.7029037475586
   Optimizer(Maternal Energy): 145.699462890625
   Optimizer(Noise Std): 30.385507583618164
@@ -1897,17 +1023,11 @@ exp 040:
     final_metric: 0.06148862686165491
     maternal_ac_amp: 0.9490952588036993
     maternal_ac_energy: 0.9007818102836609
-exp 041:
+exp 025:
   Depth_mm: 6
   Epochs: 656
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
+  Error: 0.2
+  Errored_Fetal_F_Hz: 2.7
   Measurand: abs
   Optimized_Sensitivity: 0.06149439164048955
   Optimized_Window:
@@ -1932,7 +1052,8 @@ exp 041:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
+    grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 103.47238159179688
   Optimizer(Maternal Energy): 144.11398315429688
   Optimizer(Noise Std): 30.300025939941406
@@ -1943,19 +1064,13 @@ exp 041:
     final_metric: 0.06149439164048955
     maternal_ac_amp: 0.9370731653657227
     maternal_ac_energy: 0.8781061172485352
-exp 042:
+exp 026:
   Depth_mm: 6
-  Epochs: 659
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
+  Epochs: 750
+  Error: 0.2
+  Errored_Fetal_F_Hz: 2.7
   Measurand: abs
-  Optimized_Sensitivity: 0.061491092686452795
+  Optimized_Sensitivity: 0.061488088426908116
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1972,126 +1087,29 @@ exp 042:
   - 0.0
   - 0.0
   - 0.0
-  - 0.8923194408416748
-  - 0.015295160003006458
-  - 0.09238536655902863
+  - 0.9225960373878479
+  - 0.010374047793447971
+  - 0.0670299381017685
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
-  Optimizer(Fetal Energy): 104.19139099121094
-  Optimizer(Maternal Energy): 144.9074249267578
-  Optimizer(Noise Std): 30.32960319519043
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 104.9129867553711
+  Optimizer(Maternal Energy): 145.9130096435547
+  Optimizer(Noise Std): 30.392065048217773
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.954180504355314
-    fetal_ac_energy: 1.7297500371932983
-    final_metric: 0.061491092686452795
-    maternal_ac_amp: 0.9391040113671126
-    maternal_ac_energy: 0.881916344165802
-exp 043:
-  Depth_mm: 6
-  Epochs: 669
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06148612604352201
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9034928679466248
-  - 0.014292523264884949
-  - 0.08221462368965149
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
-  Optimizer(Fetal Energy): 105.35052490234375
-  Optimizer(Maternal Energy): 146.21697998046875
-  Optimizer(Noise Std): 30.38087272644043
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.02306039152967
-    fetal_ac_energy: 1.7408907413482666
-    final_metric: 0.06148612604352201
-    maternal_ac_amp: 0.9430602173899911
-    maternal_ac_energy: 0.8893625736236572
-exp 044:
-  Depth_mm: 6
-  Epochs: 604
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04861896238750406
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.08079370856285095
-  - 0.8159822821617126
-  - 0.08924546837806702
-  - 0.013978543691337109
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.7), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.16201885044574738
-  Optimizer(Maternal Energy): 16.342559814453125
-  Optimizer(Noise Std): 48.08198928833008
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 48.04050262620204
-    fetal_ac_energy: 5.140888214111328
-    final_metric: 0.04861896238750406
-    maternal_ac_amp: 2.201024779149516
-    maternal_ac_energy: 4.844510078430176
-exp 045:
+    baseline_noise_std: 30.134360984000683
+    fetal_ac_energy: 1.7592931985855103
+    final_metric: 0.061488088426908116
+    maternal_ac_amp: 0.9494787417418002
+    maternal_ac_energy: 0.9015098810195923
+exp 027:
   Depth_mm: 8
   Epochs: 686
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
+  Error: 0.2
+  Errored_Fetal_F_Hz: 2.7
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -2116,7 +1134,8 @@ exp 045:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
+    grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 24.479232788085938
   Optimizer(Maternal Energy): 35.835365295410156
   Optimizer(Noise Std): 21.356891632080078
@@ -2127,17 +1146,11 @@ exp 045:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 046:
+exp 028:
   Depth_mm: 8
   Epochs: 639
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
+  Error: 0.2
+  Errored_Fetal_F_Hz: 2.7
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -2162,7 +1175,8 @@ exp 046:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
+    grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 24.587852478027344
   Optimizer(Maternal Energy): 36.093875885009766
   Optimizer(Noise Std): 21.40068244934082
@@ -2173,17 +1187,11 @@ exp 046:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 047:
+exp 029:
   Depth_mm: 8
-  Epochs: 671
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
+  Epochs: 639
+  Error: 0.2
+  Errored_Fetal_F_Hz: 2.7
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -2207,11 +1215,12 @@ exp 047:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
-  Optimizer(Fetal Energy): 24.633216857910156
-  Optimizer(Maternal Energy): 35.99758529663086
-  Optimizer(Noise Std): 21.3696231842041
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 24.587818145751953
+  Optimizer(Maternal Energy): 36.093894958496094
+  Optimizer(Noise Std): 21.40068244934082
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -2219,109 +1228,11 @@ exp 047:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 048:
-  Depth_mm: 8
-  Epochs: 672
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.7), type=comb
-  Optimizer(Fetal Energy): 24.77214813232422
-  Optimizer(Maternal Energy): 36.09428405761719
-  Optimizer(Noise Std): 21.36920738220215
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 049:
-  Depth_mm: 8
-  Epochs: 581
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZyT8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZBUA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.027205842459978157
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.04073059931397438
-  - 0.9125231504440308
-  - 0.0316031239926815
-  - 0.01514312345534563
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.7), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.06367579847574234
-  Optimizer(Maternal Energy): 7.377063751220703
-  Optimizer(Noise Std): 40.56188201904297
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 40.53461098246781
-    fetal_ac_energy: 1.7057456970214844
-    final_metric: 0.027205842459978157
-    maternal_ac_amp: 1.5467712675820977
-    maternal_ac_energy: 2.3925013542175293
-exp 050:
+exp 030:
   Depth_mm: 6
   Epochs: 653
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
+  Error: 0.25
+  Errored_Fetal_F_Hz: 2.75
   Measurand: abs
   Optimized_Sensitivity: 0.0614903344456383
   Optimized_Window:
@@ -2346,7 +1257,8 @@ exp 050:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
+    grad_clip=False,fetal_f=2.75), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 63.306671142578125
   Optimizer(Maternal Energy): 152.64808654785156
   Optimizer(Noise Std): 30.920297622680664
@@ -2357,17 +1269,11 @@ exp 050:
     final_metric: 0.0614903344456383
     maternal_ac_amp: 0.9720765803255552
     maternal_ac_energy: 0.9449328780174255
-exp 051:
+exp 031:
   Depth_mm: 6
   Epochs: 653
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
+  Error: 0.25
+  Errored_Fetal_F_Hz: 2.75
   Measurand: abs
   Optimized_Sensitivity: 0.0614900998991496
   Optimized_Window:
@@ -2392,7 +1298,8 @@ exp 051:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
+    grad_clip=False,fetal_f=2.75), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 63.38801193237305
   Optimizer(Maternal Energy): 152.73756408691406
   Optimizer(Noise Std): 30.921398162841797
@@ -2403,19 +1310,13 @@ exp 051:
     final_metric: 0.0614900998991496
     maternal_ac_amp: 0.9721173858128562
     maternal_ac_energy: 0.9450122117996216
-exp 052:
+exp 032:
   Depth_mm: 6
-  Epochs: 688
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
+  Epochs: 653
+  Error: 0.25
+  Errored_Fetal_F_Hz: 2.75
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.06149016334397657
   Optimized_Window:
   - 0.0
   - 0.0
@@ -2432,126 +1333,29 @@ exp 052:
   - 0.0
   - 0.0
   - 0.0
-  - 1.0
+  - 0.9885058403015137
+  - 0.0
+  - 0.011494211852550507
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
-  Optimizer(Fetal Energy): 63.495086669921875
-  Optimizer(Maternal Energy): 152.33750915527344
-  Optimizer(Noise Std): 30.877716064453125
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.75), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 63.388031005859375
+  Optimizer(Maternal Energy): 152.737548828125
+  Optimizer(Noise Std): 30.921396255493164
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
-exp 053:
-  Depth_mm: 6
-  Epochs: 688
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
-  Optimizer(Fetal Energy): 63.84874725341797
-  Optimizer(Maternal Energy): 152.68312072753906
-  Optimizer(Noise Std): 30.882219314575195
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
-exp 054:
-  Depth_mm: 6
-  Epochs: 604
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04861896238750406
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.08079370856285095
-  - 0.8159822821617126
-  - 0.08924546837806702
-  - 0.013978543691337109
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.75), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.16201885044574738
-  Optimizer(Maternal Energy): 16.342559814453125
-  Optimizer(Noise Std): 48.08198928833008
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 48.04050262620204
-    fetal_ac_energy: 5.140888214111328
-    final_metric: 0.04861896238750406
-    maternal_ac_amp: 2.201024779149516
-    maternal_ac_energy: 4.844510078430176
-exp 055:
+    baseline_noise_std: 30.523847418542584
+    fetal_ac_energy: 1.8245823383331299
+    final_metric: 0.06149016334397657
+    maternal_ac_amp: 0.9721170179273091
+    maternal_ac_energy: 0.9450114965438843
+exp 033:
   Depth_mm: 8
   Epochs: 642
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
+  Error: 0.25
+  Errored_Fetal_F_Hz: 2.75
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -2576,7 +1380,8 @@ exp 055:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
+    grad_clip=False,fetal_f=2.75), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 14.268537521362305
   Optimizer(Maternal Energy): 35.58659744262695
   Optimizer(Noise Std): 21.413097381591797
@@ -2587,17 +1392,11 @@ exp 055:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 056:
+exp 034:
   Depth_mm: 8
   Epochs: 632
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
+  Error: 0.25
+  Errored_Fetal_F_Hz: 2.75
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -2622,7 +1421,8 @@ exp 056:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
+    grad_clip=False,fetal_f=2.75), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 14.299908638000488
   Optimizer(Maternal Energy): 35.66783905029297
   Optimizer(Noise Std): 21.42572021484375
@@ -2633,17 +1433,11 @@ exp 056:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 057:
+exp 035:
   Depth_mm: 8
   Epochs: 632
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
+  Error: 0.25
+  Errored_Fetal_F_Hz: 2.75
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -2667,11 +1461,12 @@ exp 057:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
-  Optimizer(Fetal Energy): 14.349836349487305
-  Optimizer(Maternal Energy): 35.7135009765625
-  Optimizer(Noise Std): 21.42580223083496
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.75), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 14.299911499023438
+  Optimizer(Maternal Energy): 35.66785430908203
+  Optimizer(Noise Std): 21.42572021484375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -2679,109 +1474,11 @@ exp 057:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 058:
-  Depth_mm: 8
-  Epochs: 628
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.75), type=comb
-  Optimizer(Fetal Energy): 14.431502342224121
-  Optimizer(Maternal Energy): 35.80356216430664
-  Optimizer(Noise Std): 21.431306838989258
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 059:
-  Depth_mm: 8
-  Epochs: 581
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA0D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAABkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.027205842459978157
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.04073059931397438
-  - 0.9125231504440308
-  - 0.0316031239926815
-  - 0.01514312345534563
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.75), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.06367579847574234
-  Optimizer(Maternal Energy): 7.377063751220703
-  Optimizer(Noise Std): 40.56188201904297
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 40.53461098246781
-    fetal_ac_energy: 1.7057456970214844
-    final_metric: 0.027205842459978157
-    maternal_ac_amp: 1.5467712675820977
-    maternal_ac_energy: 2.3925013542175293
-exp 060:
+exp 036:
   Depth_mm: 6
   Epochs: 653
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
+  Error: 0.30000000000000004
+  Errored_Fetal_F_Hz: 2.8
   Measurand: abs
   Optimized_Sensitivity: 0.06145993583961233
   Optimized_Window:
@@ -2806,7 +1503,8 @@ exp 060:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
+    grad_clip=False,fetal_f=2.8), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 59.13750076293945
   Optimizer(Maternal Energy): 151.0432586669922
   Optimizer(Noise Std): 30.82642364501953
@@ -2817,17 +1515,11 @@ exp 060:
     final_metric: 0.06145993583961233
     maternal_ac_amp: 0.9658449669324644
     maternal_ac_energy: 0.9328565001487732
-exp 061:
+exp 037:
   Depth_mm: 6
   Epochs: 653
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
+  Error: 0.30000000000000004
+  Errored_Fetal_F_Hz: 2.8
   Measurand: abs
   Optimized_Sensitivity: 0.06145999488035572
   Optimized_Window:
@@ -2852,7 +1544,8 @@ exp 061:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
+    grad_clip=False,fetal_f=2.8), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 59.23182678222656
   Optimizer(Maternal Energy): 151.14276123046875
   Optimizer(Noise Std): 30.828161239624023
@@ -2863,19 +1556,13 @@ exp 061:
     final_metric: 0.06145999488035572
     maternal_ac_amp: 0.9659329031492732
     maternal_ac_energy: 0.9330263733863831
-exp 062:
+exp 038:
   Depth_mm: 6
-  Epochs: 692
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
+  Epochs: 653
+  Error: 0.30000000000000004
+  Errored_Fetal_F_Hz: 2.8
   Measurand: abs
-  Optimized_Sensitivity: 0.0614938353737513
+  Optimized_Sensitivity: 0.06145998938386757
   Optimized_Window:
   - 0.0
   - 0.0
@@ -2892,126 +1579,29 @@ exp 062:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9815716743469238
+  - 0.9674185514450073
+  - 0.01006536465138197
+  - 0.022516075521707535
   - 0.0
-  - 0.018428346142172813
   - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
-  Optimizer(Fetal Energy): 59.46360397338867
-  Optimizer(Maternal Energy): 150.97409057617188
-  Optimizer(Noise Std): 30.79707908630371
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.8), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 59.23182678222656
+  Optimizer(Maternal Energy): 151.1427764892578
+  Optimizer(Noise Std): 30.828161239624023
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.48012107524704
-    fetal_ac_energy: 1.8172922134399414
-    final_metric: 0.0614938353737513
-    maternal_ac_amp: 0.969564034324961
-    maternal_ac_energy: 0.9400544166564941
-exp 063:
-  Depth_mm: 6
-  Epochs: 693
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06149331835204381
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9825292229652405
-  - 0.0
-  - 0.017470775172114372
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
-  Optimizer(Fetal Energy): 59.87917709350586
-  Optimizer(Maternal Energy): 151.3513946533203
-  Optimizer(Noise Std): 30.803377151489258
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.486162892854974
-    fetal_ac_energy: 1.818298101425171
-    final_metric: 0.06149331835204381
-    maternal_ac_amp: 0.9699165949406977
-    maternal_ac_energy: 0.9407382011413574
-exp 064:
-  Depth_mm: 6
-  Epochs: 604
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04861896238750406
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.08079370856285095
-  - 0.8159822821617126
-  - 0.08924546837806702
-  - 0.013978543691337109
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.8), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.16201885044574738
-  Optimizer(Maternal Energy): 16.342559814453125
-  Optimizer(Noise Std): 48.08198928833008
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 48.04050262620204
-    fetal_ac_energy: 5.140888214111328
-    final_metric: 0.04861896238750406
-    maternal_ac_amp: 2.201024779149516
-    maternal_ac_energy: 4.844510078430176
-exp 065:
+    baseline_noise_std: 30.418266470306847
+    fetal_ac_energy: 1.8058182001113892
+    final_metric: 0.06145998938386757
+    maternal_ac_amp: 0.9659331808299092
+    maternal_ac_energy: 0.933026909828186
+exp 039:
   Depth_mm: 8
   Epochs: 651
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
+  Error: 0.30000000000000004
+  Errored_Fetal_F_Hz: 2.8
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3036,7 +1626,8 @@ exp 065:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
+    grad_clip=False,fetal_f=2.8), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 13.415323257446289
   Optimizer(Maternal Energy): 35.5305061340332
   Optimizer(Noise Std): 21.403953552246094
@@ -3047,17 +1638,11 @@ exp 065:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 066:
+exp 040:
   Depth_mm: 8
   Epochs: 657
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
+  Error: 0.30000000000000004
+  Errored_Fetal_F_Hz: 2.8
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3082,7 +1667,8 @@ exp 066:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
+    grad_clip=False,fetal_f=2.8), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 13.428380966186523
   Optimizer(Maternal Energy): 35.51397705078125
   Optimizer(Noise Std): 21.397493362426758
@@ -3093,17 +1679,11 @@ exp 066:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 067:
+exp 041:
   Depth_mm: 8
   Epochs: 657
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
+  Error: 0.30000000000000004
+  Errored_Fetal_F_Hz: 2.8
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3127,11 +1707,12 @@ exp 067:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
-  Optimizer(Fetal Energy): 13.485300064086914
-  Optimizer(Maternal Energy): 35.559547424316406
-  Optimizer(Noise Std): 21.39759635925293
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.8), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 13.42838191986084
+  Optimizer(Maternal Energy): 35.51395034790039
+  Optimizer(Noise Std): 21.397493362426758
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -3139,109 +1720,11 @@ exp 067:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 068:
-  Depth_mm: 8
-  Epochs: 708
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.8), type=comb
-  Optimizer(Fetal Energy): 13.52668571472168
-  Optimizer(Maternal Energy): 35.39168930053711
-  Optimizer(Noise Std): 21.35247039794922
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 069:
-  Depth_mm: 8
-  Epochs: 581
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz0z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.027205842459978157
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.04073059931397438
-  - 0.9125231504440308
-  - 0.0316031239926815
-  - 0.01514312345534563
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.8), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.06367579847574234
-  Optimizer(Maternal Energy): 7.377063751220703
-  Optimizer(Noise Std): 40.56188201904297
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 40.53461098246781
-    fetal_ac_energy: 1.7057456970214844
-    final_metric: 0.027205842459978157
-    maternal_ac_amp: 1.5467712675820977
-    maternal_ac_energy: 2.3925013542175293
-exp 070:
+exp 042:
   Depth_mm: 6
   Epochs: 687
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
+  Error: 0.35000000000000003
+  Errored_Fetal_F_Hz: 2.85
   Measurand: abs
   Optimized_Sensitivity: 0.0614629768586986
   Optimized_Window:
@@ -3266,7 +1749,8 @@ exp 070:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
+    grad_clip=False,fetal_f=2.85), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 55.342689514160156
   Optimizer(Maternal Energy): 149.25213623046875
   Optimizer(Noise Std): 30.712127685546875
@@ -3277,17 +1761,11 @@ exp 070:
     final_metric: 0.0614629768586986
     maternal_ac_amp: 0.9628486237254174
     maternal_ac_energy: 0.9270774722099304
-exp 071:
+exp 043:
   Depth_mm: 6
   Epochs: 687
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
+  Error: 0.35000000000000003
+  Errored_Fetal_F_Hz: 2.85
   Measurand: abs
   Optimized_Sensitivity: 0.061463000272743845
   Optimized_Window:
@@ -3312,7 +1790,8 @@ exp 071:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
+    grad_clip=False,fetal_f=2.85), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 55.44580841064453
   Optimizer(Maternal Energy): 149.3535614013672
   Optimizer(Noise Std): 30.714014053344727
@@ -3323,19 +1802,13 @@ exp 071:
     final_metric: 0.061463000272743845
     maternal_ac_amp: 0.9629507297536278
     maternal_ac_energy: 0.9272741079330444
-exp 072:
+exp 044:
   Depth_mm: 6
-  Epochs: 683
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
+  Epochs: 687
+  Error: 0.35000000000000003
+  Errored_Fetal_F_Hz: 2.85
   Measurand: abs
-  Optimized_Sensitivity: 0.061462553978091486
+  Optimized_Sensitivity: 0.061462982057937224
   Optimized_Window:
   - 0.0
   - 0.0
@@ -3352,126 +1825,29 @@ exp 072:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9592946767807007
-  - 0.010581162758171558
-  - 0.03012416884303093
+  - 0.9591342806816101
+  - 0.010496229864656925
+  - 0.030369503423571587
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
-  Optimizer(Fetal Energy): 55.7445068359375
-  Optimizer(Maternal Energy): 149.6602325439453
-  Optimizer(Noise Std): 30.72165870666504
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.85), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 55.445804595947266
+  Optimizer(Maternal Energy): 149.353515625
+  Optimizer(Noise Std): 30.714014053344727
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.368268809536726
-    fetal_ac_energy: 1.7974939346313477
-    final_metric: 0.061462553978091486
-    maternal_ac_amp: 0.9630233023271257
-    maternal_ac_energy: 0.9274138808250427
-exp 073:
-  Depth_mm: 6
-  Epochs: 698
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06146373281539149
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9633037447929382
-  - 0.009719403460621834
-  - 0.026976879686117172
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
-  Optimizer(Fetal Energy): 56.22837829589844
-  Optimizer(Maternal Energy): 150.0157470703125
-  Optimizer(Noise Std): 30.72372817993164
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.39128774984288
-    fetal_ac_energy: 1.8013951778411865
-    final_metric: 0.06146373281539149
-    maternal_ac_amp: 0.9643639363750081
-    maternal_ac_energy: 0.9299978017807007
-exp 074:
-  Depth_mm: 6
-  Epochs: 604
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04861896238750406
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.08079370856285095
-  - 0.8159822821617126
-  - 0.08924546837806702
-  - 0.013978543691337109
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.85), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.16201885044574738
-  Optimizer(Maternal Energy): 16.342559814453125
-  Optimizer(Noise Std): 48.08198928833008
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 48.04050262620204
-    fetal_ac_energy: 5.140888214111328
-    final_metric: 0.04861896238750406
-    maternal_ac_amp: 2.201024779149516
-    maternal_ac_energy: 4.844510078430176
-exp 075:
+    baseline_noise_std: 30.367020677442472
+    fetal_ac_energy: 1.7972972393035889
+    final_metric: 0.061462982057937224
+    maternal_ac_amp: 0.9629507916515433
+    maternal_ac_energy: 0.927274227142334
+exp 045:
   Depth_mm: 8
   Epochs: 631
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
+  Error: 0.35000000000000003
+  Errored_Fetal_F_Hz: 2.85
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3496,7 +1872,8 @@ exp 075:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
+    grad_clip=False,fetal_f=2.85), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 12.66508960723877
   Optimizer(Maternal Energy): 35.642120361328125
   Optimizer(Noise Std): 21.427343368530273
@@ -3507,17 +1884,11 @@ exp 075:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 076:
+exp 046:
   Depth_mm: 8
   Epochs: 644
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
+  Error: 0.35000000000000003
+  Errored_Fetal_F_Hz: 2.85
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3542,7 +1913,8 @@ exp 076:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
+    grad_clip=False,fetal_f=2.85), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 12.67245101928711
   Optimizer(Maternal Energy): 35.578277587890625
   Optimizer(Noise Std): 21.411571502685547
@@ -3553,17 +1925,11 @@ exp 076:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 077:
+exp 047:
   Depth_mm: 8
   Epochs: 644
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
+  Error: 0.35000000000000003
+  Errored_Fetal_F_Hz: 2.85
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3587,11 +1953,12 @@ exp 077:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
-  Optimizer(Fetal Energy): 12.735841751098633
-  Optimizer(Maternal Energy): 35.6244010925293
-  Optimizer(Noise Std): 21.411746978759766
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.85), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 12.672435760498047
+  Optimizer(Maternal Energy): 35.578285217285156
+  Optimizer(Noise Std): 21.41157341003418
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -3599,109 +1966,11 @@ exp 077:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 078:
-  Depth_mm: 8
-  Epochs: 646
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.85), type=comb
-  Optimizer(Fetal Energy): 12.83167839050293
-  Optimizer(Maternal Energy): 35.67570114135742
-  Optimizer(Noise Std): 21.40973472595215
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 079:
-  Depth_mm: 8
-  Epochs: 581
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    Z2ZmZmZm1j8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMBkA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.027205842459978157
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.04073059931397438
-  - 0.9125231504440308
-  - 0.0316031239926815
-  - 0.01514312345534563
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.85), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.06367579847574234
-  Optimizer(Maternal Energy): 7.377063751220703
-  Optimizer(Noise Std): 40.56188201904297
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 40.53461098246781
-    fetal_ac_energy: 1.7057456970214844
-    final_metric: 0.027205842459978157
-    maternal_ac_amp: 1.5467712675820977
-    maternal_ac_energy: 2.3925013542175293
-exp 080:
+exp 048:
   Depth_mm: 6
   Epochs: 726
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
+  Error: 0.4
+  Errored_Fetal_F_Hz: 2.9
   Measurand: abs
   Optimized_Sensitivity: 0.061467288367679146
   Optimized_Window:
@@ -3726,7 +1995,8 @@ exp 080:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
+    grad_clip=False,fetal_f=2.9), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 51.86520004272461
   Optimizer(Maternal Energy): 148.14715576171875
   Optimizer(Noise Std): 30.63863182067871
@@ -3737,17 +2007,11 @@ exp 080:
     final_metric: 0.061467288367679146
     maternal_ac_amp: 0.9616167722504005
     maternal_ac_energy: 0.9247068166732788
-exp 081:
+exp 049:
   Depth_mm: 6
   Epochs: 726
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
+  Error: 0.4
+  Errored_Fetal_F_Hz: 2.9
   Measurand: abs
   Optimized_Sensitivity: 0.06146722952317091
   Optimized_Window:
@@ -3772,7 +2036,8 @@ exp 081:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
+    grad_clip=False,fetal_f=2.9), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 51.97356033325195
   Optimizer(Maternal Energy): 148.24264526367188
   Optimizer(Noise Std): 30.640213012695312
@@ -3783,19 +2048,13 @@ exp 081:
     final_metric: 0.06146722952317091
     maternal_ac_amp: 0.9617041964014663
     maternal_ac_energy: 0.9248749613761902
-exp 082:
+exp 050:
   Depth_mm: 6
   Epochs: 726
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
+  Error: 0.4
+  Errored_Fetal_F_Hz: 2.9
   Measurand: abs
-  Optimized_Sensitivity: 0.061467155127058665
+  Optimized_Sensitivity: 0.06146722856262782
   Optimized_Window:
   - 0.0
   - 0.0
@@ -3812,126 +2071,29 @@ exp 082:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9567453265190125
-  - 0.009865627624094486
-  - 0.03338899463415146
+  - 0.9559886455535889
+  - 0.009936310350894928
+  - 0.034075114876031876
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
-  Optimizer(Fetal Energy): 52.2928352355957
-  Optimizer(Maternal Energy): 148.51580810546875
-  Optimizer(Noise Std): 30.645048141479492
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.9), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 51.97358322143555
+  Optimizer(Maternal Energy): 148.24261474609375
+  Optimizer(Noise Std): 30.64021873474121
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.35015279866551
-    fetal_ac_energy: 1.7945948839187622
-    final_metric: 0.061467155127058665
-    maternal_ac_amp: 0.9619719976802775
-    maternal_ac_energy: 0.9253901243209839
-exp 083:
-  Depth_mm: 6
-  Epochs: 661
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06146163212927649
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9441110491752625
-  - 0.013054551556706429
-  - 0.04283437877893448
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
-  Optimizer(Fetal Energy): 52.65037155151367
-  Optimizer(Maternal Energy): 148.90957641601562
-  Optimizer(Noise Std): 30.667163848876953
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.27875658916557
-    fetal_ac_energy: 1.7824864387512207
-    final_metric: 0.06146163212927649
-    maternal_ac_amp: 0.9578204579357228
-    maternal_ac_energy: 0.9174200296401978
-exp 084:
-  Depth_mm: 6
-  Epochs: 704
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06147095024373771
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9201523065567017
-  - 0.01480085588991642
-  - 0.06504682451486588
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.9), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.041514262557029724
-  Optimizer(Maternal Energy): 3.8297786712646484
-  Optimizer(Noise Std): 30.459299087524414
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.13100667877797
-    fetal_ac_energy: 1.7582268714904785
-    final_metric: 0.06147095024373771
-    maternal_ac_amp: 0.9492734728451049
-    maternal_ac_energy: 0.901120126247406
-exp 085:
+    baseline_noise_std: 30.34555221218589
+    fetal_ac_energy: 1.7938264608383179
+    final_metric: 0.06146722856262782
+    maternal_ac_amp: 0.961704723215578
+    maternal_ac_energy: 0.9248759746551514
+exp 051:
   Depth_mm: 8
   Epochs: 728
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
+  Error: 0.4
+  Errored_Fetal_F_Hz: 2.9
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -3956,7 +2118,8 @@ exp 085:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
+    grad_clip=False,fetal_f=2.9), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 11.842101097106934
   Optimizer(Maternal Energy): 35.18939208984375
   Optimizer(Noise Std): 21.338319778442383
@@ -3967,17 +2130,11 @@ exp 085:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 086:
+exp 052:
   Depth_mm: 8
   Epochs: 728
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
+  Error: 0.4
+  Errored_Fetal_F_Hz: 2.9
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4002,7 +2159,8 @@ exp 086:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
+    grad_clip=False,fetal_f=2.9), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 11.865269660949707
   Optimizer(Maternal Energy): 35.20568084716797
   Optimizer(Noise Std): 21.33835792541504
@@ -4013,17 +2171,11 @@ exp 086:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 087:
+exp 053:
   Depth_mm: 8
-  Epochs: 641
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
+  Epochs: 728
+  Error: 0.4
+  Errored_Fetal_F_Hz: 2.9
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4047,11 +2199,12 @@ exp 087:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
-  Optimizer(Fetal Energy): 11.99596118927002
-  Optimizer(Maternal Energy): 35.63284683227539
-  Optimizer(Noise Std): 21.414424896240234
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.9), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 11.865267753601074
+  Optimizer(Maternal Energy): 35.2056770324707
+  Optimizer(Noise Std): 21.33835792541504
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -4059,109 +2212,11 @@ exp 087:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 088:
-  Depth_mm: 8
-  Epochs: 645
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.9), type=comb
-  Optimizer(Fetal Energy): 12.099010467529297
-  Optimizer(Maternal Energy): 35.67252731323242
-  Optimizer(Noise Std): 21.410110473632812
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 089:
-  Depth_mm: 8
-  Epochs: 652
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ2T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    MzMzMzMzB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.9), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.009560080245137215
-  Optimizer(Maternal Energy): 0.9296948313713074
-  Optimizer(Noise Std): 21.39946746826172
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 090:
+exp 054:
   Depth_mm: 6
   Epochs: 699
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
+  Error: 0.45
+  Errored_Fetal_F_Hz: 2.95
   Measurand: abs
   Optimized_Sensitivity: 0.06146713210801337
   Optimized_Window:
@@ -4186,7 +2241,8 @@ exp 090:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
+    grad_clip=False,fetal_f=2.95), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 48.34821319580078
   Optimizer(Maternal Energy): 147.4112548828125
   Optimizer(Noise Std): 30.599842071533203
@@ -4197,17 +2253,11 @@ exp 090:
     final_metric: 0.06146713210801337
     maternal_ac_amp: 0.9574376702999838
     maternal_ac_energy: 0.9166868925094604
-exp 091:
+exp 055:
   Depth_mm: 6
   Epochs: 700
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
+  Error: 0.45
+  Errored_Fetal_F_Hz: 2.95
   Measurand: abs
   Optimized_Sensitivity: 0.0614671310202853
   Optimized_Window:
@@ -4232,7 +2282,8 @@ exp 091:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
+    grad_clip=False,fetal_f=2.95), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 48.46238708496094
   Optimizer(Maternal Energy): 147.50746154785156
   Optimizer(Noise Std): 30.601280212402344
@@ -4243,19 +2294,13 @@ exp 091:
     final_metric: 0.0614671310202853
     maternal_ac_amp: 0.9575970281338129
     maternal_ac_energy: 0.9169920682907104
-exp 092:
+exp 056:
   Depth_mm: 6
   Epochs: 700
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
+  Error: 0.45
+  Errored_Fetal_F_Hz: 2.95
   Measurand: abs
-  Optimized_Sensitivity: 0.06146686175431131
+  Optimized_Sensitivity: 0.06146718044983436
   Optimized_Window:
   - 0.0
   - 0.0
@@ -4272,126 +2317,29 @@ exp 092:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9447253942489624
-  - 0.011718609370291233
-  - 0.04355592653155327
+  - 0.9440503716468811
+  - 0.011771795339882374
+  - 0.044177811592817307
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
-  Optimizer(Fetal Energy): 48.790855407714844
-  Optimizer(Maternal Energy): 147.77037048339844
-  Optimizer(Noise Std): 30.605588912963867
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.95), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 48.46240997314453
+  Optimizer(Maternal Energy): 147.50721740722656
+  Optimizer(Noise Std): 30.601280212402344
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.278981347228
-    fetal_ac_energy: 1.78268301486969
-    final_metric: 0.06146686175431131
-    maternal_ac_amp: 0.9578374775403653
-    maternal_ac_energy: 0.9174526333808899
-exp 093:
-  Depth_mm: 6
-  Epochs: 714
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06146738367302079
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9490296244621277
-  - 0.010935844853520393
-  - 0.040034592151641846
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
-  Optimizer(Fetal Energy): 49.34856033325195
-  Optimizer(Maternal Energy): 148.2021026611328
-  Optimizer(Noise Std): 30.61294174194336
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.304159814302412
-    fetal_ac_energy: 1.7869032621383667
-    final_metric: 0.06146738367302079
-    maternal_ac_amp: 0.9592991640517363
-    maternal_ac_energy: 0.9202548861503601
-exp 094:
-  Depth_mm: 6
-  Epochs: 704
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06147095024373771
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9201523065567017
-  - 0.01480085588991642
-  - 0.06504682451486588
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.95), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.041514262557029724
-  Optimizer(Maternal Energy): 3.8297786712646484
-  Optimizer(Noise Std): 30.459299087524414
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.13100667877797
-    fetal_ac_energy: 1.7582268714904785
-    final_metric: 0.06147095024373771
-    maternal_ac_amp: 0.9492734728451049
-    maternal_ac_energy: 0.901120126247406
-exp 095:
+    baseline_noise_std: 30.274839685269185
+    fetal_ac_energy: 1.78200101852417
+    final_metric: 0.06146718044983436
+    maternal_ac_amp: 0.9575970592557995
+    maternal_ac_energy: 0.9169921278953552
+exp 057:
   Depth_mm: 8
   Epochs: 678
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
+  Error: 0.45
+  Errored_Fetal_F_Hz: 2.95
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4416,7 +2364,8 @@ exp 095:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
+    grad_clip=False,fetal_f=2.95), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 11.119119644165039
   Optimizer(Maternal Energy): 35.37452697753906
   Optimizer(Noise Std): 21.375795364379883
@@ -4427,17 +2376,11 @@ exp 095:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 096:
+exp 058:
   Depth_mm: 8
   Epochs: 678
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
+  Error: 0.45
+  Errored_Fetal_F_Hz: 2.95
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4462,7 +2405,8 @@ exp 096:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
+    grad_clip=False,fetal_f=2.95), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 11.143357276916504
   Optimizer(Maternal Energy): 35.390968322753906
   Optimizer(Noise Std): 21.375843048095703
@@ -4473,17 +2417,11 @@ exp 096:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 097:
+exp 059:
   Depth_mm: 8
   Epochs: 678
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
+  Error: 0.45
+  Errored_Fetal_F_Hz: 2.95
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4507,11 +2445,12 @@ exp 097:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
-  Optimizer(Fetal Energy): 11.214826583862305
-  Optimizer(Maternal Energy): 35.43644714355469
-  Optimizer(Noise Std): 21.375986099243164
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=2.95), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 11.143348693847656
+  Optimizer(Maternal Energy): 35.390960693359375
+  Optimizer(Noise Std): 21.375843048095703
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -4519,109 +2458,11 @@ exp 097:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 098:
-  Depth_mm: 8
-  Epochs: 704
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=2.95), type=comb
-  Optimizer(Fetal Energy): 11.310810089111328
-  Optimizer(Maternal Energy): 35.39216613769531
-  Optimizer(Noise Std): 21.35498809814453
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 099:
-  Depth_mm: 8
-  Epochs: 652
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzM3D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZB0A=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=2.95), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.009560080245137215
-  Optimizer(Maternal Energy): 0.9296948313713074
-  Optimizer(Noise Std): 21.39946746826172
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 100:
+exp 060:
   Depth_mm: 6
   Epochs: 727
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
+  Error: 0.5
+  Errored_Fetal_F_Hz: 3.0
   Measurand: abs
   Optimized_Sensitivity: 0.061469491800921566
   Optimized_Window:
@@ -4646,7 +2487,8 @@ exp 100:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
+    grad_clip=False,fetal_f=3.0), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 44.98735046386719
   Optimizer(Maternal Energy): 147.23263549804688
   Optimizer(Noise Std): 30.5837459564209
@@ -4657,17 +2499,11 @@ exp 100:
     final_metric: 0.061469491800921566
     maternal_ac_amp: 0.9585352698708722
     maternal_ac_energy: 0.9187898635864258
-exp 101:
+exp 061:
   Depth_mm: 6
   Epochs: 736
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
+  Error: 0.5
+  Errored_Fetal_F_Hz: 3.0
   Measurand: abs
   Optimized_Sensitivity: 0.06146977758699457
   Optimized_Window:
@@ -4692,7 +2528,8 @@ exp 101:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
+    grad_clip=False,fetal_f=3.0), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 45.119598388671875
   Optimizer(Maternal Energy): 147.35736083984375
   Optimizer(Noise Std): 30.585569381713867
@@ -4703,19 +2540,13 @@ exp 101:
     final_metric: 0.06146977758699457
     maternal_ac_amp: 0.9592138198499656
     maternal_ac_energy: 0.9200911521911621
-exp 102:
+exp 062:
   Depth_mm: 6
-  Epochs: 747
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
+  Epochs: 736
+  Error: 0.5
+  Errored_Fetal_F_Hz: 3.0
   Measurand: abs
-  Optimized_Sensitivity: 0.061470197364059176
+  Optimized_Sensitivity: 0.06146985605414083
   Optimized_Window:
   - 0.0
   - 0.0
@@ -4732,126 +2563,29 @@ exp 102:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9515858292579651
-  - 0.009876158088445663
-  - 0.03853810206055641
+  - 0.9490483999252319
+  - 0.010346729308366776
+  - 0.0406048521399498
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
-  Optimizer(Fetal Energy): 45.468082427978516
-  Optimizer(Maternal Energy): 147.6380157470703
-  Optimizer(Noise Std): 30.589153289794922
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=3.0), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 45.11957931518555
+  Optimizer(Maternal Energy): 147.35740661621094
+  Optimizer(Noise Std): 30.585569381713867
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.317466973857456
-    fetal_ac_energy: 1.7892130613327026
-    final_metric: 0.061470197364059176
-    maternal_ac_amp: 0.9600736255029682
-    maternal_ac_energy: 0.9217413663864136
-exp 103:
-  Depth_mm: 6
-  Epochs: 747
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.061470022875336545
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9522367715835571
-  - 0.009832899086177349
-  - 0.03793035075068474
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
-  Optimizer(Fetal Energy): 45.97736740112305
-  Optimizer(Maternal Energy): 147.97055053710938
-  Optimizer(Noise Std): 30.59339714050293
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.321477005143358
-    fetal_ac_energy: 1.7898794412612915
-    final_metric: 0.061470022875336545
-    maternal_ac_amp: 0.9603069066171218
-    maternal_ac_energy: 0.9221893548965454
-exp 104:
-  Depth_mm: 6
-  Epochs: 704
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06147095024373771
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9201523065567017
-  - 0.01480085588991642
-  - 0.06504682451486588
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=3.0), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.041514262557029724
-  Optimizer(Maternal Energy): 3.8297786712646484
-  Optimizer(Noise Std): 30.459299087524414
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.13100667877797
-    fetal_ac_energy: 1.7582268714904785
-    final_metric: 0.06147095024373771
-    maternal_ac_amp: 0.9492734728451049
-    maternal_ac_energy: 0.901120126247406
-exp 105:
+    baseline_noise_std: 30.302658276672897
+    fetal_ac_energy: 1.7867281436920166
+    final_metric: 0.06146985605414083
+    maternal_ac_amp: 0.9592140994756932
+    maternal_ac_energy: 0.9200916886329651
+exp 063:
   Depth_mm: 8
   Epochs: 642
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
+  Error: 0.5
+  Errored_Fetal_F_Hz: 3.0
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4876,7 +2610,8 @@ exp 105:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
+    grad_clip=False,fetal_f=3.0), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 10.368854522705078
   Optimizer(Maternal Energy): 35.55531692504883
   Optimizer(Noise Std): 21.411991119384766
@@ -4887,17 +2622,11 @@ exp 105:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 106:
+exp 064:
   Depth_mm: 8
   Epochs: 642
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
+  Error: 0.5
+  Errored_Fetal_F_Hz: 3.0
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4922,7 +2651,8 @@ exp 106:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
+    grad_clip=False,fetal_f=3.0), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 10.393095016479492
   Optimizer(Maternal Energy): 35.571739196777344
   Optimizer(Noise Std): 21.41204261779785
@@ -4933,17 +2663,11 @@ exp 106:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 107:
+exp 065:
   Depth_mm: 8
   Epochs: 642
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
+  Error: 0.5
+  Errored_Fetal_F_Hz: 3.0
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -4967,11 +2691,12 @@ exp 107:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
-  Optimizer(Fetal Energy): 10.464866638183594
-  Optimizer(Maternal Energy): 35.61732482910156
-  Optimizer(Noise Std): 21.412200927734375
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=3.0), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 10.393096923828125
+  Optimizer(Maternal Energy): 35.57172393798828
+  Optimizer(Noise Std): 21.41204261779785
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -4979,109 +2704,11 @@ exp 107:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 108:
-  Depth_mm: 8
-  Epochs: 642
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=3.0), type=comb
-  Optimizer(Fetal Energy): 10.578432083129883
-  Optimizer(Maternal Energy): 35.679786682128906
-  Optimizer(Noise Std): 21.41246795654297
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 109:
-  Depth_mm: 8
-  Epochs: 652
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAA4D8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AAAAAAAACEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=3.0), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.009560080245137215
-  Optimizer(Maternal Energy): 0.9296948313713074
-  Optimizer(Noise Std): 21.39946746826172
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 110:
+exp 066:
   Depth_mm: 6
   Epochs: 690
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
+  Error: 0.55
+  Errored_Fetal_F_Hz: 3.05
   Measurand: abs
   Optimized_Sensitivity: 0.06148453711706378
   Optimized_Window:
@@ -5106,7 +2733,8 @@ exp 110:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
+    grad_clip=False,fetal_f=3.05), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 31.487375259399414
   Optimizer(Maternal Energy): 149.5290069580078
   Optimizer(Noise Std): 30.90633201599121
@@ -5117,17 +2745,11 @@ exp 110:
     final_metric: 0.06148453711706378
     maternal_ac_amp: 0.9763489451557555
     maternal_ac_energy: 0.9532572627067566
-exp 111:
+exp 067:
   Depth_mm: 6
   Epochs: 690
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
+  Error: 0.55
+  Errored_Fetal_F_Hz: 3.05
   Measurand: abs
   Optimized_Sensitivity: 0.06148453711706378
   Optimized_Window:
@@ -5152,7 +2774,8 @@ exp 111:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
+    grad_clip=False,fetal_f=3.05), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 31.542236328125
   Optimizer(Maternal Energy): 149.5253143310547
   Optimizer(Noise Std): 30.906627655029297
@@ -5163,17 +2786,11 @@ exp 111:
     final_metric: 0.06148453711706378
     maternal_ac_amp: 0.9763489451557555
     maternal_ac_energy: 0.9532572627067566
-exp 112:
+exp 068:
   Depth_mm: 6
-  Epochs: 705
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
+  Epochs: 690
+  Error: 0.55
+  Errored_Fetal_F_Hz: 3.05
   Measurand: abs
   Optimized_Sensitivity: 0.06148453711706378
   Optimized_Window:
@@ -5197,11 +2814,12 @@ exp 112:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
-  Optimizer(Fetal Energy): 31.67964744567871
-  Optimizer(Maternal Energy): 149.26199340820312
-  Optimizer(Noise Std): 30.888601303100586
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=3.05), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 31.54222297668457
+  Optimizer(Maternal Energy): 149.52528381347656
+  Optimizer(Noise Std): 30.906627655029297
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 30.59619081012935
@@ -5209,109 +2827,11 @@ exp 112:
     final_metric: 0.06148453711706378
     maternal_ac_amp: 0.9763489451557555
     maternal_ac_energy: 0.9532572627067566
-exp 113:
-  Depth_mm: 6
-  Epochs: 712
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
-  Optimizer(Fetal Energy): 31.92715072631836
-  Optimizer(Maternal Energy): 149.08102416992188
-  Optimizer(Noise Std): 30.88176918029785
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
-exp 114:
-  Depth_mm: 6
-  Epochs: 704
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06147095024373771
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9201523065567017
-  - 0.01480085588991642
-  - 0.06504682451486588
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=3.05), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.041514262557029724
-  Optimizer(Maternal Energy): 3.8297786712646484
-  Optimizer(Noise Std): 30.459299087524414
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.13100667877797
-    fetal_ac_energy: 1.7582268714904785
-    final_metric: 0.06147095024373771
-    maternal_ac_amp: 0.9492734728451049
-    maternal_ac_energy: 0.901120126247406
-exp 115:
+exp 069:
   Depth_mm: 8
   Epochs: 680
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
+  Error: 0.55
+  Errored_Fetal_F_Hz: 3.05
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -5336,7 +2856,8 @@ exp 115:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
+    grad_clip=False,fetal_f=3.05), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 7.075587272644043
   Optimizer(Maternal Energy): 34.64630126953125
   Optimizer(Noise Std): 21.39402198791504
@@ -5347,17 +2868,11 @@ exp 115:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 116:
+exp 070:
   Depth_mm: 8
   Epochs: 680
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
+  Error: 0.55
+  Errored_Fetal_F_Hz: 3.05
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -5382,7 +2897,8 @@ exp 116:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
+    grad_clip=False,fetal_f=3.05), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 7.087783336639404
   Optimizer(Maternal Energy): 34.64435577392578
   Optimizer(Noise Std): 21.39397621154785
@@ -5393,17 +2909,11 @@ exp 116:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 117:
+exp 071:
   Depth_mm: 8
-  Epochs: 692
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
+  Epochs: 680
+  Error: 0.55
+  Errored_Fetal_F_Hz: 3.05
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -5427,11 +2937,12 @@ exp 117:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
-  Optimizer(Fetal Energy): 7.117733955383301
-  Optimizer(Maternal Energy): 34.58189392089844
-  Optimizer(Noise Std): 21.382314682006836
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=3.05), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 7.0877814292907715
+  Optimizer(Maternal Energy): 34.64434051513672
+  Optimizer(Noise Std): 21.39397430419922
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111
@@ -5439,109 +2950,11 @@ exp 117:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 118:
-  Depth_mm: 8
-  Epochs: 692
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=3.05), type=comb
-  Optimizer(Fetal Energy): 7.175178527832031
-  Optimizer(Maternal Energy): 34.559234619140625
-  Optimizer(Noise Std): 21.38207244873047
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 119:
-  Depth_mm: 8
-  Epochs: 652
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    mpmZmZmZ4T8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    ZmZmZmZmCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=3.05), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.009560080245137215
-  Optimizer(Maternal Energy): 0.9296948313713074
-  Optimizer(Noise Std): 21.39946746826172
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 120:
+exp 072:
   Depth_mm: 6
   Epochs: 724
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
+  Error: 0.6000000000000001
+  Errored_Fetal_F_Hz: 3.1
   Measurand: abs
   Optimized_Sensitivity: 0.061490501605247445
   Optimized_Window:
@@ -5566,7 +2979,8 @@ exp 120:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
+    grad_clip=False,fetal_f=3.1), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 26.225587844848633
   Optimizer(Maternal Energy): 148.43817138671875
   Optimizer(Noise Std): 30.830705642700195
@@ -5577,17 +2991,11 @@ exp 120:
     final_metric: 0.061490501605247445
     maternal_ac_amp: 0.9718790587803517
     maternal_ac_energy: 0.9445489048957825
-exp 121:
+exp 073:
   Depth_mm: 6
   Epochs: 724
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
+  Error: 0.6000000000000001
+  Errored_Fetal_F_Hz: 3.1
   Measurand: abs
   Optimized_Sensitivity: 0.06149047431889593
   Optimized_Window:
@@ -5612,7 +3020,8 @@ exp 121:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
+    grad_clip=False,fetal_f=3.1), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 26.290719985961914
   Optimizer(Maternal Energy): 148.43324279785156
   Optimizer(Noise Std): 30.830923080444336
@@ -5623,19 +3032,13 @@ exp 121:
     final_metric: 0.06149047431889593
     maternal_ac_amp: 0.9718896380239014
     maternal_ac_energy: 0.94456946849823
-exp 122:
+exp 074:
   Depth_mm: 6
   Epochs: 724
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
+  Error: 0.6000000000000001
+  Errored_Fetal_F_Hz: 3.1
   Measurand: abs
-  Optimized_Sensitivity: 0.061490529238098376
+  Optimized_Sensitivity: 0.06149052864365397
   Optimized_Window:
   - 0.0
   - 0.0
@@ -5652,126 +3055,29 @@ exp 122:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9879820346832275
+  - 0.9878888130187988
   - 0.0
-  - 0.012017976492643356
+  - 0.012111183255910873
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
-  Optimizer(Fetal Energy): 26.485275268554688
-  Optimizer(Maternal Energy): 148.40687561035156
-  Optimizer(Noise Std): 30.83159828186035
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=3.1), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 26.290712356567383
+  Optimizer(Maternal Energy): 148.4331817626953
+  Optimizer(Noise Std): 30.830921173095703
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.520545918193065
-    fetal_ac_energy: 1.8240338563919067
-    final_metric: 0.061490529238098376
-    maternal_ac_amp: 0.9719241347572363
-    maternal_ac_energy: 0.9446365237236023
-exp 123:
-  Depth_mm: 6
-  Epochs: 655
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.061492723487641475
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9838626384735107
-  - 0.0
-  - 0.016137391328811646
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
-  Optimizer(Fetal Energy): 26.872297286987305
-  Optimizer(Maternal Energy): 149.30120849609375
-  Optimizer(Noise Std): 30.9129695892334
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.49457439255076
-    fetal_ac_energy: 1.8197016716003418
-    final_metric: 0.061492723487641475
-    maternal_ac_amp: 0.9704069303551279
-    maternal_ac_energy: 0.9416896104812622
-exp 124:
-  Depth_mm: 6
-  Epochs: 704
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.06147095024373771
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9201523065567017
-  - 0.01480085588991642
-  - 0.06504682451486588
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=3.1), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.041514262557029724
-  Optimizer(Maternal Energy): 3.8297786712646484
-  Optimizer(Noise Std): 30.459299087524414
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 30.13100667877797
-    fetal_ac_energy: 1.7582268714904785
-    final_metric: 0.06147095024373771
-    maternal_ac_amp: 0.9492734728451049
-    maternal_ac_energy: 0.901120126247406
-exp 125:
+    baseline_noise_std: 30.519958969628586
+    fetal_ac_energy: 1.8239340782165527
+    final_metric: 0.06149052864365397
+    maternal_ac_amp: 0.971889668688208
+    maternal_ac_energy: 0.9445695281028748
+exp 075:
   Depth_mm: 8
   Epochs: 645
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
+  Error: 0.6000000000000001
+  Errored_Fetal_F_Hz: 3.1
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -5796,7 +3102,8 @@ exp 125:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
+    grad_clip=False,fetal_f=3.1), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 5.933231353759766
   Optimizer(Maternal Energy): 34.82624816894531
   Optimizer(Noise Std): 21.433881759643555
@@ -5807,17 +3114,11 @@ exp 125:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 126:
+exp 076:
   Depth_mm: 8
   Epochs: 645
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
+  Error: 0.6000000000000001
+  Errored_Fetal_F_Hz: 3.1
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -5842,7 +3143,8 @@ exp 126:
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
+    grad_clip=False,fetal_f=3.1), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=True
   Optimizer(Fetal Energy): 5.947880744934082
   Optimizer(Maternal Energy): 34.824256896972656
   Optimizer(Noise Std): 21.433839797973633
@@ -5853,17 +3155,11 @@ exp 126:
     final_metric: 0.04103875542437873
     maternal_ac_amp: 0.4725764656510737
     maternal_ac_energy: 0.22332851588726044
-exp 127:
+exp 077:
   Depth_mm: 8
-  Epochs: 672
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
+  Epochs: 645
+  Error: 0.6000000000000001
+  Errored_Fetal_F_Hz: 3.1
   Measurand: abs
   Optimized_Sensitivity: 0.04103875542437873
   Optimized_Window:
@@ -5887,103 +3183,12 @@ exp 127:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.2, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
-  Optimizer(Fetal Energy): 5.9779815673828125
-  Optimizer(Maternal Energy): 34.668487548828125
-  Optimizer(Noise Std): 21.402225494384766
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 128:
-  Depth_mm: 8
-  Epochs: 711
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.3, patience=100,
-    grad_clip=False,fetal_f=3.1), type=comb
-  Optimizer(Fetal Energy): 6.032933712005615
-  Optimizer(Maternal Energy): 34.4793586730957
-  Optimizer(Noise Std): 21.366241455078125
-  True_Fetal_F_Hz: 2.5
-  evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
-exp 129:
-  Depth_mm: 8
-  Epochs: 652
-  Error: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    NDMzMzMz4z8=
-  Errored_Fetal_F_Hz: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zczMzMzMCEA=
-  Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
-  Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.001, patience=100,
-    grad_clip=False,fetal_f=3.1), type=psafe_same_width
-  Optimizer(Fetal Energy): 0.009560080245137215
-  Optimizer(Maternal Energy): 0.9296948313713074
-  Optimizer(Noise Std): 21.39946746826172
+  Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
+    grad_clip=False,fetal_f=3.1), type=comb, filter_smoothening=True,reg_type=l2,
+    reg_weight=0.0001, normalize_reward=False
+  Optimizer(Fetal Energy): 5.947885036468506
+  Optimizer(Maternal Energy): 34.82427978515625
+  Optimizer(Noise Std): 21.433839797973633
   True_Fetal_F_Hz: 2.5
   evaluator_log:
     baseline_noise_std: 21.15415757170111

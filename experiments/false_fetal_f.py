@@ -114,18 +114,17 @@ def main(
 
 
 if __name__ == "__main__":
-    filter_hw = 0.001  # Hz
+    filter_hw = 0.01  # Hz
     # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]] = [
         lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, lr=0.01, filter_type="comb",),
         lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.2, lr=0.01, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.3, lr=0.01, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=filter_hw, lr=0.01, filter_type="psafe_same_width",),
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb", normalize_reward=False)
     ]
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
-    error_rates = list(np.arange(0.0, 0.61, 0.05))
+    error_rates_np = np.arange(0.0, 0.61, 0.05)
+    error_rates = [float(x) for x in error_rates_np]
     exp_results = main(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/false_fetal_f_results.yaml", "w") as f:
