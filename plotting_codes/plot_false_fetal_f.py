@@ -1,37 +1,60 @@
-"""Plot DIGSS figure of merit vs. fetal frequency error percentage."""
+"""Plot separated fetal energy vs. fetal frequency error for comb filter_hw=0.01."""
 
 from pathlib import Path
-from cycler import cycler
+import re
 import matplotlib.pyplot as plt
 import yaml
-
+from joint_tof_opt.plotting import load_plot_config
 
 def main(depth=10):
     """Generate false fetal frequency comparison plot for a given depth."""
     # Load matplotlib configuration
-    config_path = Path(__file__).parent / 'plot_config.yaml'
-    with open(config_path, 'r') as f:
-        plot_config = yaml.safe_load(f)
-        custom_cycler = (cycler(color=plot_config['plotting']['colors']) +
-                         # Turning off line styles - makes it too messy
-                #  cycler(linestyle=plot_config['plotting']['line_styles']) +
-                 cycler(marker=plot_config['plotting']['markers']))
-        plt.rcParams['axes.prop_cycle'] = custom_cycler
-        plot_config.pop('plotting', None)  # Remove custom plotting config from rcParams
-        plt.rcParams.update(plot_config)
+    load_plot_config()
 
     # Load false fetal frequency results
     results_path = Path(__file__).parent.parent / 'results' / 'false_fetal_f_results.yaml'
     with open(results_path, 'r') as f:
         results = yaml.safe_load(f)
 
-    # Collect sensitivities by optimizer type and error percentage at a given depth.
-    error_data = {
-        'comb': {},
-        'psafe_same_width': {},
-        'liu': {},
-        'cw': {},
-    }
+    # Collect fetal energy by error level (Hz) for comb filter with filter_hw=0.01.
+    error_data = {}
+
+    def _parse_optimizer(optimizer_str):
+        if 'DIGSSOptimizer' not in optimizer_str:
+            return None, None
+
+        type_match = re.search(r'type=([a-zA-Z0-9_]+)', optimizer_str)
+        if not type_match:
+            return None, None
+
+        optimizer_type = type_match.group(1)
+        filter_match = re.search(r'filter_hw=([0-9]*\.?[0-9]+)', optimizer_str)
+        filter_hw = float(filter_match.group(1)) if filter_match else None
+        return optimizer_type, filter_hw
+
+    def _get_energy(exp_data, energy_kind):
+        """Extract fetal/maternal energy from supported result layouts."""
+        evaluator_log = exp_data.get('evaluator_log', {})
+
+        if energy_kind == 'fetal':
+            candidates = [
+                exp_data.get('Optimizer(Fetal Energy)'),
+                exp_data.get('Optimizer_Fetal_Energy'),
+                exp_data.get('fetal_ac_energy'),
+                evaluator_log.get('fetal_ac_energy'),
+            ]
+        else:
+            candidates = [
+                exp_data.get('Optimizer(Maternal Energy)'),
+                exp_data.get('Optimizer_Maternal_Energy'),
+                exp_data.get('maternal_ac_energy'),
+                evaluator_log.get('maternal_ac_energy'),
+            ]
+
+        for value in candidates:
+            if value is not None:
+                return value
+        return None
 
     for exp_data in results.values():
         if not isinstance(exp_data, dict):
@@ -41,58 +64,38 @@ def main(depth=10):
             continue
 
         optimizer = exp_data.get('Optimizer', '')
-        sensitivity = exp_data.get('Optimized_Sensitivity')
-        percent_error = exp_data.get('Percent_Error')
+        fetal_energy = _get_energy(exp_data, 'fetal')
 
-        if sensitivity is None or percent_error is None:
+        # Compute error in Hz as difference between errored and true fetal frequency
+        errored_fetal_f = exp_data.get('Errored_Fetal_F_Hz')
+        true_fetal_f = exp_data.get('True_Fetal_F_Hz')
+
+        if fetal_energy is None or errored_fetal_f is None or true_fetal_f is None:
             continue
 
-        if 'type=comb' in optimizer and 'DIGSSOptimizer' in optimizer:
-            optimizer_key = 'comb'
-        elif 'type=psafe_same_width' in optimizer and 'DIGSSOptimizer' in optimizer:
-            optimizer_key = 'psafe_same_width'
-        elif 'LiuOptimizer' in optimizer:
-            optimizer_key = 'liu'
-        elif 'DummyUnitWindowGenerator' in optimizer:
-            optimizer_key = 'cw'
-        else:
+        error_hz = errored_fetal_f - true_fetal_f
+
+        optimizer_type, filter_hw = _parse_optimizer(optimizer)
+        # Only keep comb type with filter_hw=0.01
+        if optimizer_type != 'comb' or filter_hw is None or abs(filter_hw - 0.01) > 1e-12:
             continue
 
-        error_data[optimizer_key][percent_error] = sensitivity
+        if error_hz not in error_data:
+            error_data[error_hz] = []
+        error_data[error_hz].append(fetal_energy)
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(8, 5))
 
-    for optimizer_key, label in [
-        ('comb', 'DIGSS w Comb Separator'),
-        ('psafe_same_width', 'DIGSS w TSA Separator'),
-        ('liu', 'Liu Optimizer'),
-        ('cw', 'CW'),
-    ]:
-        if not error_data[optimizer_key]:
-            continue
-
-        percent_errors = sorted(error_data[optimizer_key].keys())
-        sensitivities = [error_data[optimizer_key][error] for error in percent_errors]
-        ax.plot(
-            [error * 100 for error in percent_errors],
-            sensitivities,
-            linewidth=2,
-            markersize=6,
-            label=label,
-        )
+    # Build one curve: x=error (Hz), y=average fetal energy at that error.
+    error_values = sorted(error_data.keys())
+    fetal_energy_values = [sum(error_data[err]) / len(error_data[err]) for err in error_values]
+    ax.plot(error_values, fetal_energy_values)
 
     # Configure axes
-    ax.set_xlabel('Error Percentage (%)')
-    ax.set_ylabel('Figure of Merit')
-    ax.set_yscale('log')
-    ax.legend()
+    ax.set_xlabel('Fetal Frequency Error (Hz)')
+    ax.set_ylabel('Separated Fetal Energy')
     ax.grid(True, alpha=0.3)
-
-    xticks = sorted({error * 100 for data in error_data.values() for error in data.keys()})
-    if xticks:
-        ax.set_xticks(xticks)
-        ax.set_xticklabels([f'{tick:.0f}%' for tick in xticks])
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / 'figures'
@@ -106,4 +109,4 @@ def main(depth=10):
 
 
 if __name__ == "__main__":
-    main(20)
+    main(6)

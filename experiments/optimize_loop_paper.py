@@ -38,6 +38,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from joint_tof_opt import *
 from sensitivity_compute import *
+from joint_tof_opt.plotting import load_plot_config
 
 
 logger = logging.getLogger(__name__)
@@ -80,6 +81,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         reg_type: Literal["l1", "l2"] = "l2",
         reg_weight: float = 1e-4,
         window_smoothening: bool = True,
+        normalize_reward: bool = True,
         filter_type: Literal[
             "comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"
         ] = "psafe_same_width",
@@ -100,6 +102,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         :param reg_type: Regularization type ("l1" or "l2").
         :param reg_weight: Regularization weight (must be non-negative).
         :param window_smoothening: If true - sets all window weights below 1% of the max weight to 0
+        :param normalize_reward: Whether to normalize the final reward/metric for better optimization stability
 
         :param filter_type: Type of filter to use
          - "comb": Standard sinc comb filter
@@ -148,6 +151,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         _, num_bins = self.tof_data.tof_series.shape
         self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
         self.training_curves: np.ndarray = np.zeros((self.max_epochs, 3))
+        self.normalize_reward = normalize_reward
+        self.training_cruves_extra = np.zeros((self.max_epochs, 10))  # Logging the independent 3 elements
 
         # Compute the Average ToF Frame
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
@@ -172,6 +177,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         # Set training curve labels
         self.training_curve_labels = ["Normalized Selectivity", "Normalized SNR", "Final Metric"]
+        self.training_curve_extra_labels = ["Fetal Energy", "Maternal Energy", "Baseline Noise STD"]
 
     def _get_filters(self, filter_type: str):
         filter_len = int(2 * self.sampling_rate / self.fetal_f)  # Ensure at least 2 periods are captured
@@ -299,9 +305,11 @@ class DIGSSOptimizer(OptimizationExperiment):
             baseline_noise_std = torch.sqrt(baseline_noise_var)
             selectivity = torch.sqrt(fetal_energy / maternal_energy)
             snr = torch.sqrt(fetal_energy) / baseline_noise_std
+
             # Normalize by the best possble values
-            snr = snr / float(self.max_snr)
-            selectivity = selectivity / float(self.max_selectivity)
+            if self.normalize_reward:
+                snr = snr / float(self.max_snr)
+                selectivity = selectivity / float(self.max_selectivity)
             final_metric = selectivity * snr
 
             # Base objective (maximize final_metric)
@@ -311,6 +319,9 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.training_curves[epoch, 0] = selectivity.item()
             self.training_curves[epoch, 1] = snr.item()
             self.training_curves[epoch, 2] = final_metric.item()
+            self.training_cruves_extra[epoch, 0] = fetal_energy.item()
+            self.training_cruves_extra[epoch, 1] = maternal_energy.item()
+            self.training_cruves_extra[epoch, 2] = baseline_noise_std.item()
 
             # L1 regularization (L2 is already in Adam weight_decay)
             if self.reg_type == "l1" and self.reg_weight > 0:
@@ -333,11 +344,13 @@ class DIGSSOptimizer(OptimizationExperiment):
                 if epochs_no_improve >= self.patience:
                     logger.info("Early stopping at epoch %d", epoch + 1)
                     self.training_curves = self.training_curves[: epoch + 1]
+                    self.training_curves_extra = self.training_cruves_extra[: epoch + 1]
                     break
 
         # Trim training curves if early stopping occurred
         if self.training_curves.shape[0] > epoch + 1:
             self.training_curves = self.training_curves[: epoch + 1]
+            self.training_curves_extra = self.training_curves_extra[: epoch + 1]
 
         # Set the normalized window as final window
         self._smoothen_window()
@@ -399,18 +412,7 @@ def plot_training_curves_and_window(
     bin_centers_ns = np.round(bin_centers_ns, decimals=2)
 
     ## Load config for plotting if available
-    config_path = Path("./plotting_codes/plot_config.yaml")
-    with open(config_path, "r") as f:
-        plot_config = yaml.safe_load(f)
-        custom_cycler = (
-            cycler(color=plot_config["plotting"]["colors"])
-            +
-            #  cycler(linestyle=plot_config['plotting']['line_styles']) +
-            cycler(marker=plot_config["plotting"]["markers"])
-        )
-        plt.rcParams["axes.prop_cycle"] = custom_cycler
-        plot_config.pop("plotting", None)  # Remove custom plotting config from rcParams
-        plt.rcParams.update(plot_config)
+    load_plot_config()
 
     plt.subplots(1, 2, figsize=fig_size)
 
@@ -446,18 +448,20 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
-    for file_idx in range(8):
+    for file_idx in range(1):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.7
-        filter_hw = 0.1
+        filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         experiment = DIGSSOptimizer(
             tof_dataset_path=tof_dataset_path,
             measurand=measurand,
+            fetal_f=gen_config["fetal_f"] + 0.0,
+            normalize_reward=False,
             lr=0.1,
             filter_hw=filter_hw,
             patience=50,
@@ -489,7 +493,6 @@ if __name__ == "__main__":
         logger.info("Evaluator log: %s", evaluator.get_log())
         logger.info("Max SNR(SB): %.4f at i %d", experiment.max_snr, experiment.max_snr_index)
         logger.info("Max Selectivity(SB): %.4f at i %d", experiment.max_selectivity, experiment.max_selectivity_index)
-        
+
         # Clean up
         tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
-        
