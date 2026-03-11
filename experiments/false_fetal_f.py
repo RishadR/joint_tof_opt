@@ -57,7 +57,7 @@ def main(
         print(f"Running experiments for fetal frequency error: {error_hz*100:.1f}%")
         gen_config_true = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         true_fetal_f: float = gen_config_true["fetal_f"]
-        new_fetal_f = true_fetal_f + error_hz
+        new_fetal_f = true_fetal_f - error_hz
         # Get the noise function for the measurand
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
@@ -123,9 +123,9 @@ if __name__ == "__main__":
         lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb", normalize_reward=False)
     ]
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
-    error_rates_np = np.arange(0.0, 0.61, 0.05)
+    error_rates_np = np.arange(0.0, 1.01, 0.05)
     error_rates = [float(x) for x in error_rates_np]
     exp_results = main(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/false_fetal_f_results.yaml", "w") as f:
+    with open("./results/false_fetal_f_results2.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
