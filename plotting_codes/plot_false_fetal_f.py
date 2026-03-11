@@ -94,8 +94,8 @@ def main(depth=10):
 
     # Configure axes
     ax.set_xlabel('Fetal Frequency Error (Hz)')
-    ax.set_ylabel('Separated Fetal Energy')
-    ax.grid(True, alpha=0.3)
+    ax.set_ylabel('Separated Fetal Energy (Units)')
+    ax.grid(True)
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / 'figures'
