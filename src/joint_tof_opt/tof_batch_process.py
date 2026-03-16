@@ -5,7 +5,6 @@ Load and create a ToF dataset for testing purposes.
 from pathlib import Path
 import numpy as np
 import yaml
-import torch
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 from joint_tof_opt.tof_process import compute_tof_discrete, compute_inner_bin_moment
 from joint_tof_opt.core import ToFData
@@ -91,7 +90,9 @@ def generate_tof(
     detpos_array = ppath_dataset["detpos"]
     detpos = detpos_array[int(selected_sdd_index) - 1, :3]
     sd_distance = detpos[1] - srcpos[1]
-    filtered_ppath_array = (ppath_array[ppath_array[:, 0] == selected_sdd_index])[:, 1:]
+    # Filter the ppath_array to only include paths for the selected SDD index
+    detector_id_array = ppath_array[:, 0].astype(int)
+    filtered_ppath_array = ppath_array[detector_id_array == int(selected_sdd_index), 1:]
 
     tof_dataset = np.zeros((len(time_axis), bin_count))
     var_dataset = np.zeros_like(tof_dataset)
