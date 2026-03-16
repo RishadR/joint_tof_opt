@@ -1,6 +1,7 @@
 """
 Comparing our optimizers performance when the Fetal F is off by some margin
 """
+
 from typing import Any, Literal, Callable
 from pathlib import Path
 import torch
@@ -19,7 +20,7 @@ from joint_tof_opt import (
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
 from optimize_dummy import DummyOptimizationExperiment
-
+import numpy as np
 
 def read_parameter_mapping():
     with open("./data/parameter_mapping.json", "r") as f:
@@ -29,8 +30,8 @@ def read_parameter_mapping():
 
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]],
-    percent_errors: list[float],
+    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]],
+    error_hzs: list[float],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -40,10 +41,10 @@ def main(
     (ppath_file: Path, window: torch.Tensor, measurand: nn.Module) and return an Evaluator instance.
     :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
-    (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
-    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
-    :param percent_errors: List of percentage errors to test (e.g., [0.1, 0.2, 0.3]).
-    :type percent_errors: list[float]
+    (ppath_file: Path, measurand: CompactStatProcess) and return a DIGSSOptimizer instance.
+    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess, float], DIGSSOptimizer]]
+    :param error_hzs: List of fetal frequency errors to test (e.g., [0.1, 0.2, 0.3]).
+    :type error_hzs: list[float]
     :param print_log: Whether to print log messages during execution. (Default: False)
     :type print_log: bool
     :return: List of dictionaries containing results for each experiment.
@@ -52,16 +53,15 @@ def main(
     # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
-    for percent_error in percent_errors:
-        print(f"Running experiments for percent error: {percent_error*100:.1f}%")
+    for error_hz in error_hzs:
+        print(f"Running experiments for fetal frequency error: {error_hz*100:.1f}%")
         gen_config_true = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
         true_fetal_f: float = gen_config_true["fetal_f"]
-        error_value = true_fetal_f * percent_error
-        new_fetal_f = true_fetal_f + error_value
+        new_fetal_f = true_fetal_f - error_hz
         # Get the noise function for the measurand
         ppath_file_mapping = read_parameter_mapping()
         experiments = ppath_file_mapping["experiments"]
-        for experiment in experiments:
+        for experiment in experiments[:2]:
             ppath_filename = experiment["filename"]
             derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
             ppath_file: Path = Path("./data") / ppath_filename
@@ -78,12 +78,15 @@ def main(
                 loss_history = optimizer_experiment.training_curves
                 evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true)
                 optimized_sensitivity = evaluator.evaluate()
+                fetal_energy = optimizer_experiment.training_curves_extra[-1, 0] 
+                maternal_energy = optimizer_experiment.training_curves_extra[-1, 1]
+                noise_std = optimizer_experiment.training_curves_extra[-1, 2]
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 results.append(
                     {
                         "Measurand": measurand,
-                        "Percent_Error": percent_error,
+                        "Error": error_hz,
                         "True_Fetal_F_Hz": true_fetal_f,
                         "Errored_Fetal_F_Hz": new_fetal_f,
                         "Depth_mm": depth,
@@ -92,6 +95,9 @@ def main(
                         "Epochs": epochs,
                         "Optimized_Window": window.numpy().tolist(),
                         "evaluator_log": evaluator.get_log(),
+                        "Optimizer(Fetal Energy)": float(fetal_energy),
+                        "Optimizer(Maternal Energy)": float(maternal_energy),
+                        "Optimizer(Noise Std)": float(noise_std),
                     }
                 )
                 print(
@@ -110,19 +116,16 @@ def main(
 if __name__ == "__main__":
     filter_hw = 0.01  # Hz
     # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator2(ppath, win, meas, conf, filter_hw)
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], OptimizationExperiment]] = [
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
-            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw, lr=0.01, filter_type="comb",
-        ),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(
-            tof_file, measurand, fetal_f=new_fetal_f, normalize_tof=False, patience=100, filter_hw=filter_hw, lr=0.01, filter_type="psafe_same_width",
-        ),
-        lambda tof_file, measurand, new_fetal_f: LiuOptimizer(tof_file, measurand, new_fetal_f, 'mean', filter_hw, 2, 1.0),
-        lambda tof_file, measurand, new_fetal_f: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
+    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]] = [
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, lr=0.01, filter_type="comb",),
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb",),
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb", normalize_reward=False)
     ]
-    error_rates = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35]  # 5%, 10%, 15%, 20% error in fetal F
+    # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
+    error_rates_np = np.arange(0.0, 1.01, 0.05)
+    error_rates = [float(x) for x in error_rates_np]
     exp_results = main(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/false_fetal_f_results.yaml", "w") as f:
+    with open("./results/false_fetal_f_results2.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)

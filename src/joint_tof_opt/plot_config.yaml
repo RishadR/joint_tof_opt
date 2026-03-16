@@ -59,5 +59,5 @@ image.cmap: Accent
 plotting:
   # colors: ['#213C51', '#6594B1', '#DDAED3', '#D02752']  # old
   colors: ["#2d3047","#d1345b","#ff9b71", "#1b998b", "#FFB100"]
-  line_styles: ['-', '--', ':', '-.', ' ']
+  line_styles: ['-', '--', ':', '-.', '-']
   markers: ['s', 'o', '^', 'v', '<']
