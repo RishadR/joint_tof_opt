@@ -9,7 +9,6 @@ import torch.nn as nn
 import yaml
 import pandas as pd
 import numpy as np
-from optimize_loop_paper import main_optimize
 from sensitivity_compute import *
 from joint_tof_opt import (
     OptimizationExperiment,
@@ -34,7 +33,7 @@ def read_parameter_mapping():
 
 def main(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
+    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]],
     sdd_indices_to_test: list[int],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
@@ -117,8 +116,8 @@ def main(
 if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalize_tof=False, patience=100, lr=0.01),
+    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, patience=100, lr=0.01, reg_type="l1", reg_weight=0.001),
     ]
 
     exp_results = main(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)

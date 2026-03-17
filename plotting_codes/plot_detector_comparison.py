@@ -23,7 +23,7 @@ def main():
         results = yaml.safe_load(f)
 
     # SDD distances in mm
-    sdd_distances = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    sdd_distances = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
     # Extract data for each SDD index (only DIGSS optimizer)
     sdd_data = {}
