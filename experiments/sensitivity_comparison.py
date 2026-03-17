@@ -127,7 +127,7 @@ if __name__ == "__main__":
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, patience=100, filter_hw=filter_hw, lr=0.01),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, patience=100, filter_hw=filter_hw, lr=0.01, reg_type='l1', reg_weight=0.0001),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 1, 1.0),
         lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),

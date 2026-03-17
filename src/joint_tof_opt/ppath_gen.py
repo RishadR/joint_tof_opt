@@ -1,5 +1,14 @@
 """
 Generate the ppath files
+
+About the Model
+---------------
+- 4 Layers
+- The lower indices correspond to the bottom of the model
+- The highest index corresponds to the topmost layer
+- Source is placed at the topmost pixel of the model, and directed downwards
+
+
 """
 
 from copy import deepcopy
@@ -15,7 +24,7 @@ from tfo_sim2.tissue_model_extended import DanModel4LayerX
 src_x = 110
 src_y = 110
 base_cfg = {
-    "nphoton": 1e9,
+    "nphoton": 1e7,
     "vol": np.ones((20, 20, 20), dtype="uint8"),
     "tstart": 0,
     "tend": 5e-9,
@@ -25,9 +34,9 @@ base_cfg = {
     'srctype': 'pencil',
     "prop": [],
     # BC String:
-    # Physical behavior (first 6): 'aaaaaa' (all sides absorbing)
+    # Physical behavior (first 6): 'aaaaar' (all sides absorbing except +z face which is fresnel)
     # Detection flag (next 6):    '000001' (detect on +z face)
-    "bc": "aaaaaa001000",
+    "bc": "aaaaar000001",
     "savedetflag": "xp",  # 'p' for momentum/path, 'x' for exit position
     "gpuid": 1,
     "autopilot": 1,
@@ -39,18 +48,18 @@ base_cfg = {
 ## Simulation Loop
 wavelength = 735.0
 epi_thickness = 2
-donut_half_thickness = 2
-donut_radii = np.arange(start=10.0, step=10.0, stop=110.0)
-# for idx, derm_thickness in enumerate([4, 6, 8, 10, 12, 14, 16]):
-for idx, derm_thickness in enumerate([4]):
+donut_half_thickness = 1
+donut_radii = np.linspace(5.0, 50.0, 10, endpoint=True)
+for idx, derm_thickness in enumerate([4, 6, 8, 10, 12, 14, 16, 18]):
+# for idx, derm_thickness in enumerate([4]):
     tissue_model = DanModel4LayerX(wavelength, epi_thickness, derm_thickness)
     filename = f"experiment_{idx:04}"
     cfg = deepcopy(base_cfg)
     vol = tissue_model.vol
-    topmost_pixel = tissue_model.topmost_pixel() - 1
+    topmost_pixel = tissue_model.topmost_pixel()
     # In this specific method, I cannot have air-layer above my model. Cropping out air
     vol = vol[:, :, : topmost_pixel + 1]
-    cfg["vol"] = tissue_model.vol
+    cfg["vol"] = vol
     cfg["prop"] = tissue_model.prop
     cfg["srcpos"][2] = tissue_model.topmost_pixel()
     data = pmcx.run(cfg)
@@ -74,9 +83,7 @@ for idx, derm_thickness in enumerate([4]):
     # Filter photons with non-zero detector IDs
     valid_photons_mask = faux_detector_id > 0
     valid_detector_ids = faux_detector_id[valid_photons_mask]
-    valid_ppaths = photon_data[
-        valid_photons_mask, :4
-    ]  # First 4 columns: ppath through 4 mediums
+    valid_ppaths = photon_data[valid_photons_mask, :4]  # First 4 columns: ppath through 4 mediums
 
     # Combine detector ID with ppath data: [detector_id, ppath_medium1, ppath_medium2, ppath_medium3, ppath_medium4]
     filtered_data = np.column_stack((valid_detector_ids, valid_ppaths))
@@ -87,6 +94,9 @@ for idx, derm_thickness in enumerate([4]):
     for i, radius in enumerate(donut_radii):
         detpos[i] = [cfg["srcpos"][0], cfg["srcpos"][1] + radius, cfg["srcpos"][2]]
 
+    # Storing the number of photons hitting each detector for reference (not required, but useful for debugging)
+    detector_counts = np.bincount(valid_detector_ids)[1:]   # Skip 0 - this version does not have any 0s
+    
     # Save the filtered data with proper keys
     output_path = Path(f"data/{filename}.npz")
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -98,4 +108,5 @@ for idx, derm_thickness in enumerate([4]):
         unit_in_mm=1.0,
         srcpos=np.array(cfg["srcpos"]),
         detpos=detpos,
+        detector_counts=detector_counts,
     )

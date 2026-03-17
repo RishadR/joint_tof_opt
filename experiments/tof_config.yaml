@@ -2,11 +2,11 @@
 
 # Time series parameters
 # Note: I messed up a little bit. Need to update both datapoint_count/end_sec and sampling_rate together
-datapoint_count: 151 # Gotta add 1 to include the endpoint (0 seconds) in the time series
+datapoint_count: 301 # Gotta add 1 to include the endpoint (0 seconds) in the time series
 maternal_f: 1.0 # Maternal heartbeat frequency (Hz)
 fetal_f: 2.5 # Fetal heartbeat frequency (Hz)
-end_sec: 5.0 # Duration of the time series (seconds)
-sampling_rate: 30 # Sampling rate (Hz)
+end_sec: 20.0 # Duration of the time series (seconds)
+sampling_rate: 15 # Sampling rate (Hz)
 
 # Tissue Parameters
 maternal_hb_base: 15.0 # Baseline maternal hemoglobin concentration
