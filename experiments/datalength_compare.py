@@ -1,5 +1,5 @@
 """
-Compare the performance when there is overlap between maternal and fetal frequencies.
+Compare optimizer and evaluator performance across data lengths and experiment files.
 """
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ import numpy as np
 import yaml
 
 from joint_tof_opt import generate_tof
-from sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 from optimize_loop_paper import DIGSSOptimizer
+from sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
 def _to_builtin(obj: Any) -> Any:
@@ -26,37 +26,37 @@ def _to_builtin(obj: Any) -> Any:
     return obj
 
 
-def run_overlap_sweep(
-    file_idx: int,
-    separations_hz: list[float],
-    filter_setups: list[tuple[str, float]],  # (filter_type, filter_hw)
+def run_datalength_sweep(
+    file_indices: list[int],
+    datapoint_counts: list[int],
     measurand: str = "abs",
     lr: float = 0.1,
+    filter_hw: float = 0.3,
     patience: int = 50,
     reg_type: str = "l1",
     reg_weight: float = 0.1,
-    output_yaml: Path = Path("./results/overlap_results.yaml"),
+    filter_type: str = "comb",
+    output_yaml: Path = Path("./results/datalength_compare_results.yaml"),
 ) -> dict[str, Any]:
-    ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     results: dict[str, Any] = {}
     exp_idx = 0
 
-    for separation in separations_hz:
-        for filter_type, filter_hw in filter_setups:
-            # Read config each run, then modify fetal_f
+    for file_idx in file_indices:
+        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
+
+        for datapoint_count in datapoint_counts:
             with open("./experiments/tof_config.yaml", "r", encoding="utf-8") as f:
                 gen_config: dict[str, Any] = yaml.safe_load(f)
 
-            maternal_f = float(gen_config["maternal_f"])
-            fetal_f = 2 * maternal_f + float(separation)
-            gen_config["fetal_f"] = fetal_f
+            sampling_rate = float(gen_config["sampling_rate"])
+            end_sec = (int(datapoint_count) - 1) / sampling_rate
+            gen_config["datapoint_count"] = int(datapoint_count)
+            gen_config["end_sec"] = end_sec
 
-            sep_tag = f"{separation:.3f}".replace(".", "p")
-            hw_tag = f"{float(filter_hw):.3f}".replace(".", "p")
-            type_tag = str(filter_type).replace(" ", "_")
+            datapoint_tag = f"{int(datapoint_count):04d}"
             tof_dataset_path = (
                 Path("./data")
-                / f"generated_tof_set_{ppath_file.stem}_sep_{sep_tag}_{type_tag}_hw_{hw_tag}.npz"
+                / f"generated_tof_set_{ppath_file.stem}_datapoints_{datapoint_tag}.npz"
             )
 
             generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
@@ -83,20 +83,20 @@ def run_overlap_sweep(
             evaluator1.evaluate()
             eval_log1 = evaluator1.get_log()
             eval_results1 = float(eval_log1["final_metric"])
-            # eval_results1 = float(eval_log1["fetal_ac_energy"] / eval_log1["maternal_ac_energy"])
+
             evaluator2 = PaperEvaluator(ppath_file, experiment.window, measurand, gen_config, 0.01)
             evaluator2.evaluate()
             eval_log2 = evaluator2.get_log()
-            # eval_results2 = float(eval_log2["fetal_ac_energy"] / eval_log2["maternal_ac_amp"] ** 2)
             eval_results2 = float(eval_log2["final_metric"])
 
             exp_key = f"exp {exp_idx:03d}"
             results[exp_key] = {
-                "Separation_Hz": float(separation),
+                "File_Idx": int(file_idx),
+                "Datapoint_Count": int(datapoint_count),
+                "End_Sec": float(end_sec),
+                "Sampling_Rate_Hz": sampling_rate,
                 "Filter_Type": str(filter_type),
                 "Filter_HW": float(filter_hw),
-                "Maternal_F_Hz": maternal_f,
-                "Fetal_F_Hz": fetal_f,
                 "Epochs": epochs,
                 "Optimizer Best Metric": best_final_metric,
                 "Optimizer Best Selectivity": best_selectivity,
@@ -108,37 +108,32 @@ def run_overlap_sweep(
             }
 
             print(
-                f"[{exp_key}] sep={separation:.3f} Hz | type={filter_type} | hw={filter_hw:.3f} | "
-                f"fetal={fetal_f:.3f} Hz | epochs={epochs} | best_metric={best_final_metric:.6g} | "
+                f"[{exp_key}] file_idx={file_idx:04d} | datapoints={datapoint_count} | "
+                f"end_sec={end_sec:.6g} | epochs={epochs} | best_metric={best_final_metric:.6g} | "
                 f"eval_results1={eval_results1:.6g} | eval_results2={eval_results2:.6g}"
             )
             exp_idx += 1
-            tof_dataset_path.unlink()  # Clean up generated ToF dataset after use
+            tof_dataset_path.unlink()
 
     output_yaml.parent.mkdir(parents=True, exist_ok=True)
     with open(output_yaml, "w", encoding="utf-8") as f:
-        yaml.safe_dump(results, f, sort_keys=False, default_flow_style=False)
+        yaml.safe_dump(_to_builtin(results), f, sort_keys=False, default_flow_style=False)
 
-    print(f"Saved overlap comparison results to: {output_yaml}")
+    print(f"Saved data-length comparison results to: {output_yaml}")
     return results
 
 
 if __name__ == "__main__":
-    # separations = [0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # Hz
-    separations = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]  # Hz
-    filter_combos = [
-        ("comb", 0.10),
-        ("comb", 0.30),
-        # ("comb", 0.50),
-        ("psafe_same_width", 0.0),  # filter_hw not used for this filter type
-    ]
+    file_indices = list(range(8))
+    datapoint_counts = [5 * 15 + 1, 10 * 15 + 1, 15 * 15 + 1, 20 * 15 + 1, 25 * 15 + 1, 30 * 15 + 1]
 
-    _ = run_overlap_sweep(
-        file_idx=3,
+    _ = run_datalength_sweep(
+        file_indices=file_indices,
+        datapoint_counts=datapoint_counts,
         measurand="abs",
-        separations_hz=separations,
-        filter_setups=filter_combos,
-        output_yaml=Path("./results/overlap_results.yaml"),
+        filter_hw=0.3,
+        filter_type="psafe_same_width",
+        output_yaml=Path("./results/datalength_compare_results.yaml"),
         reg_weight=0.0001,
-        reg_type='l2'
+        reg_type="l1",
     )

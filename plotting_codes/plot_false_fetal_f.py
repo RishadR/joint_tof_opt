@@ -90,11 +90,12 @@ def main(depth=10):
     # Build one curve: x=error (Hz), y=average fetal energy at that error.
     error_values = sorted(error_data.keys())
     fetal_energy_values = [sum(error_data[err]) / len(error_data[err]) for err in error_values]
+    fetal_energy_values = [fe / max(fetal_energy_values) for fe in fetal_energy_values]  # Normalize by max
     ax.plot(error_values, fetal_energy_values)
 
     # Configure axes
     ax.set_xlabel('Fetal Frequency Error (Hz)')
-    ax.set_ylabel('Separated Fetal Energy (Units)')
+    ax.set_ylabel('Normalized Separated Fetal Energy')
     ax.grid(True)
 
     # Save figure

@@ -449,26 +449,26 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
-    for file_idx in range(1):
+    for file_idx in range(4, 8):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.7
+        gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.5
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         experiment = DIGSSOptimizer(
             tof_dataset_path=tof_dataset_path,
             measurand=measurand,
-            fetal_f=gen_config["fetal_f"] + 0.0,
-            normalize_reward=False,
-            lr=0.1,
+            fetal_f=gen_config["fetal_f"],
+            normalize_reward=True,
+            lr=0.01,
             filter_hw=filter_hw,
             patience=50,
-            reg_type="l2",
-            reg_weight=0.0000,
-            filter_type="comb",
+            reg_type="l1",
+            reg_weight=0.00001,
+            filter_type="psafe_same_width",
         )
         experiment.optimize()
 
@@ -488,7 +488,7 @@ if __name__ == "__main__":
         plot_training_curves_and_window(result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False)
 
         # Evaluate using an Evaluator and print log
-        evaluator = AltPaperEvaluator2(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
         eval_results = evaluator.evaluate()
         logger.info("Evaluation Results: %s", eval_results)
         logger.info("Evaluator log: %s", evaluator.get_log())

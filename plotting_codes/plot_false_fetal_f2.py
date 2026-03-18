@@ -65,20 +65,23 @@ def main(depth=10):
     # Build one curve: x=error (Hz), y=average FoM at that error.
     error_values = sorted(error_data.keys())
     fom_values = [sum(error_data[err]) / len(error_data[err]) for err in error_values]
+    fom_values = [fom / max(fom_values) for fom in fom_values]  # Normalize FoM to max value
     ax.plot(error_values, fom_values)
 
     # Configure axes
     ax.set_xlabel('Fetal Frequency Error (Hz)')
-    ax.set_ylabel('FoM = Sensitivity $\\times$ Selectivity')
+    # ax.set_ylabel('FoM = Sensitivity $\\times$ Selectivity')
+    ax.set_ylabel('Normalized FoM')
+    
     ax.grid(True)
 
     ax.text(
-        0.98,
         0.02,
+        0.97,
         'True FHR: 2.5Hz\nMHR $2^{\\text{nd}}$ Harmonic: 2.0Hz',
         transform=ax.transAxes,
-        ha='right',
-        va='bottom',
+        ha='left',
+        va='top',
         fontsize=12,
         bbox={
             'facecolor': 'white',

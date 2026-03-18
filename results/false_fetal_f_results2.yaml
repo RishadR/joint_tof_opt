@@ -1,10 +1,10 @@
 exp 000:
   Depth_mm: 6
-  Epochs: 660
+  Epochs: 609
   Error: 0.0
   Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.061495224276100824
+  Optimized_Sensitivity: 0.11315511838594748
   Optimized_Window:
   - 0.0
   - 0.0
@@ -21,31 +21,31 @@ exp 000:
   - 0.0
   - 0.0
   - 0.0
-  - 0.8952626585960388
-  - 0.01377604529261589
-  - 0.09096134454011917
-  - 0.0
+  - 0.00820186734199524
+  - 0.013455239124596119
+  - 0.1668042689561844
+  - 0.811538577079773
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 191.35626220703125
-  Optimizer(Maternal Energy): 148.02308654785156
-  Optimizer(Noise Std): 30.329755783081055
+  Optimizer(Fetal Energy): 34555.75
+  Optimizer(Maternal Energy): 46720.59375
+  Optimizer(Noise Std): 196.93775939941406
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.968850812851812
-    fetal_ac_energy: 1.732270359992981
-    final_metric: 0.061495224276100824
-    maternal_ac_amp: 0.9399487938528674
-    maternal_ac_energy: 0.8835037350654602
+    baseline_noise_std: 195.30558987776053
+    fetal_ac_energy: 794.19140625
+    final_metric: 0.11315511838594748
+    maternal_ac_amp: 35.93654380521397
+    maternal_ac_energy: 1291.4351806640625
 exp 001:
   Depth_mm: 6
-  Epochs: 660
+  Epochs: 602
   Error: 0.0
   Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.0614940150230942
+  Optimized_Sensitivity: 0.11314658509462813
   Optimized_Window:
   - 0.0
   - 0.0
@@ -62,31 +62,31 @@ exp 001:
   - 0.0
   - 0.0
   - 0.0
-  - 0.8970968723297119
-  - 0.013708607293665409
-  - 0.08919458836317062
-  - 0.0
+  - 0.008366968482732773
+  - 0.013697904534637928
+  - 0.16184328496456146
+  - 0.8160918951034546
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 191.6597900390625
-  Optimizer(Maternal Energy): 148.29953002929688
-  Optimizer(Noise Std): 30.34111976623535
+  Optimizer(Fetal Energy): 34541.4453125
+  Optimizer(Maternal Energy): 46692.640625
+  Optimizer(Noise Std): 196.89813232421875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.98043286846387
-    fetal_ac_energy: 1.7341315746307373
-    final_metric: 0.0614940150230942
-    maternal_ac_amp: 0.9406136939804557
-    maternal_ac_energy: 0.8847541213035583
+    baseline_noise_std: 195.22331963997027
+    fetal_ac_energy: 793.233642578125
+    final_metric: 0.11314658509462813
+    maternal_ac_amp: 35.911039851320446
+    maternal_ac_energy: 1289.602783203125
 exp 002:
   Depth_mm: 6
-  Epochs: 660
+  Epochs: 602
   Error: 0.0
   Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.061494008860450595
+  Optimized_Sensitivity: 0.11314670599137276
   Optimized_Window:
   - 0.0
   - 0.0
@@ -103,31 +103,31 @@ exp 002:
   - 0.0
   - 0.0
   - 0.0
-  - 0.8970973491668701
-  - 0.013708584010601044
-  - 0.08919408172369003
-  - 0.0
+  - 0.008366831578314304
+  - 0.013697681948542595
+  - 0.1618376076221466
+  - 0.8160979151725769
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 191.6598358154297
-  Optimizer(Maternal Energy): 148.29969787597656
-  Optimizer(Noise Std): 30.34111976623535
+  Optimizer(Fetal Energy): 34541.3515625
+  Optimizer(Maternal Energy): 46692.4453125
+  Optimizer(Noise Std): 196.89796447753906
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.980434904296857
-    fetal_ac_energy: 1.7341316938400269
-    final_metric: 0.061494008860450595
-    maternal_ac_amp: 0.9406137890321897
-    maternal_ac_energy: 0.8847543001174927
+    baseline_noise_std: 195.22315956681473
+    fetal_ac_energy: 793.2337646484375
+    final_metric: 0.11314670599137276
+    maternal_ac_amp: 35.91103645207835
+    maternal_ac_energy: 1289.6025390625
 exp 003:
   Depth_mm: 8
-  Epochs: 719
+  Epochs: 592
   Error: 0.0
   Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.04166547120151476
   Optimized_Window:
   - 0.0
   - 0.0
@@ -143,32 +143,32 @@ exp 003:
   - 0.0
   - 0.0
   - 0.0
+  - 0.015679344534873962
+  - 0.9843206405639648
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 45.13833999633789
-  Optimizer(Maternal Energy): 36.62507629394531
-  Optimizer(Noise Std): 21.328601837158203
+  Optimizer(Fetal Energy): 36040.390625
+  Optimizer(Maternal Energy): 131447.625
+  Optimizer(Noise Std): 269.76513671875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 268.0966331148155
+    fetal_ac_energy: 681.1973266601562
+    final_metric: 0.04166547120151476
+    maternal_ac_amp: 60.98250741759886
+    maternal_ac_energy: 3718.8662109375
 exp 004:
   Depth_mm: 8
-  Epochs: 719
+  Epochs: 601
   Error: 0.0
   Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.04167161194519952
   Optimized_Window:
   - 0.0
   - 0.0
@@ -184,32 +184,32 @@ exp 004:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014936032705008984
+  - 0.9850640296936035
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 45.16282653808594
-  Optimizer(Maternal Energy): 36.64453887939453
-  Optimizer(Noise Std): 21.32866096496582
+  Optimizer(Fetal Energy): 36065.09765625
+  Optimizer(Maternal Energy): 131286.609375
+  Optimizer(Noise Std): 269.67803955078125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 268.07154187362
+    fetal_ac_energy: 681.1145629882812
+    final_metric: 0.04167161194519952
+    maternal_ac_amp: 60.97181926218558
+    maternal_ac_energy: 3717.562744140625
 exp 005:
   Depth_mm: 8
-  Epochs: 719
+  Epochs: 601
   Error: 0.0
   Errored_Fetal_F_Hz: 2.5
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.04167160510353229
   Optimized_Window:
   - 0.0
   - 0.0
@@ -225,32 +225,32 @@ exp 005:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014936045743525028
+  - 0.9850639700889587
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 45.16282272338867
-  Optimizer(Maternal Energy): 36.644527435302734
-  Optimizer(Noise Std): 21.32866096496582
+  Optimizer(Fetal Energy): 36065.11328125
+  Optimizer(Maternal Energy): 131286.546875
+  Optimizer(Noise Std): 269.6780090332031
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 268.07154187362
+    fetal_ac_energy: 681.1145629882812
+    final_metric: 0.04167160510353229
+    maternal_ac_amp: 60.97182927257268
+    maternal_ac_energy: 3717.56396484375
 exp 006:
   Depth_mm: 6
-  Epochs: 722
+  Epochs: 594
   Error: 0.05
   Errored_Fetal_F_Hz: 2.45
   Measurand: abs
-  Optimized_Sensitivity: 0.06150848079911755
+  Optimized_Sensitivity: 0.11354397035946129
   Optimized_Window:
   - 0.0
   - 0.0
@@ -267,31 +267,31 @@ exp 006:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9566891193389893
   - 0.0
-  - 0.043310824781656265
   - 0.0
+  - 0.04921860992908478
+  - 0.9507814049720764
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.45), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 189.2718505859375
-  Optimizer(Maternal Energy): 152.3258514404297
-  Optimizer(Noise Std): 30.5671329498291
+  Optimizer(Fetal Energy): 31780.21484375
+  Optimizer(Maternal Energy): 43907.375
+  Optimizer(Noise Std): 193.41549682617188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.32269279338805
-    fetal_ac_energy: 1.791249394416809
-    final_metric: 0.06150848079911755
-    maternal_ac_amp: 0.9604025181178454
-    maternal_ac_energy: 0.9223729968070984
+    baseline_noise_std: 191.0133441837245
+    fetal_ac_energy: 749.8411865234375
+    final_metric: 0.11354397035946129
+    maternal_ac_amp: 34.57335350325359
+    maternal_ac_energy: 1195.3167724609375
 exp 007:
   Depth_mm: 6
-  Epochs: 722
+  Epochs: 598
   Error: 0.05
   Errored_Fetal_F_Hz: 2.45
   Measurand: abs
-  Optimized_Sensitivity: 0.061507985206552394
+  Optimized_Sensitivity: 0.11354417189492336
   Optimized_Window:
   - 0.0
   - 0.0
@@ -308,31 +308,31 @@ exp 007:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9575721621513367
   - 0.0
-  - 0.04242783412337303
   - 0.0
+  - 0.04781854525208473
+  - 0.9521814584732056
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.45), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 189.4242706298828
-  Optimizer(Maternal Energy): 152.51058959960938
-  Optimizer(Noise Std): 30.572912216186523
+  Optimizer(Fetal Energy): 31765.208984375
+  Optimizer(Maternal Energy): 43848.421875
+  Optimizer(Noise Std): 193.33370971679688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.328294048987903
-    fetal_ac_energy: 1.792172908782959
-    final_metric: 0.061507985206552394
-    maternal_ac_amp: 0.9607279479260231
-    maternal_ac_energy: 0.9229981899261475
+    baseline_noise_std: 190.98089727771205
+    fetal_ac_energy: 749.4981689453125
+    final_metric: 0.11354417189492336
+    maternal_ac_amp: 34.563347638792166
+    maternal_ac_energy: 1194.625
 exp 008:
   Depth_mm: 6
-  Epochs: 722
+  Epochs: 598
   Error: 0.05
   Errored_Fetal_F_Hz: 2.45
   Measurand: abs
-  Optimized_Sensitivity: 0.06150797654678693
+  Optimized_Sensitivity: 0.11354417987496844
   Optimized_Window:
   - 0.0
   - 0.0
@@ -349,31 +349,31 @@ exp 008:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9575721621513367
   - 0.0
-  - 0.04242779687047005
   - 0.0
+  - 0.04781876131892204
+  - 0.9521812200546265
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.45), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 189.42425537109375
-  Optimizer(Maternal Energy): 152.51048278808594
-  Optimizer(Noise Std): 30.572914123535156
+  Optimizer(Fetal Energy): 31765.203125
+  Optimizer(Maternal Energy): 43848.40234375
+  Optimizer(Noise Std): 193.33372497558594
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.328294048987903
-    fetal_ac_energy: 1.7921721935272217
-    final_metric: 0.06150797654678693
-    maternal_ac_amp: 0.9607276997614825
-    maternal_ac_energy: 0.9229977130889893
+    baseline_noise_std: 190.98089727771205
+    fetal_ac_energy: 749.4984130859375
+    final_metric: 0.11354417987496844
+    maternal_ac_amp: 34.563356468253524
+    maternal_ac_energy: 1194.6256103515625
 exp 009:
   Depth_mm: 8
-  Epochs: 652
+  Epochs: 717
   Error: 0.05
   Errored_Fetal_F_Hz: 2.45
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.04155264808357315
   Optimized_Window:
   - 0.0
   - 0.0
@@ -389,32 +389,32 @@ exp 009:
   - 0.0
   - 0.0
   - 0.0
+  - 0.029065394774079323
+  - 0.9709346294403076
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.45), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 43.715213775634766
-  Optimizer(Maternal Energy): 36.919219970703125
-  Optimizer(Noise Std): 21.38020896911621
+  Optimizer(Fetal Energy): 35938.4140625
+  Optimizer(Maternal Energy): 130394.765625
+  Optimizer(Noise Std): 269.0699462890625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 268.5482818554235
+    fetal_ac_energy: 682.6463012695312
+    final_metric: 0.04155264808357315
+    maternal_ac_amp: 61.17509570065563
+    maternal_ac_energy: 3742.392333984375
 exp 010:
   Depth_mm: 8
-  Epochs: 652
+  Epochs: 768
   Error: 0.05
   Errored_Fetal_F_Hz: 2.45
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.041551100915865995
   Optimized_Window:
   - 0.0
   - 0.0
@@ -430,32 +430,32 @@ exp 010:
   - 0.0
   - 0.0
   - 0.0
+  - 0.029230086132884026
+  - 0.9707699418067932
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.45), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 43.72795867919922
-  Optimizer(Maternal Energy): 36.93886184692383
-  Optimizer(Noise Std): 21.380271911621094
+  Optimizer(Fetal Energy): 35970.0546875
+  Optimizer(Maternal Energy): 130199.375
+  Optimizer(Noise Std): 268.9613037109375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 268.55383829411187
+    fetal_ac_energy: 682.6616821289062
+    final_metric: 0.041551100915865995
+    maternal_ac_amp: 61.177486173045104
+    maternal_ac_energy: 3742.684814453125
 exp 011:
   Depth_mm: 8
-  Epochs: 652
+  Epochs: 768
   Error: 0.05
   Errored_Fetal_F_Hz: 2.45
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.041551313526561724
   Optimized_Window:
   - 0.0
   - 0.0
@@ -471,32 +471,32 @@ exp 011:
   - 0.0
   - 0.0
   - 0.0
+  - 0.02922806702554226
+  - 0.9707719087600708
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.45), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 43.72797393798828
-  Optimizer(Maternal Energy): 36.9388427734375
-  Optimizer(Noise Std): 21.380271911621094
+  Optimizer(Fetal Energy): 35970.08984375
+  Optimizer(Maternal Energy): 130199.203125
+  Optimizer(Noise Std): 268.96124267578125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 268.55376556659934
+    fetal_ac_energy: 682.6646118164062
+    final_metric: 0.041551313526561724
+    maternal_ac_amp: 61.17745225213698
+    maternal_ac_energy: 3742.6806640625
 exp 012:
   Depth_mm: 6
-  Epochs: 684
+  Epochs: 627
   Error: 0.1
   Errored_Fetal_F_Hz: 2.4
   Measurand: abs
-  Optimized_Sensitivity: 0.06149760056819361
+  Optimized_Sensitivity: 0.11400551115381719
   Optimized_Window:
   - 0.0
   - 0.0
@@ -513,31 +513,31 @@ exp 012:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9749349355697632
   - 0.0
-  - 0.025065109133720398
+  - 0.014409073628485203
+  - 0.985590934753418
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 179.21823120117188
-  Optimizer(Maternal Energy): 155.1493682861328
-  Optimizer(Noise Std): 30.730939865112305
+  Optimizer(Fetal Energy): 40512.390625
+  Optimizer(Maternal Energy): 62752.16796875
+  Optimizer(Noise Std): 214.4436492919922
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.43821085700967
-    fetal_ac_energy: 1.8103296756744385
-    final_metric: 0.06149760056819361
-    maternal_ac_amp: 0.9671200298878292
-    maternal_ac_energy: 0.9353211522102356
+    baseline_noise_std: 212.37333541136937
+    fetal_ac_energy: 1005.8294067382812
+    final_metric: 0.11400551115381719
+    maternal_ac_amp: 41.543061126190196
+    maternal_ac_energy: 1725.825927734375
 exp 013:
   Depth_mm: 6
-  Epochs: 634
+  Epochs: 588
   Error: 0.1
   Errored_Fetal_F_Hz: 2.4
   Measurand: abs
-  Optimized_Sensitivity: 0.061463983213335946
+  Optimized_Sensitivity: 0.1137772025758532
   Optimized_Window:
   - 0.0
   - 0.0
@@ -554,31 +554,31 @@ exp 013:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9587089419364929
-  - 0.010332003235816956
-  - 0.03095904551446438
+  - 0.010752632282674313
+  - 0.01744660548865795
+  - 0.9718007445335388
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 179.2054443359375
-  Optimizer(Maternal Energy): 155.69778442382812
-  Optimizer(Noise Std): 30.76582145690918
+  Optimizer(Fetal Energy): 40746.33984375
+  Optimizer(Maternal Energy): 63304.1015625
+  Optimizer(Noise Std): 214.97348022460938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.363874996204885
-    fetal_ac_energy: 1.796798825263977
-    final_metric: 0.061463983213335946
-    maternal_ac_amp: 0.9627678040329464
-    maternal_ac_energy: 0.9269218444824219
+    baseline_noise_std: 213.21014611469596
+    fetal_ac_energy: 1015.1651000976562
+    final_metric: 0.1137772025758532
+    maternal_ac_amp: 41.847889428373506
+    maternal_ac_energy: 1751.245849609375
 exp 014:
   Depth_mm: 6
-  Epochs: 634
+  Epochs: 588
   Error: 0.1
   Errored_Fetal_F_Hz: 2.4
   Measurand: abs
-  Optimized_Sensitivity: 0.06146392700181491
+  Optimized_Sensitivity: 0.11377688552016549
   Optimized_Window:
   - 0.0
   - 0.0
@@ -595,72 +595,72 @@ exp 014:
   - 0.0
   - 0.0
   - 0.0
-  - 0.9587088227272034
-  - 0.01033203024417162
-  - 0.03095921501517296
+  - 0.010752616450190544
+  - 0.017446663230657578
+  - 0.971800684928894
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 179.2053985595703
-  Optimizer(Maternal Energy): 155.69773864746094
-  Optimizer(Noise Std): 30.765819549560547
+  Optimizer(Fetal Energy): 40746.34375
+  Optimizer(Maternal Energy): 63304.08984375
+  Optimizer(Noise Std): 214.97348022460938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.363874996204885
-    fetal_ac_energy: 1.7967979907989502
-    final_metric: 0.06146392700181491
-    maternal_ac_amp: 0.9627682374005951
-    maternal_ac_energy: 0.9269226789474487
+    baseline_noise_std: 213.21014611469596
+    fetal_ac_energy: 1015.1613159179688
+    final_metric: 0.11377688552016549
+    maternal_ac_amp: 41.847850048848834
+    maternal_ac_energy: 1751.2425537109375
 exp 015:
   Depth_mm: 8
-  Epochs: 686
+  Epochs: 439
   Error: 0.1
   Errored_Fetal_F_Hz: 2.4
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.005871236410618874
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.007845710963010788
+  - 0.04006887227296829
+  - 0.3936152756214142
+  - 0.3322444558143616
+  - 0.14069455862045288
+  - 0.06050550192594528
+  - 0.0187868382781744
+  - 0.006238850764930248
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 40.783729553222656
-  Optimizer(Maternal Energy): 36.74892044067383
-  Optimizer(Noise Std): 21.34922218322754
+  Optimizer(Fetal Energy): 241119.78125
+  Optimizer(Maternal Energy): 2133073.5
+  Optimizer(Noise Std): 578.6538696289062
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 582.0213161903952
+    fetal_ac_energy: 862.925048828125
+    final_metric: 0.005871236410618874
+    maternal_ac_amp: 252.5251379813503
+    maternal_ac_energy: 63768.9453125
 exp 016:
   Depth_mm: 8
-  Epochs: 686
+  Epochs: 516
   Error: 0.1
   Errored_Fetal_F_Hz: 2.4
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.004639009707620196
   Optimized_Window:
   - 0.0
   - 0.0
@@ -668,40 +668,40 @@ exp 016:
   - 0.0
   - 0.0
   - 0.0
+  - 0.03431915491819382
+  - 0.7043190002441406
+  - 0.1776888370513916
+  - 0.05341334640979767
+  - 0.022289324551820755
+  - 0.007970375940203667
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 40.77817916870117
-  Optimizer(Maternal Energy): 36.76830291748047
-  Optimizer(Noise Std): 21.349233627319336
+  Optimizer(Fetal Energy): 275059.3125
+  Optimizer(Maternal Energy): 2485800.25
+  Optimizer(Noise Std): 602.3330078125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 604.6010047957247
+    fetal_ac_energy: 761.6632690429688
+    final_metric: 0.004639009707620196
+    maternal_ac_amp: 271.5619174332071
+    maternal_ac_energy: 73745.875
 exp 017:
   Depth_mm: 8
-  Epochs: 686
+  Epochs: 516
   Error: 0.1
   Errored_Fetal_F_Hz: 2.4
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.004638888285488472
   Optimized_Window:
   - 0.0
   - 0.0
@@ -709,40 +709,40 @@ exp 017:
   - 0.0
   - 0.0
   - 0.0
+  - 0.03431876376271248
+  - 0.7043178677558899
+  - 0.17768952250480652
+  - 0.053413938730955124
+  - 0.02228950895369053
+  - 0.007970437407493591
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 40.77818298339844
-  Optimizer(Maternal Energy): 36.76832580566406
-  Optimizer(Noise Std): 21.349233627319336
+  Optimizer(Fetal Energy): 275058.84375
+  Optimizer(Maternal Energy): 2485798.25
+  Optimizer(Noise Std): 602.3328247070312
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 604.600901421756
+    fetal_ac_energy: 761.6425170898438
+    final_metric: 0.004638888285488472
+    maternal_ac_amp: 271.5616728986254
+    maternal_ac_energy: 73745.7421875
 exp 018:
   Depth_mm: 6
-  Epochs: 697
+  Epochs: 610
   Error: 0.15000000000000002
   Errored_Fetal_F_Hz: 2.35
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.10642929036952462
   Optimized_Window:
   - 0.0
   - 0.0
@@ -757,33 +757,33 @@ exp 018:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
+  - 0.009251577779650688
+  - 0.014320005662739277
+  - 0.21895086765289307
+  - 0.7574775218963623
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.35), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 162.1837158203125
-  Optimizer(Maternal Energy): 157.1680145263672
-  Optimizer(Noise Std): 30.841108322143555
+  Optimizer(Fetal Energy): 58882.14453125
+  Optimizer(Maternal Energy): 116645.3125
+  Optimizer(Noise Std): 252.77117919921875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 251.32854804518328
+    fetal_ac_energy: 1529.7850341796875
+    final_metric: 0.10642929036952462
+    maternal_ac_amp: 57.19096429056233
+    maternal_ac_energy: 3270.806396484375
 exp 019:
   Depth_mm: 6
-  Epochs: 697
+  Epochs: 617
   Error: 0.15000000000000002
   Errored_Fetal_F_Hz: 2.35
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.10650210935413644
   Optimized_Window:
   - 0.0
   - 0.0
@@ -798,33 +798,33 @@ exp 019:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
+  - 0.008640752173960209
+  - 0.013339473865926266
+  - 0.20439697802066803
+  - 0.7736228108406067
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.35), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 162.10342407226562
-  Optimizer(Maternal Energy): 157.28079223632812
-  Optimizer(Noise Std): 30.8426513671875
+  Optimizer(Fetal Energy): 58486.1640625
+  Optimizer(Maternal Energy): 115552.59375
+  Optimizer(Noise Std): 252.09909057617188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 250.73719433901306
+    fetal_ac_energy: 1520.7431640625
+    final_metric: 0.10650210935413644
+    maternal_ac_amp: 56.94805575862534
+    maternal_ac_energy: 3243.0810546875
 exp 020:
   Depth_mm: 6
-  Epochs: 697
+  Epochs: 617
   Error: 0.15000000000000002
   Errored_Fetal_F_Hz: 2.35
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.10650222623084682
   Optimized_Window:
   - 0.0
   - 0.0
@@ -839,38 +839,44 @@ exp 020:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
-  - 0.0
+  - 0.00864112377166748
+  - 0.013340064324438572
+  - 0.20441874861717224
+  - 0.7736000418663025
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.35), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 162.10337829589844
-  Optimizer(Maternal Energy): 157.28079223632812
-  Optimizer(Noise Std): 30.8426513671875
+  Optimizer(Fetal Energy): 58486.625
+  Optimizer(Maternal Energy): 115553.828125
+  Optimizer(Noise Std): 252.09991455078125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 250.7379577118311
+    fetal_ac_energy: 1520.7579345703125
+    final_metric: 0.10650222623084682
+    maternal_ac_amp: 56.94837300134219
+    maternal_ac_energy: 3243.1171875
 exp 021:
   Depth_mm: 8
-  Epochs: 708
+  Epochs: 478
   Error: 0.15000000000000002
   Errored_Fetal_F_Hz: 2.35
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0005388399029361559
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.5753040313720703
+  - 0.2386416345834732
+  - 0.12679338455200195
+  - 0.040971748530864716
+  - 0.012269092723727226
+  - 0.006020215339958668
   - 0.0
   - 0.0
   - 0.0
@@ -878,40 +884,40 @@ exp 021:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.35), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 36.49948501586914
-  Optimizer(Maternal Energy): 36.64531707763672
-  Optimizer(Noise Std): 21.329833984375
+  Optimizer(Fetal Energy): 439192.03125
+  Optimizer(Maternal Energy): 3746874.0
+  Optimizer(Noise Std): 683.421142578125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 687.3301381068635
+    fetal_ac_energy: 123.94340515136719
+    final_metric: 0.0005388399029361559
+    maternal_ac_amp: 334.6557466262906
+    maternal_ac_energy: 111994.46875
 exp 022:
   Depth_mm: 8
-  Epochs: 622
+  Epochs: 478
   Error: 0.15000000000000002
   Errored_Fetal_F_Hz: 2.35
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.000539322268291139
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.5743991732597351
+  - 0.2394670695066452
+  - 0.12693741917610168
+  - 0.040948301553726196
+  - 0.012246222235262394
+  - 0.006001896224915981
   - 0.0
   - 0.0
   - 0.0
@@ -919,40 +925,40 @@ exp 022:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.35), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 36.714874267578125
-  Optimizer(Maternal Energy): 37.1119499206543
-  Optimizer(Noise Std): 21.40831184387207
+  Optimizer(Fetal Energy): 441031.78125
+  Optimizer(Maternal Energy): 3745533.5
+  Optimizer(Noise Std): 683.3856811523438
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 687.3182487028844
+    fetal_ac_energy: 124.04949951171875
+    final_metric: 0.000539322268291139
+    maternal_ac_amp: 334.64842792474013
+    maternal_ac_energy: 111989.5703125
 exp 023:
   Depth_mm: 8
-  Epochs: 622
+  Epochs: 459
   Error: 0.15000000000000002
   Errored_Fetal_F_Hz: 2.35
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0005849644054193269
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.5385497212409973
+  - 0.2528660297393799
+  - 0.14070141315460205
+  - 0.04691284894943237
+  - 0.01408946793526411
+  - 0.006880530156195164
   - 0.0
   - 0.0
   - 0.0
@@ -960,35 +966,29 @@ exp 023:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.35), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 36.714847564697266
-  Optimizer(Maternal Energy): 37.11191940307617
-  Optimizer(Noise Std): 21.408309936523438
+  Optimizer(Fetal Energy): 436973.15625
+  Optimizer(Maternal Energy): 3708993.25
+  Optimizer(Noise Std): 681.36865234375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 685.7509114102584
+    fetal_ac_energy: 133.75857543945312
+    final_metric: 0.0005849644054193269
+    maternal_ac_amp: 333.4462217697181
+    maternal_ac_energy: 111186.3828125
 exp 024:
   Depth_mm: 6
-  Epochs: 676
+  Epochs: 745
   Error: 0.2
   Errored_Fetal_F_Hz: 2.3
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.10523148629211103
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1003,9 +1003,9 @@ exp 024:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
+  - 0.012994682416319847
+  - 0.010690469294786453
+  - 0.9763148427009583
   - 0.0
   - 0.0
   - 0.0
@@ -1013,23 +1013,23 @@ exp 024:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 190.86697387695312
-  Optimizer(Maternal Energy): 162.02757263183594
-  Optimizer(Noise Std): 30.917400360107422
+  Optimizer(Fetal Energy): 68464.9453125
+  Optimizer(Maternal Energy): 157717.953125
+  Optimizer(Noise Std): 274.3858642578125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 273.74577622312273
+    fetal_ac_energy: 1927.27490234375
+    final_metric: 0.10523148629211103
+    maternal_ac_amp: 66.90376133858246
+    maternal_ac_energy: 4476.11328125
 exp 025:
   Depth_mm: 6
-  Epochs: 676
+  Epochs: 768
   Error: 0.2
   Errored_Fetal_F_Hz: 2.3
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.10536085552713095
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1044,9 +1044,9 @@ exp 025:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012668928131461143
   - 0.0
-  - 0.0
-  - 1.0
+  - 0.9873310923576355
   - 0.0
   - 0.0
   - 0.0
@@ -1054,23 +1054,23 @@ exp 025:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 191.1210174560547
-  Optimizer(Maternal Energy): 162.07908630371094
-  Optimizer(Noise Std): 30.9180850982666
+  Optimizer(Fetal Energy): 68365.125
+  Optimizer(Maternal Energy): 157431.921875
+  Optimizer(Noise Std): 274.236328125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 273.31638031775555
+    fetal_ac_energy: 1921.2442626953125
+    final_metric: 0.10536085552713095
+    maternal_ac_amp: 66.71717284435657
+    maternal_ac_energy: 4451.18115234375
 exp 026:
   Depth_mm: 6
-  Epochs: 676
+  Epochs: 768
   Error: 0.2
   Errored_Fetal_F_Hz: 2.3
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.10536088899875351
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1085,9 +1085,9 @@ exp 026:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012669059447944164
   - 0.0
-  - 0.0
-  - 1.0
+  - 0.987330973148346
   - 0.0
   - 0.0
   - 0.0
@@ -1095,28 +1095,33 @@ exp 026:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 191.12107849121094
-  Optimizer(Maternal Energy): 162.07907104492188
-  Optimizer(Noise Std): 30.918088912963867
+  Optimizer(Fetal Energy): 68365.1171875
+  Optimizer(Maternal Energy): 157431.9375
+  Optimizer(Noise Std): 274.2363586425781
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 273.31638031775555
+    fetal_ac_energy: 1921.244873046875
+    final_metric: 0.10536088899875351
+    maternal_ac_amp: 66.71717284435657
+    maternal_ac_energy: 4451.18115234375
 exp 027:
   Depth_mm: 8
-  Epochs: 639
+  Epochs: 479
   Error: 0.2
   Errored_Fetal_F_Hz: 2.3
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0005152725880640752
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.57358318567276
+  - 0.25507140159606934
+  - 0.12288890033960342
+  - 0.037604931741952896
+  - 0.01085157785564661
   - 0.0
   - 0.0
   - 0.0
@@ -1125,39 +1130,39 @@ exp 027:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 42.96172332763672
-  Optimizer(Maternal Energy): 37.818023681640625
-  Optimizer(Noise Std): 21.384836196899414
+  Optimizer(Fetal Energy): 499119.125
+  Optimizer(Maternal Energy): 3741427.25
+  Optimizer(Noise Std): 683.2969360351562
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 688.577587313151
+    fetal_ac_energy: 119.11915588378906
+    final_metric: 0.0005152725880640752
+    maternal_ac_amp: 335.73118664714485
+    maternal_ac_energy: 112715.4296875
 exp 028:
   Depth_mm: 8
-  Epochs: 648
+  Epochs: 479
   Error: 0.2
   Errored_Fetal_F_Hz: 2.3
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0005151426284321181
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.5735712647438049
+  - 0.2551747262477875
+  - 0.12284378707408905
+  - 0.037573251873254776
+  - 0.010836998000741005
   - 0.0
   - 0.0
   - 0.0
@@ -1166,39 +1171,39 @@ exp 028:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 42.980201721191406
-  Optimizer(Maternal Energy): 37.768310546875
-  Optimizer(Noise Std): 21.37506103515625
+  Optimizer(Fetal Energy): 500585.21875
+  Optimizer(Maternal Energy): 3740729.0
+  Optimizer(Noise Std): 683.2958984375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 688.581762574351
+    fetal_ac_energy: 119.09111785888672
+    final_metric: 0.0005151426284321181
+    maternal_ac_amp: 335.7348051289887
+    maternal_ac_energy: 112717.859375
 exp 029:
   Depth_mm: 8
-  Epochs: 648
+  Epochs: 479
   Error: 0.2
   Errored_Fetal_F_Hz: 2.3
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0005151858095351543
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.5735687017440796
+  - 0.25517627596855164
+  - 0.12284472584724426
+  - 0.037573255598545074
+  - 0.010837022215127945
   - 0.0
   - 0.0
   - 0.0
@@ -1207,34 +1212,29 @@ exp 029:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 42.980194091796875
-  Optimizer(Maternal Energy): 37.768333435058594
-  Optimizer(Noise Std): 21.37506103515625
+  Optimizer(Fetal Energy): 500585.625
+  Optimizer(Maternal Energy): 3740724.5
+  Optimizer(Noise Std): 683.2958374023438
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 688.5816944996433
+    fetal_ac_energy: 119.10099792480469
+    final_metric: 0.0005151858095351543
+    maternal_ac_amp: 335.73454916049377
+    maternal_ac_energy: 112717.6875
 exp 030:
   Depth_mm: 6
-  Epochs: 679
+  Epochs: 604
   Error: 0.25
   Errored_Fetal_F_Hz: 2.25
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.08251621087558447
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1246,12 +1246,12 @@ exp 030:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014005579985678196
+  - 0.02384921908378601
+  - 0.9403553605079651
+  - 0.021789904683828354
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -1259,23 +1259,23 @@ exp 030:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.25), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 159.5172576904297
-  Optimizer(Maternal Energy): 162.93490600585938
-  Optimizer(Noise Std): 30.965591430664062
+  Optimizer(Fetal Energy): 164147.8125
+  Optimizer(Maternal Energy): 580467.125
+  Optimizer(Noise Std): 395.4351501464844
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 394.09550317784647
+    fetal_ac_energy: 4184.27685546875
+    final_metric: 0.08251621087558447
+    maternal_ac_amp: 128.6706976646198
+    maternal_ac_energy: 16556.1484375
 exp 031:
   Depth_mm: 6
-  Epochs: 686
+  Epochs: 606
   Error: 0.25
   Errored_Fetal_F_Hz: 2.25
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.08249819715281682
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1287,12 +1287,12 @@ exp 031:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014065761119127274
+  - 0.0237360168248415
+  - 0.9428385496139526
+  - 0.019359683617949486
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -1300,23 +1300,23 @@ exp 031:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.25), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 159.60850524902344
-  Optimizer(Maternal Energy): 162.78067016601562
-  Optimizer(Noise Std): 30.954177856445312
+  Optimizer(Fetal Energy): 164219.15625
+  Optimizer(Maternal Energy): 581014.0
+  Optimizer(Noise Std): 395.53924560546875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 394.2024582939584
+    fetal_ac_energy: 4186.6181640625
+    final_metric: 0.08249819715281682
+    maternal_ac_amp: 128.73586845990127
+    maternal_ac_energy: 16572.923828125
 exp 032:
   Depth_mm: 6
-  Epochs: 686
+  Epochs: 606
   Error: 0.25
   Errored_Fetal_F_Hz: 2.25
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.08249795589705373
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1328,12 +1328,12 @@ exp 032:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014065739698708057
+  - 0.023735931143164635
+  - 0.9428384900093079
+  - 0.019359812140464783
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -1341,27 +1341,33 @@ exp 032:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.25), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 159.6085662841797
-  Optimizer(Maternal Energy): 162.78065490722656
-  Optimizer(Noise Std): 30.954179763793945
+  Optimizer(Fetal Energy): 164218.703125
+  Optimizer(Maternal Energy): 581013.25
+  Optimizer(Noise Std): 395.5392761230469
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 394.20243847546146
+    fetal_ac_energy: 4186.60595703125
+    final_metric: 0.08249795589705373
+    maternal_ac_amp: 128.7358760456851
+    maternal_ac_energy: 16572.92578125
 exp 033:
   Depth_mm: 8
-  Epochs: 607
+  Epochs: 511
   Error: 0.25
   Errored_Fetal_F_Hz: 2.25
   Measurand: abs
-  Optimized_Sensitivity: 0.03247866807407711
+  Optimized_Sensitivity: 0.00045746960582687825
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.008014408871531487
+  - 0.6134361028671265
+  - 0.23826836049556732
+  - 0.10262063145637512
+  - 0.02944881282746792
+  - 0.00821181945502758
   - 0.0
   - 0.0
   - 0.0
@@ -1369,40 +1375,40 @@ exp 033:
   - 0.0
   - 0.0
   - 0.0
-  - 0.008912616409361362
-  - 0.010486257262527943
-  - 0.011705298908054829
-  - 0.8249610662460327
-  - 0.09903514385223389
-  - 0.00871631782501936
-  - 0.036183301359415054
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.25), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 80.62710571289062
-  Optimizer(Maternal Energy): 122.36144256591797
-  Optimizer(Noise Std): 29.32294273376465
+  Optimizer(Fetal Energy): 559679.3125
+  Optimizer(Maternal Energy): 3781343.5
+  Optimizer(Noise Std): 685.5996704101562
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.228034746399196
-    fetal_ac_energy: 0.8464928865432739
-    final_metric: 0.03247866807407711
-    maternal_ac_amp: 0.8917137986201611
-    maternal_ac_energy: 0.7951534986495972
+    baseline_noise_std: 690.309939447492
+    fetal_ac_energy: 106.39336395263672
+    final_metric: 0.00045746960582687825
+    maternal_ac_amp: 336.90555288166445
+    maternal_ac_energy: 113505.3515625
 exp 034:
   Depth_mm: 8
-  Epochs: 606
+  Epochs: 511
   Error: 0.25
   Errored_Fetal_F_Hz: 2.25
   Measurand: abs
-  Optimized_Sensitivity: 0.03247049082471941
+  Optimized_Sensitivity: 0.00045743686584332274
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.008046615868806839
+  - 0.6133935451507568
+  - 0.2383047491312027
+  - 0.10260823369026184
+  - 0.02943987026810646
+  - 0.008207034319639206
   - 0.0
   - 0.0
   - 0.0
@@ -1410,40 +1416,40 @@ exp 034:
   - 0.0
   - 0.0
   - 0.0
-  - 0.008992086164653301
-  - 0.010569448582828045
-  - 0.011789316311478615
-  - 0.8271675705909729
-  - 0.09857415407896042
-  - 0.008659390732645988
-  - 0.034248027950525284
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.25), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 80.87452697753906
-  Optimizer(Maternal Energy): 122.6356201171875
-  Optimizer(Noise Std): 29.34023094177246
+  Optimizer(Fetal Energy): 560353.4375
+  Optimizer(Maternal Energy): 3780641.75
+  Optimizer(Noise Std): 685.5974731445312
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.244980079721053
-    fetal_ac_energy: 0.8477317094802856
-    final_metric: 0.03247049082471941
-    maternal_ac_amp: 0.892726126322516
-    maternal_ac_energy: 0.7969599366188049
+    baseline_noise_std: 690.3099620822519
+    fetal_ac_energy: 106.38555908203125
+    final_metric: 0.00045743686584332274
+    maternal_ac_amp: 336.90493837282946
+    maternal_ac_energy: 113504.9375
 exp 035:
   Depth_mm: 8
-  Epochs: 606
+  Epochs: 511
   Error: 0.25
   Errored_Fetal_F_Hz: 2.25
   Measurand: abs
-  Optimized_Sensitivity: 0.03247044621651032
+  Optimized_Sensitivity: 0.0004574434875775828
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.008046588860452175
+  - 0.6133983135223389
+  - 0.23830044269561768
+  - 0.10260788351297379
+  - 0.02943979762494564
+  - 0.008207010105252266
   - 0.0
   - 0.0
   - 0.0
@@ -1451,36 +1457,30 @@ exp 035:
   - 0.0
   - 0.0
   - 0.0
-  - 0.008992087095975876
-  - 0.010569439269602299
-  - 0.011789312586188316
-  - 0.8271675705909729
-  - 0.09857384860515594
-  - 0.00865942146629095
-  - 0.03424830362200737
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.25), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 80.87452697753906
-  Optimizer(Maternal Energy): 122.63567352294922
-  Optimizer(Noise Std): 29.340229034423828
+  Optimizer(Fetal Energy): 560352.875
+  Optimizer(Maternal Energy): 3780641.75
+  Optimizer(Noise Std): 685.5975952148438
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.244977992690792
-    fetal_ac_energy: 0.8477300405502319
-    final_metric: 0.03247044621651032
-    maternal_ac_amp: 0.8927256589533976
-    maternal_ac_energy: 0.7969591021537781
+    baseline_noise_std: 690.3100526212841
+    fetal_ac_energy: 106.38714599609375
+    final_metric: 0.0004574434875775828
+    maternal_ac_amp: 336.90504272346533
+    maternal_ac_energy: 113505.0078125
 exp 036:
   Depth_mm: 6
-  Epochs: 626
+  Epochs: 495
   Error: 0.30000000000000004
   Errored_Fetal_F_Hz: 2.2
   Measurand: abs
-  Optimized_Sensitivity: 0.05090610486559302
+  Optimized_Sensitivity: 0.04402202091862415
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1488,16 +1488,16 @@ exp 036:
   - 0.0
   - 0.0
   - 0.0
+  - 0.010759377852082253
+  - 0.052507951855659485
+  - 0.2723557651042938
+  - 0.5312283039093018
+  - 0.11387991160154343
+  - 0.013663210906088352
+  - 0.005605460610240698
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.017381157726049423
-  - 0.13642214238643646
-  - 0.7682904601097107
-  - 0.04939043149352074
-  - 0.0
-  - 0.02851577289402485
   - 0.0
   - 0.0
   - 0.0
@@ -1505,23 +1505,23 @@ exp 036:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 313.7694091796875
-  Optimizer(Maternal Energy): 538.6380615234375
-  Optimizer(Noise Std): 43.937259674072266
+  Optimizer(Fetal Energy): 354589.59375
+  Optimizer(Maternal Energy): 1816183.5
+  Optimizer(Noise Std): 549.6250610351562
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 43.92739704259177
-    fetal_ac_energy: 4.182138442993164
-    final_metric: 0.05090610486559302
-    maternal_ac_amp: 1.8702215977299264
-    maternal_ac_energy: 3.4977288246154785
+    baseline_noise_std: 551.5692952839199
+    fetal_ac_energy: 5619.2919921875
+    final_metric: 0.04402202091862415
+    maternal_ac_amp: 231.42567651408086
+    maternal_ac_energy: 53557.84375
 exp 037:
   Depth_mm: 6
-  Epochs: 627
+  Epochs: 496
   Error: 0.30000000000000004
   Errored_Fetal_F_Hz: 2.2
   Measurand: abs
-  Optimized_Sensitivity: 0.050906957421376575
+  Optimized_Sensitivity: 0.04392937500866893
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1529,16 +1529,16 @@ exp 037:
   - 0.0
   - 0.0
   - 0.0
+  - 0.010823552496731281
+  - 0.05305681377649307
+  - 0.2764941155910492
+  - 0.5288838744163513
+  - 0.11171510815620422
+  - 0.013485170900821686
+  - 0.005541334394365549
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.01732023060321808
-  - 0.13630971312522888
-  - 0.7691265940666199
-  - 0.04906134679913521
-  - 0.0
-  - 0.028182148933410645
   - 0.0
   - 0.0
   - 0.0
@@ -1546,23 +1546,23 @@ exp 037:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 314.2916564941406
-  Optimizer(Maternal Energy): 538.8551635742188
-  Optimizer(Noise Std): 43.94175720214844
+  Optimizer(Fetal Energy): 355101.3125
+  Optimizer(Maternal Energy): 1820536.0
+  Optimizer(Noise Std): 550.0333862304688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 43.93186252507256
-    fetal_ac_energy: 4.183323383331299
-    final_metric: 0.050906957421376575
-    maternal_ac_amp: 1.8705300136912402
-    maternal_ac_energy: 3.498882532119751
+    baseline_noise_std: 551.973334953782
+    fetal_ac_energy: 5618.56591796875
+    final_metric: 0.04392937500866893
+    maternal_ac_amp: 231.7140445408953
+    maternal_ac_energy: 53691.3984375
 exp 038:
   Depth_mm: 6
-  Epochs: 627
+  Epochs: 496
   Error: 0.30000000000000004
   Errored_Fetal_F_Hz: 2.2
   Measurand: abs
-  Optimized_Sensitivity: 0.05090686552872542
+  Optimized_Sensitivity: 0.04392936556413539
   Optimized_Window:
   - 0.0
   - 0.0
@@ -1570,16 +1570,16 @@ exp 038:
   - 0.0
   - 0.0
   - 0.0
+  - 0.010823466815054417
+  - 0.05305648595094681
+  - 0.2764873504638672
+  - 0.528890073299408
+  - 0.111716128885746
+  - 0.013485214672982693
+  - 0.0055413516238331795
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.017320193350315094
-  - 0.1363092064857483
-  - 0.7691271901130676
-  - 0.04906129091978073
-  - 0.0
-  - 0.028182117268443108
   - 0.0
   - 0.0
   - 0.0
@@ -1587,38 +1587,38 @@ exp 038:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 314.2914123535156
-  Optimizer(Maternal Energy): 538.85546875
-  Optimizer(Noise Std): 43.94175338745117
+  Optimizer(Fetal Energy): 355101.1875
+  Optimizer(Maternal Energy): 1820531.125
+  Optimizer(Noise Std): 550.032958984375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 43.93185974644427
-    fetal_ac_energy: 4.183316707611084
-    final_metric: 0.05090686552872542
-    maternal_ac_amp: 1.8705305235329317
-    maternal_ac_energy: 3.498884439468384
+    baseline_noise_std: 551.9729103407159
+    fetal_ac_energy: 5618.5595703125
+    final_metric: 0.04392936556413539
+    maternal_ac_amp: 231.7140108247665
+    maternal_ac_energy: 53691.3828125
 exp 039:
   Depth_mm: 8
-  Epochs: 738
+  Epochs: 509
   Error: 0.30000000000000004
   Errored_Fetal_F_Hz: 2.2
   Measurand: abs
-  Optimized_Sensitivity: 0.03245138570720979
+  Optimized_Sensitivity: 0.00045543831289679085
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01145505253225565
+  - 0.6078781485557556
+  - 0.24207699298858643
+  - 0.10200750827789307
+  - 0.028785331174731255
+  - 0.007796966005116701
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.012247891165316105
-  - 0.0
-  - 0.0
-  - 0.9877521395683289
   - 0.0
   - 0.0
   - 0.0
@@ -1628,38 +1628,38 @@ exp 039:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 69.67583465576172
-  Optimizer(Maternal Energy): 129.5998077392578
-  Optimizer(Noise Std): 29.72931671142578
+  Optimizer(Fetal Energy): 592804.375
+  Optimizer(Maternal Energy): 3773625.0
+  Optimizer(Noise Std): 685.2933349609375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.586435705139863
-    fetal_ac_energy: 0.8792265057563782
-    final_metric: 0.03245138570720979
-    maternal_ac_amp: 0.9157456770911255
-    maternal_ac_energy: 0.838590145111084
+    baseline_noise_std: 690.2598242690937
+    fetal_ac_energy: 105.88409423828125
+    final_metric: 0.00045543831289679085
+    maternal_ac_amp: 336.81278414350606
+    maternal_ac_energy: 113442.8515625
 exp 040:
   Depth_mm: 8
-  Epochs: 737
+  Epochs: 509
   Error: 0.30000000000000004
   Errored_Fetal_F_Hz: 2.2
   Measurand: abs
-  Optimized_Sensitivity: 0.03245006403572011
+  Optimized_Sensitivity: 0.0004554317175358138
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.011464809998869896
+  - 0.6078802943229675
+  - 0.24207904934883118
+  - 0.10199905931949615
+  - 0.028781486675143242
+  - 0.007795259822160006
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.012369697913527489
-  - 0.0
-  - 0.0
-  - 0.987630307674408
   - 0.0
   - 0.0
   - 0.0
@@ -1669,38 +1669,38 @@ exp 040:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 69.78133392333984
-  Optimizer(Maternal Energy): 129.63572692871094
-  Optimizer(Noise Std): 29.73187828063965
+  Optimizer(Fetal Energy): 592637.875
+  Optimizer(Maternal Energy): 3772979.5
+  Optimizer(Noise Std): 685.2933349609375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.588050946100903
-    fetal_ac_energy: 0.8793135285377502
-    final_metric: 0.03245006403572011
-    maternal_ac_amp: 0.9158236174260418
-    maternal_ac_energy: 0.838732898235321
+    baseline_noise_std: 690.260276997018
+    fetal_ac_energy: 105.882568359375
+    final_metric: 0.0004554317175358138
+    maternal_ac_amp: 336.8125869827314
+    maternal_ac_energy: 113442.71875
 exp 041:
   Depth_mm: 8
-  Epochs: 737
+  Epochs: 509
   Error: 0.30000000000000004
   Errored_Fetal_F_Hz: 2.2
   Measurand: abs
-  Optimized_Sensitivity: 0.03245000962616488
+  Optimized_Sensitivity: 0.0004553911824823275
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.011464818380773067
+  - 0.6078789830207825
+  - 0.2420792132616043
+  - 0.1020001471042633
+  - 0.02878151834011078
+  - 0.007795277051627636
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.012369629926979542
-  - 0.0
-  - 0.0
-  - 0.9876304268836975
   - 0.0
   - 0.0
   - 0.0
@@ -1710,40 +1710,40 @@ exp 041:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 69.78135681152344
-  Optimizer(Maternal Energy): 129.63577270507812
-  Optimizer(Noise Std): 29.731876373291016
+  Optimizer(Fetal Energy): 592638.375
+  Optimizer(Maternal Energy): 3772970.75
+  Optimizer(Noise Std): 685.2932739257812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 29.588049914685257
-    fetal_ac_energy: 0.8793129920959473
-    final_metric: 0.03245000962616488
-    maternal_ac_amp: 0.9158246262136158
-    maternal_ac_energy: 0.8387347459793091
+    baseline_noise_std: 690.2602317242389
+    fetal_ac_energy: 105.87319946289062
+    final_metric: 0.0004553911824823275
+    maternal_ac_amp: 336.81278414350606
+    maternal_ac_energy: 113442.8515625
 exp 042:
   Depth_mm: 6
-  Epochs: 541
+  Epochs: 483
   Error: 0.35000000000000003
   Errored_Fetal_F_Hz: 2.15
   Measurand: abs
-  Optimized_Sensitivity: 0.04936526048911508
+  Optimized_Sensitivity: 0.023683831309489374
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.04740430787205696
+  - 0.27799004316329956
+  - 0.5254286527633667
+  - 0.11175668239593506
+  - 0.027552025392651558
+  - 0.009868308901786804
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.05633416026830673
-  - 0.5340802669525146
-  - 0.3603847920894623
-  - 0.03796711191534996
-  - 0.00555951613932848
-  - 0.005674227140843868
   - 0.0
   - 0.0
   - 0.0
@@ -1751,40 +1751,40 @@ exp 042:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.15), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 287.7049255371094
-  Optimizer(Maternal Energy): 655.6334228515625
-  Optimizer(Noise Std): 46.49726486206055
+  Optimizer(Fetal Energy): 495021.625
+  Optimizer(Maternal Energy): 2925504.25
+  Optimizer(Noise Std): 637.8875122070312
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 46.368505799498486
-    fetal_ac_energy: 4.725550174713135
-    final_metric: 0.04936526048911508
-    maternal_ac_amp: 2.064466521509278
-    maternal_ac_energy: 4.262022018432617
+    baseline_noise_std: 642.2065964313977
+    fetal_ac_energy: 4499.283203125
+    final_metric: 0.023683831309489374
+    maternal_ac_amp: 295.81255942319285
+    maternal_ac_energy: 87505.0703125
 exp 043:
   Depth_mm: 6
-  Epochs: 541
+  Epochs: 483
   Error: 0.35000000000000003
   Errored_Fetal_F_Hz: 2.15
   Measurand: abs
-  Optimized_Sensitivity: 0.04936936539023269
+  Optimized_Sensitivity: 0.023712886569813022
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.04706508293747902
+  - 0.2763848304748535
+  - 0.5267383456230164
+  - 0.11226553469896317
+  - 0.02765054628252983
+  - 0.00989562552422285
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.056213781237602234
-  - 0.5326827168464661
-  - 0.36171627044677734
-  - 0.038093362003564835
-  - 0.005579301156103611
-  - 0.0057146851904690266
   - 0.0
   - 0.0
   - 0.0
@@ -1792,40 +1792,40 @@ exp 043:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.15), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 287.9718933105469
-  Optimizer(Maternal Energy): 655.234375
-  Optimizer(Noise Std): 46.48872375488281
+  Optimizer(Fetal Energy): 494350.75
+  Optimizer(Maternal Energy): 2923430.0
+  Optimizer(Noise Std): 637.7625732421875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 46.35996218451866
-    fetal_ac_energy: 4.723508358001709
-    final_metric: 0.04936936539023269
-    maternal_ac_amp: 2.0637831886621925
-    maternal_ac_energy: 4.2592010498046875
+    baseline_noise_std: 642.0809917759597
+    fetal_ac_energy: 4502.650390625
+    final_metric: 0.023712886569813022
+    maternal_ac_amp: 295.72905145588925
+    maternal_ac_energy: 87455.671875
 exp 044:
   Depth_mm: 6
-  Epochs: 541
+  Epochs: 483
   Error: 0.35000000000000003
   Errored_Fetal_F_Hz: 2.15
   Measurand: abs
-  Optimized_Sensitivity: 0.04936939373102573
+  Optimized_Sensitivity: 0.023712960506634267
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.047064803540706635
+  - 0.2763841152191162
+  - 0.5267388224601746
+  - 0.11226601898670197
+  - 0.02765056863427162
+  - 0.009895612485706806
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.056213781237602234
-  - 0.5326805710792542
-  - 0.36171817779541016
-  - 0.03809347376227379
-  - 0.005579305347055197
-  - 0.00571469496935606
   - 0.0
   - 0.0
   - 0.0
@@ -1833,37 +1833,37 @@ exp 044:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.15), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 287.97216796875
-  Optimizer(Maternal Energy): 655.2344970703125
-  Optimizer(Noise Std): 46.48871612548828
+  Optimizer(Fetal Energy): 494352.03125
+  Optimizer(Maternal Energy): 2923431.25
+  Optimizer(Noise Std): 637.7625122070312
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 46.359951652126426
-    fetal_ac_energy: 4.723507881164551
-    final_metric: 0.04936939373102573
-    maternal_ac_amp: 2.063782264461884
-    maternal_ac_energy: 4.259197235107422
+    baseline_noise_std: 642.0808944362074
+    fetal_ac_energy: 4502.6611328125
+    final_metric: 0.023712960506634267
+    maternal_ac_amp: 295.7288797403798
+    maternal_ac_energy: 87455.5703125
 exp 045:
   Depth_mm: 8
-  Epochs: 651
+  Epochs: 547
   Error: 0.35000000000000003
   Errored_Fetal_F_Hz: 2.15
   Measurand: abs
-  Optimized_Sensitivity: 0.02730989671921575
+  Optimized_Sensitivity: 0.00039548348704866477
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.011450426653027534
+  - 0.6632009744644165
+  - 0.21856088936328888
+  - 0.08401848375797272
+  - 0.022769177332520485
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.02028735913336277
-  - 0.9416243433952332
-  - 0.025947315618395805
-  - 0.012141061946749687
   - 0.0
   - 0.0
   - 0.0
@@ -1874,37 +1874,37 @@ exp 045:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.15), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 125.06854248046875
-  Optimizer(Maternal Energy): 350.79779052734375
-  Optimizer(Noise Std): 40.480987548828125
+  Optimizer(Fetal Energy): 603520.75
+  Optimizer(Maternal Energy): 3817041.5
+  Optimizer(Noise Std): 687.6927490234375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 40.50887549834758
-    fetal_ac_energy: 1.7081996202468872
-    final_metric: 0.02730989671921575
-    maternal_ac_amp: 1.5440749440312262
-    maternal_ac_energy: 2.384167432785034
+    baseline_noise_std: 692.7121065060145
+    fetal_ac_energy: 92.79808807373047
+    final_metric: 0.00039548348704866477
+    maternal_ac_amp: 338.73330217148714
+    maternal_ac_energy: 114740.25
 exp 046:
   Depth_mm: 8
-  Epochs: 651
+  Epochs: 547
   Error: 0.35000000000000003
   Errored_Fetal_F_Hz: 2.15
   Measurand: abs
-  Optimized_Sensitivity: 0.02731052227708822
+  Optimized_Sensitivity: 0.0003953895173901118
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.011445481330156326
+  - 0.6632131934165955
+  - 0.21855300664901733
+  - 0.08401839435100555
+  - 0.02276986837387085
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.020196979865431786
-  - 0.9415520429611206
-  - 0.026056064292788506
-  - 0.012194875627756119
   - 0.0
   - 0.0
   - 0.0
@@ -1915,37 +1915,37 @@ exp 046:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.15), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 125.20843505859375
-  Optimizer(Maternal Energy): 350.7086181640625
-  Optimizer(Noise Std): 40.478843688964844
+  Optimizer(Fetal Energy): 602920.375
+  Optimizer(Maternal Energy): 3816418.0
+  Optimizer(Noise Std): 687.6932983398438
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 40.50780119937161
-    fetal_ac_energy: 1.708113670349121
-    final_metric: 0.02731052227708822
-    maternal_ac_amp: 1.5440028334922684
-    maternal_ac_energy: 2.3839447498321533
+    baseline_noise_std: 692.712377181179
+    fetal_ac_energy: 92.77619171142578
+    final_metric: 0.0003953895173901118
+    maternal_ac_amp: 338.7337288527672
+    maternal_ac_energy: 114740.5390625
 exp 047:
   Depth_mm: 8
-  Epochs: 651
+  Epochs: 547
   Error: 0.35000000000000003
   Errored_Fetal_F_Hz: 2.15
   Measurand: abs
-  Optimized_Sensitivity: 0.027310456897473995
+  Optimized_Sensitivity: 0.0003954516022817114
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.011445439420640469
+  - 0.6632145643234253
+  - 0.2185521274805069
+  - 0.0840180516242981
+  - 0.02276981621980667
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.02019699290394783
-  - 0.9415520429611206
-  - 0.02605603262782097
-  - 0.012194880284368992
   - 0.0
   - 0.0
   - 0.0
@@ -1956,37 +1956,37 @@ exp 047:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.15), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 125.20836639404297
-  Optimizer(Maternal Energy): 350.7088623046875
-  Optimizer(Noise Std): 40.47883987426758
+  Optimizer(Fetal Energy): 602921.9375
+  Optimizer(Maternal Energy): 3816417.0
+  Optimizer(Noise Std): 687.693359375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 40.50779969262093
-    fetal_ac_energy: 1.70810866355896
-    final_metric: 0.027310456897473995
-    maternal_ac_amp: 1.5440020614126013
-    maternal_ac_energy: 2.3839423656463623
+    baseline_noise_std: 692.712377181179
+    fetal_ac_energy: 92.7907943725586
+    final_metric: 0.0003954516022817114
+    maternal_ac_amp: 338.7338557038549
+    maternal_ac_energy: 114740.625
 exp 048:
   Depth_mm: 6
-  Epochs: 592
+  Epochs: 520
   Error: 0.4
   Errored_Fetal_F_Hz: 2.1
   Measurand: abs
-  Optimized_Sensitivity: 0.04609765154036706
+  Optimized_Sensitivity: 0.013965649750894534
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03044455498456955
+  - 0.44725966453552246
+  - 0.3944080173969269
+  - 0.0985618531703949
+  - 0.022415893152356148
+  - 0.006910022348165512
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.00694647990167141
-  - 0.012607325799763203
-  - 0.4536232054233551
-  - 0.5136370658874512
-  - 0.013185915537178516
   - 0.0
   - 0.0
   - 0.0
@@ -1997,37 +1997,37 @@ exp 048:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 377.029296875
-  Optimizer(Maternal Energy): 857.0599365234375
-  Optimizer(Noise Std): 50.21585464477539
+  Optimizer(Fetal Energy): 1362242.125
+  Optimizer(Maternal Energy): 3562438.25
+  Optimizer(Noise Std): 679.8001098632812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 50.1403961509268
-    fetal_ac_energy: 5.4703168869018555
-    final_metric: 0.04609765154036706
-    maternal_ac_amp: 2.366714782852552
-    maternal_ac_energy: 5.601338863372803
+    baseline_noise_std: 684.6714540566154
+    fetal_ac_energy: 3085.7099609375
+    final_metric: 0.013965649750894534
+    maternal_ac_amp: 322.70948864652246
+    maternal_ac_energy: 104141.4140625
 exp 049:
   Depth_mm: 6
-  Epochs: 528
+  Epochs: 520
   Error: 0.4
   Errored_Fetal_F_Hz: 2.1
   Measurand: abs
-  Optimized_Sensitivity: 0.04563010767716495
+  Optimized_Sensitivity: 0.013988753837036856
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.030282841995358467
+  - 0.44523200392723083
+  - 0.39598771929740906
+  - 0.09905945509672165
+  - 0.022503279149532318
+  - 0.006934648379683495
   - 0.0
   - 0.0
   - 0.0
-  - 0.0056974939070641994
-  - 0.009450254961848259
-  - 0.017293209210038185
-  - 0.46490147709846497
-  - 0.48443982005119324
-  - 0.01821775920689106
   - 0.0
   - 0.0
   - 0.0
@@ -2038,37 +2038,37 @@ exp 049:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 379.3872375488281
-  Optimizer(Maternal Energy): 862.8080444335938
-  Optimizer(Noise Std): 50.34541320800781
+  Optimizer(Fetal Energy): 1362199.25
+  Optimizer(Maternal Energy): 3559493.75
+  Optimizer(Noise Std): 679.70068359375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 50.34106574547886
-    fetal_ac_energy: 5.472094535827637
-    final_metric: 0.04563010767716495
-    maternal_ac_amp: 2.38220807523623
-    maternal_ac_energy: 5.674915313720703
+    baseline_noise_std: 684.5724943349682
+    fetal_ac_energy: 3089.818115234375
+    final_metric: 0.013988753837036856
+    maternal_ac_amp: 322.6520595974865
+    maternal_ac_energy: 104104.3515625
 exp 050:
   Depth_mm: 6
-  Epochs: 528
+  Epochs: 520
   Error: 0.4
   Errored_Fetal_F_Hz: 2.1
   Measurand: abs
-  Optimized_Sensitivity: 0.045630105191686345
+  Optimized_Sensitivity: 0.013988523579106862
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03028273954987526
+  - 0.4452316164970398
+  - 0.3959885537624359
+  - 0.09905914962291718
+  - 0.022503303363919258
+  - 0.006934657692909241
   - 0.0
   - 0.0
   - 0.0
-  - 0.005697497166693211
-  - 0.009450270794332027
-  - 0.017293227836489677
-  - 0.46490123867988586
-  - 0.48444005846977234
-  - 0.01821776293218136
   - 0.0
   - 0.0
   - 0.0
@@ -2079,35 +2079,35 @@ exp 050:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 379.38714599609375
-  Optimizer(Maternal Energy): 862.807373046875
-  Optimizer(Noise Std): 50.34541320800781
+  Optimizer(Fetal Energy): 1362198.0
+  Optimizer(Maternal Energy): 3559489.5
+  Optimizer(Noise Std): 679.7006225585938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 50.34106574547886
-    fetal_ac_energy: 5.472092628479004
-    final_metric: 0.045630105191686345
-    maternal_ac_amp: 2.382207374654985
-    maternal_ac_energy: 5.674911975860596
+    baseline_noise_std: 684.5725399838939
+    fetal_ac_energy: 3089.767578125
+    final_metric: 0.013988523579106862
+    maternal_ac_amp: 322.6520717041811
+    maternal_ac_energy: 104104.359375
 exp 051:
   Depth_mm: 8
-  Epochs: 583
+  Epochs: 551
   Error: 0.4
   Errored_Fetal_F_Hz: 2.1
   Measurand: abs
-  Optimized_Sensitivity: 0.020229937664037474
+  Optimized_Sensitivity: 0.0003865527286806749
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.013511495664715767
+  - 0.6704274415969849
+  - 0.21452581882476807
+  - 0.08007226884365082
+  - 0.021462956443428993
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8474842309951782
-  - 0.09012694656848907
-  - 0.043848950415849686
-  - 0.018539899960160255
   - 0.0
   - 0.0
   - 0.0
@@ -2120,35 +2120,35 @@ exp 051:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 286.8349609375
-  Optimizer(Maternal Energy): 792.546630859375
-  Optimizer(Noise Std): 52.57447052001953
+  Optimizer(Fetal Energy): 1481089.125
+  Optimizer(Maternal Energy): 3915189.0
+  Optimizer(Noise Std): 687.9061279296875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.864513033615
-    fetal_ac_energy: 2.5190589427948
-    final_metric: 0.020229937664037474
-    maternal_ac_amp: 2.3554806938311406
-    maternal_ac_energy: 5.5482892990112305
+    baseline_noise_std: 692.9621878212404
+    fetal_ac_energy: 90.77493286132812
+    final_metric: 0.0003865527286806749
+    maternal_ac_amp: 338.8813398521671
+    maternal_ac_energy: 114840.5625
 exp 052:
   Depth_mm: 8
-  Epochs: 583
+  Epochs: 551
   Error: 0.4
   Errored_Fetal_F_Hz: 2.1
   Measurand: abs
-  Optimized_Sensitivity: 0.020232273702492656
+  Optimized_Sensitivity: 0.00038650349635200264
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01350289024412632
+  - 0.6704286336898804
+  - 0.2145254909992218
+  - 0.08007766306400299
+  - 0.021465279161930084
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8467913269996643
-  - 0.09000065922737122
-  - 0.044381532818078995
-  - 0.018826555460691452
   - 0.0
   - 0.0
   - 0.0
@@ -2161,35 +2161,35 @@ exp 052:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 287.1986389160156
-  Optimizer(Maternal Energy): 791.8908081054688
-  Optimizer(Noise Std): 52.56562805175781
+  Optimizer(Fetal Energy): 1481383.125
+  Optimizer(Maternal Energy): 3913317.5
+  Optimizer(Noise Std): 687.906494140625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.856765380454135
-    fetal_ac_energy: 2.5184006690979004
-    final_metric: 0.020232273702492656
-    maternal_ac_amp: 2.3549384030914133
-    maternal_ac_energy: 5.545734882354736
+    baseline_noise_std: 692.9620525324601
+    fetal_ac_energy: 90.76341247558594
+    final_metric: 0.00038650349635200264
+    maternal_ac_amp: 338.88155886312256
+    maternal_ac_energy: 114840.7109375
 exp 053:
   Depth_mm: 8
-  Epochs: 583
+  Epochs: 546
   Error: 0.4
   Errored_Fetal_F_Hz: 2.1
   Measurand: abs
-  Optimized_Sensitivity: 0.02023237765634753
+  Optimized_Sensitivity: 0.00039119725289376233
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.013871340081095695
+  - 0.6639730334281921
+  - 0.2180326282978058
+  - 0.08206799626350403
+  - 0.02205498330295086
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8467922210693359
-  - 0.08999981731176376
-  - 0.04438146576285362
-  - 0.018826499581336975
   - 0.0
   - 0.0
   - 0.0
@@ -2202,36 +2202,36 @@ exp 053:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 287.1988525390625
-  Optimizer(Maternal Energy): 791.8916625976562
-  Optimizer(Noise Std): 52.56562805175781
+  Optimizer(Fetal Energy): 1479195.75
+  Optimizer(Maternal Energy): 3907540.5
+  Optimizer(Noise Std): 687.609130859375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.85676768990893
-    fetal_ac_energy: 2.5184154510498047
-    final_metric: 0.02023237765634753
-    maternal_ac_amp: 2.354940022962213
-    maternal_ac_energy: 5.545742511749268
+    baseline_noise_std: 692.7719457007479
+    fetal_ac_energy: 91.80036926269531
+    final_metric: 0.00039119725289376233
+    maternal_ac_amp: 338.733648129323
+    maternal_ac_energy: 114740.484375
 exp 054:
   Depth_mm: 6
-  Epochs: 589
+  Epochs: 471
   Error: 0.45
   Errored_Fetal_F_Hz: 2.05
   Measurand: abs
-  Optimized_Sensitivity: 0.04335029273993854
+  Optimized_Sensitivity: 0.013824639047416508
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.00452816765755415
+  - 0.043633949011564255
+  - 0.44599324464797974
+  - 0.3607276380062103
+  - 0.10997527092695236
+  - 0.026884278282523155
+  - 0.008257507346570492
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.010596329346299171
-  - 0.01345965638756752
-  - 0.022631479427218437
-  - 0.904166579246521
-  - 0.049145933240652084
   - 0.0
   - 0.0
   - 0.0
@@ -2243,36 +2243,36 @@ exp 054:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.05), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 353.0343017578125
-  Optimizer(Maternal Energy): 977.1316528320312
-  Optimizer(Noise Std): 52.31650161743164
+  Optimizer(Fetal Energy): 1231310.0
+  Optimizer(Maternal Energy): 3526378.75
+  Optimizer(Noise Std): 678.1731567382812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.25128259864178
-    fetal_ac_energy: 5.746350288391113
-    final_metric: 0.04335029273993854
-    maternal_ac_amp: 2.5368985858656314
-    maternal_ac_energy: 6.435854434967041
+    baseline_noise_std: 683.9868876667155
+    fetal_ac_energy: 3043.317138671875
+    final_metric: 0.013824639047416508
+    maternal_ac_amp: 321.84416114402325
+    maternal_ac_energy: 103583.6640625
 exp 055:
   Depth_mm: 6
-  Epochs: 583
+  Epochs: 471
   Error: 0.45
   Errored_Fetal_F_Hz: 2.05
   Measurand: abs
-  Optimized_Sensitivity: 0.04336454558941881
+  Optimized_Sensitivity: 0.013842047639850712
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.004506105091422796
+  - 0.043429143726825714
+  - 0.4447495639324188
+  - 0.36165598034858704
+  - 0.11040250957012177
+  - 0.02697327733039856
+  - 0.008283533155918121
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.01055195927619934
-  - 0.01360004860907793
-  - 0.022983429953455925
-  - 0.8983551859855652
-  - 0.054509393870830536
   - 0.0
   - 0.0
   - 0.0
@@ -2284,36 +2284,36 @@ exp 055:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.05), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 353.3743896484375
-  Optimizer(Maternal Energy): 975.5760498046875
-  Optimizer(Noise Std): 52.29489517211914
+  Optimizer(Fetal Energy): 1231227.0
+  Optimizer(Maternal Energy): 3523801.5
+  Optimizer(Noise Std): 678.1002807617188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.23306627884893
-    fetal_ac_energy: 5.742912769317627
-    final_metric: 0.04336454558941881
-    maternal_ac_amp: 2.5354315985869706
-    maternal_ac_energy: 6.428413391113281
+    baseline_noise_std: 683.914673954288
+    fetal_ac_energy: 3046.445068359375
+    final_metric: 0.013842047639850712
+    maternal_ac_amp: 321.8037421123316
+    maternal_ac_energy: 103557.6484375
 exp 056:
   Depth_mm: 6
-  Epochs: 583
+  Epochs: 471
   Error: 0.45
   Errored_Fetal_F_Hz: 2.05
   Measurand: abs
-  Optimized_Sensitivity: 0.043364418313087065
+  Optimized_Sensitivity: 0.013841907283269124
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.004506104625761509
+  - 0.04342944920063019
+  - 0.4447498321533203
+  - 0.36165568232536316
+  - 0.11040207743644714
+  - 0.026973292231559753
+  - 0.00828353501856327
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.010551935993134975
-  - 0.013600044883787632
-  - 0.02298344485461712
-  - 0.8983548283576965
-  - 0.054509762674570084
   - 0.0
   - 0.0
   - 0.0
@@ -2325,35 +2325,35 @@ exp 056:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.05), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 353.3747863769531
-  Optimizer(Maternal Energy): 975.5768432617188
-  Optimizer(Noise Std): 52.294891357421875
+  Optimizer(Fetal Energy): 1231228.375
+  Optimizer(Maternal Energy): 3523800.25
+  Optimizer(Noise Std): 678.1002807617188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.23306160478605
-    fetal_ac_energy: 5.742893695831299
-    final_metric: 0.043364418313087065
-    maternal_ac_amp: 2.535430846309166
-    maternal_ac_energy: 6.428409576416016
+    baseline_noise_std: 683.914673954288
+    fetal_ac_energy: 3046.412109375
+    final_metric: 0.013841907283269124
+    maternal_ac_amp: 321.8035236172842
+    maternal_ac_energy: 103557.5078125
 exp 057:
   Depth_mm: 8
-  Epochs: 579
+  Epochs: 546
   Error: 0.45
   Errored_Fetal_F_Hz: 2.05
   Measurand: abs
-  Optimized_Sensitivity: 0.020165793007242933
+  Optimized_Sensitivity: 0.0003919776953932867
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014037638902664185
+  - 0.662670373916626
+  - 0.21878869831562042
+  - 0.0823974460363388
+  - 0.022105878219008446
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8589434027671814
-  - 0.09920825064182281
-  - 0.030504439026117325
-  - 0.011344005353748798
   - 0.0
   - 0.0
   - 0.0
@@ -2366,35 +2366,35 @@ exp 057:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.05), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 252.33921813964844
-  Optimizer(Maternal Energy): 801.5723876953125
-  Optimizer(Noise Std): 52.76155090332031
+  Optimizer(Fetal Energy): 1352723.5
+  Optimizer(Maternal Energy): 3908359.0
+  Optimizer(Noise Std): 687.55615234375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.02523030433838
-    fetal_ac_energy: 2.5313456058502197
-    final_metric: 0.020165793007242933
-    maternal_ac_amp: 2.367301510120613
-    maternal_ac_energy: 5.604116439819336
+    baseline_noise_std: 692.7378201744149
+    fetal_ac_energy: 91.97137451171875
+    final_metric: 0.0003919776953932867
+    maternal_ac_amp: 338.7056359325897
+    maternal_ac_energy: 114721.5078125
 exp 058:
   Depth_mm: 8
-  Epochs: 583
+  Epochs: 546
   Error: 0.45
   Errored_Fetal_F_Hz: 2.05
   Measurand: abs
-  Optimized_Sensitivity: 0.020166747503515277
+  Optimized_Sensitivity: 0.00039195902668113294
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014029473066329956
+  - 0.6626783609390259
+  - 0.21878394484519958
+  - 0.0824006050825119
+  - 0.02210761234164238
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.861890971660614
-  - 0.09681777656078339
-  - 0.030063973739743233
-  - 0.011227226816117764
   - 0.0
   - 0.0
   - 0.0
@@ -2407,35 +2407,35 @@ exp 058:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.05), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 252.97607421875
-  Optimizer(Maternal Energy): 802.2879028320312
-  Optimizer(Noise Std): 52.784122467041016
+  Optimizer(Fetal Energy): 1352831.5
+  Optimizer(Maternal Energy): 3906488.0
+  Optimizer(Noise Std): 687.5568237304688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.04421707258719
-    fetal_ac_energy: 2.533519744873047
-    final_metric: 0.020166747503515277
-    maternal_ac_amp: 2.3683745678026327
-    maternal_ac_energy: 5.609198093414307
+    baseline_noise_std: 692.7379103961324
+    fetal_ac_energy: 91.96705627441406
+    final_metric: 0.00039195902668113294
+    maternal_ac_amp: 338.7058204585507
+    maternal_ac_energy: 114721.6328125
 exp 059:
   Depth_mm: 8
-  Epochs: 583
+  Epochs: 546
   Error: 0.45
   Errored_Fetal_F_Hz: 2.05
   Measurand: abs
-  Optimized_Sensitivity: 0.02016657880002475
+  Optimized_Sensitivity: 0.0003919834638696377
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014029547572135925
+  - 0.6626762747764587
+  - 0.21878547966480255
+  - 0.08240099996328354
+  - 0.022107720375061035
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8618910312652588
-  - 0.09681767225265503
-  - 0.030064046382904053
-  - 0.011227239854633808
   - 0.0
   - 0.0
   - 0.0
@@ -2448,36 +2448,36 @@ exp 059:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.05), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 252.97621154785156
-  Optimizer(Maternal Energy): 802.2876586914062
-  Optimizer(Noise Std): 52.784122467041016
+  Optimizer(Fetal Energy): 1352828.5
+  Optimizer(Maternal Energy): 3906480.75
+  Optimizer(Noise Std): 687.5567016601562
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.044214771293625
-    fetal_ac_energy: 2.533498764038086
-    final_metric: 0.02016657880002475
-    maternal_ac_amp: 2.3683748698054075
-    maternal_ac_energy: 5.609199523925781
+    baseline_noise_std: 692.7378878407042
+    fetal_ac_energy: 91.97286224365234
+    final_metric: 0.0003919834638696377
+    maternal_ac_amp: 338.7060972473038
+    maternal_ac_energy: 114721.8203125
 exp 060:
   Depth_mm: 6
-  Epochs: 476
+  Epochs: 561
   Error: 0.5
   Errored_Fetal_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.017650782109141783
+  Optimized_Sensitivity: 0.012881973412891807
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.02964574471116066
+  - 0.5474292039871216
+  - 0.3363320231437683
+  - 0.07041822373867035
+  - 0.01617487147450447
   - 0.0
-  - 0.5087977051734924
-  - 0.23213733732700348
-  - 0.19127291440963745
-  - 0.031611766666173935
-  - 0.020204991102218628
-  - 0.010696079581975937
-  - 0.005279118660837412
+  - 0.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -2489,36 +2489,36 @@ exp 060:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.0), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 910.44677734375
-  Optimizer(Maternal Energy): 2228.61376953125
-  Optimizer(Noise Std): 68.48188018798828
+  Optimizer(Fetal Energy): 1114589.875
+  Optimizer(Maternal Energy): 3643946.75
+  Optimizer(Noise Std): 685.4064331054688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 68.88857128658026
-    fetal_ac_energy: 4.846208095550537
-    final_metric: 0.017650782109141783
-    maternal_ac_amp: 3.985574459469131
-    maternal_ac_energy: 15.884803771972656
+    baseline_noise_std: 690.2713687384114
+    fetal_ac_energy: 2901.17724609375
+    final_metric: 0.012881973412891807
+    maternal_ac_amp: 326.2661394475375
+    maternal_ac_energy: 106449.59375
 exp 061:
   Depth_mm: 6
-  Epochs: 476
+  Epochs: 561
   Error: 0.5
   Errored_Fetal_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.017731883488535306
+  Optimized_Sensitivity: 0.01290052356815172
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.029518719762563705
+  - 0.5455065965652466
+  - 0.3379913866519928
+  - 0.07074958086013794
+  - 0.01623370870947838
   - 0.0
-  - 0.49999570846557617
-  - 0.23588810861110687
-  - 0.19531317055225372
-  - 0.03204182907938957
-  - 0.020502964034676552
-  - 0.010892409831285477
-  - 0.00536578893661499
+  - 0.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -2530,36 +2530,36 @@ exp 061:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.0), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 909.128662109375
-  Optimizer(Maternal Energy): 2223.330078125
-  Optimizer(Noise Std): 68.44438934326172
+  Optimizer(Fetal Energy): 1113910.5
+  Optimizer(Maternal Energy): 3641123.75
+  Optimizer(Noise Std): 685.321044921875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 68.8521648568057
-    fetal_ac_energy: 4.860811233520508
-    final_metric: 0.017731883488535306
-    maternal_ac_amp: 3.9814043527142546
-    maternal_ac_energy: 15.851580619812012
+    baseline_noise_std: 690.1889913277377
+    fetal_ac_energy: 2904.59033203125
+    final_metric: 0.01290052356815172
+    maternal_ac_amp: 326.2192035273215
+    maternal_ac_energy: 106418.96875
 exp 062:
   Depth_mm: 6
-  Epochs: 476
+  Epochs: 561
   Error: 0.5
   Errored_Fetal_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.017731953690967042
+  Optimized_Sensitivity: 0.012900427670782703
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.029518719762563705
+  - 0.5455048084259033
+  - 0.3379930257797241
+  - 0.07074980437755585
+  - 0.01623375527560711
   - 0.0
-  - 0.49999889731407166
-  - 0.23588642477989197
-  - 0.195312038064003
-  - 0.03204166516661644
-  - 0.0205028485506773
-  - 0.010892373509705067
-  - 0.005365776363760233
+  - 0.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -2571,34 +2571,34 @@ exp 062:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.0), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 909.1301879882812
-  Optimizer(Maternal Energy): 2223.331787109375
-  Optimizer(Noise Std): 68.44439697265625
+  Optimizer(Fetal Energy): 1113910.25
+  Optimizer(Maternal Energy): 3641126.5
+  Optimizer(Noise Std): 685.3209228515625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 68.85217549440613
-    fetal_ac_energy: 4.860832691192627
-    final_metric: 0.017731953690967042
-    maternal_ac_amp: 3.981405550374789
-    maternal_ac_energy: 15.851590156555176
+    baseline_noise_std: 690.1889686890106
+    fetal_ac_energy: 2904.56640625
+    final_metric: 0.012900427670782703
+    maternal_ac_amp: 326.21895206670627
+    maternal_ac_energy: 106418.8046875
 exp 063:
   Depth_mm: 8
-  Epochs: 540
+  Epochs: 546
   Error: 0.5
   Errored_Fetal_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.019887224322266986
+  Optimized_Sensitivity: 0.0003927807224659107
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01412732619792223
+  - 0.6614444851875305
+  - 0.21950271725654602
+  - 0.08275283873081207
+  - 0.022172680124640465
   - 0.0
   - 0.0
-  - 0.016271347180008888
-  - 0.0
-  - 0.8296882510185242
-  - 0.13399584591388702
-  - 0.020044544711709023
   - 0.0
   - 0.0
   - 0.0
@@ -2612,34 +2612,34 @@ exp 063:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=2.0), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 334.545654296875
-  Optimizer(Maternal Energy): 800.1599731445312
-  Optimizer(Noise Std): 52.72060012817383
+  Optimizer(Fetal Energy): 1186705.5
+  Optimizer(Maternal Energy): 3907436.75
+  Optimizer(Noise Std): 687.50927734375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.06626578583729
-    fetal_ac_energy: 2.5041654109954834
-    final_metric: 0.019887224322266986
-    maternal_ac_amp: 2.3728501477740864
-    maternal_ac_energy: 5.630417823791504
+    baseline_noise_std: 692.7046854540541
+    fetal_ac_energy: 92.14830780029297
+    final_metric: 0.0003927807224659107
+    maternal_ac_amp: 338.67962829937085
+    maternal_ac_energy: 114703.890625
 exp 064:
   Depth_mm: 8
-  Epochs: 540
+  Epochs: 546
   Error: 0.5
   Errored_Fetal_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.019889779599691258
+  Optimized_Sensitivity: 0.000392737182325077
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014119320549070835
+  - 0.6614558100700378
+  - 0.21949638426303864
+  - 0.08275439590215683
+  - 0.022174112498760223
   - 0.0
   - 0.0
-  - 0.01605052314698696
-  - 0.0
-  - 0.8298094868659973
-  - 0.133981853723526
-  - 0.020158108323812485
   - 0.0
   - 0.0
   - 0.0
@@ -2653,34 +2653,34 @@ exp 064:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.0), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 334.72076416015625
-  Optimizer(Maternal Energy): 799.8544921875
-  Optimizer(Noise Std): 52.71898651123047
+  Optimizer(Fetal Energy): 1186218.75
+  Optimizer(Maternal Energy): 3905576.5
+  Optimizer(Noise Std): 687.5099487304688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.06523752508557
-    fetal_ac_energy: 2.5043752193450928
-    final_metric: 0.019889779599691258
-    maternal_ac_amp: 2.372790061335157
-    maternal_ac_energy: 5.630132675170898
+    baseline_noise_std: 692.7048433496044
+    fetal_ac_energy: 92.13814544677734
+    final_metric: 0.000392737182325077
+    maternal_ac_amp: 338.67974363696453
+    maternal_ac_energy: 114703.96875
 exp 065:
   Depth_mm: 8
-  Epochs: 540
+  Epochs: 546
   Error: 0.5
   Errored_Fetal_F_Hz: 2.0
   Measurand: abs
-  Optimized_Sensitivity: 0.019889857234149193
+  Optimized_Sensitivity: 0.00039276847013939334
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014119329862296581
+  - 0.6614556908607483
+  - 0.21949627995491028
+  - 0.08275465667247772
+  - 0.022174086421728134
   - 0.0
   - 0.0
-  - 0.016050517559051514
-  - 0.0
-  - 0.8298093676567078
-  - 0.13398192822933197
-  - 0.02015817165374756
   - 0.0
   - 0.0
   - 0.0
@@ -2694,35 +2694,35 @@ exp 065:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=2.0), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 334.7202453613281
-  Optimizer(Maternal Energy): 799.8534545898438
-  Optimizer(Noise Std): 52.718990325927734
+  Optimizer(Fetal Energy): 1186217.5
+  Optimizer(Maternal Energy): 3905572.5
+  Optimizer(Noise Std): 687.5099487304688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.06523752508557
-    fetal_ac_energy: 2.504384994506836
-    final_metric: 0.019889857234149193
-    maternal_ac_amp: 2.372790061335157
-    maternal_ac_energy: 5.630132675170898
+    baseline_noise_std: 692.7048433496044
+    fetal_ac_energy: 92.14540100097656
+    final_metric: 0.00039276847013939334
+    maternal_ac_amp: 338.6794322253715
+    maternal_ac_energy: 114703.7578125
 exp 066:
   Depth_mm: 6
-  Epochs: 505
+  Epochs: 528
   Error: 0.55
   Errored_Fetal_F_Hz: 1.95
   Measurand: abs
-  Optimized_Sensitivity: 0.016275746402393917
+  Optimized_Sensitivity: 0.013103379526507943
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.0358155332505703
+  - 0.526114821434021
+  - 0.3348885178565979
+  - 0.07887747138738632
+  - 0.018532682210206985
+  - 0.005770957097411156
   - 0.0
-  - 0.6587127447128296
-  - 0.16861075162887573
-  - 0.12918797135353088
-  - 0.022266056388616562
-  - 0.014054043218493462
-  - 0.0071683768182992935
   - 0.0
   - 0.0
   - 0.0
@@ -2735,34 +2735,34 @@ exp 066:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.95), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 790.9337158203125
-  Optimizer(Maternal Energy): 2314.18896484375
-  Optimizer(Noise Std): 69.17776489257812
+  Optimizer(Fetal Energy): 912457.4375
+  Optimizer(Maternal Energy): 3615951.0
+  Optimizer(Noise Std): 683.8424682617188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 69.58646683937546
-    fetal_ac_energy: 4.603551864624023
-    final_metric: 0.016275746402393917
-    maternal_ac_amp: 4.064689163767246
-    maternal_ac_energy: 16.521697998046875
+    baseline_noise_std: 688.5561206248914
+    fetal_ac_energy: 2932.17919921875
+    final_metric: 0.013103379526507943
+    maternal_ac_amp: 324.9883892156764
+    maternal_ac_energy: 105617.453125
 exp 067:
   Depth_mm: 6
-  Epochs: 524
+  Epochs: 539
   Error: 0.55
   Errored_Fetal_F_Hz: 1.95
   Measurand: abs
-  Optimized_Sensitivity: 0.01595416879745324
+  Optimized_Sensitivity: 0.01303515093524805
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.6901440620422363
-  - 0.15777438879013062
-  - 0.1193787232041359
-  - 0.020033638924360275
-  - 0.012669218704104424
+  - 0.03373601660132408
+  - 0.5347298979759216
+  - 0.33309921622276306
+  - 0.07536429911851883
+  - 0.0175811555236578
+  - 0.0054894546046853065
   - 0.0
   - 0.0
   - 0.0
@@ -2776,34 +2776,34 @@ exp 067:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.95), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 797.1708984375
-  Optimizer(Maternal Energy): 2332.51123046875
-  Optimizer(Noise Std): 69.32933044433594
+  Optimizer(Fetal Energy): 914770.875
+  Optimizer(Maternal Energy): 3625373.5
+  Optimizer(Noise Std): 684.4928588867188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 69.80404702070469
-    fetal_ac_energy: 4.552971363067627
-    final_metric: 0.01595416879745324
-    maternal_ac_amp: 4.088275306270163
-    maternal_ac_energy: 16.7139949798584
+    baseline_noise_std: 689.01639584991
+    fetal_ac_energy: 2921.7421875
+    final_metric: 0.01303515093524805
+    maternal_ac_amp: 325.309143834753
+    maternal_ac_energy: 105826.0390625
 exp 068:
   Depth_mm: 6
-  Epochs: 524
+  Epochs: 539
   Error: 0.55
   Errored_Fetal_F_Hz: 1.95
   Measurand: abs
-  Optimized_Sensitivity: 0.01595417786185463
+  Optimized_Sensitivity: 0.013035191225570033
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.6901455521583557
-  - 0.1577729731798172
-  - 0.11937867105007172
-  - 0.020033618435263634
-  - 0.012669211253523827
+  - 0.03373635187745094
+  - 0.5347257256507874
+  - 0.3331023156642914
+  - 0.07536496967077255
+  - 0.017581185325980186
+  - 0.005489469040185213
   - 0.0
   - 0.0
   - 0.0
@@ -2817,34 +2817,34 @@ exp 068:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.95), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 797.1726684570312
-  Optimizer(Maternal Energy): 2332.51123046875
-  Optimizer(Noise Std): 69.32933044433594
+  Optimizer(Fetal Energy): 914767.6875
+  Optimizer(Maternal Energy): 3625371.0
+  Optimizer(Noise Std): 684.49267578125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 69.8040505182185
-    fetal_ac_energy: 4.552971839904785
-    final_metric: 0.01595417786185463
-    maternal_ac_amp: 4.088273206834482
-    maternal_ac_energy: 16.713977813720703
+    baseline_noise_std: 689.016237109112
+    fetal_ac_energy: 2921.7509765625
+    final_metric: 0.013035191225570033
+    maternal_ac_amp: 325.30919186598464
+    maternal_ac_energy: 105826.0703125
 exp 069:
   Depth_mm: 8
-  Epochs: 541
+  Epochs: 546
   Error: 0.55
   Errored_Fetal_F_Hz: 1.95
   Measurand: abs
-  Optimized_Sensitivity: 0.019852487430344973
+  Optimized_Sensitivity: 0.0003936096870146179
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014162580482661724
+  - 0.6602415442466736
+  - 0.22020451724529266
+  - 0.08313802629709244
+  - 0.02225330099463463
   - 0.0
   - 0.0
-  - 0.01923305168747902
-  - 0.0
-  - 0.8287839889526367
-  - 0.13339510560035706
-  - 0.0185878686606884
   - 0.0
   - 0.0
   - 0.0
@@ -2858,34 +2858,34 @@ exp 069:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.95), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 280.3045654296875
-  Optimizer(Maternal Energy): 801.0980224609375
-  Optimizer(Noise Std): 52.74625778198242
+  Optimizer(Fetal Energy): 979124.9375
+  Optimizer(Maternal Energy): 3906623.75
+  Optimizer(Noise Std): 687.4653930664062
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.08388344536056
-    fetal_ac_energy: 2.501629590988159
-    final_metric: 0.019852487430344973
-    maternal_ac_amp: 2.373806904717869
-    maternal_ac_energy: 5.6349592208862305
+    baseline_noise_std: 692.6712107847417
+    fetal_ac_energy: 92.33128356933594
+    final_metric: 0.0003936096870146179
+    maternal_ac_amp: 338.6538032231441
+    maternal_ac_energy: 114686.3984375
 exp 070:
   Depth_mm: 8
-  Epochs: 541
+  Epochs: 546
   Error: 0.55
   Errored_Fetal_F_Hz: 1.95
   Measurand: abs
-  Optimized_Sensitivity: 0.019855667044905052
+  Optimized_Sensitivity: 0.00039363264595495585
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014154179021716118
+  - 0.6602634787559509
+  - 0.22019152343273163
+  - 0.08313662558794022
+  - 0.02225417084991932
   - 0.0
   - 0.0
-  - 0.018964918330311775
-  - 0.0
-  - 0.828952968120575
-  - 0.13339172303676605
-  - 0.018690358847379684
   - 0.0
   - 0.0
   - 0.0
@@ -2899,34 +2899,34 @@ exp 070:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.95), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 280.4683837890625
-  Optimizer(Maternal Energy): 800.802978515625
-  Optimizer(Noise Std): 52.744789123535156
+  Optimizer(Fetal Energy): 978535.75
+  Optimizer(Maternal Energy): 3904762.0
+  Optimizer(Noise Std): 687.4664916992188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.08288772052628
-    fetal_ac_energy: 2.5019288063049316
-    final_metric: 0.019855667044905052
-    maternal_ac_amp: 2.3737551789832403
-    maternal_ac_energy: 5.634713649749756
+    baseline_noise_std: 692.6716619365917
+    fetal_ac_energy: 92.33699035644531
+    final_metric: 0.00039363264595495585
+    maternal_ac_amp: 338.6547605969832
+    maternal_ac_energy: 114687.046875
 exp 071:
   Depth_mm: 8
-  Epochs: 541
+  Epochs: 546
   Error: 0.55
   Errored_Fetal_F_Hz: 1.95
   Measurand: abs
-  Optimized_Sensitivity: 0.01985569122446267
+  Optimized_Sensitivity: 0.0003936267705380487
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014154176227748394
+  - 0.6602643728256226
+  - 0.22019077837467194
+  - 0.08313661813735962
+  - 0.022254131734371185
   - 0.0
   - 0.0
-  - 0.018964895978569984
-  - 0.0
-  - 0.8289526700973511
-  - 0.13339197635650635
-  - 0.018690386787056923
   - 0.0
   - 0.0
   - 0.0
@@ -2940,34 +2940,34 @@ exp 071:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.95), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 280.4686279296875
-  Optimizer(Maternal Energy): 800.8030395507812
-  Optimizer(Noise Std): 52.74478530883789
+  Optimizer(Fetal Energy): 978537.125
+  Optimizer(Maternal Energy): 3904760.5
+  Optimizer(Noise Std): 687.466552734375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.08288542090921
-    fetal_ac_energy: 2.501929521560669
-    final_metric: 0.01985569122446267
-    maternal_ac_amp: 2.37375306975461
-    maternal_ac_energy: 5.634703636169434
+    baseline_noise_std: 692.6717296093439
+    fetal_ac_energy: 92.33558654785156
+    final_metric: 0.0003936267705380487
+    maternal_ac_amp: 338.6546337162685
+    maternal_ac_energy: 114686.9609375
 exp 072:
   Depth_mm: 6
-  Epochs: 597
+  Epochs: 528
   Error: 0.6000000000000001
   Errored_Fetal_F_Hz: 1.9
   Measurand: abs
-  Optimized_Sensitivity: 0.014904896817084323
+  Optimized_Sensitivity: 0.013068611864219596
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8189374208450317
-  - 0.09790264070034027
-  - 0.07109174132347107
-  - 0.012068159878253937
-  - 0.0
+  - 0.036208152770996094
+  - 0.5292119979858398
+  - 0.3322606682777405
+  - 0.0781966894865036
+  - 0.018395647406578064
+  - 0.005726859904825687
   - 0.0
   - 0.0
   - 0.0
@@ -2981,35 +2981,35 @@ exp 072:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.9), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 650.2998046875
-  Optimizer(Maternal Energy): 2410.134521484375
-  Optimizer(Noise Std): 69.9154281616211
+  Optimizer(Fetal Energy): 706912.6875
+  Optimizer(Maternal Energy): 3617830.5
+  Optimizer(Noise Std): 683.9937744140625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.33714498644191
-    fetal_ac_energy: 4.351085186004639
-    final_metric: 0.014904896817084323
-    maternal_ac_amp: 4.1503419114788285
-    maternal_ac_energy: 17.225337982177734
+    baseline_noise_std: 688.7086648213452
+    fetal_ac_energy: 2925.829833984375
+    final_metric: 0.013068611864219596
+    maternal_ac_amp: 325.07536385813677
+    maternal_ac_energy: 105673.9921875
 exp 073:
   Depth_mm: 6
-  Epochs: 504
+  Epochs: 528
   Error: 0.6000000000000001
   Errored_Fetal_F_Hz: 1.9
   Measurand: abs
-  Optimized_Sensitivity: 0.016177157418836654
+  Optimized_Sensitivity: 0.013087557560962722
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.036029744893312454
+  - 0.5274670124053955
+  - 0.333720326423645
+  - 0.07856933027505875
+  - 0.01846594735980034
+  - 0.005747627932578325
   - 0.0
-  - 0.6705335378646851
-  - 0.16277557611465454
-  - 0.12423104047775269
-  - 0.02178615890443325
-  - 0.013723175972700119
-  - 0.006950489245355129
   - 0.0
   - 0.0
   - 0.0
@@ -3022,35 +3022,35 @@ exp 073:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.9), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 628.3248901367188
-  Optimizer(Maternal Energy): 2318.964599609375
-  Optimizer(Noise Std): 69.22172546386719
+  Optimizer(Fetal Energy): 707372.0625
+  Optimizer(Maternal Energy): 3615059.75
+  Optimizer(Noise Std): 683.9100341796875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 69.62786475816453
-    fetal_ac_energy: 4.584040641784668
-    final_metric: 0.016177157418836654
-    maternal_ac_amp: 4.069707258039292
-    maternal_ac_energy: 16.562517166137695
+    baseline_noise_std: 688.6253970773951
+    fetal_ac_energy: 2929.2822265625
+    final_metric: 0.013087557560962722
+    maternal_ac_amp: 325.02710223533666
+    maternal_ac_energy: 105642.6171875
 exp 074:
   Depth_mm: 6
-  Epochs: 504
+  Epochs: 528
   Error: 0.6000000000000001
   Errored_Fetal_F_Hz: 1.9
   Measurand: abs
-  Optimized_Sensitivity: 0.016177218335844318
+  Optimized_Sensitivity: 0.013087548912740153
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03602958843111992
+  - 0.5274661183357239
+  - 0.33372166752815247
+  - 0.07856907695531845
+  - 0.018465938046574593
+  - 0.005747616291046143
   - 0.0
-  - 0.6705304980278015
-  - 0.16277764737606049
-  - 0.12423195689916611
-  - 0.021786188706755638
-  - 0.013723189942538738
-  - 0.006950506940484047
   - 0.0
   - 0.0
   - 0.0
@@ -3063,34 +3063,34 @@ exp 074:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.9), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 628.3248901367188
-  Optimizer(Maternal Energy): 2318.966064453125
-  Optimizer(Noise Std): 69.22171783447266
+  Optimizer(Fetal Energy): 707370.125
+  Optimizer(Maternal Energy): 3615057.0
+  Optimizer(Noise Std): 683.9100341796875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 69.62785774543656
-    fetal_ac_energy: 4.58405876159668
-    final_metric: 0.016177218335844318
-    maternal_ac_amp: 4.069708429713468
-    maternal_ac_energy: 16.56252670288086
+    baseline_noise_std: 688.6253743872644
+    fetal_ac_energy: 2929.281494140625
+    final_metric: 0.013087548912740153
+    maternal_ac_amp: 325.0272464540473
+    maternal_ac_energy: 105642.7109375
 exp 075:
   Depth_mm: 8
-  Epochs: 541
+  Epochs: 546
   Error: 0.6000000000000001
   Errored_Fetal_F_Hz: 1.9
   Measurand: abs
-  Optimized_Sensitivity: 0.01984198862045523
+  Optimized_Sensitivity: 0.00039444440938432113
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014161961153149605
+  - 0.6591988801956177
+  - 0.22081255912780762
+  - 0.08349443972110748
+  - 0.022332191467285156
   - 0.0
   - 0.0
-  - 0.02012830227613449
-  - 0.0
-  - 0.8281748294830322
-  - 0.133431538939476
-  - 0.018265292048454285
   - 0.0
   - 0.0
   - 0.0
@@ -3104,34 +3104,34 @@ exp 075:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.9), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 221.85739135742188
-  Optimizer(Maternal Energy): 801.2376708984375
-  Optimizer(Noise Std): 52.75072479248047
+  Optimizer(Fetal Energy): 758044.125
+  Optimizer(Maternal Energy): 3905955.75
+  Optimizer(Noise Std): 687.4287719726562
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.08687280724986
-    fetal_ac_energy: 2.500608444213867
-    final_metric: 0.01984198862045523
-    maternal_ac_amp: 2.3739597652531974
-    maternal_ac_energy: 5.635684967041016
+    baseline_noise_std: 692.6417048157006
+    fetal_ac_energy: 92.51725769042969
+    final_metric: 0.00039444440938432113
+    maternal_ac_amp: 338.6322442931269
+    maternal_ac_energy: 114671.796875
 exp 076:
   Depth_mm: 8
-  Epochs: 541
+  Epochs: 546
   Error: 0.6000000000000001
   Errored_Fetal_F_Hz: 1.9
   Measurand: abs
-  Optimized_Sensitivity: 0.01984533249669411
+  Optimized_Sensitivity: 0.0003944494850407813
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014153288677334785
+  - 0.6592283844947815
+  - 0.22079631686210632
+  - 0.08348970860242844
+  - 0.022332238033413887
   - 0.0
   - 0.0
-  - 0.019840314984321594
-  - 0.0
-  - 0.828362226486206
-  - 0.1334305852651596
-  - 0.01836695335805416
   - 0.0
   - 0.0
   - 0.0
@@ -3145,34 +3145,34 @@ exp 076:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.9), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 222.06973266601562
-  Optimizer(Maternal Energy): 800.9448852539062
-  Optimizer(Noise Std): 52.749263763427734
+  Optimizer(Fetal Energy): 758682.6875
+  Optimizer(Maternal Energy): 3904111.0
+  Optimizer(Noise Std): 687.4302978515625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.08587253951139
-    fetal_ac_energy: 2.500929832458496
-    final_metric: 0.01984533249669411
-    maternal_ac_amp: 2.373909549343006
-    maternal_ac_energy: 5.635446548461914
+    baseline_noise_std: 692.6423815721935
+    fetal_ac_energy: 92.51866149902344
+    final_metric: 0.0003944494850407813
+    maternal_ac_amp: 338.63269417246175
+    maternal_ac_energy: 114672.1015625
 exp 077:
   Depth_mm: 8
-  Epochs: 541
+  Epochs: 546
   Error: 0.6000000000000001
   Errored_Fetal_F_Hz: 1.9
   Measurand: abs
-  Optimized_Sensitivity: 0.019845389900467778
+  Optimized_Sensitivity: 0.0003944489212891898
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014153270050883293
+  - 0.6592292189598083
+  - 0.2207956612110138
+  - 0.0834895521402359
+  - 0.022332288324832916
   - 0.0
   - 0.0
-  - 0.01984030194580555
-  - 0.0
-  - 0.8283622860908508
-  - 0.13343043625354767
-  - 0.018366970121860504
   - 0.0
   - 0.0
   - 0.0
@@ -3186,34 +3186,34 @@ exp 077:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.9), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 222.06996154785156
-  Optimizer(Maternal Energy): 800.94482421875
-  Optimizer(Noise Std): 52.74925994873047
+  Optimizer(Fetal Energy): 758682.25
+  Optimizer(Maternal Energy): 3904107.0
+  Optimizer(Noise Std): 687.4303588867188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.08587024002362
-    fetal_ac_energy: 2.50093674659729
-    final_metric: 0.019845389900467778
-    maternal_ac_amp: 2.3739093484772322
-    maternal_ac_energy: 5.635445594787598
+    baseline_noise_std: 692.6424041307318
+    fetal_ac_energy: 92.51866149902344
+    final_metric: 0.0003944489212891898
+    maternal_ac_amp: 338.6331671218872
+    maternal_ac_energy: 114672.421875
 exp 078:
   Depth_mm: 6
-  Epochs: 553
+  Epochs: 501
   Error: 0.65
   Errored_Fetal_F_Hz: 1.85
   Measurand: abs
-  Optimized_Sensitivity: 0.01468223327656232
+  Optimized_Sensitivity: 0.012714634805352206
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8491845726966858
-  - 0.0806751623749733
-  - 0.05831301212310791
-  - 0.011827301234006882
-  - 0.0
+  - 0.04948936775326729
+  - 0.5499976873397827
+  - 0.2994924783706665
+  - 0.07646983116865158
+  - 0.018743423745036125
+  - 0.005807171110063791
   - 0.0
   - 0.0
   - 0.0
@@ -3227,34 +3227,34 @@ exp 078:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.85), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 778.744384765625
-  Optimizer(Maternal Energy): 2448.129638671875
-  Optimizer(Noise Std): 69.97298431396484
+  Optimizer(Fetal Energy): 1341136.375
+  Optimizer(Maternal Energy): 3714875.25
+  Optimizer(Noise Std): 684.518310546875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.41189502447367
-    fetal_ac_energy: 4.301191329956055
-    final_metric: 0.01468223327656232
-    maternal_ac_amp: 4.1605486904101285
-    maternal_ac_energy: 17.310165405273438
+    baseline_noise_std: 689.7774550534397
+    fetal_ac_energy: 2854.82373046875
+    final_metric: 0.012714634805352206
+    maternal_ac_amp: 325.51155653448006
+    maternal_ac_energy: 105957.7734375
 exp 079:
   Depth_mm: 6
-  Epochs: 553
+  Epochs: 501
   Error: 0.65
   Errored_Fetal_F_Hz: 1.85
   Measurand: abs
-  Optimized_Sensitivity: 0.01468201103369985
+  Optimized_Sensitivity: 0.012711098019107758
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8492122888565063
-  - 0.08066046983003616
-  - 0.05830163136124611
-  - 0.011825663968920708
-  - 0.0
+  - 0.04954200237989426
+  - 0.5502923727035522
+  - 0.2992395758628845
+  - 0.07639508694410324
+  - 0.01872817985713482
+  - 0.005802688654512167
   - 0.0
   - 0.0
   - 0.0
@@ -3268,34 +3268,34 @@ exp 079:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.85), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 779.4848022460938
-  Optimizer(Maternal Energy): 2446.696533203125
-  Optimizer(Noise Std): 69.97310638427734
+  Optimizer(Fetal Energy): 1343145.875
+  Optimizer(Maternal Energy): 3711524.0
+  Optimizer(Noise Std): 684.5337524414062
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.41197824012261
-    fetal_ac_energy: 4.301140785217285
-    final_metric: 0.01468201103369985
-    maternal_ac_amp: 4.16055785913605
-    maternal_ac_energy: 17.31024169921875
+    baseline_noise_std: 689.7929716588884
+    fetal_ac_energy: 2854.169677734375
+    final_metric: 0.012711098019107758
+    maternal_ac_amp: 325.52020866606733
+    maternal_ac_energy: 105963.40625
 exp 080:
   Depth_mm: 6
-  Epochs: 553
+  Epochs: 501
   Error: 0.65
   Errored_Fetal_F_Hz: 1.85
   Measurand: abs
-  Optimized_Sensitivity: 0.014682083470916702
+  Optimized_Sensitivity: 0.01271091309652806
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8492127060890198
-  - 0.08066019415855408
-  - 0.058301497250795364
-  - 0.011825638823211193
-  - 0.0
+  - 0.049542136490345
+  - 0.5502931475639343
+  - 0.29923883080482483
+  - 0.07639505714178085
+  - 0.018728159368038177
+  - 0.00580268120393157
   - 0.0
   - 0.0
   - 0.0
@@ -3309,34 +3309,34 @@ exp 080:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.85), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 779.4826049804688
-  Optimizer(Maternal Energy): 2446.695556640625
-  Optimizer(Noise Std): 69.97309875488281
+  Optimizer(Fetal Energy): 1343146.125
+  Optimizer(Maternal Energy): 3711527.75
+  Optimizer(Noise Std): 684.5338134765625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.41197824012261
-    fetal_ac_energy: 4.301162242889404
-    final_metric: 0.014682083470916702
-    maternal_ac_amp: 4.160558088353939
-    maternal_ac_energy: 17.310243606567383
+    baseline_noise_std: 689.7930169623348
+    fetal_ac_energy: 2854.12939453125
+    final_metric: 0.01271091309652806
+    maternal_ac_amp: 325.5203286662755
+    maternal_ac_energy: 105963.484375
 exp 081:
   Depth_mm: 8
-  Epochs: 567
+  Epochs: 546
   Error: 0.65
   Errored_Fetal_F_Hz: 1.85
   Measurand: abs
-  Optimized_Sensitivity: 0.01977654757719419
+  Optimized_Sensitivity: 0.0003969584719838126
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014423305168747902
+  - 0.655402421951294
+  - 0.2230062037706375
+  - 0.08462165296077728
+  - 0.02254639007151127
   - 0.0
   - 0.0
-  - 0.0268094539642334
-  - 0.0
-  - 0.8435935974121094
-  - 0.11612846702337265
-  - 0.013468446210026741
   - 0.0
   - 0.0
   - 0.0
@@ -3350,34 +3350,34 @@ exp 081:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.85), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 264.5354919433594
-  Optimizer(Maternal Energy): 818.6718139648438
-  Optimizer(Noise Std): 52.937442779541016
+  Optimizer(Fetal Energy): 1442411.5
+  Optimizer(Maternal Energy): 4010657.5
+  Optimizer(Noise Std): 687.2835083007812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.23025877467392
-    fetal_ac_energy: 2.5072624683380127
-    final_metric: 0.01977654757719419
-    maternal_ac_amp: 2.3817202206412955
-    maternal_ac_energy: 5.672591209411621
+    baseline_noise_std: 692.5381532811026
+    fetal_ac_energy: 93.07066345214844
+    final_metric: 0.0003969584719838126
+    maternal_ac_amp: 338.5509447446573
+    maternal_ac_energy: 114616.7421875
 exp 082:
   Depth_mm: 8
-  Epochs: 567
+  Epochs: 546
   Error: 0.65
   Errored_Fetal_F_Hz: 1.85
   Measurand: abs
-  Optimized_Sensitivity: 0.019776437693179112
+  Optimized_Sensitivity: 0.00039696956761987173
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014426065608859062
+  - 0.6554332971572876
+  - 0.22298794984817505
+  - 0.08460933715105057
+  - 0.022543344646692276
   - 0.0
   - 0.0
-  - 0.026818182319402695
-  - 0.0
-  - 0.8435852527618408
-  - 0.11612942814826965
-  - 0.013467039912939072
   - 0.0
   - 0.0
   - 0.0
@@ -3391,34 +3391,34 @@ exp 082:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.85), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 264.7933654785156
-  Optimizer(Maternal Energy): 818.24560546875
-  Optimizer(Noise Std): 52.93745803833008
+  Optimizer(Fetal Energy): 1444536.125
+  Optimizer(Maternal Energy): 4006783.75
+  Optimizer(Noise Std): 687.2844848632812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.23026565442469
-    fetal_ac_energy: 2.5072505474090576
-    final_metric: 0.019776437693179112
-    maternal_ac_amp: 2.381721822297086
-    maternal_ac_energy: 5.672598838806152
+    baseline_noise_std: 692.5390331959636
+    fetal_ac_energy: 93.0736083984375
+    final_metric: 0.00039696956761987173
+    maternal_ac_amp: 338.5517639519842
+    maternal_ac_energy: 114617.296875
 exp 083:
   Depth_mm: 8
-  Epochs: 567
+  Epochs: 546
   Error: 0.65
   Errored_Fetal_F_Hz: 1.85
   Measurand: abs
-  Optimized_Sensitivity: 0.019776458670607296
+  Optimized_Sensitivity: 0.0003969629127223913
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014426046051084995
+  - 0.6554312109947205
+  - 0.2229900062084198
+  - 0.08460935205221176
+  - 0.022543376311659813
   - 0.0
   - 0.0
-  - 0.026818133890628815
-  - 0.0
-  - 0.843585729598999
-  - 0.11612902581691742
-  - 0.013467014767229557
   - 0.0
   - 0.0
   - 0.0
@@ -3432,34 +3432,34 @@ exp 083:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.85), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 264.79327392578125
-  Optimizer(Maternal Energy): 818.2466430664062
-  Optimizer(Noise Std): 52.937461853027344
+  Optimizer(Fetal Energy): 1444537.875
+  Optimizer(Maternal Energy): 4006791.0
+  Optimizer(Noise Std): 687.284423828125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.230267947674754
-    fetal_ac_energy: 2.5072507858276367
-    final_metric: 0.019776458670607296
-    maternal_ac_amp: 2.3817194198129963
-    maternal_ac_energy: 5.6725873947143555
+    baseline_noise_std: 692.5390106340581
+    fetal_ac_energy: 93.07206726074219
+    final_metric: 0.0003969629127223913
+    maternal_ac_amp: 338.55184471879636
+    maternal_ac_energy: 114617.3515625
 exp 084:
   Depth_mm: 6
-  Epochs: 612
+  Epochs: 501
   Error: 0.7000000000000001
   Errored_Fetal_F_Hz: 1.7999999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.01450974261148282
+  Optimized_Sensitivity: 0.012770826688115956
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8722050189971924
-  - 0.06880929321050644
-  - 0.049527835100889206
-  - 0.009457875043153763
-  - 0.0
+  - 0.04870007187128067
+  - 0.5453258156776428
+  - 0.3034817576408386
+  - 0.07763856649398804
+  - 0.01897864229977131
+  - 0.0058751157484948635
   - 0.0
   - 0.0
   - 0.0
@@ -3473,34 +3473,34 @@ exp 084:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.7999999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 576.5146484375
-  Optimizer(Maternal Energy): 2469.978515625
-  Optimizer(Noise Std): 70.13036346435547
+  Optimizer(Fetal Energy): 1006290.625
+  Optimizer(Maternal Energy): 3711770.0
+  Optimizer(Noise Std): 684.2752685546875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.48784732912299
-    fetal_ac_energy: 4.2648773193359375
-    final_metric: 0.01450974261148282
-    maternal_ac_amp: 4.16996670057874
-    maternal_ac_energy: 17.388622283935547
+    baseline_noise_std: 689.5344897102682
+    fetal_ac_energy: 2865.220703125
+    final_metric: 0.012770826688115956
+    maternal_ac_amp: 325.37417162783527
+    maternal_ac_energy: 105868.3515625
 exp 085:
   Depth_mm: 6
-  Epochs: 612
+  Epochs: 502
   Error: 0.7000000000000001
   Errored_Fetal_F_Hz: 1.7999999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.014506965106354965
+  Optimized_Sensitivity: 0.012756957783883421
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8725901246070862
-  - 0.06859789043664932
-  - 0.04937170818448067
-  - 0.009440343827009201
-  - 0.0
+  - 0.04851081594824791
+  - 0.5469183921813965
+  - 0.30272573232650757
+  - 0.07715441286563873
+  - 0.01885257475078106
+  - 0.005838030017912388
   - 0.0
   - 0.0
   - 0.0
@@ -3514,34 +3514,34 @@ exp 085:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7999999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 577.8291625976562
-  Optimizer(Maternal Energy): 2468.712646484375
-  Optimizer(Noise Std): 70.13179779052734
+  Optimizer(Fetal Energy): 1009158.875
+  Optimizer(Maternal Energy): 3709869.75
+  Optimizer(Noise Std): 684.3754272460938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.48892795924584
-    fetal_ac_energy: 4.264272689819336
-    final_metric: 0.014506965106354965
-    maternal_ac_amp: 4.170109864761321
-    maternal_ac_energy: 17.389816284179688
+    baseline_noise_std: 689.6130255440365
+    fetal_ac_energy: 2862.890380859375
+    final_metric: 0.012756957783883421
+    maternal_ac_amp: 325.42592283037317
+    maternal_ac_energy: 105902.03125
 exp 086:
   Depth_mm: 6
-  Epochs: 612
+  Epochs: 502
   Error: 0.7000000000000001
   Errored_Fetal_F_Hz: 1.7999999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.01450683787313184
+  Optimized_Sensitivity: 0.012756967562557932
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8725905418395996
-  - 0.06859751790761948
-  - 0.04937155172228813
-  - 0.009440349414944649
-  - 0.0
+  - 0.04851074516773224
+  - 0.5469171404838562
+  - 0.30272728204727173
+  - 0.0771542340517044
+  - 0.018852535635232925
+  - 0.005838019773364067
   - 0.0
   - 0.0
   - 0.0
@@ -3555,34 +3555,34 @@ exp 086:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7999999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 577.8282470703125
-  Optimizer(Maternal Energy): 2468.70751953125
-  Optimizer(Noise Std): 70.13179779052734
+  Optimizer(Fetal Energy): 1009159.5
+  Optimizer(Maternal Energy): 3709862.5
+  Optimizer(Noise Std): 684.3753662109375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.48892795924584
-    fetal_ac_energy: 4.264236927032471
-    final_metric: 0.01450683787313184
-    maternal_ac_amp: 4.170111465610975
-    maternal_ac_energy: 17.389829635620117
+    baseline_noise_std: 689.6129802287657
+    fetal_ac_energy: 2862.890380859375
+    final_metric: 0.012756967562557932
+    maternal_ac_amp: 325.425694763797
+    maternal_ac_energy: 105901.8828125
 exp 087:
   Depth_mm: 8
-  Epochs: 559
+  Epochs: 546
   Error: 0.7000000000000001
   Errored_Fetal_F_Hz: 1.7999999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.01981887912292285
+  Optimized_Sensitivity: 0.00039766748776060213
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014376197010278702
+  - 0.654649019241333
+  - 0.22344648838043213
+  - 0.0849117785692215
+  - 0.02261657826602459
   - 0.0
   - 0.0
-  - 0.022755587473511696
-  - 0.0
-  - 0.8406471610069275
-  - 0.12145496159791946
-  - 0.0151423504576087
   - 0.0
   - 0.0
   - 0.0
@@ -3596,34 +3596,34 @@ exp 087:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.7999999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 194.64013671875
-  Optimizer(Maternal Energy): 816.3759155273438
-  Optimizer(Noise Std): 52.87784957885742
+  Optimizer(Fetal Energy): 1082493.5
+  Optimizer(Maternal Energy): 4010241.5
+  Optimizer(Noise Std): 687.2592163085938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.18395396155099
-    fetal_ac_energy: 2.5078775882720947
-    final_metric: 0.01981887912292285
-    maternal_ac_amp: 2.379285860388435
-    maternal_ac_energy: 5.661001205444336
+    baseline_noise_std: 692.5160873582649
+    fetal_ac_energy: 93.22964477539062
+    final_metric: 0.00039766748776060213
+    maternal_ac_amp: 338.5353909674733
+    maternal_ac_energy: 114606.2109375
 exp 088:
   Depth_mm: 8
-  Epochs: 559
+  Epochs: 546
   Error: 0.7000000000000001
   Errored_Fetal_F_Hz: 1.7999999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.019817968944215905
+  Optimized_Sensitivity: 0.00039767791616020676
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014379824511706829
+  - 0.6546850204467773
+  - 0.2234252393245697
+  - 0.08489715307950974
+  - 0.022612744942307472
   - 0.0
   - 0.0
-  - 0.02283211052417755
-  - 0.0
-  - 0.8405933380126953
-  - 0.12145063281059265
-  - 0.015123983845114708
   - 0.0
   - 0.0
   - 0.0
@@ -3637,34 +3637,34 @@ exp 088:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7999999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 195.060791015625
-  Optimizer(Maternal Energy): 815.9563598632812
-  Optimizer(Noise Std): 52.87813186645508
+  Optimizer(Fetal Energy): 1085144.0
+  Optimizer(Maternal Energy): 4006378.5
+  Optimizer(Noise Std): 687.2603149414062
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.18416512385876
-    fetal_ac_energy: 2.507781982421875
-    final_metric: 0.019817968944215905
-    maternal_ac_amp: 2.3792949791116134
-    maternal_ac_energy: 5.661044597625732
+    baseline_noise_std: 692.5171252395135
+    fetal_ac_energy: 93.2325439453125
+    final_metric: 0.00039767791616020676
+    maternal_ac_amp: 338.5365332944142
+    maternal_ac_energy: 114606.984375
 exp 089:
   Depth_mm: 8
-  Epochs: 559
+  Epochs: 546
   Error: 0.7000000000000001
   Errored_Fetal_F_Hz: 1.7999999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.0198180074819683
+  Optimized_Sensitivity: 0.00039759727300697496
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014379828236997128
+  - 0.6546862125396729
+  - 0.2234242707490921
+  - 0.08489696681499481
+  - 0.022612709552049637
   - 0.0
   - 0.0
-  - 0.022832080721855164
-  - 0.0
-  - 0.840593159198761
-  - 0.12145081162452698
-  - 0.015123987570405006
   - 0.0
   - 0.0
   - 0.0
@@ -3678,34 +3678,34 @@ exp 089:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7999999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 195.06118774414062
-  Optimizer(Maternal Energy): 815.9572143554688
-  Optimizer(Noise Std): 52.87812805175781
+  Optimizer(Fetal Energy): 1085142.625
+  Optimizer(Maternal Energy): 4006377.0
+  Optimizer(Noise Std): 687.2603759765625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.1841628286208
-    fetal_ac_energy: 2.507786750793457
-    final_metric: 0.0198180074819683
-    maternal_ac_amp: 2.3792949791116134
-    maternal_ac_energy: 5.661044597625732
+    baseline_noise_std: 692.5171478021321
+    fetal_ac_energy: 93.21357727050781
+    final_metric: 0.00039759727300697496
+    maternal_ac_amp: 338.5363025216055
+    maternal_ac_energy: 114606.828125
 exp 090:
   Depth_mm: 6
-  Epochs: 566
+  Epochs: 503
   Error: 0.75
   Errored_Fetal_F_Hz: 1.75
   Measurand: abs
-  Optimized_Sensitivity: 0.014644594893065091
+  Optimized_Sensitivity: 0.012806651013329286
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8541791439056396
-  - 0.0781041607260704
-  - 0.05642903968691826
-  - 0.011287630535662174
-  - 0.0
+  - 0.047462500631809235
+  - 0.5431810617446899
+  - 0.30649808049201965
+  - 0.07799012959003448
+  - 0.01899086870253086
+  - 0.0058773295022547245
   - 0.0
   - 0.0
   - 0.0
@@ -3719,34 +3719,34 @@ exp 090:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.75), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 525.7531127929688
-  Optimizer(Maternal Energy): 2578.937255859375
-  Optimizer(Noise Std): 70.00858306884766
+  Optimizer(Fetal Energy): 709220.75
+  Optimizer(Maternal Energy): 3711520.0
+  Optimizer(Noise Std): 684.199951171875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.42855353011127
-    fetal_ac_energy: 4.29330587387085
-    final_metric: 0.014644594893065091
-    maternal_ac_amp: 4.162609770189484
-    maternal_ac_energy: 17.327320098876953
+    baseline_noise_std: 689.4163745516928
+    fetal_ac_energy: 2872.296875
+    final_metric: 0.012806651013329286
+    maternal_ac_amp: 325.3210433556366
+    maternal_ac_energy: 105833.78125
 exp 091:
   Depth_mm: 6
-  Epochs: 566
+  Epochs: 503
   Error: 0.75
   Errored_Fetal_F_Hz: 1.75
   Measurand: abs
-  Optimized_Sensitivity: 0.014642445087825319
+  Optimized_Sensitivity: 0.012801065621139628
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8544670343399048
-  - 0.07794863730669022
-  - 0.05631237104535103
-  - 0.011272002942860126
-  - 0.0
+  - 0.04753965511918068
+  - 0.5436638593673706
+  - 0.30608752369880676
+  - 0.07787160575389862
+  - 0.018967043608427048
+  - 0.005870378576219082
   - 0.0
   - 0.0
   - 0.0
@@ -3760,34 +3760,34 @@ exp 091:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.75), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 528.6956176757812
-  Optimizer(Maternal Energy): 2575.22802734375
-  Optimizer(Noise Std): 70.009765625
+  Optimizer(Fetal Energy): 712358.0
+  Optimizer(Maternal Energy): 3708300.25
+  Optimizer(Noise Std): 684.2249145507812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.42938548534802
-    fetal_ac_energy: 4.292836666107178
-    final_metric: 0.014642445087825319
-    maternal_ac_amp: 4.162716760805193
-    maternal_ac_energy: 17.328210830688477
+    baseline_noise_std: 689.4412819450254
+    fetal_ac_energy: 2871.276123046875
+    final_metric: 0.012801065621139628
+    maternal_ac_amp: 325.3355719484114
+    maternal_ac_energy: 105843.234375
 exp 092:
   Depth_mm: 6
-  Epochs: 566
+  Epochs: 503
   Error: 0.75
   Errored_Fetal_F_Hz: 1.75
   Measurand: abs
-  Optimized_Sensitivity: 0.014642426391072806
+  Optimized_Sensitivity: 0.01280090083368656
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8544666767120361
-  - 0.07794901728630066
-  - 0.056312330067157745
-  - 0.01127203181385994
-  - 0.0
+  - 0.047539908438920975
+  - 0.5436601638793945
+  - 0.3060906231403351
+  - 0.07787179201841354
+  - 0.018967067822813988
+  - 0.005870386492460966
   - 0.0
   - 0.0
   - 0.0
@@ -3801,34 +3801,34 @@ exp 092:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.75), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 528.6986694335938
-  Optimizer(Maternal Energy): 2575.228515625
-  Optimizer(Noise Std): 70.009765625
+  Optimizer(Fetal Energy): 712359.5625
+  Optimizer(Maternal Energy): 3708303.75
+  Optimizer(Noise Std): 684.2247314453125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.42938548534802
-    fetal_ac_energy: 4.2928314208984375
-    final_metric: 0.014642426391072806
-    maternal_ac_amp: 4.162716989904203
-    maternal_ac_energy: 17.32821273803711
+    baseline_noise_std: 689.441145965339
+    fetal_ac_energy: 2871.23583984375
+    final_metric: 0.01280090083368656
+    maternal_ac_amp: 325.3352597705942
+    maternal_ac_energy: 105843.03125
 exp 093:
   Depth_mm: 8
-  Epochs: 561
+  Epochs: 546
   Error: 0.75
   Errored_Fetal_F_Hz: 1.75
   Measurand: abs
-  Optimized_Sensitivity: 0.01978106452143061
+  Optimized_Sensitivity: 0.00039831346863835205
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014331711456179619
+  - 0.6539171934127808
+  - 0.22387170791625977
+  - 0.08519472181797028
+  - 0.02268468588590622
   - 0.0
   - 0.0
-  - 0.026164809241890907
-  - 0.0
-  - 0.8394521474838257
-  - 0.1201706975698471
-  - 0.014212362468242645
   - 0.0
   - 0.0
   - 0.0
@@ -3842,34 +3842,34 @@ exp 093:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.75), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 178.07737731933594
-  Optimizer(Maternal Energy): 858.281005859375
-  Optimizer(Noise Std): 52.899513244628906
+  Optimizer(Fetal Energy): 762513.3125
+  Optimizer(Maternal Energy): 4009832.5
+  Optimizer(Noise Std): 687.2355346679688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.200497824268524
-    fetal_ac_energy: 2.504730463027954
-    final_metric: 0.01978106452143061
-    maternal_ac_amp: 2.3801023986971006
-    maternal_ac_energy: 5.664887428283691
+    baseline_noise_std: 692.4945396896643
+    fetal_ac_energy: 93.37419891357422
+    final_metric: 0.00039831346863835205
+    maternal_ac_amp: 338.5209442375759
+    maternal_ac_energy: 114596.4296875
 exp 094:
   Depth_mm: 8
-  Epochs: 561
+  Epochs: 546
   Error: 0.75
   Errored_Fetal_F_Hz: 1.75
   Measurand: abs
-  Optimized_Sensitivity: 0.019780198873349534
+  Optimized_Sensitivity: 0.0003982493331398027
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014336086809635162
+  - 0.6539720296859741
+  - 0.22384032607078552
+  - 0.08517232537269592
+  - 0.022679174318909645
   - 0.0
   - 0.0
-  - 0.026235152035951614
-  - 0.0
-  - 0.8394004106521606
-  - 0.12016492336988449
-  - 0.014199532568454742
   - 0.0
   - 0.0
   - 0.0
@@ -3883,34 +3883,34 @@ exp 094:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.75), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 179.06161499023438
-  Optimizer(Maternal Energy): 857.0791625976562
-  Optimizer(Noise Std): 52.899715423583984
+  Optimizer(Fetal Energy): 765861.0
+  Optimizer(Maternal Energy): 4005982.5
+  Optimizer(Noise Std): 687.2371826171875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.20066303040781
-    fetal_ac_energy: 2.504638433456421
-    final_metric: 0.019780198873349534
-    maternal_ac_amp: 2.380111714634295
-    maternal_ac_energy: 5.664931774139404
+    baseline_noise_std: 692.4961642493047
+    fetal_ac_energy: 93.3595962524414
+    final_metric: 0.0003982493331398027
+    maternal_ac_amp: 338.52171736093976
+    maternal_ac_energy: 114596.953125
 exp 095:
   Depth_mm: 8
-  Epochs: 561
+  Epochs: 553
   Error: 0.75
   Errored_Fetal_F_Hz: 1.75
   Measurand: abs
-  Optimized_Sensitivity: 0.019780288795765242
+  Optimized_Sensitivity: 0.00039163388319627795
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.013811519369482994
+  - 0.6629459857940674
+  - 0.21904361248016357
+  - 0.08235408365726471
+  - 0.021844850853085518
   - 0.0
   - 0.0
-  - 0.026235105469822884
-  - 0.0
-  - 0.8394008874893188
-  - 0.1201644018292427
-  - 0.014199516735970974
   - 0.0
   - 0.0
   - 0.0
@@ -3924,34 +3924,34 @@ exp 095:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.75), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 179.06199645996094
-  Optimizer(Maternal Energy): 857.0789184570312
-  Optimizer(Noise Std): 52.89971923828125
+  Optimizer(Fetal Energy): 767441.5
+  Optimizer(Maternal Energy): 4014298.75
+  Optimizer(Noise Std): 687.6541748046875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.20066532493391
-    fetal_ac_energy: 2.5046494007110596
-    final_metric: 0.019780288795765242
-    maternal_ac_amp: 2.380111213778384
-    maternal_ac_energy: 5.664929389953613
+    baseline_noise_std: 692.7626758132975
+    fetal_ac_energy: 91.900390625
+    final_metric: 0.00039163388319627795
+    maternal_ac_amp: 338.7291852461196
+    maternal_ac_energy: 114737.4609375
 exp 096:
   Depth_mm: 6
-  Epochs: 589
+  Epochs: 503
   Error: 0.8
   Errored_Fetal_F_Hz: 1.7
   Measurand: abs
-  Optimized_Sensitivity: 0.014886350921960929
+  Optimized_Sensitivity: 0.012822013083286695
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8215025663375854
-  - 0.09622006118297577
-  - 0.07005559653043747
-  - 0.012221856974065304
-  - 0.0
+  - 0.047216325998306274
+  - 0.5419867038726807
+  - 0.30753692984580994
+  - 0.07830239087343216
+  - 0.01905844174325466
+  - 0.005899065639823675
   - 0.0
   - 0.0
   - 0.0
@@ -3965,34 +3965,34 @@ exp 096:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.7), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 355.4146423339844
-  Optimizer(Maternal Energy): 2565.426513671875
-  Optimizer(Noise Std): 69.91321563720703
+  Optimizer(Fetal Energy): 495275.15625
+  Optimizer(Maternal Energy): 3710728.25
+  Optimizer(Noise Std): 684.1364135742188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.34142460616646
-    fetal_ac_energy: 4.346671104431152
-    final_metric: 0.014886350921960929
-    maternal_ac_amp: 4.15104429595111
-    maternal_ac_energy: 17.231168746948242
+    baseline_noise_std: 689.35132552277
+    fetal_ac_energy: 2875.14990234375
+    final_metric: 0.012822013083286695
+    maternal_ac_amp: 325.284719034725
+    maternal_ac_energy: 105810.1484375
 exp 097:
   Depth_mm: 6
-  Epochs: 584
+  Epochs: 503
   Error: 0.8
   Errored_Fetal_F_Hz: 1.7
   Measurand: abs
-  Optimized_Sensitivity: 0.01491359883586669
+  Optimized_Sensitivity: 0.01281834535713255
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8179106712341309
-  - 0.09807360172271729
-  - 0.07149120420217514
-  - 0.012524592690169811
-  - 0.0
+  - 0.047262221574783325
+  - 0.5423142313957214
+  - 0.3072625398635864
+  - 0.07822301238775253
+  - 0.01904316619038582
+  - 0.005894901696592569
   - 0.0
   - 0.0
   - 0.0
@@ -4006,34 +4006,34 @@ exp 097:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 358.41436767578125
-  Optimizer(Maternal Energy): 2558.6787109375
-  Optimizer(Noise Std): 69.89281463623047
+  Optimizer(Fetal Energy): 500423.8125
+  Optimizer(Maternal Energy): 3707410.0
+  Optimizer(Noise Std): 684.1531982421875
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.3299804659702
-    fetal_ac_energy: 4.352415561676025
-    final_metric: 0.01491359883586669
-    maternal_ac_amp: 4.14961114003775
-    maternal_ac_energy: 17.21927261352539
+    baseline_noise_std: 689.3679170080371
+    fetal_ac_energy: 2874.477294921875
+    final_metric: 0.01281834535713255
+    maternal_ac_amp: 325.2938455266254
+    maternal_ac_energy: 105816.0859375
 exp 098:
   Depth_mm: 6
-  Epochs: 584
+  Epochs: 503
   Error: 0.8
   Errored_Fetal_F_Hz: 1.7
   Measurand: abs
-  Optimized_Sensitivity: 0.014913518991222294
+  Optimized_Sensitivity: 0.012818144873375462
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8179110288619995
-  - 0.09807376563549042
-  - 0.07149071991443634
-  - 0.012524563819169998
-  - 0.0
+  - 0.04726216197013855
+  - 0.5423182249069214
+  - 0.3072585463523865
+  - 0.07822305709123611
+  - 0.019043147563934326
+  - 0.005894887261092663
   - 0.0
   - 0.0
   - 0.0
@@ -4047,34 +4047,34 @@ exp 098:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 358.41485595703125
-  Optimizer(Maternal Energy): 2558.6806640625
-  Optimizer(Noise Std): 69.89281463623047
+  Optimizer(Fetal Energy): 500424.9375
+  Optimizer(Maternal Energy): 3707418.75
+  Optimizer(Noise Std): 684.1532592773438
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 70.32998740868827
-    fetal_ac_energy: 4.352391242980957
-    final_metric: 0.014913518991222294
-    maternal_ac_amp: 4.149609761102072
-    maternal_ac_energy: 17.219261169433594
+    baseline_noise_std: 689.3680303364814
+    fetal_ac_energy: 2874.4365234375
+    final_metric: 0.012818144873375462
+    maternal_ac_amp: 325.2942658194269
+    maternal_ac_energy: 105816.359375
 exp 099:
   Depth_mm: 8
-  Epochs: 545
+  Epochs: 553
   Error: 0.8
   Errored_Fetal_F_Hz: 1.7
   Measurand: abs
-  Optimized_Sensitivity: 0.019838795813921544
+  Optimized_Sensitivity: 0.0003914552894150426
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.013803592883050442
+  - 0.6632358431816101
+  - 0.2188730686903
+  - 0.08226178586483002
+  - 0.021825728937983513
   - 0.0
   - 0.0
-  - 0.0204909760504961
-  - 0.0
-  - 0.8306112289428711
-  - 0.13129863142967224
-  - 0.017599130049347878
   - 0.0
   - 0.0
   - 0.0
@@ -4088,34 +4088,34 @@ exp 099:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.7), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 121.23127746582031
-  Optimizer(Maternal Energy): 853.0716552734375
-  Optimizer(Noise Std): 52.77574920654297
+  Optimizer(Fetal Energy): 533713.6875
+  Optimizer(Maternal Energy): 4018386.0
+  Optimizer(Noise Std): 687.6646728515625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.105189320936425
-    fetal_ac_energy: 2.5021443367004395
-    final_metric: 0.019838795813921544
-    maternal_ac_amp: 2.374980725661921
-    maternal_ac_energy: 5.640533447265625
+    baseline_noise_std: 692.7706826576887
+    fetal_ac_energy: 91.86121368408203
+    final_metric: 0.0003914552894150426
+    maternal_ac_amp: 338.7353433176113
+    maternal_ac_energy: 114741.6328125
 exp 100:
   Depth_mm: 8
-  Epochs: 545
+  Epochs: 546
   Error: 0.8
   Errored_Fetal_F_Hz: 1.7
   Measurand: abs
-  Optimized_Sensitivity: 0.019837207990505375
+  Optimized_Sensitivity: 0.00039790274483062215
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.014331943355500698
+  - 0.6543718576431274
+  - 0.2236074060201645
+  - 0.08503841608762741
+  - 0.022650277242064476
   - 0.0
   - 0.0
-  - 0.020632609724998474
-  - 0.0
-  - 0.8305254578590393
-  - 0.13128891587257385
-  - 0.01755295880138874
   - 0.0
   - 0.0
   - 0.0
@@ -4129,34 +4129,34 @@ exp 100:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 122.37040710449219
-  Optimizer(Maternal Energy): 851.895263671875
-  Optimizer(Noise Std): 52.77647018432617
+  Optimizer(Fetal Energy): 538147.0
+  Optimizer(Maternal Energy): 4006251.0
+  Optimizer(Noise Std): 687.2513427734375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.1057042163316
-    fetal_ac_energy: 2.5019960403442383
-    final_metric: 0.019837207990505375
-    maternal_ac_amp: 2.3750070270635146
-    maternal_ac_energy: 5.640658378601074
+    baseline_noise_std: 692.5073781195404
+    fetal_ac_energy: 93.28218841552734
+    final_metric: 0.00039790274483062215
+    maternal_ac_amp: 338.53017544600067
+    maternal_ac_energy: 114602.6796875
 exp 101:
   Depth_mm: 8
-  Epochs: 545
+  Epochs: 553
   Error: 0.8
   Errored_Fetal_F_Hz: 1.7
   Measurand: abs
-  Optimized_Sensitivity: 0.01983726005093313
+  Optimized_Sensitivity: 0.0003913285207301863
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.013807362876832485
+  - 0.6633460521697998
+  - 0.2188068926334381
+  - 0.08222280442714691
+  - 0.02181677706539631
   - 0.0
   - 0.0
-  - 0.0206326711922884
-  - 0.0
-  - 0.8305256962776184
-  - 0.13128870725631714
-  - 0.017552928999066353
   - 0.0
   - 0.0
   - 0.0
@@ -4170,36 +4170,36 @@ exp 101:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.7), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 122.37064361572266
-  Optimizer(Maternal Energy): 851.895263671875
-  Optimizer(Noise Std): 52.77647018432617
+  Optimizer(Fetal Energy): 539258.3125
+  Optimizer(Maternal Energy): 4014560.25
+  Optimizer(Noise Std): 687.6682739257812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.1057042163316
-    fetal_ac_energy: 2.5020008087158203
-    final_metric: 0.01983726005093313
-    maternal_ac_amp: 2.3750053204928583
-    maternal_ac_energy: 5.640650272369385
+    baseline_noise_std: 692.7737951525014
+    fetal_ac_energy: 91.83229064941406
+    final_metric: 0.0003913285207301863
+    maternal_ac_amp: 338.73686552027374
+    maternal_ac_energy: 114742.6640625
 exp 102:
   Depth_mm: 6
-  Epochs: 587
+  Epochs: 539
   Error: 0.8500000000000001
   Errored_Fetal_F_Hz: 1.65
   Measurand: abs
-  Optimized_Sensitivity: 0.022645026220295104
+  Optimized_Sensitivity: 0.012902202785140787
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03543390706181526
+  - 0.5387527346611023
+  - 0.3332095146179199
+  - 0.07519255578517914
+  - 0.01741131953895092
   - 0.0
-  - 0.038580816239118576
-  - 0.22750821709632874
-  - 0.649167001247406
-  - 0.0348992757499218
-  - 0.0249188132584095
-  - 0.017786523327231407
-  - 0.007139292079955339
+  - 0.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -4211,36 +4211,36 @@ exp 102:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.65), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 199.43508911132812
-  Optimizer(Maternal Energy): 2343.935302734375
-  Optimizer(Noise Std): 66.03015899658203
+  Optimizer(Fetal Energy): 271611.0
+  Optimizer(Maternal Energy): 4583133.0
+  Optimizer(Noise Std): 684.5921020507812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 66.2764024629996
-    fetal_ac_energy: 5.598620414733887
-    final_metric: 0.022645026220295104
-    maternal_ac_amp: 3.7303473168226544
-    maternal_ac_energy: 13.915491104125977
+    baseline_noise_std: 689.8786351598374
+    fetal_ac_energy: 2901.1376953125
+    final_metric: 0.012902202785140787
+    maternal_ac_amp: 325.93558844118263
+    maternal_ac_energy: 106234.0078125
 exp 103:
   Depth_mm: 6
-  Epochs: 572
+  Epochs: 527
   Error: 0.8500000000000001
   Errored_Fetal_F_Hz: 1.65
   Measurand: abs
-  Optimized_Sensitivity: 0.02252148550495992
+  Optimized_Sensitivity: 0.013055566901142502
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03772642835974693
+  - 0.52767413854599
+  - 0.33234935998916626
+  - 0.07832564413547516
+  - 0.018292805179953575
+  - 0.005631621461361647
   - 0.0
-  - 0.04721019044518471
-  - 0.25219330191612244
-  - 0.6119598150253296
-  - 0.03688865900039673
-  - 0.026088522747159004
-  - 0.0182194784283638
-  - 0.007440047804266214
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -4252,36 +4252,36 @@ exp 103:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.65), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 203.40301513671875
-  Optimizer(Maternal Energy): 2344.140625
-  Optimizer(Noise Std): 66.13829040527344
+  Optimizer(Fetal Energy): 276938.8125
+  Optimizer(Maternal Energy): 4548215.5
+  Optimizer(Noise Std): 683.9447631835938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 66.40321316585516
-    fetal_ac_energy: 5.591660976409912
-    final_metric: 0.02252148550495992
-    maternal_ac_amp: 3.7389934503131155
-    maternal_ac_energy: 13.980072021484375
+    baseline_noise_std: 688.7171044775931
+    fetal_ac_energy: 2922.854248046875
+    final_metric: 0.013055566901142502
+    maternal_ac_amp: 325.0652578714003
+    maternal_ac_energy: 105667.421875
 exp 104:
   Depth_mm: 6
-  Epochs: 572
+  Epochs: 527
   Error: 0.8500000000000001
   Errored_Fetal_F_Hz: 1.65
   Measurand: abs
-  Optimized_Sensitivity: 0.022521510572563935
+  Optimized_Sensitivity: 0.013055760229412258
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03772645443677902
+  - 0.5276724100112915
+  - 0.332350492477417
+  - 0.07832613587379456
+  - 0.018292857334017754
+  - 0.005631635896861553
   - 0.0
-  - 0.047210171818733215
-  - 0.2521955668926239
-  - 0.6119579672813416
-  - 0.03688838705420494
-  - 0.026088476181030273
-  - 0.018219422549009323
-  - 0.007440041285008192
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -4293,34 +4293,34 @@ exp 104:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.65), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 203.40328979492188
-  Optimizer(Maternal Energy): 2344.143310546875
-  Optimizer(Noise Std): 66.1383056640625
+  Optimizer(Fetal Energy): 276939.28125
+  Optimizer(Maternal Energy): 4548216.0
+  Optimizer(Noise Std): 683.9447021484375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 66.40322419577042
-    fetal_ac_energy: 5.591669082641602
-    final_metric: 0.022521510572563935
-    maternal_ac_amp: 3.738994087967505
-    maternal_ac_energy: 13.980076789855957
+    baseline_noise_std: 688.716991042039
+    fetal_ac_energy: 2922.895751953125
+    final_metric: 0.013055760229412258
+    maternal_ac_amp: 325.0651136695539
+    maternal_ac_energy: 105667.328125
 exp 105:
   Depth_mm: 8
-  Epochs: 563
+  Epochs: 564
   Error: 0.8500000000000001
   Errored_Fetal_F_Hz: 1.65
   Measurand: abs
-  Optimized_Sensitivity: 0.020090591154195078
+  Optimized_Sensitivity: 0.000392604914621602
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01261391956359148
+  - 0.6631572246551514
+  - 0.21960698068141937
+  - 0.08292922377586365
+  - 0.02169261872768402
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.8573287129402161
-  - 0.1180395781993866
-  - 0.024631651118397713
   - 0.0
   - 0.0
   - 0.0
@@ -4334,34 +4334,34 @@ exp 105:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.65), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 81.40447998046875
-  Optimizer(Maternal Energy): 944.921875
-  Optimizer(Noise Std): 52.762451171875
+  Optimizer(Fetal Energy): 290164.1875
+  Optimizer(Maternal Energy): 4946937.5
+  Optimizer(Noise Std): 687.837890625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.10988295947139
-    fetal_ac_energy: 2.534480094909668
-    final_metric: 0.020090591154195078
-    maternal_ac_amp: 2.375312884952658
-    maternal_ac_energy: 5.642111301422119
+    baseline_noise_std: 692.7817567603812
+    fetal_ac_energy: 92.1410140991211
+    final_metric: 0.000392604914621602
+    maternal_ac_amp: 338.7667777210451
+    maternal_ac_energy: 114762.9296875
 exp 106:
   Depth_mm: 8
-  Epochs: 563
+  Epochs: 564
   Error: 0.8500000000000001
   Errored_Fetal_F_Hz: 1.65
   Measurand: abs
-  Optimized_Sensitivity: 0.020089633728936216
+  Optimized_Sensitivity: 0.0003922708685556749
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01263331063091755
+  - 0.6635028123855591
+  - 0.21940335631370544
+  - 0.08279840648174286
+  - 0.021662231534719467
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.8574922680854797
-  - 0.11823099851608276
-  - 0.02427668869495392
   - 0.0
   - 0.0
   - 0.0
@@ -4375,34 +4375,34 @@ exp 106:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.65), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 82.8088607788086
-  Optimizer(Maternal Energy): 942.2020263671875
-  Optimizer(Noise Std): 52.767242431640625
+  Optimizer(Fetal Energy): 296864.4375
+  Optimizer(Maternal Energy): 4924884.0
+  Optimizer(Noise Std): 687.8489379882812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.112144584301525
-    fetal_ac_energy: 2.5346412658691406
-    final_metric: 0.020089633728936216
-    maternal_ac_amp: 2.3754759863665638
-    maternal_ac_energy: 5.642886161804199
+    baseline_noise_std: 692.7918157715202
+    fetal_ac_energy: 92.06568908691406
+    final_metric: 0.0003922708685556749
+    maternal_ac_amp: 338.7731657208109
+    maternal_ac_energy: 114767.2578125
 exp 107:
   Depth_mm: 8
-  Epochs: 563
+  Epochs: 564
   Error: 0.8500000000000001
   Errored_Fetal_F_Hz: 1.65
   Measurand: abs
-  Optimized_Sensitivity: 0.020089797012473785
+  Optimized_Sensitivity: 0.0003923568828867525
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012633298523724079
+  - 0.6635054349899292
+  - 0.2194008231163025
+  - 0.08279827237129211
+  - 0.02166217751801014
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.8574920296669006
-  - 0.11823130398988724
-  - 0.02427668683230877
   - 0.0
   - 0.0
   - 0.0
@@ -4416,36 +4416,36 @@ exp 107:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.65), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 82.80867767333984
-  Optimizer(Maternal Energy): 942.2001342773438
-  Optimizer(Noise Std): 52.767242431640625
+  Optimizer(Fetal Energy): 296865.03125
+  Optimizer(Maternal Energy): 4924894.5
+  Optimizer(Noise Std): 687.8489379882812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.112144584301525
-    fetal_ac_energy: 2.5346627235412598
-    final_metric: 0.020089797012473785
-    maternal_ac_amp: 2.375476789299669
-    maternal_ac_energy: 5.642889976501465
+    baseline_noise_std: 692.7918157715202
+    fetal_ac_energy: 92.08592987060547
+    final_metric: 0.0003923568828867525
+    maternal_ac_amp: 338.77336174055955
+    maternal_ac_energy: 114767.390625
 exp 108:
   Depth_mm: 6
-  Epochs: 604
+  Epochs: 547
   Error: 0.9
   Errored_Fetal_F_Hz: 1.6
   Measurand: abs
-  Optimized_Sensitivity: 0.04335093593278637
+  Optimized_Sensitivity: 0.013300358226983115
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03132106363773346
+  - 0.5071274042129517
+  - 0.3593403697013855
+  - 0.07892473042011261
+  - 0.017812654376029968
+  - 0.005473727360367775
   - 0.0
   - 0.0
-  - 0.0
-  - 0.010419669561088085
-  - 0.012873212806880474
-  - 0.02142256125807762
-  - 0.9154543876647949
-  - 0.03983014449477196
   - 0.0
   - 0.0
   - 0.0
@@ -4457,36 +4457,36 @@ exp 108:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.6), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 85.70578002929688
-  Optimizer(Maternal Energy): 1149.405029296875
-  Optimizer(Noise Std): 52.34321212768555
+  Optimizer(Fetal Energy): 177236.0625
+  Optimizer(Maternal Energy): 4567211.0
+  Optimizer(Noise Std): 683.4592895507812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.27431261877697
-    fetal_ac_energy: 5.753094673156738
-    final_metric: 0.04335093593278637
-    maternal_ac_amp: 2.5387194592485667
-    maternal_ac_energy: 6.445096492767334
+    baseline_noise_std: 687.9105819436128
+    fetal_ac_energy: 2970.86181640625
+    final_metric: 0.013300358226983115
+    maternal_ac_amp: 324.7036148551476
+    maternal_ac_energy: 105432.4375
 exp 109:
   Depth_mm: 6
-  Epochs: 640
+  Epochs: 541
   Error: 0.9
   Errored_Fetal_F_Hz: 1.6
   Measurand: abs
-  Optimized_Sensitivity: 0.04335725256568819
+  Optimized_Sensitivity: 0.013281133202871618
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.0326673649251461
+  - 0.5084275603294373
+  - 0.3553590476512909
+  - 0.07982876151800156
+  - 0.018144255504012108
+  - 0.005573043134063482
   - 0.0
   - 0.0
-  - 0.0
-  - 0.010262686759233475
-  - 0.011756951920688152
-  - 0.01906925067305565
-  - 0.934109091758728
-  - 0.024802055209875107
   - 0.0
   - 0.0
   - 0.0
@@ -4498,36 +4498,36 @@ exp 109:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.6), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 88.03659057617188
-  Optimizer(Maternal Energy): 1149.6943359375
-  Optimizer(Noise Std): 52.38726806640625
+  Optimizer(Fetal Energy): 183195.265625
+  Optimizer(Maternal Energy): 4543531.5
+  Optimizer(Noise Std): 683.3724975585938
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.31069852035528
-    fetal_ac_energy: 5.764379978179932
-    final_metric: 0.04335725256568819
-    maternal_ac_amp: 2.5415597695139334
-    maternal_ac_energy: 6.459526062011719
+    baseline_noise_std: 687.9179411455991
+    fetal_ac_energy: 2966.37255859375
+    final_metric: 0.013281133202871618
+    maternal_ac_amp: 324.6787956003595
+    maternal_ac_energy: 105416.3203125
 exp 110:
   Depth_mm: 6
-  Epochs: 640
+  Epochs: 541
   Error: 0.9
   Errored_Fetal_F_Hz: 1.6
   Measurand: abs
-  Optimized_Sensitivity: 0.04335713243949883
+  Optimized_Sensitivity: 0.013281095992693514
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.032667528837919235
+  - 0.5084240436553955
+  - 0.3553619086742401
+  - 0.07982905954122543
+  - 0.01814431883394718
+  - 0.00557305384427309
   - 0.0
   - 0.0
-  - 0.0
-  - 0.010262740775942802
-  - 0.011756974272429943
-  - 0.019069431349635124
-  - 0.9341087937355042
-  - 0.02480207197368145
   - 0.0
   - 0.0
   - 0.0
@@ -4539,35 +4539,35 @@ exp 110:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.6), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 88.03671264648438
-  Optimizer(Maternal Energy): 1149.696533203125
-  Optimizer(Noise Std): 52.387264251708984
+  Optimizer(Fetal Energy): 183195.59375
+  Optimizer(Maternal Energy): 4543523.0
+  Optimizer(Noise Std): 683.3723754882812
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 52.31069852035528
-    fetal_ac_energy: 5.764369964599609
-    final_metric: 0.04335713243949883
-    maternal_ac_amp: 2.5415623961359177
-    maternal_ac_energy: 6.459539413452148
+    baseline_noise_std: 687.917759437856
+    fetal_ac_energy: 2966.364013671875
+    final_metric: 0.013281095992693514
+    maternal_ac_amp: 324.6788557559608
+    maternal_ac_energy: 105416.359375
 exp 111:
   Depth_mm: 8
-  Epochs: 580
+  Epochs: 568
   Error: 0.9
   Errored_Fetal_F_Hz: 1.6
   Measurand: abs
-  Optimized_Sensitivity: 0.02016267011926441
+  Optimized_Sensitivity: 0.0003933662829324757
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012143618427217007
+  - 0.6627129316329956
+  - 0.22014914453029633
+  - 0.08331454545259476
+  - 0.021679794415831566
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8594854474067688
-  - 0.09964952617883682
-  - 0.029860951006412506
-  - 0.011004065163433552
   - 0.0
   - 0.0
   - 0.0
@@ -4580,35 +4580,35 @@ exp 111:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.6), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 61.37395095825195
-  Optimizer(Maternal Energy): 944.805419921875
-  Optimizer(Noise Std): 52.771514892578125
+  Optimizer(Fetal Energy): 189524.9375
+  Optimizer(Maternal Energy): 4948713.0
+  Optimizer(Noise Std): 687.8896484375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.03286127487372
-    fetal_ac_energy: 2.531919002532959
-    final_metric: 0.02016267011926441
-    maternal_ac_amp: 2.367863725317313
-    maternal_ac_energy: 5.606778621673584
+    baseline_noise_std: 692.7743364545197
+    fetal_ac_energy: 92.31961059570312
+    final_metric: 0.0003933662829324757
+    maternal_ac_amp: 338.7700755121385
+    maternal_ac_energy: 114765.1640625
 exp 112:
   Depth_mm: 8
-  Epochs: 579
+  Epochs: 568
   Error: 0.9
   Errored_Fetal_F_Hz: 1.6
   Measurand: abs
-  Optimized_Sensitivity: 0.02015810890739718
+  Optimized_Sensitivity: 0.0003926785485166319
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012176590040326118
+  - 0.663507342338562
+  - 0.21968059241771698
+  - 0.08302168548107147
+  - 0.021613799035549164
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8594570159912109
-  - 0.10094592720270157
-  - 0.029037263244390488
-  - 0.010559885762631893
   - 0.0
   - 0.0
   - 0.0
@@ -4621,35 +4621,35 @@ exp 112:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.6), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 63.06906509399414
-  Optimizer(Maternal Energy): 942.2743530273438
-  Optimizer(Noise Std): 52.77867889404297
+  Optimizer(Fetal Energy): 196143.5625
+  Optimizer(Maternal Energy): 4926977.5
+  Optimizer(Noise Std): 687.9152221679688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.038626936088995
-    fetal_ac_energy: 2.5321736335754395
-    final_metric: 0.02015810890739718
-    maternal_ac_amp: 2.368380205181416
-    maternal_ac_energy: 5.609224796295166
+    baseline_noise_std: 692.7971158643777
+    fetal_ac_energy: 92.165771484375
+    final_metric: 0.0003926785485166319
+    maternal_ac_amp: 338.78674846797065
+    maternal_ac_energy: 114776.4609375
 exp 113:
   Depth_mm: 8
-  Epochs: 579
+  Epochs: 568
   Error: 0.9
   Errored_Fetal_F_Hz: 1.6
   Measurand: abs
-  Optimized_Sensitivity: 0.020158062361334217
+  Optimized_Sensitivity: 0.0003927656089651926
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01217654999345541
+  - 0.6635090112686157
+  - 0.21967926621437073
+  - 0.08302140235900879
+  - 0.021613769233226776
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.8594574332237244
-  - 0.10094554722309113
-  - 0.029037203639745712
-  - 0.010559890419244766
   - 0.0
   - 0.0
   - 0.0
@@ -4662,40 +4662,40 @@ exp 113:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.6), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 63.069129943847656
-  Optimizer(Maternal Energy): 942.2734985351562
-  Optimizer(Noise Std): 52.778682708740234
+  Optimizer(Fetal Energy): 196143.5625
+  Optimizer(Maternal Energy): 4926975.0
+  Optimizer(Noise Std): 687.9152221679688
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 53.038629237625
-    fetal_ac_energy: 2.5321688652038574
-    final_metric: 0.020158062361334217
-    maternal_ac_amp: 2.368381111187469
-    maternal_ac_energy: 5.60922908782959
+    baseline_noise_std: 692.7971835248754
+    fetal_ac_energy: 92.18607330322266
+    final_metric: 0.0003927656089651926
+    maternal_ac_amp: 338.7862296124209
+    maternal_ac_energy: 114776.109375
 exp 114:
   Depth_mm: 6
-  Epochs: 548
+  Epochs: 539
   Error: 0.9500000000000001
   Errored_Fetal_F_Hz: 1.5499999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.04987485623938501
+  Optimized_Sensitivity: 0.013052506963366017
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03455192223191261
+  - 0.5309077501296997
+  - 0.33579257130622864
+  - 0.07579533755779266
+  - 0.017531007528305054
+  - 0.0054214210249483585
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.04176447167992592
-  - 0.3784146308898926
-  - 0.5124194622039795
-  - 0.04914691299200058
-  - 0.00721292570233345
-  - 0.01104160025715828
   - 0.0
   - 0.0
   - 0.0
@@ -4703,40 +4703,40 @@ exp 114:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.5499999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 44.48027801513672
-  Optimizer(Maternal Energy): 829.302734375
-  Optimizer(Noise Std): 45.52900314331055
+  Optimizer(Fetal Energy): 194895.21875
+  Optimizer(Maternal Energy): 4579494.5
+  Optimizer(Noise Std): 684.3558349609375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 45.40745170037485
-    fetal_ac_energy: 4.501789569854736
-    final_metric: 0.04987485623938501
-    maternal_ac_amp: 1.9878170168459064
-    maternal_ac_energy: 3.951416492462158
+    baseline_noise_std: 688.9127530028749
+    fetal_ac_energy: 2924.594970703125
+    final_metric: 0.013052506963366017
+    maternal_ac_amp: 325.24270985296505
+    maternal_ac_energy: 105782.8203125
 exp 115:
   Depth_mm: 6
-  Epochs: 541
+  Epochs: 527
   Error: 0.9500000000000001
   Errored_Fetal_F_Hz: 1.5499999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.04963421894833911
+  Optimized_Sensitivity: 0.013081622756415131
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.037236396223306656
+  - 0.5257969498634338
+  - 0.3341110646724701
+  - 0.07876559346914291
+  - 0.01840917021036148
+  - 0.005680887494236231
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.04861753433942795
-  - 0.44796597957611084
-  - 0.4436684548854828
-  - 0.04483698308467865
-  - 0.006579880136996508
-  - 0.00833114329725504
   - 0.0
   - 0.0
   - 0.0
@@ -4744,40 +4744,40 @@ exp 115:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5499999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 46.780540466308594
-  Optimizer(Maternal Energy): 853.587158203125
-  Optimizer(Noise Std): 45.96844482421875
+  Optimizer(Fetal Energy): 203220.90625
+  Optimizer(Maternal Energy): 4546866.5
+  Optimizer(Noise Std): 683.84765625
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 45.84118303992601
-    fetal_ac_energy: 4.601315498352051
-    final_metric: 0.04963421894833911
-    maternal_ac_amp: 2.0222973059710565
-    maternal_ac_energy: 4.089686393737793
+    baseline_noise_std: 688.6111248375239
+    fetal_ac_energy: 2927.71142578125
+    final_metric: 0.013081622756415131
+    maternal_ac_amp: 325.00692300318775
+    maternal_ac_energy: 105629.5
 exp 116:
   Depth_mm: 6
-  Epochs: 541
+  Epochs: 527
   Error: 0.9500000000000001
   Errored_Fetal_F_Hz: 1.5499999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.04963432467311557
+  Optimized_Sensitivity: 0.01308158599243288
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.03723635524511337
+  - 0.5257951617240906
+  - 0.3341127336025238
+  - 0.07876574248075485
+  - 0.01840919442474842
+  - 0.005680895876139402
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.04861762002110481
-  - 0.44796377420425415
-  - 0.4436703026294708
-  - 0.044837262481451035
-  - 0.006579902954399586
-  - 0.008331202901899815
   - 0.0
   - 0.0
   - 0.0
@@ -4785,38 +4785,38 @@ exp 116:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5499999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 46.780452728271484
-  Optimizer(Maternal Energy): 853.5873413085938
-  Optimizer(Noise Std): 45.96843719482422
+  Optimizer(Fetal Energy): 203220.875
+  Optimizer(Maternal Energy): 4546861.5
+  Optimizer(Noise Std): 683.8475952148438
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 45.84117238833994
-    fetal_ac_energy: 4.601325035095215
-    final_metric: 0.04963432467311557
-    maternal_ac_amp: 2.0222976596557856
-    maternal_ac_energy: 4.089687824249268
+    baseline_noise_std: 688.6110567657188
+    fetal_ac_energy: 2927.703125
+    final_metric: 0.01308158599243288
+    maternal_ac_amp: 325.00694704113636
+    maternal_ac_energy: 105629.515625
 exp 117:
   Depth_mm: 8
-  Epochs: 644
+  Epochs: 563
   Error: 0.9500000000000001
   Errored_Fetal_F_Hz: 1.5499999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.027374458560366747
+  Optimized_Sensitivity: 0.00039071782325219575
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012694381177425385
+  - 0.6654516458511353
+  - 0.21827517449855804
+  - 0.08204712718725204
+  - 0.021531730890274048
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.014153709635138512
-  - 0.9151472449302673
-  - 0.038004811853170395
-  - 0.0185348242521286
-  - 0.014159387908875942
   - 0.0
   - 0.0
   - 0.0
@@ -4826,38 +4826,38 @@ exp 117:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.5499999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 19.890104293823242
-  Optimizer(Maternal Energy): 468.8488464355469
-  Optimizer(Noise Std): 40.24707794189453
+  Optimizer(Fetal Energy): 208545.875
+  Optimizer(Maternal Energy): 4948357.0
+  Optimizer(Noise Std): 687.9049682617188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 40.2623764817843
-    fetal_ac_energy: 1.6838209629058838
-    final_metric: 0.027374458560366747
-    maternal_ac_amp: 1.5277453428736476
-    maternal_ac_energy: 2.334005832672119
+    baseline_noise_std: 692.8467543403808
+    fetal_ac_energy: 91.71929931640625
+    final_metric: 0.00039071782325219575
+    maternal_ac_amp: 338.81319751818995
+    maternal_ac_energy: 114794.3828125
 exp 118:
   Depth_mm: 8
-  Epochs: 601
+  Epochs: 558
   Error: 0.9500000000000001
   Errored_Fetal_F_Hz: 1.5499999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.02733550890331442
+  Optimized_Sensitivity: 0.0003946599761494131
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.01306945737451315
+  - 0.660014808177948
+  - 0.22117525339126587
+  - 0.0837063193321228
+  - 0.0220341756939888
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0209796279668808
-  - 0.9072064757347107
-  - 0.040217746049165726
-  - 0.019218849018216133
-  - 0.01237730123102665
   - 0.0
   - 0.0
   - 0.0
@@ -4867,38 +4867,38 @@ exp 118:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5499999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 20.561220169067383
-  Optimizer(Maternal Energy): 468.8401794433594
-  Optimizer(Noise Std): 40.305076599121094
+  Optimizer(Fetal Energy): 217851.265625
+  Optimizer(Maternal Energy): 4919660.0
+  Optimizer(Noise Std): 687.6452026367188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 40.28905871267192
-    fetal_ac_energy: 1.6848357915878296
-    final_metric: 0.02733550890331442
-    maternal_ac_amp: 1.5298304303017687
-    maternal_ac_energy: 2.340381145477295
+    baseline_noise_std: 692.6856474981996
+    fetal_ac_energy: 92.58845520019531
+    final_metric: 0.0003946599761494131
+    maternal_ac_amp: 338.68624861366897
+    maternal_ac_energy: 114708.375
 exp 119:
   Depth_mm: 8
-  Epochs: 601
+  Epochs: 558
   Error: 0.9500000000000001
   Errored_Fetal_F_Hz: 1.5499999999999998
   Measurand: abs
-  Optimized_Sensitivity: 0.027335744742296907
+  Optimized_Sensitivity: 0.00039467221127756905
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.013069475069642067
+  - 0.6600145697593689
+  - 0.22117488086223602
+  - 0.08370695263147354
+  - 0.02203422412276268
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.02097969502210617
-  - 0.9072067141532898
-  - 0.04021768271923065
-  - 0.01921875588595867
-  - 0.012377200648188591
   - 0.0
   - 0.0
   - 0.0
@@ -4908,40 +4908,40 @@ exp 119:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5499999999999998), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 20.56114387512207
-  Optimizer(Maternal Energy): 468.8398742675781
-  Optimizer(Noise Std): 40.30508041381836
+  Optimizer(Fetal Energy): 217851.34375
+  Optimizer(Maternal Energy): 4919652.0
+  Optimizer(Noise Std): 687.6452026367188
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 40.289061742534415
-    fetal_ac_energy: 1.6848504543304443
-    final_metric: 0.027335744742296907
-    maternal_ac_amp: 1.5298304303017687
-    maternal_ac_energy: 2.340381145477295
+    baseline_noise_std: 692.6856474981996
+    fetal_ac_energy: 92.59146118164062
+    final_metric: 0.00039467221127756905
+    maternal_ac_amp: 338.68674455534864
+    maternal_ac_energy: 114708.7109375
 exp 120:
   Depth_mm: 6
-  Epochs: 645
+  Epochs: 468
   Error: 1.0
   Errored_Fetal_F_Hz: 1.5
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.022653294096442414
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.00734151154756546
+  - 0.06356316059827805
+  - 0.31595662236213684
+  - 0.47287771105766296
+  - 0.10503027588129044
+  - 0.026001520454883575
+  - 0.00922919251024723
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -4949,40 +4949,40 @@ exp 120:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 18.52953338623047
-  Optimizer(Maternal Energy): 251.1497344970703
-  Optimizer(Noise Std): 30.928964614868164
+  Optimizer(Fetal Energy): 28296.83984375
+  Optimizer(Maternal Energy): 4807817.5
+  Optimizer(Noise Std): 640.9779052734375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 645.9653628485045
+    fetal_ac_energy: 4362.40087890625
+    final_metric: 0.022653294096442414
+    maternal_ac_amp: 298.1157886417625
+    maternal_ac_energy: 88873.0234375
 exp 121:
   Depth_mm: 6
-  Epochs: 652
+  Epochs: 470
   Error: 1.0
   Errored_Fetal_F_Hz: 1.5
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.021505499917078275
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.00911350455135107
+  - 0.08230955898761749
+  - 0.3710601329803467
+  - 0.41969630122184753
+  - 0.08752094209194183
+  - 0.022223852574825287
+  - 0.00807582400739193
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -4990,40 +4990,40 @@ exp 121:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 18.94780158996582
-  Optimizer(Maternal Energy): 250.35678100585938
-  Optimizer(Noise Std): 30.940027236938477
+  Optimizer(Fetal Energy): 31656.04296875
+  Optimizer(Maternal Energy): 4895803.0
+  Optimizer(Noise Std): 645.9529418945312
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 650.9469064370764
+    fetal_ac_energy: 4219.2578125
+    final_metric: 0.021505499917078275
+    maternal_ac_amp: 301.3984074277766
+    maternal_ac_energy: 90841.0
 exp 122:
   Depth_mm: 6
-  Epochs: 652
+  Epochs: 470
   Error: 1.0
   Errored_Fetal_F_Hz: 1.5
   Measurand: abs
-  Optimized_Sensitivity: 0.06148453711706378
+  Optimized_Sensitivity: 0.021504966125992495
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
   - 0.0
+  - 0.00911346822977066
+  - 0.08230902254581451
+  - 0.3710665702819824
+  - 0.4196900725364685
+  - 0.08752108365297318
+  - 0.022223837673664093
+  - 0.008075857535004616
   - 0.0
   - 0.0
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -5031,27 +5031,34 @@ exp 122:
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 18.947784423828125
-  Optimizer(Maternal Energy): 250.35665893554688
-  Optimizer(Noise Std): 30.94002914428711
+  Optimizer(Fetal Energy): 31655.962890625
+  Optimizer(Maternal Energy): 4895800.5
+  Optimizer(Noise Std): 645.953125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 30.59619081012935
-    fetal_ac_energy: 1.836700439453125
-    final_metric: 0.06148453711706378
-    maternal_ac_amp: 0.9763489451557555
-    maternal_ac_energy: 0.9532572627067566
+    baseline_noise_std: 650.947050458023
+    fetal_ac_energy: 4219.150390625
+    final_metric: 0.021504966125992495
+    maternal_ac_amp: 301.3981482192616
+    maternal_ac_energy: 90840.84375
 exp 123:
   Depth_mm: 8
-  Epochs: 658
+  Epochs: 498
   Error: 1.0
   Errored_Fetal_F_Hz: 1.5
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0007286849102724833
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.010736395604908466
+  - 0.38466814160346985
+  - 0.32442614436149597
+  - 0.20832990109920502
+  - 0.054562728852033615
+  - 0.012273143045604229
+  - 0.005003555212169886
   - 0.0
   - 0.0
   - 0.0
@@ -5059,40 +5066,40 @@ exp 123:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.01, patience=100,
     grad_clip=False,fetal_f=1.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 4.152164936065674
-  Optimizer(Maternal Energy): 58.32549285888672
-  Optimizer(Noise Std): 21.36249542236328
+  Optimizer(Fetal Energy): 31531.88671875
+  Optimizer(Maternal Energy): 5868480.0
+  Optimizer(Noise Std): 676.18408203125
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 681.5609382146251
+    fetal_ac_energy: 164.01956176757812
+    final_metric: 0.0007286849102724833
+    maternal_ac_amp: 330.25635166109976
+    maternal_ac_energy: 109069.2578125
 exp 124:
   Depth_mm: 8
-  Epochs: 616
+  Epochs: 478
   Error: 1.0
   Errored_Fetal_F_Hz: 1.5
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0007174238176914841
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012593001127243042
+  - 0.3952386975288391
+  - 0.3176204264163971
+  - 0.20069292187690735
+  - 0.055771756917238235
+  - 0.012853949330747128
+  - 0.005229277536273003
   - 0.0
   - 0.0
   - 0.0
@@ -5100,40 +5107,40 @@ exp 124:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=True
-  Optimizer(Fetal Energy): 4.259815216064453
-  Optimizer(Maternal Energy): 58.49988555908203
-  Optimizer(Noise Std): 21.41031265258789
+  Optimizer(Fetal Energy): 34824.29296875
+  Optimizer(Maternal Energy): 5835527.5
+  Optimizer(Noise Std): 675.94287109375
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 681.7036792111364
+    fetal_ac_energy: 161.5431671142578
+    final_metric: 0.0007174238176914841
+    maternal_ac_amp: 330.3065337682559
+    maternal_ac_energy: 109102.40625
 exp 125:
   Depth_mm: 8
-  Epochs: 616
+  Epochs: 478
   Error: 1.0
   Errored_Fetal_F_Hz: 1.5
   Measurand: abs
-  Optimized_Sensitivity: 0.04103875542437873
+  Optimized_Sensitivity: 0.0007174574042497569
   Optimized_Window:
   - 0.0
   - 0.0
   - 0.0
+  - 0.012592977844178677
+  - 0.39524340629577637
+  - 0.31762173771858215
+  - 0.20068736374378204
+  - 0.055771470069885254
+  - 0.012853910215198994
+  - 0.0052292486652731895
   - 0.0
   - 0.0
   - 0.0
@@ -5141,26 +5148,19 @@ exp 125:
   - 0.0
   - 0.0
   - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
   Optimizer: DIGSSOptimizer(measurand=WindowedSum, lr=0.01, filter_hw=0.1, patience=100,
     grad_clip=False,fetal_f=1.5), type=comb, filter_smoothening=True,reg_type=l2,
     reg_weight=0.0001, normalize_reward=False
-  Optimizer(Fetal Energy): 4.2598090171813965
-  Optimizer(Maternal Energy): 58.499839782714844
-  Optimizer(Noise Std): 21.410314559936523
+  Optimizer(Fetal Energy): 34824.12890625
+  Optimizer(Maternal Energy): 5835531.5
+  Optimizer(Noise Std): 675.9431762695312
   True_Fetal_F_Hz: 2.5
   evaluator_log:
-    baseline_noise_std: 21.15415757170111
-    fetal_ac_energy: 0.41026267409324646
-    final_metric: 0.04103875542437873
-    maternal_ac_amp: 0.4725764656510737
-    maternal_ac_energy: 0.22332851588726044
+    baseline_noise_std: 681.7039542572714
+    fetal_ac_energy: 161.55093383789062
+    final_metric: 0.0007174574042497569
+    maternal_ac_amp: 330.30681759539874
+    maternal_ac_energy: 109102.59375

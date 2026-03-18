@@ -31,7 +31,7 @@ def main():
         if not isinstance(exp_data, dict):
             continue
         
-        depth = exp_data.get('Depth_mm')
+        depth = round(float(exp_data.get('Depth_mm', 0.0))/10, 1) 
         sensitivity = exp_data.get('Optimized_Sensitivity')
         optimizer = exp_data.get('Optimizer', '')
         
@@ -76,7 +76,7 @@ def main():
     ax.plot(cw_data['depths'], cw_data['sensitivities'], label='CW')
 
     # Configure axes
-    ax.set_xlabel('Fetal Depth (mm)')
+    ax.set_xlabel('Fetal Depth (cm)')
     ax.set_ylabel('Selectivity $\\times$ SNR')
     ax.set_yscale('log')
     ax.legend(loc='upper right')

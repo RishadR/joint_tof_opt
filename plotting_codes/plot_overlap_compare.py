@@ -6,6 +6,7 @@ from collections import defaultdict
 
 import yaml
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
 from cycler import cycler
 
 from joint_tof_opt.plotting import load_plot_config
@@ -34,8 +35,8 @@ def main(
         sep = float(entry["Separation_Hz"])
         hw = float(entry["Filter_HW"])
         ftype = str(entry["Filter_Type"])
-        s1 = float(entry["Sensitivity1"])
-        s2 = float(entry["Sensitivity2"])
+        s1 = float(entry["Sensitivity1"])   # FoM 
+        s2 = float(entry["Sensitivity2"])   # Reward Metric
         # s2 = float(entry["Optimizer Best Metric"])
         # s2 = float(entry["Optimizer Best Selectivity"])
         # s2 = float(entry["Optimizer Best SNR"])
@@ -61,12 +62,12 @@ def main(
     axes[0].set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
     axes[0].set_ylabel("Figure of Merit(FoM)")
     axes[0].legend(title="Filter Setup")
-    axes[0].grid(True, alpha=0.3)
+    axes[0].grid(True)
 
     axes[1].set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
     axes[1].set_ylabel("Reward Metric")
     axes[1].legend(title="Filter Setup")
-    axes[1].grid(True, alpha=0.3)
+    axes[1].grid(True)
 
     output_base.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
@@ -74,18 +75,21 @@ def main(
     fig.savefig(output_base.with_suffix(".svg"), format="svg")
 
     fig_alt, ax_alt = plt.subplots(1, 1, figsize=(6, 4), sharex=True, sharey=False)
-
+    # Normalize the differences by the max FoM value across all points to get a relative difference
+    max_fom = max(max(y1 for _, y1 in points) for points in grouped_s1.values())
     for (ftype, hw) in sorted(grouped_diff.keys(), key=lambda k: (k[0], k[1])):
         label = _combo_label(ftype, hw)
         points = sorted(grouped_diff[(ftype, hw)], key=lambda t: t[0])
         x = [p[0] for p in points]
         y = [p[1] for p in points]
-        ax_alt.plot(x, y, linewidth=2, markersize=8, label=label)
+        y = [diff / max_fom for diff in y]  # Normalize by max FoM to get relative difference
+        ax_alt.plot(x, y, label=label)
 
     ax_alt.set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
-    ax_alt.set_ylabel("|FoM - Reward Metric|")
+    ax_alt.set_ylabel("FoM & Reward Metric Mismatch")
+    ax_alt.yaxis.set_major_formatter(PercentFormatter(xmax=1.0))
     ax_alt.legend(title="Filter Setup")
-    ax_alt.grid(True, alpha=0.3)
+    ax_alt.grid(True)
 
     output_alt_base = output_base.with_name(f"{output_base.name}_alt")
     fig_alt.tight_layout()
