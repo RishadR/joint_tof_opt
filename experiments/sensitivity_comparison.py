@@ -118,6 +118,9 @@ def main(
                     log_dict = evaluator.get_log()
                     print("Log Details:")
                     pretty_print_log(log_dict)
+            # Clean up generated TOF file
+            if tof_dataset_file.exists():
+                tof_dataset_file.unlink()
     return results
 
 
