@@ -61,6 +61,7 @@ def generate_tof(
     fetal_saturation = gen_config["fetal_saturation"]
     epi_thickness_mm = gen_config["epi_thickness_mm"]
     derm_thickness_mm = gen_config["derm_thickness_mm"]
+    time_limit_or_threshold = gen_config["time_limit_or_threshold"]
     light_speeds = [float(speed) for speed in gen_config["light_speeds"]]  # in m/s for 4 layers
     ## Generate the time serieses
     # Assume a sampling rate of 10 Hz - Nyquist frequency 5 Hz
@@ -97,7 +98,12 @@ def generate_tof(
     tof_dataset = np.zeros((len(time_axis), bin_count))
     var_dataset = np.zeros_like(tof_dataset)
     inner_moments_dataset = {str(order): np.zeros((len(time_axis), bin_count)) for order in inner_moment_orders}
-    time_limits = None
+    
+    # Check if we are using time limits or thresholds - if timelimits, set the limits to ignore threshold 
+    if time_limit_or_threshold == 'timelimit':
+        time_limits = (gen_config["time_limit"][0] * 1e-9, gen_config["time_limit"][1] * 1e-9)  # Convert ns to s
+    else:
+        time_limits = None
     bin_edges = None
     for idx in range(len(time_axis)):
         tisse_model = DanModel4LayerX(
@@ -109,6 +115,7 @@ def generate_tof(
             fetal_saturation,
             fetal_hb_series[idx],
         )
+        # Continuation of timelimit logic - if not set, set it after the first pass based on the threshold
         if time_limits is None:
             tof_array, bin_edges, var_array = compute_tof_discrete(
                 filtered_ppath_array,
@@ -162,7 +169,7 @@ def generate_tof(
         fetal_f=fetal_f,
         maternal_f=maternal_f,
         sampling_rate=sampling_rate,
-        **inner_moments_kwargs,  # pylint: disable=line-too-long
+        **inner_moments_kwargs,  # type: ignore
     )
 
 
