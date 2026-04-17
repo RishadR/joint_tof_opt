@@ -157,15 +157,17 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Compute the Average ToF Frame
         average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
         ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
-        max_index = int(torch.argmax(average_tof_frame).item()) + 1
-        max_index = 0  # Ablation - Learnable parameters across the entire window
-        # max_index = 1
+        # max_index = int(torch.argmax(average_tof_frame).item()) + 1
 
         ## Compute Best Case Windows
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
-
+        max_index = self.max_snr_index
+        
         # max_index = 0
-        self.learnable_component_exponents = torch.nn.Parameter(torch.zeros(num_bins - max_index), requires_grad=True)
+        initial_params = torch.zeros(num_bins - max_index)
+        # initial_params[-2: 0] = 10.0  # Initialize the last 3 learnable parameters to 1 (before exponentiation)
+        
+        self.learnable_component_exponents = torch.nn.Parameter(initial_params, requires_grad=True)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
         self.fixed_components = torch.zeros(
             max_index,
@@ -271,7 +273,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         """
         best_metric = -np.inf
         epochs_no_improve = 0
-        optimizer = optim.Adam(
+        optimizer = optim.AdamW(
             [self.learnable_component_exponents],
             lr=self.lr,
             weight_decay=self.reg_weight if self.reg_type == "l2" else 0.0,
@@ -443,31 +445,31 @@ def plot_training_curves_and_window(
 
     plt.savefig(f"./figures/{filename}.svg")
     plt.savefig(f"./figures/{filename}.pdf")
+    plt.close()
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
-    for file_idx in range(4, 8):
+    for file_idx in range(7, 8):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        gen_config["fetal_f"] = 2 * float(gen_config["maternal_f"]) + 0.5
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         experiment = DIGSSOptimizer(
             tof_dataset_path=tof_dataset_path,
             measurand=measurand,
             fetal_f=gen_config["fetal_f"],
-            normalize_reward=True,
-            lr=0.01,
+            normalize_reward=False,
+            lr=0.1,
             filter_hw=filter_hw,
             patience=50,
             reg_type="l1",
-            reg_weight=0.00001,
+            reg_weight=0.0000,
             filter_type="psafe_same_width",
         )
         experiment.optimize()
@@ -484,7 +486,7 @@ if __name__ == "__main__":
         logger.info("Total Epochs: %s", result_curves.shape[0])
         loss_names = experiment.training_curve_labels
         bin_edges = np.load(tof_dataset_path)["bin_edges"]
-        # logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])
+        logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])
         plot_training_curves_and_window(result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False)
 
         # Evaluate using an Evaluator and print log
