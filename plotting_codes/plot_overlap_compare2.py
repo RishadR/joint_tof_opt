@@ -43,12 +43,12 @@ def main(
         points1 = sorted(grouped_s1[(ftype, hw)], key=lambda t: t[0])
         x1 = [p[0] for p in points1]
         y1 = [p[1] for p in points1]
-        axes[0].plot(x1, y1, linewidth=2, markersize=8, label=label)
+        axes[0].plot(x1, y1, label=label)
 
         points2 = sorted(grouped_s2[(ftype, hw)], key=lambda t: t[0])
         x2 = [p[0] for p in points2]
         y2 = [p[1] for p in points2]
-        axes[1].plot(x2, y2, linewidth=2, markersize=8, label=label)
+        axes[1].plot(x2, y2, label=label)
 
     axes[0].set_xlabel("Fetal Depth (mm)")
     axes[0].set_ylabel("Figure of Merit(FoM)")
@@ -72,7 +72,7 @@ def main(
         points = sorted(grouped_diff[(ftype, hw)], key=lambda t: t[0])
         x = [p[0] for p in points]
         y = [p[1] for p in points]
-        ax_alt.plot(x, y, linewidth=2, markersize=8, label=label)
+        ax_alt.plot(x, y, label=label)
 
     ax_alt.set_xlabel("Fetal Depth (mm)")
     ax_alt.set_ylabel("|FoM - Reward Metric|")

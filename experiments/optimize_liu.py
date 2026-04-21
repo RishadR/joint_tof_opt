@@ -33,17 +33,13 @@ import yaml
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from typing import Callable, Literal
+from typing import Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
 from joint_tof_opt import (
     get_named_moment_module,
-    named_moment_types,
     OptimizationExperiment,
     CompactStatProcess,
-    get_noise_calculator,
-    NoiseCalculator,
     ToFData,
 )
 
@@ -188,7 +184,7 @@ class LiuOptimizer(OptimizationExperiment):
                 measurand_series = measurand_series - torch.mean(measurand_series)  # Detrend
 
                 # Compute FFT
-                measurand_fft = torch.fft.rfft(measurand_series)
+                measurand_fft = torch.fft.rfft(measurand_series)   # pylint: disable=not-callable
                 fetal_fft_component = float(measurand_fft[self.fetal_bins].abs().sum().item())
 
                 # Compute noise floor using MAD
@@ -286,7 +282,7 @@ def plot_training_curves_and_window(
     plt.savefig(f"./figures/{filename}.pdf")    
 
 
-if __name__ == "__main__":
+def main() -> None:
     tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
     optimizer = LiuOptimizer(
         tof_dataset_path,
@@ -306,3 +302,7 @@ if __name__ == "__main__":
         optimizer.tof_data.bin_edges.numpy(),
         filename="liu_optimization_result",
     )
+
+
+if __name__ == "__main__":
+    main()

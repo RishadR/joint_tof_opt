@@ -9,24 +9,21 @@ use internal data (if measurand is a custom module) - in which case the DTOF com
 
 from math import sqrt
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 import numpy as np
 import torch
 import torch.nn as nn
-import yaml
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 
 from joint_tof_opt import (
     CombSeparator,
     CompactStatProcess,
-    EnergyRatioMetric,
     Evaluator,
     NoiseCalculator,
     PSAFESeparator,
     ToFData,
     compute_tof_data_series,
-    generate_tof,
     get_named_moment_module,
     get_noise_calculator,
     named_moment_types,
@@ -472,12 +469,12 @@ class SpectralCorrelationEvaluator(Evaluator):
         # Compute compact statistics
         compact_stats = self.moment_module(self.window)  # Shape: (num_timepoints,)
         compact_stats = compact_stats[self.terminal_ignore_points : -self.terminal_ignore_points]
-        self.filtered_signal = torch.abs(torch.fft.rfft(compact_stats))  # Frequency domain signal
+        self.filtered_signal = torch.abs(torch.fft.rfft(compact_stats))  # pylint: disable=not-callable
         # Load heartbeat series
         fetal_hb_series = fetal_hb_series - np.mean(fetal_hb_series)
         fetal_hb_series_tensor = torch.tensor(fetal_hb_series, dtype=torch.float32)
         fetal_hb_series_tensor = fetal_hb_series_tensor[self.terminal_ignore_points : -self.terminal_ignore_points]
-        fetal_hb_series_tensor = torch.abs(torch.fft.rfft(fetal_hb_series_tensor))
+        fetal_hb_series_tensor = torch.abs(torch.fft.rfft(fetal_hb_series_tensor))  # pylint: disable=not-callable
 
         # Compute correlation
         correlation = torch.corrcoef(torch.stack([self.filtered_signal, fetal_hb_series_tensor]))[0, 1].item()
@@ -697,7 +694,7 @@ class PureFetalSNREvaluator(SNREvaluator):
     The entire signal is Fetal Signal. Ignores internal measurand data.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict):
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand, gen_config: dict):   # type: ignore
         super().__init__(ppath_file, window, measurand, gen_config, filter_module=None)
 
     def str(self) -> str:

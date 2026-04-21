@@ -23,11 +23,12 @@ selected_sdd_index: 3 # Source-detector distance index
 
 # Histogram parameters
 bin_count: 30
+# time_limit_or_threshold: 'weightthreshold' # 'timelimit' or 'weightthreshold'
 time_limit_or_threshold: 'timelimit' # 'timelimit' or 'weightthreshold'
 time_limit:
     - 0.2 # Start time when using timelimit (ns)
     - 3.0 # End time when using timelimit (ns)
-weight_threshold_fraction: 1.0
+weight_threshold_fraction: 0.98
 
 # Others
 total_photon_count: 100000000 # Total number of photons simulated

@@ -123,7 +123,7 @@ def run_datalength_sweep(
     return results
 
 
-if __name__ == "__main__":
+def main() -> None:
     file_indices = list(range(8))
     datapoint_counts = [5 * 15 + 1, 10 * 15 + 1, 15 * 15 + 1, 20 * 15 + 1, 25 * 15 + 1, 30 * 15 + 1]
 
@@ -137,3 +137,7 @@ if __name__ == "__main__":
         reg_weight=0.0001,
         reg_type="l1",
     )
+
+
+if __name__ == "__main__":
+    main()

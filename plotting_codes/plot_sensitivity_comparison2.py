@@ -22,9 +22,7 @@ def main():
     load_plot_config()
 
     # Load sensitivity comparison results
-    results_path = (
-        Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
-    )
+    results_path = (Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml")
     with open(results_path, "r") as f:
         results = yaml.safe_load(f)
 

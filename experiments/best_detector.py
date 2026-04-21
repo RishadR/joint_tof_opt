@@ -2,27 +2,18 @@
 Compare the sensitivity of our metric between different detector indices
 """
 
-from typing import Any, Literal, Callable
+from typing import Any, Callable
 from pathlib import Path
 import torch
-import torch.nn as nn
 import yaml
-import pandas as pd
-import numpy as np
-from sensitivity_compute import *
+from sensitivity_compute import AltPaperEvaluator3
 from joint_tof_opt import (
-    OptimizationExperiment,
     Evaluator,
-    OptimizationExperiment,
     CompactStatProcess,
     generate_tof,
     pretty_print_log,
-    get_noise_calculator,
-    NoiseCalculator,
 )
-from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
-from optimize_dummy import DummyOptimizationExperiment
 
 
 def read_parameter_mapping():
@@ -31,7 +22,7 @@ def read_parameter_mapping():
     return parameter_mapping
 
 
-def main(
+def run_detector_comparison(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]],
     sdd_indices_to_test: list[int],
@@ -113,14 +104,18 @@ def main(
     return results
 
 
-if __name__ == "__main__":
+def main() -> None:
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, patience=100, lr=0.01, reg_type="l1", reg_weight=0.001),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand)
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
+    exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/detector_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
+
+
+if __name__ == "__main__":
+    main()

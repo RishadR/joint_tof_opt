@@ -142,7 +142,7 @@ def run_depth_sweep(
     return results
 
 
-if __name__ == "__main__":
+def main() -> None:
     file_indices = list(range(8))  # 0 to 7
     separation = 0.5  # Hz - fixed separation
     filter_combos = [
@@ -160,3 +160,7 @@ if __name__ == "__main__":
         reg_weight=0.001,
         reg_type='l2'
     )
+
+
+if __name__ == "__main__":
+    main()

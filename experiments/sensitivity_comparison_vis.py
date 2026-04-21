@@ -13,7 +13,6 @@ import yaml
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import re
 
 # Get Plot config
 config_file = "./experiments/plot_config.yaml"

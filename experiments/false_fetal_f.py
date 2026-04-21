@@ -2,24 +2,18 @@
 Comparing our optimizers performance when the Fetal F is off by some margin
 """
 
-from typing import Any, Literal, Callable
+from typing import Any, Callable
 from pathlib import Path
 import torch
 import yaml
-from sensitivity_compute import *
+from sensitivity_compute import AltPaperEvaluator3
 from joint_tof_opt import (
-    OptimizationExperiment,
     Evaluator,
-    OptimizationExperiment,
     CompactStatProcess,
     generate_tof,
     pretty_print_log,
-    get_noise_calculator,
-    NoiseCalculator,
 )
-from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
-from optimize_dummy import DummyOptimizationExperiment
 import numpy as np
 
 def read_parameter_mapping():
@@ -28,7 +22,7 @@ def read_parameter_mapping():
     return parameter_mapping
 
 
-def main(
+def run_false_fetal_frequency_experiment(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]],
     error_hzs: list[float],
@@ -113,19 +107,23 @@ def main(
     return results
 
 
-if __name__ == "__main__":
+def main() -> None:
     filter_hw = 0.01  # Hz
     # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]] = [
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, lr=0.01, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, lr=0.01, filter_type="comb", normalize_reward=False)
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, filter_type="comb",),
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb",),
+        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb", normalize_reward=False)
     ]
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
     error_rates_np = np.arange(0.0, 1.01, 0.05)
     error_rates = [float(x) for x in error_rates_np]
-    exp_results = main(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
+    exp_results = run_false_fetal_frequency_experiment(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/false_fetal_f_results2.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
+
+
+if __name__ == "__main__":
+    main()

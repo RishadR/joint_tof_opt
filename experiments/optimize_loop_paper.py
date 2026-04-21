@@ -31,13 +31,53 @@ import numpy as np
 import torch
 import torch.nn as nn
 import logging
-from cycler import cycler
 import torch.optim as optim
-from typing import Callable, Literal
+from typing import Literal
 from pathlib import Path
 import matplotlib.pyplot as plt
-from joint_tof_opt import *
-from sensitivity_compute import *
+from joint_tof_opt import (
+    CombSeparator,
+    CompactStatProcess,
+    ContrastToNoiseMetric,
+    EnergyRatioMetric,
+    Evaluator,
+    FilteredContrastToNoiseMetric,
+    FirstMomentNoiseCalculator,
+    FourierSeparator,
+    NoiseCalculator,
+    NthOrderCenteredMoment,
+    NthOrderMoment,
+    OptimizationExperiment,
+    PSAFESeparator,
+    RevisedContrastToNoiseMetric,
+    ToFData,
+    VarianceNoiseCalculator,
+    WindowSumNoiseCalculator,
+    WindowedSum,
+    compute_tof_data_series,
+    generate_tof,
+    get_named_moment_module,
+    get_noise_calculator,
+    named_moment_types,
+    pretty_print_log,
+)
+from sensitivity_compute import (
+    AltPaperEvaluator,
+    AltPaperEvaluator2,
+    AltPaperEvaluator3,
+    CorrelationEvaluator,
+    FetalSelectivityEvaluator,
+    FetalSensitivityEvaluator,
+    NormalizedFetalSNREvaluator,
+    NormalizedFetalSensitivityEvaluator,
+    NormalizedPureFetalSensitivityEvaluator,
+    NormalizedSNREvaluator,
+    PaperEvaluator,
+    ProductEvaluator,
+    PureSensitivityEvaluator,
+    SNREvaluator,
+    SpectralCorrelationEvaluator,
+)
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -74,11 +114,11 @@ class DIGSSOptimizer(OptimizationExperiment):
         noise_calc: None | NoiseCalculator = None,
         fetal_f: float | None = None,
         max_epochs: int = 2000,
-        lr: float = 0.001,
-        filter_hw: float = 0.3,
-        patience: int = 20,
+        lr: float = 0.1,
+        filter_hw: float = 0.01,
+        patience: int = 50,
         grad_clip: bool = False,
-        reg_type: Literal["l1", "l2"] = "l2",
+        reg_type: Literal["l1", "l2"] = "l1",
         reg_weight: float = 1e-4,
         window_smoothening: bool = True,
         normalize_reward: bool = True,
@@ -153,11 +193,6 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.training_curves: np.ndarray = np.zeros((self.max_epochs, 3))
         self.normalize_reward = normalize_reward
         self.training_cruves_extra = np.zeros((self.max_epochs, 10))  # Logging the independent 3 elements
-
-        # Compute the Average ToF Frame
-        average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False)
-        ## Only have Non-Zero, Learnable Parameters **AFTER** the max index
-        # max_index = int(torch.argmax(average_tof_frame).item()) + 1
 
         ## Compute Best Case Windows
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
@@ -448,7 +483,7 @@ def plot_training_curves_and_window(
     plt.close()
 
 
-if __name__ == "__main__":
+def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
@@ -499,3 +534,7 @@ if __name__ == "__main__":
 
         # Clean up
         tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
+
+
+if __name__ == "__main__":
+    main()

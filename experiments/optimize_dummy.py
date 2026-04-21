@@ -15,8 +15,6 @@ from joint_tof_opt import (
     CompactStatProcess,
     ToFData,
 )
-from optimize_liu import LiuOptimizer
-from optimize_loop_paper import DIGSSOptimizer
 
 class DummyOptimizationExperiment(OptimizationExperiment):
     """

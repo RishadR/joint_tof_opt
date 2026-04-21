@@ -7,8 +7,16 @@ from pathlib import Path
 import torch
 import yaml
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-from sensitivity_compute import *
-from joint_tof_opt import *
+from sensitivity_compute import AltPaperEvaluator3
+from joint_tof_opt import (
+    CombSeparator,
+    CompactStatProcess,
+    Evaluator,
+    OptimizationExperiment,
+    ToFData,
+    generate_tof,
+    pretty_print_log,
+)
 from optimize_liu import LiuOptimizer
 from optimize_liu_alt import AltLiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
@@ -21,7 +29,7 @@ def read_parameter_mapping():
     return parameter_mapping
 
 
-def main(
+def run_sensitivity_comparison(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
@@ -124,19 +132,23 @@ def main(
     return results
 
 
-if __name__ == "__main__":
+def main() -> None:
     filter_hw = 0.01  # Hz
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, patience=50, filter_hw=filter_hw, lr=0.1, reg_type='l1', reg_weight=0.01, window_smoothening=False),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file,measurand),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 1, 1.0),
-        # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
+        lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 
-    exp_results = main(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
+    exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
+
+
+if __name__ == "__main__":
+    main()

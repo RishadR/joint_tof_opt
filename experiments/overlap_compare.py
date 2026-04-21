@@ -123,7 +123,7 @@ def run_overlap_sweep(
     return results
 
 
-if __name__ == "__main__":
+def main() -> None:
     # separations = [0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # Hz
     separations = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]  # Hz
     filter_combos = [
@@ -142,3 +142,7 @@ if __name__ == "__main__":
         reg_weight=0.0001,
         reg_type='l2'
     )
+
+
+if __name__ == "__main__":
+    main()
