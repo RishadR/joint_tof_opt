@@ -127,7 +127,7 @@ def main():
 
     # Plot each optimizer with lines connecting points
     plot_method_with_annotations(ax, digss_filtered, "DIGSS")
-    plot_method_with_annotations(ax, liu_filtered, "Liu et al.")
+    plot_method_with_annotations(ax, liu_filtered, "Boxcar$^{[27]}$")
     plot_method_with_annotations(ax, cw_filtered, "CW")
 
     # Configure axes

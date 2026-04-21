@@ -243,7 +243,9 @@ class DIGSSOptimizer(OptimizationExperiment):
 
     @staticmethod
     def _win_norm_func(win: torch.Tensor) -> torch.Tensor:
-        return win / torch.norm(win, p=1)
+        # TODO: Change later - consider if we didn't have this step
+        # return win / torch.norm(win, p=1)
+        return torch.clamp(win, max=1.0) 
 
     @staticmethod
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
@@ -519,6 +521,8 @@ def main() -> None:
         logger.info("Best SNR: %s", result_curves[-1, 1])
         logger.info("Best Final Metric: %s", result_curves[-1, 2])
         logger.info("Total Epochs: %s", result_curves.shape[0])
+        logger.info("Best SNR Index : %d", experiment.max_snr_index)
+        logger.info("Best Selectivity Index : %d", experiment.max_selectivity_index)
         loss_names = experiment.training_curve_labels
         bin_edges = np.load(tof_dataset_path)["bin_edges"]
         logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])

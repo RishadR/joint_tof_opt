@@ -71,8 +71,8 @@ def main():
 
     # Plot each optimizer
     ax.plot(digss_data['depths'], digss_data['sensitivities'], label='DIGSS')
-    ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], label='Liu et al.')
-    # ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], label='Modified Liu et al.')
+    ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], label='Boxcar$^{[27]}$')
+    # ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], label='Modified Boxcar$^{[27]}$')
     ax.plot(cw_data['depths'], cw_data['sensitivities'], label='CW')
 
     # Configure axes
