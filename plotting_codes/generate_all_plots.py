@@ -5,7 +5,8 @@ Calls all individual plotting scripts.
 """
 
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend for batch processing
+
+matplotlib.use("Agg")  # Use non-interactive backend for batch processing
 
 from plot_sensitivity_comparison import main as plot_sensitivity
 from plot_sensitivity_comparison2 import main as plot_sensitivity2
@@ -41,17 +42,17 @@ def main():
 
     print("\n[6/8] Generating overlap comparison plot (variant)...")
     plot_overlap_compare2()
-    
+
     print("\n[7/8] Generating detector comparison plot (variant)...")
     plot_detector_comparison2()
-    
+
     print("\n[8/8] Generating sensitivity comparison plot (variant)...")
     plot_sensitivity2()
-
 
     print("\n" + "=" * 60)
     print("All plots generated successfully!")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

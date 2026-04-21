@@ -243,9 +243,8 @@ class DIGSSOptimizer(OptimizationExperiment):
 
     @staticmethod
     def _win_norm_func(win: torch.Tensor) -> torch.Tensor:
-        # TODO: Change later - consider if we didn't have this step
-        # return win / torch.norm(win, p=1)
-        return torch.clamp(win, max=1.0) 
+        return win / torch.norm(win, p=1)
+        # return torch.clamp(win, max=1.0) 
 
     @staticmethod
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
