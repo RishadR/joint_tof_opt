@@ -5,7 +5,6 @@ Visualize photon paths through a slab with varying numbers of sections and depth
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, Rectangle
-import yaml
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -24,11 +23,17 @@ def generate_photon_path(num_sections, depth, rng, start, dx_half):
     if num_sections % 2 != 0:
         raise ValueError("num_sections must be even.")
 
-    half = num_sections // 2
-    first_dx = _random_increments(dx_half, half, rng, allow_negative=True)
-    first_dy = _random_increments(depth, half, rng)
-    second_dx = _random_increments(dx_half, half, rng)
-    second_dy = -_random_increments(depth, half, rng)
+    half_len = num_sections // 2
+    quarter_len = half_len // 2
+    three_quarter_len = 3 * quarter_len
+
+    # Randomly choose where we reach the max-depth from these choices
+    reach_max_sections = np.random.choice([quarter_len, half_len, three_quarter_len])
+    remaining_index = num_sections - reach_max_sections
+    first_dx = _random_increments(dx_half, reach_max_sections, rng, allow_negative=True)
+    first_dy = _random_increments(depth, reach_max_sections, rng)
+    second_dx = _random_increments(dx_half, remaining_index, rng, allow_negative=True)
+    second_dy = -_random_increments(depth, remaining_index, rng)
 
     dx = np.concatenate([first_dx, second_dx])
     dy = np.concatenate([first_dy, second_dy])
@@ -43,8 +48,8 @@ def main():
     # plt.xkcd(scale=0.6, length=0.6, randomness=0.2)
     # Load configs
     load_plot_config()
-    
-    rng = np.random.default_rng(42)
+
+    rng = np.random.default_rng(32)
 
     slab_width = 10.0
     slab_height = 5.5
@@ -52,8 +57,8 @@ def main():
     right_point = np.array([slab_width - 1.0, 0.0])
     target_dx = right_point[0] - left_point[0]
 
-    section_counts = [4, 6, 8, 10, 12]
-    depths = [0.5, 1.7, 2.7, 3.7, 4.7]
+    section_counts = [8, 12, 16, 20]
+    depths = [1.5, 3.0, 4.0, 5.0]
     paths = []
     lengths = []
 
@@ -97,7 +102,7 @@ def main():
             points[:, 0],
             points[:, 1],
             color=color,
-            linewidth=2.2,
+            linewidth=1.8,
             linestyle="-",
             marker="",
         )
@@ -107,9 +112,9 @@ def main():
                 xy=(end_pt[0], end_pt[1]),
                 xytext=(start_pt[0], start_pt[1]),
                 arrowprops={
-                    "arrowstyle": "->",
+                    "arrowstyle": "-|>",
                     "color": color,
-                    "lw": 1.4,
+                    "lw": 0.5,
                     "shrinkA": 0,
                     "shrinkB": 0,
                 },
@@ -143,8 +148,7 @@ def main():
     ax_left.set_ylim(slab_height, -0.6)
     # ax_left.set_aspect("equal", adjustable="datalim")
     ax_left.axis("off")
-    ax_left.text(0.5, -0.15, "a)", transform=ax_left.transAxes, 
-                 fontsize=16, ha="center", va="top")
+    ax_left.text(0.5, -0.15, "a)", transform=ax_left.transAxes, fontsize=16, ha="center", va="top")
 
     times = np.array(lengths) * 0.2
     max_penetration_depths = np.array([points[:, 1].max() for points in paths])
@@ -164,7 +168,7 @@ def main():
         max_penetration_depths,
         width=width,
         color=colors_sorted,
-        edgecolor="none",
+        edgecolor="black",
     )
     ax_right.set_xlabel("Arrival time")
     ax_right.set_ylabel("Max Penetration Depth")
@@ -175,7 +179,7 @@ def main():
     ax_right.text(0.5, -0.15, "b)", transform=ax_right.transAxes, fontsize=16, ha="center", va="top")
 
     plt.tight_layout()
-    
+
     plt.savefig("./figures/time_gating_visual.pdf", bbox_inches="tight")
     plt.savefig("./figures/time_gating_visual.svg", bbox_inches="tight")
     plt.close(fig)
