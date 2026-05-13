@@ -1,20 +1,23 @@
 """
 Dummy optimizers that always return a fixed window for comparison purposes.
 """
+
 """
 Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
 """
 
 from pathlib import Path
+
 import torch
 import torch.nn as nn
+
 from joint_tof_opt import (
-    OptimizationExperiment,
-    get_named_moment_module,
-    OptimizationExperiment,
     CompactStatProcess,
+    OptimizationExperiment,
     ToFData,
+    get_named_moment_module,
 )
+
 
 class DummyOptimizationExperiment(OptimizationExperiment):
     """
@@ -23,24 +26,27 @@ class DummyOptimizationExperiment(OptimizationExperiment):
         tof_dataset_path: Path to the ToF dataset (.npz file).
         measurand: CompactStatProcess instance or name of the moment to optimize.
         norm: If specified, normalizes the window to have this p-norm. Ex: norm=1 for L1 norm.
-    
+
     """
-    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess | str, norm: float | None = None):
+
+    def __init__(
+        self, tof_dataset_path: Path, measurand: CompactStatProcess | str, norm: float | None = None
+    ):
         if isinstance(measurand, str):
             tof_data = ToFData.from_npz(tof_dataset_path)
             measurand = get_named_moment_module(measurand, tof_data)
         super().__init__(tof_dataset_path, measurand)
         self.norm = norm
-    
+
     def optimize(self) -> None:
         self.window = torch.ones(self.tof_data.tof_series.shape[1], dtype=torch.float32)
         if self.norm is not None:
             self.window /= torch.norm(self.window, p=self.norm)
-        self.final_signal = self.moment_module(self.window) 
+        self.final_signal = self.moment_module(self.window)
         self.training_curves = []
-    
+
     def __str__(self) -> str:
         return "DummyUnitWindowGenerator"
-    
+
     def components(self) -> dict[str, nn.Module]:
         return {}

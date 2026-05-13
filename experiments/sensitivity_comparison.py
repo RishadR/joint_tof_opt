@@ -155,7 +155,7 @@ def main() -> None:
         lambda tof_file, measurand: AltLiuOptimizer(
             tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0
         ),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
     ]
 
     exp_results = run_sensitivity_comparison(
