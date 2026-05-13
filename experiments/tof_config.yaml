@@ -27,7 +27,7 @@ bin_count: 30
 time_limit_or_threshold: 'timelimit' # 'timelimit' or 'weightthreshold'
 time_limit:
     - 0.2 # Start time when using timelimit (ns)
-    - 3.0 # End time when using timelimit (ns)
+    - 3.5 # End time when using timelimit (ns)
 weight_threshold_fraction: 0.98
 
 # Others

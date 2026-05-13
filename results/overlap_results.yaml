@@ -4,19 +4,19 @@ exp 000:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.01
-  Epochs: 128
-  Optimizer Best Metric: 0.047160182148218155
-  Optimizer Best Selectivity: 0.5816940665245056
-  Optimizer Best SNR: 0.08107385784387589
-  Sensitivity1: 3.35120734964778e-05
-  Sensitivity2: 4.829978202764022
+  Epochs: 139
+  Optimizer Best Metric: 0.04556254297494888
+  Optimizer Best Selectivity: 0.562648594379425
+  Optimizer Best SNR: 0.08097868412733078
+  Sensitivity1: 2.0608183472605274e-06
+  Sensitivity2: 5.205974075658927
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.01), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9001622200012207
+  - 0.09983785450458527
   - 0.0
-  - 0.986667811870575
-  - 0.01333213597536087
   - 0.0
   - 0.0
   - 0.0
@@ -50,19 +50,19 @@ exp 001:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.01
-  Epochs: 128
-  Optimizer Best Metric: 0.047320812940597534
-  Optimizer Best Selectivity: 0.583676278591156
-  Optimizer Best SNR: 0.08107373118400574
-  Sensitivity1: 3.3511023630344614e-05
-  Sensitivity2: 4.8299736147887
+  Epochs: 139
+  Optimizer Best Metric: 0.04572881758213043
+  Optimizer Best Selectivity: 0.5647009611129761
+  Optimizer Best SNR: 0.08097881823778152
+  Sensitivity1: 2.0580407643606976e-06
+  Sensitivity2: 5.205976147761942
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.01), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9002041220664978
+  - 0.09979590773582458
   - 0.0
-  - 0.986664891242981
-  - 0.013335115276277065
   - 0.0
   - 0.0
   - 0.0
@@ -96,19 +96,19 @@ exp 002:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.01
-  Epochs: 128
-  Optimizer Best Metric: 0.05737879127264023
-  Optimizer Best Selectivity: 0.70778489112854
-  Optimizer Best SNR: 0.08106812089681625
-  Sensitivity1: 3.355492446305615e-05
-  Sensitivity2: 4.82986428052438
+  Epochs: 138
+  Optimizer Best Metric: 0.05658283084630966
+  Optimizer Best Selectivity: 0.6987819671630859
+  Optimizer Best SNR: 0.08097351342439651
+  Sensitivity1: 2.0199528480915386e-06
+  Sensitivity2: 5.206148758778899
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.01), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9017961621284485
+  - 0.09820383042097092
   - 0.0
-  - 0.9864465594291687
-  - 0.013553397729992867
   - 0.0
   - 0.0
   - 0.0
@@ -142,19 +142,19 @@ exp 003:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.1
-  Epochs: 125
-  Optimizer Best Metric: 0.042719826102256775
-  Optimizer Best Selectivity: 0.5272268056869507
-  Optimizer Best SNR: 0.08102741837501526
-  Sensitivity1: 3.337416257417133e-05
-  Sensitivity2: 0.5180959649833725
+  Epochs: 135
+  Optimizer Best Metric: 0.03969522565603256
+  Optimizer Best Selectivity: 0.4903407394886017
+  Optimizer Best SNR: 0.08095437288284302
+  Sensitivity1: 1.7896149434413633e-06
+  Sensitivity2: 0.5647823732351953
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9099583625793457
+  - 0.0900416225194931
   - 0.0
-  - 0.985041618347168
-  - 0.01495833694934845
   - 0.0
   - 0.0
   - 0.0
@@ -188,19 +188,19 @@ exp 004:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.1
-  Epochs: 125
-  Optimizer Best Metric: 0.04298512265086174
-  Optimizer Best Selectivity: 0.5305006504058838
-  Optimizer Best SNR: 0.08102746307849884
-  Sensitivity1: 3.3408974185492443e-05
-  Sensitivity2: 0.5180954643678113
+  Epochs: 135
+  Optimizer Best Metric: 0.039993636310100555
+  Optimizer Best Selectivity: 0.4940277338027954
+  Optimizer Best SNR: 0.08095423132181168
+  Sensitivity1: 1.79058730803633e-06
+  Sensitivity2: 0.5647803594955492
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.1), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9099373817443848
+  - 0.09006265550851822
   - 0.0
-  - 0.9850422739982605
-  - 0.014957757666707039
   - 0.0
   - 0.0
   - 0.0
@@ -234,18 +234,18 @@ exp 005:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.1
-  Epochs: 133
-  Optimizer Best Metric: 0.011029733344912529
-  Optimizer Best Selectivity: 0.13582651317119598
-  Optimizer Best SNR: 0.08120457082986832
-  Sensitivity1: 3.0683412397719744e-05
-  Sensitivity2: 0.5192454342804915
+  Epochs: 149
+  Optimizer Best Metric: 0.00933586061000824
+  Optimizer Best Selectivity: 0.1156172901391983
+  Optimizer Best SNR: 0.08074796199798584
+  Sensitivity1: 1.4155515917878474e-05
+  Sensitivity2: 0.5586409178975618
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.1), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
-  - 0.0
-  - 1.0
+  - 0.6507346630096436
+  - 0.34926533699035645
   - 0.0
   - 0.0
   - 0.0
@@ -280,19 +280,19 @@ exp 006:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.2
-  Epochs: 125
-  Optimizer Best Metric: 0.03960366174578667
-  Optimizer Best Selectivity: 0.4887649416923523
-  Optimizer Best SNR: 0.0810280293226242
-  Sensitivity1: 3.163753922370042e-05
-  Sensitivity2: 0.010420290187549947
+  Epochs: 135
+  Optimizer Best Metric: 0.036153946071863174
+  Optimizer Best Selectivity: 0.44659653306007385
+  Optimizer Best SNR: 0.08095438033342361
+  Sensitivity1: 1.7027058182851962e-06
+  Sensitivity2: 0.011852754531903762
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9097466468811035
+  - 0.09025335311889648
   - 0.0
-  - 0.9850588440895081
-  - 0.014941181056201458
   - 0.0
   - 0.0
   - 0.0
@@ -326,19 +326,19 @@ exp 007:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.2
-  Epochs: 125
-  Optimizer Best Metric: 0.03984950855374336
-  Optimizer Best Selectivity: 0.4917983412742615
-  Optimizer Best SNR: 0.08102814853191376
-  Sensitivity1: 3.163239499625792e-05
-  Sensitivity2: 0.010420248337421436
+  Epochs: 135
+  Optimizer Best Metric: 0.0364358089864254
+  Optimizer Best Selectivity: 0.45007824897766113
+  Optimizer Best SNR: 0.08095438778400421
+  Sensitivity1: 1.7024377789101676e-06
+  Sensitivity2: 0.011852608034586706
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.2), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9097399711608887
+  - 0.09026000648736954
   - 0.0
-  - 0.9850585460662842
-  - 0.014941447414457798
   - 0.0
   - 0.0
   - 0.0
@@ -372,19 +372,19 @@ exp 008:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.2
-  Epochs: 131
-  Optimizer Best Metric: 0.019914358854293823
-  Optimizer Best Selectivity: 0.24600595235824585
-  Optimizer Best SNR: 0.08095072209835052
-  Sensitivity1: 3.177622357490886e-05
-  Sensitivity2: 0.010417493976118927
+  Epochs: 139
+  Optimizer Best Metric: 0.016105053946375847
+  Optimizer Best Selectivity: 0.19895291328430176
+  Optimizer Best SNR: 0.0809490755200386
+  Sensitivity1: 1.142732518580104e-06
+  Sensitivity2: 0.011892131469860132
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.2), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9361228942871094
+  - 0.06387707591056824
   - 0.0
-  - 0.9841840267181396
-  - 0.015815960243344307
   - 0.0
   - 0.0
   - 0.0
@@ -418,19 +418,19 @@ exp 009:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.3
-  Epochs: 125
-  Optimizer Best Metric: 0.029513122513890266
-  Optimizer Best Selectivity: 0.3642288148403168
-  Optimizer Best SNR: 0.08102907240390778
-  Sensitivity1: 3.0054634705705173e-05
-  Sensitivity2: 0.013626440189415973
+  Epochs: 135
+  Optimizer Best Metric: 0.02609226107597351
+  Optimizer Best Selectivity: 0.32229986786842346
+  Optimizer Best SNR: 0.08095647394657135
+  Sensitivity1: 1.5916764117886097e-06
+  Sensitivity2: 0.015145092502986806
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9107397198677063
+  - 0.08926030993461609
   - 0.0
-  - 0.9851390719413757
-  - 0.014860939234495163
   - 0.0
   - 0.0
   - 0.0
@@ -464,19 +464,19 @@ exp 010:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.3
-  Epochs: 125
-  Optimizer Best Metric: 0.03003346361219883
-  Optimizer Best Selectivity: 0.3706507384777069
-  Optimizer Best SNR: 0.081029012799263
-  Sensitivity1: 3.005289171920744e-05
-  Sensitivity2: 0.013626348987137429
+  Epochs: 135
+  Optimizer Best Metric: 0.02661551907658577
+  Optimizer Best Selectivity: 0.3287636935710907
+  Optimizer Best SNR: 0.08095638453960419
+  Sensitivity1: 1.5970073209717185e-06
+  Sensitivity2: 0.015144887595731264
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.3), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9106720685958862
+  - 0.08932790905237198
   - 0.0
-  - 0.985133945941925
-  - 0.014866084791719913
   - 0.0
   - 0.0
   - 0.0
@@ -510,19 +510,19 @@ exp 011:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.3
-  Epochs: 124
-  Optimizer Best Metric: 0.08080891519784927
-  Optimizer Best Selectivity: 0.9978475570678711
-  Optimizer Best SNR: 0.0809832289814949
-  Sensitivity1: 3.0275855811863224e-05
-  Sensitivity2: 0.013622463700496383
+  Epochs: 132
+  Optimizer Best Metric: 0.06052691116929054
+  Optimizer Best Selectivity: 0.7479201555252075
+  Optimizer Best SNR: 0.08092696964740753
+  Sensitivity1: 1.4797275981537267e-06
+  Sensitivity2: 0.015151744500220238
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.3), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9161240458488464
+  - 0.08387594670057297
   - 0.0
-  - 0.9837738871574402
-  - 0.016226142644882202
   - 0.0
   - 0.0
   - 0.0
@@ -556,19 +556,19 @@ exp 012:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.4
-  Epochs: 125
-  Optimizer Best Metric: 0.021724792197346687
-  Optimizer Best Selectivity: 0.2681032419204712
-  Optimizer Best SNR: 0.0810314416885376
-  Sensitivity1: 3.4852878546988466e-05
-  Sensitivity2: 0.005283195792442231
+  Epochs: 135
+  Optimizer Best Metric: 0.01873207464814186
+  Optimizer Best Selectivity: 0.2313738614320755
+  Optimizer Best SNR: 0.08096019923686981
+  Sensitivity1: 1.8192101772447216e-06
+  Sensitivity2: 0.006207238384370906
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.912376880645752
+  - 0.08762308210134506
   - 0.0
-  - 0.9852941632270813
-  - 0.014705871231853962
   - 0.0
   - 0.0
   - 0.0
@@ -602,19 +602,19 @@ exp 013:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.4
-  Epochs: 125
-  Optimizer Best Metric: 0.022261925041675568
-  Optimizer Best Selectivity: 0.27473291754722595
-  Optimizer Best SNR: 0.08103115111589432
-  Sensitivity1: 3.4834183528013064e-05
-  Sensitivity2: 0.005283161589004962
+  Epochs: 135
+  Optimizer Best Metric: 0.01923789456486702
+  Optimizer Best Selectivity: 0.23762235045433044
+  Optimizer Best SNR: 0.08095995336771011
+  Sensitivity1: 1.825030801468331e-06
+  Sensitivity2: 0.006206832423628042
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.4), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9122109413146973
+  - 0.08778905123472214
   - 0.0
-  - 0.9852795004844666
-  - 0.01472051627933979
   - 0.0
   - 0.0
   - 0.0
@@ -648,20 +648,20 @@ exp 014:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.4
-  Epochs: 132
-  Optimizer Best Metric: 0.03445729240775108
-  Optimizer Best Selectivity: 0.433287113904953
-  Optimizer Best SNR: 0.07952530682086945
-  Sensitivity1: 0.0007440725754120484
-  Sensitivity2: 0.00316401119172157
+  Epochs: 142
+  Optimizer Best Metric: 0.03125850111246109
+  Optimizer Best Selectivity: 0.40928778052330017
+  Optimizer Best SNR: 0.0763729140162468
+  Sensitivity1: 0.0022568457184616786
+  Sensitivity2: 0.0026718642029673963
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.4), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
   - 0.0
   - 0.0
-  - 0.980527400970459
-  - 0.019472641870379448
+  - 1.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -694,18 +694,18 @@ exp 015:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 157
-  Optimizer Best Metric: 0.017376979812979698
-  Optimizer Best Selectivity: 0.21417425572872162
-  Optimizer Best SNR: 0.08113477379083633
-  Sensitivity1: 2.997889054828648e-05
-  Sensitivity2: 0.002804204419884948
+  Epochs: 134
+  Optimizer Best Metric: 0.014737989753484726
+  Optimizer Best Selectivity: 0.1820453554391861
+  Optimizer Best SNR: 0.080957792699337
+  Sensitivity1: 1.6744794104649454e-06
+  Sensitivity2: 0.0033455546626204023
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
-  - 0.0
-  - 1.0
+  - 0.9127808213233948
+  - 0.08721920102834702
   - 0.0
   - 0.0
   - 0.0
@@ -740,18 +740,18 @@ exp 016:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 157
-  Optimizer Best Metric: 0.017725413665175438
-  Optimizer Best Selectivity: 0.21846887469291687
-  Optimizer Best SNR: 0.08113473653793335
-  Sensitivity1: 2.997889054828648e-05
-  Sensitivity2: 0.002804204419884948
+  Epochs: 134
+  Optimizer Best Metric: 0.015055524185299873
+  Optimizer Best Selectivity: 0.1859683096408844
+  Optimizer Best SNR: 0.08095747232437134
+  Sensitivity1: 1.674542336920436e-06
+  Sensitivity2: 0.0033453339981608585
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
-  - 0.0
-  - 1.0
+  - 0.9125641584396362
+  - 0.08743584156036377
   - 0.0
   - 0.0
   - 0.0
@@ -786,15 +786,15 @@ exp 017:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 137
-  Optimizer Best Metric: 0.02741760015487671
-  Optimizer Best Selectivity: 0.40696752071380615
-  Optimizer Best SNR: 0.06737048923969269
-  Sensitivity1: 0.2757201310188353
-  Sensitivity2: 0.26223093880827997
+  Epochs: 157
+  Optimizer Best Metric: 0.023899013176560402
+  Optimizer Best Selectivity: 0.3480389714241028
+  Optimizer Best SNR: 0.06866763532161713
+  Sensitivity1: 0.29251128543226157
+  Sensitivity2: 0.2776259016629352
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
   - 0.0
   - 0.0
@@ -805,9 +805,9 @@ exp 017:
   - 0.0
   - 0.0
   - 0.0
+  - 0.9808123707771301
+  - 0.019187701866030693
   - 0.0
-  - 0.0
-  - 1.0
   - 0.0
   - 0.0
   - 0.0
@@ -832,19 +832,19 @@ exp 018:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.6
-  Epochs: 125
-  Optimizer Best Metric: 0.02442975342273712
-  Optimizer Best Selectivity: 0.30148547887802124
-  Optimizer Best SNR: 0.08103127777576447
-  Sensitivity1: 3.13422056661652e-05
-  Sensitivity2: 0.001940109684644105
+  Epochs: 135
+  Optimizer Best Metric: 0.02096961997449398
+  Optimizer Best Selectivity: 0.2590198814868927
+  Optimizer Best SNR: 0.0809575691819191
+  Sensitivity1: 1.6628795396010705e-06
+  Sensitivity2: 0.0023611558462025414
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9107535481452942
+  - 0.089246466755867
   - 0.0
-  - 0.9852306842803955
-  - 0.014769378118216991
   - 0.0
   - 0.0
   - 0.0
@@ -878,19 +878,19 @@ exp 019:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.6
-  Epochs: 125
-  Optimizer Best Metric: 0.02465374581515789
-  Optimizer Best Selectivity: 0.30425044894218445
-  Optimizer Best SNR: 0.08103109151124954
-  Sensitivity1: 3.132956107877962e-05
-  Sensitivity2: 0.001940198305872515
+  Epochs: 135
+  Optimizer Best Metric: 0.021183565258979797
+  Optimizer Best Selectivity: 0.26166290044784546
+  Optimizer Best SNR: 0.08095746487379074
+  Sensitivity1: 1.6655263027157751e-06
+  Sensitivity2: 0.0023611875318690807
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.6), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
+  - 0.9107164740562439
+  - 0.08928348124027252
   - 0.0
-  - 0.9852256178855896
-  - 0.014774397946894169
   - 0.0
   - 0.0
   - 0.0
@@ -924,20 +924,20 @@ exp 020:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.6
-  Epochs: 163
-  Optimizer Best Metric: 0.0344497449696064
-  Optimizer Best Selectivity: 0.4332289397716522
-  Optimizer Best SNR: 0.07951857149600983
-  Sensitivity1: 0.0006591924643927647
-  Sensitivity2: 0.0011286593522196679
+  Epochs: 161
+  Optimizer Best Metric: 0.031589023768901825
+  Optimizer Best Selectivity: 0.4112473428249359
+  Optimizer Best SNR: 0.07681271433830261
+  Sensitivity1: 0.002028517606869209
+  Sensitivity2: 0.0013638906557771676
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.6), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
   - 0.0
   - 0.0
-  - 0.9857240319252014
-  - 0.014275970868766308
+  - 1.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0
@@ -970,18 +970,18 @@ exp 021:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.7
-  Epochs: 161
-  Optimizer Best Metric: 0.01298696082085371
-  Optimizer Best Selectivity: 0.16003185510635376
-  Optimizer Best SNR: 0.08115234971046448
-  Sensitivity1: 2.7573969964843157e-05
-  Sensitivity2: 0.0018876326939087343
+  Epochs: 158
+  Optimizer Best Metric: 0.01096402294933796
+  Optimizer Best Selectivity: 0.1352151483297348
+  Optimizer Best SNR: 0.08108575642108917
+  Sensitivity1: 9.965323797475567e-07
+  Sensitivity2: 0.0022510102807911975
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
     grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
-  - 0.0
-  - 1.0
+  - 0.9412303566932678
+  - 0.05876964330673218
   - 0.0
   - 0.0
   - 0.0
@@ -1016,18 +1016,18 @@ exp 022:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.7
-  Epochs: 160
-  Optimizer Best Metric: 0.01343277096748352
-  Optimizer Best Selectivity: 0.1655319780111313
-  Optimizer Best SNR: 0.08114910125732422
-  Sensitivity1: 2.7573969964843157e-05
-  Sensitivity2: 0.0018876326939087343
+  Epochs: 161
+  Optimizer Best Metric: 0.011350113898515701
+  Optimizer Best Selectivity: 0.13995958864688873
+  Optimizer Best SNR: 0.08109565079212189
+  Sensitivity1: 9.640977055449065e-07
+  Sensitivity2: 0.0022521212118817246
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
     grad_clip=False,fetal_f=2.7), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
-  - 0.0
-  - 1.0
+  - 0.9433865547180176
+  - 0.05661339685320854
   - 0.0
   - 0.0
   - 0.0
@@ -1062,20 +1062,20 @@ exp 023:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.7
-  Epochs: 172
-  Optimizer Best Metric: 0.034840911626815796
-  Optimizer Best Selectivity: 0.435947984457016
-  Optimizer Best SNR: 0.07991988211870193
-  Sensitivity1: 0.0006254846640556102
-  Sensitivity2: 0.0012731324467257163
+  Epochs: 157
+  Optimizer Best Metric: 0.03168859705328941
+  Optimizer Best Selectivity: 0.4117721915245056
+  Optimizer Best SNR: 0.0769566223025322
+  Sensitivity1: 0.001941078260242954
+  Sensitivity2: 0.00166464661240724
   Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
     grad_clip=False,fetal_f=2.7), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.0001, normalize_reward=True
+    reg_weight=0.0001, normalize_reward=True,normalization_scheme=unit_sum
   Optimized_Window:
   - 0.0
   - 0.0
-  - 0.988740861415863
-  - 0.011259181424975395
+  - 1.0
+  - 0.0
   - 0.0
   - 0.0
   - 0.0

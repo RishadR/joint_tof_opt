@@ -29,6 +29,7 @@ Notes:
 5. I do not consider her t_end.
 """
 
+import logging
 import yaml
 import numpy as np
 import torch
@@ -41,8 +42,12 @@ from joint_tof_opt import (
     OptimizationExperiment,
     CompactStatProcess,
     ToFData,
+    generate_tof
 )
+from sensitivity_compute import AltPaperEvaluator3
 
+
+logger = logging.getLogger(__name__)
 
 class LiuOptimizer(OptimizationExperiment):
     """
@@ -283,25 +288,41 @@ def plot_training_curves_and_window(
 
 
 def main() -> None:
-    tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
-    optimizer = LiuOptimizer(
-        tof_dataset_path,
-        measurand="abs",
-        dtof_to_find_max_on="mean",
-        half_width=0.3,
-        harmonic_count=2,
-        norm=1.0,
-    )
-    optimizer.optimize()
-    optimized_window = optimizer.window
-    print("Optimized Window:", optimized_window.numpy())
-    plot_training_curves_and_window(
-        optimizer.training_curves,
-        optimizer.training_curve_labels,
-        optimized_window,
-        optimizer.tof_data.bin_edges.numpy(),
-        filename="liu_optimization_result",
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+
+    # file_idx = 7
+    for file_idx in range(7, 8):
+        measurand = "abs"
+        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
+        logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
+        tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
+        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        filter_hw = 0.01
+        generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
+        experiment = LiuOptimizer(
+            tof_dataset_path=tof_dataset_path,
+            measurand=measurand,
+            dtof_to_find_max_on='mean',
+            half_width = 0.1,
+            harmonic_count=2,
+            norm=None
+        )
+        experiment.optimize()
+
+        # Temp - Test with this window
+        # optimzied_window = torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.])
+
+        optimized_window = experiment.window  # type: ignore
+        logger.info("Optimized Window: %s", optimized_window.numpy())
+
+        # Evaluate using an Evaluator and print log
+        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+        eval_results = evaluator.evaluate()
+        logger.info("Evaluation Results: %s", eval_results)
+        logger.info("Evaluator log: %s", evaluator.get_log())
+
+        # Clean up
+        tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
 
 
 if __name__ == "__main__":

@@ -1,7 +1,5 @@
 """Run selected experiment entry points in sequence."""
 
-from __future__ import annotations
-
 from typing import Callable
 
 from best_detector import main as best_detector_main

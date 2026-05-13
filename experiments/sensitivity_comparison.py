@@ -2,12 +2,13 @@
 Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
 """
 
-from typing import Any, Callable
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
+
 import torch
 import yaml
-from joint_tof_opt.compact_stat_process import get_named_moment_module
-from sensitivity_compute import AltPaperEvaluator3
+
 from joint_tof_opt import (
     CombSeparator,
     CompactStatProcess,
@@ -17,10 +18,12 @@ from joint_tof_opt import (
     generate_tof,
     pretty_print_log,
 )
+from joint_tof_opt.compact_stat_process import get_named_moment_module
+from optimize_dummy import DummyOptimizationExperiment
 from optimize_liu import LiuOptimizer
 from optimize_liu_alt import AltLiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
-from optimize_dummy import DummyOptimizationExperiment
+from sensitivity_compute import AltPaperEvaluator3
 
 
 def read_parameter_mapping():
@@ -98,7 +101,9 @@ def run_sensitivity_comparison(
                 bin_edges = tof_data.bin_edges
                 measurand_process = get_named_moment_module(measurand, tof_data)
                 measurand_time_series = measurand_process.forward(window)
-                filtered_signal = fetal_filter(measurand_time_series.unsqueeze(0).unsqueeze(0)).squeeze()
+                filtered_signal = fetal_filter(
+                    measurand_time_series.unsqueeze(0).unsqueeze(0)
+                ).squeeze()
 
                 results.append(
                     {
@@ -137,14 +142,25 @@ def main() -> None:
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
 
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file,measurand),
-        lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 1, 1.0),
-        lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0),
+    optimizer_funcs_to_test: list[
+        Callable[[Path, str | CompactStatProcess], OptimizationExperiment]
+    ] = [
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand),
+        lambda tof_file, measurand: DIGSSOptimizer(
+            tof_file, measurand, normalization_scheme="unit_max"
+        ),
+        lambda tof_file, measurand: LiuOptimizer(
+            tof_file, measurand, None, "mean", filter_hw, 1, 1.0
+        ),
+        lambda tof_file, measurand: AltLiuOptimizer(
+            tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0
+        ),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, 1.0),
     ]
 
-    exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], print_log=False)
+    exp_results = run_sensitivity_comparison(
+        eval_func, optimizer_funcs_to_test, ["abs"], print_log=False
+    )
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)

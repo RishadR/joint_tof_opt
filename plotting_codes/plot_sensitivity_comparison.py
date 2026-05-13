@@ -20,14 +20,15 @@ def main():
         results = yaml.safe_load(f)
 
     # Extract data for each optimizer
-    digss_data = {'depths': [], 'sensitivities': []}
+    digss_unit_sum_data = {'depths': [], 'sensitivities': []}
+    digss_unit_max_data = {'depths': [], 'sensitivities': []}
     liu_data_h1 = {'depths': [], 'sensitivities': []}
     liu_data_h2 = {'depths': [], 'sensitivities': []}
     alt_liu_data_h1 = {'depths': [], 'sensitivities': []}
     alt_liu_data_h2 = {'depths': [], 'sensitivities': []}
     cw_data = {'depths': [], 'sensitivities': []}
 
-    for exp_key, exp_data in results.items():
+    for _, exp_data in results.items():
         if not isinstance(exp_data, dict):
             continue
         
@@ -38,9 +39,15 @@ def main():
         if depth is None or sensitivity is None:
             continue
         
-        if str(optimizer).startswith('DIGSSOptimizer'):
-            digss_data['depths'].append(depth)
-            digss_data['sensitivities'].append(sensitivity)
+        optimizer_str = str(optimizer)
+
+        if optimizer_str.startswith('DIGSSOptimizer'):
+            if 'normalization_scheme=unit_sum' in optimizer_str:
+                digss_unit_sum_data['depths'].append(depth)
+                digss_unit_sum_data['sensitivities'].append(sensitivity)
+            elif 'normalization_scheme=unit_max' in optimizer_str:
+                digss_unit_max_data['depths'].append(depth)
+                digss_unit_max_data['sensitivities'].append(sensitivity)
         elif str(optimizer).startswith('LiuOptimizer'):
             if 'harmonics=1' in str(optimizer):
                 liu_data_h1['depths'].append(depth)
@@ -60,7 +67,7 @@ def main():
             cw_data['sensitivities'].append(sensitivity)
 
     # Sort data by depth
-    for data in [digss_data, liu_data_h1, liu_data_h2, alt_liu_data_h1, alt_liu_data_h2, cw_data]:
+    for data in [digss_unit_sum_data, digss_unit_max_data, liu_data_h1, liu_data_h2, alt_liu_data_h1, alt_liu_data_h2, cw_data]:
         if data['depths']:
             sorted_indices = np.argsort(data['depths'])
             data['depths'] = np.array(data['depths'])[sorted_indices].tolist()
@@ -70,7 +77,8 @@ def main():
     fig, ax = plt.subplots(figsize=(6, 4))
 
     # Plot each optimizer
-    ax.plot(digss_data['depths'], digss_data['sensitivities'], label='DIGSS')
+    ax.plot(digss_unit_sum_data['depths'], digss_unit_sum_data['sensitivities'], label='DIGSS(Unit Sum)')
+    ax.plot(digss_unit_max_data['depths'], digss_unit_max_data['sensitivities'], label='DIGSS(Unit Max)')
     ax.plot(liu_data_h1['depths'], liu_data_h1['sensitivities'], label='Boxcar$^{[27]}$')
     # ax.plot(alt_liu_data_h2['depths'], alt_liu_data_h2['sensitivities'], label='Modified Boxcar$^{[27]}$')
     ax.plot(cw_data['depths'], cw_data['sensitivities'], label='CW')

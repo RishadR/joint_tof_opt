@@ -27,14 +27,15 @@ def main():
         results = yaml.safe_load(f)
 
     # Extract data for each optimizer
-    digss_data = {"snr": [], "selectivity": [], "depths": []}
+    digss_unit_sum_data = {"snr": [], "selectivity": [], "depths": []}
+    digss_unit_max_data = {"snr": [], "selectivity": [], "depths": []}
     liu_data_h1 = {"snr": [], "selectivity": [], "depths": []}
     liu_data_h2 = {"snr": [], "selectivity": [], "depths": []}
     alt_liu_data_h1 = {"snr": [], "selectivity": [], "depths": []}
     alt_liu_data_h2 = {"snr": [], "selectivity": [], "depths": []}
     cw_data = {"snr": [], "selectivity": [], "depths": []}
 
-    for exp_key, exp_data in results.items():
+    for _, exp_data in results.items():
         if not isinstance(exp_data, dict):
             continue
 
@@ -60,10 +61,17 @@ def main():
         snr = np.sqrt(fetal_ac_energy) / baseline_noise_std
 
         # Store data based on optimizer type
-        if str(optimizer).startswith("DIGSSOptimizer"):
-            digss_data["snr"].append(snr)
-            digss_data["selectivity"].append(selectivity)
-            digss_data["depths"].append(depth)
+        optimizer_str = str(optimizer)
+
+        if optimizer_str.startswith("DIGSSOptimizer"):
+            if "normalization_scheme=unit_sum" in optimizer_str:
+                digss_unit_sum_data["snr"].append(snr)
+                digss_unit_sum_data["selectivity"].append(selectivity)
+                digss_unit_sum_data["depths"].append(depth)
+            elif "normalization_scheme=unit_max" in optimizer_str:
+                digss_unit_max_data["snr"].append(snr)
+                digss_unit_max_data["selectivity"].append(selectivity)
+                digss_unit_max_data["depths"].append(depth)
         elif str(optimizer).startswith("LiuOptimizer"):
             if "harmonics=1" in str(optimizer):
                 liu_data_h1["snr"].append(snr)
@@ -118,7 +126,8 @@ def main():
                 ),
             )
 
-    digss_filtered = filter_data(digss_data, ANNOTATION_STEP)
+    digss_unit_sum_filtered = filter_data(digss_unit_sum_data, ANNOTATION_STEP)
+    digss_unit_max_filtered = filter_data(digss_unit_max_data, ANNOTATION_STEP)
     liu_filtered = filter_data(liu_data_h1, ANNOTATION_STEP)
     cw_filtered = filter_data(cw_data, ANNOTATION_STEP)
 
@@ -126,7 +135,8 @@ def main():
     fig, ax = plt.subplots(figsize=(6, 4))
 
     # Plot each optimizer with lines connecting points
-    plot_method_with_annotations(ax, digss_filtered, "DIGSS")
+    plot_method_with_annotations(ax, digss_unit_sum_filtered, "DIGSS(Unit Sum)")
+    plot_method_with_annotations(ax, digss_unit_max_filtered, "DIGSS(Unit Max)")
     plot_method_with_annotations(ax, liu_filtered, "Boxcar$^{[27]}$")
     plot_method_with_annotations(ax, cw_filtered, "CW")
 

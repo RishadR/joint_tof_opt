@@ -31,6 +31,7 @@ Notes:
 
 import yaml
 import numpy as np
+import logging
 import torch
 import torch.nn as nn
 from typing import Literal
@@ -41,8 +42,11 @@ from joint_tof_opt import (
     OptimizationExperiment,
     CompactStatProcess,
     ToFData,
+    generate_tof,
 )
+from sensitivity_compute import AltPaperEvaluator3
 
+logger = logging.getLogger(__name__)
 
 class AltLiuOptimizer(OptimizationExperiment):
     """
@@ -148,15 +152,15 @@ class AltLiuOptimizer(OptimizationExperiment):
 
         # Step 1: Find bmax (bin with maximum count)
         if self.dtof_to_find_max_on == "mean":
-            representative_dtof = torch.mean(self.tof_data.tof_series, dim=0)
+            representative_dtof = torch.mean(self.tof_data.tof_series, dim=0)   # type: ignore
         elif self.dtof_to_find_max_on == "median":
-            representative_dtof = torch.median(self.tof_data.tof_series, dim=0).values
+            representative_dtof = torch.median(self.tof_data.tof_series, dim=0).values  # type: ignore
         elif self.dtof_to_find_max_on == "first":
             representative_dtof = self.tof_data.tof_series[0, :]
         else:
             raise ValueError(f"Invalid dtof_to_find_max_on value: {self.dtof_to_find_max_on}")
 
-        self.bmax = int(torch.argmax(representative_dtof).item())
+        self.bmax = int(torch.argmax(representative_dtof).item())   # type: ignore
 
         # Step 2: Find b0 (50% of bmax) and bf (10% of bmax)
         half_max_value = representative_dtof[self.bmax] * 0.5
@@ -182,12 +186,12 @@ class AltLiuOptimizer(OptimizationExperiment):
         for b2 in range(self.b0, self.bf):
             for b3 in range(b2 + 1, self.bf):
                 # Create rectangular window
-                window = torch.zeros(num_bins, dtype=torch.float32)
+                window = torch.zeros(num_bins, dtype=torch.float32) # type: ignore
                 window[b2 : b3 + 1] = 1.0
 
                 # Compute measurand signal
                 measurand_series = self.moment_module(window)
-                measurand_series = measurand_series - torch.mean(measurand_series)  # Detrend
+                measurand_series = measurand_series - torch.mean(measurand_series)  # type: ignore
 
                 # Compute FFT
                 measurand_fft = torch.fft.rfft(measurand_series)    # pylint: disable=not-callable
@@ -195,8 +199,8 @@ class AltLiuOptimizer(OptimizationExperiment):
                 maternal_fft_component = float(measurand_fft[self.maternal_bins].abs().sum().item())
 
                 # Compute noise floor using MAD
-                median_fft = torch.median(measurand_fft.abs()).item()
-                mad_fft = torch.median(torch.abs(measurand_fft.abs() - median_fft)).item()
+                median_fft = torch.median(measurand_fft.abs()).item()   # type: ignore
+                mad_fft = torch.median(torch.abs(measurand_fft.abs() - median_fft)).item()  # type: ignore
                 noise_floor = mad_fft * 1.4826  # Convert MAD to std dev
 
                 if noise_floor == 0:
@@ -216,7 +220,7 @@ class AltLiuOptimizer(OptimizationExperiment):
         # Store results
         if best_window is not None:
             if self.norm is not None:
-                self.window = best_window / torch.norm(best_window, p=self.norm)
+                self.window = best_window / torch.norm(best_window, p=self.norm)    # type: ignore
             else:
                 self.window = best_window
         else:
@@ -294,26 +298,39 @@ def plot_training_curves_and_window(
 
 
 def main() -> None:
-    tof_dataset_path = Path("./data/generated_tof_set_experiment_0000.npz")
-    optimizer = AltLiuOptimizer(
-        tof_dataset_path,
-        measurand="abs",
-        dtof_to_find_max_on="mean",
-        half_width=0.3,
-        harmonic_count=2,
-        norm=1.0,
-    )
-    optimizer.optimize()
-    optimized_window = optimizer.window
-    print("Optimized Window:", optimized_window.numpy())
-    plot_training_curves_and_window(
-        optimizer.training_curves,
-        optimizer.training_curve_labels,
-        optimized_window,
-        optimizer.tof_data.bin_edges.numpy(),
-        filename="liu_alt_optimization_result",
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+
+    # file_idx = 7
+    for file_idx in range(7, 8):
+        measurand = "abs"
+        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
+        logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
+        tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
+        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        filter_hw = 0.01
+        generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
+        experiment = AltLiuOptimizer(
+            tof_dataset_path=tof_dataset_path,
+            measurand=measurand,
+            dtof_to_find_max_on='mean',
+            half_width = 0.1,
+            harmonic_count=2,
+            norm=None
+        )
+        experiment.optimize()
+        optimized_window = experiment.window  # type: ignore
+        logger.info("Optimized Window: %s", optimized_window.numpy())
+
+        # Evaluate using an Evaluator and print log
+        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+        eval_results = evaluator.evaluate()
+        logger.info("Evaluation Results: %s", eval_results)
+        logger.info("Evaluator log: %s", evaluator.get_log())
+
+        # Clean up
+        tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
 
 
 if __name__ == "__main__":
     main()
+    
