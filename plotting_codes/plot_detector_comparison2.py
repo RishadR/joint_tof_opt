@@ -3,10 +3,11 @@
 Plot selectivity vs. fetal SNR for different SDD indices.
 """
 
-import yaml
+from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
+import yaml
+from adjustText import adjust_text
 from cycler import cycler
 from joint_tof_opt.plotting import load_plot_config
 
@@ -27,7 +28,7 @@ def main():
     # Extract data for each SDD index (only DIGSS optimizer)
     sdd_data = {}
 
-    for exp_key, exp_data in results.items():
+    for _, exp_data in results.items():
         if not isinstance(exp_data, dict):
             continue
 
@@ -91,6 +92,8 @@ def main():
         sdd_data[sdd_index]["depth_cm"] = sdd_data[sdd_index]["depth_cm"][1::2]
 
     # Let's only plot the third and fifth SDD indices
+    annotation_points = []
+
     for sdd_index in sorted(sdd_data.keys()):
         if sdd_index not in [2, 3, 4]:
             continue
@@ -99,27 +102,61 @@ def main():
         selectivity = sdd_data[sdd_index]["selectivity"]
         depth_cm = sdd_data[sdd_index]["depth_cm"]
 
-        (line,) = ax.plot(fetal_snr, selectivity, linewidth=2, markersize=8, label=f"SDD = {sdd_distance} cm")
+        ax.plot(fetal_snr, selectivity, linewidth=2, markersize=8, label=f"SDD = {sdd_distance} cm")
 
-        for idx, (x, y, d_cm) in enumerate(zip(fetal_snr, selectivity, depth_cm)):
-            x_offset = 8
-            y_offset = 8
-            ax.annotate(
-                f"{d_cm:.1f} cm",
-                xy=(x, y),
-                xytext=(x_offset, y_offset),
-                textcoords="offset points",
-                fontsize=8,
-                ha="right",
-                va="top",
-                bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.5),
-            )
+        for x, y, d_cm in zip(fetal_snr, selectivity, depth_cm, strict=True):
+            annotation_points.append((x, y, d_cm, sdd_index))
 
     # Configure axes
     ax.set_xlabel("Fetal SNR")
     ax.set_ylabel("Selectivity")
     ax.set_yscale("log")
     ax.set_xscale("log")
+
+    # Add a bit of breathing room and place labels with bounded offsets.
+    ax.margins(x=0.12, y=0.18)
+
+    x_anchor = []
+    y_anchor = []
+    text_artists = []
+
+    for x, y, d_cm, sdd_index in annotation_points:
+        # Tiny deterministic offsets avoid identical starting positions.
+        x_scale = 1.012 + 0.002 * (sdd_index - 2)
+        y_scale = 1.01 + 0.002 * (sdd_index - 2)
+        x_text = x * x_scale
+        y_text = y * y_scale
+
+        text_artists.append(
+            ax.text(
+                x_text,
+                y_text,
+                f"{d_cm:.1f} cm",
+                fontsize=8,
+                ha="left",
+                va="bottom",
+                clip_on=True,
+                bbox={"boxstyle": "round,pad=0.15", "fc": "white", "ec": "none", "alpha": 0.5},
+            )
+        )
+        x_anchor.append(x)
+        y_anchor.append(y)
+
+    fig.canvas.draw()
+    adjust_text(
+        text_artists,
+        x=x_anchor,
+        y=y_anchor,
+        ax=ax,
+        ensure_inside_axes=True,
+        expand_axes=False,
+        only_move={"text": "xy", "static": "xy", "explode": "xy", "pull": "xy"},
+        force_text=(0.12, 0.2),
+        force_static=(0.08, 0.14),
+        force_pull=(0.02, 0.04),
+        arrowprops={"arrowstyle": "-", "color": "0.5", "lw": 0.45, "alpha": 0.55},
+    )
+
     ax.legend(loc="lower right")
     ax.grid(True)
     # ax.set_ylim(top=1.3)
