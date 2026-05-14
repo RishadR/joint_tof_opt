@@ -8,14 +8,15 @@ import matplotlib
 
 matplotlib.use("Agg")  # Use non-interactive backend for batch processing
 
-from plot_sensitivity_comparison import main as plot_sensitivity
-from plot_sensitivity_comparison2 import main as plot_sensitivity2
 from plot_detector_comparison import main as plot_detector
+from plot_detector_comparison2 import main as plot_detector_comparison2
 from plot_false_fetal_f import main as plot_false_f
-from plot_sample_tof import main as plot_sample_tof
 from plot_overlap_compare import main as plot_overlap_compare
 from plot_overlap_compare2 import main as plot_overlap_compare2
-from plot_detector_comparison2 import main as plot_detector_comparison2
+from plot_sample_tof import main as plot_sample_tof
+from plot_sensitivity_comparison import main as plot_sensitivity
+from plot_sensitivity_comparison2 import main as plot_sensitivity2
+from plot_sensitivity_comparison4 import main as plot_sensitivity4
 
 
 def main():
@@ -24,30 +25,33 @@ def main():
     print("Generating all plots for the paper")
     print("=" * 60)
 
-    print("\n[1/8] Generating sensitivity comparison plot...")
+    print("\n[1/9] Generating sensitivity comparison plot...")
     plot_sensitivity()
 
-    print("\n[2/8] Generating detector comparison plot...")
+    print("\n[2/9] Generating detector comparison plot...")
     plot_detector()
 
-    print("\n[3/8] Generating false fetal frequency comparison plot...")
+    print("\n[3/9] Generating false fetal frequency comparison plot...")
     plot_false_f()
 
-    print("\n[4/8] Generating sample time-of-flight plot...")
+    print("\n[4/9] Generating sample time-of-flight plot...")
     plot_sample_tof(plot_type="distribution")
     plot_sample_tof(plot_type="density")
 
-    print("\n[5/8] Generating overlap comparison plot...")
+    print("\n[5/9] Generating overlap comparison plot...")
     plot_overlap_compare()
 
-    print("\n[6/8] Generating overlap comparison plot (variant)...")
+    print("\n[6/9] Generating overlap comparison plot (variant)...")
     plot_overlap_compare2()
 
-    print("\n[7/8] Generating detector comparison plot (variant)...")
+    print("\n[7/9] Generating detector comparison plot (variant)...")
     plot_detector_comparison2()
 
-    print("\n[8/8] Generating sensitivity comparison plot (variant)...")
+    print("\n[8/9] Generating sensitivity comparison plot (variant)...")
     plot_sensitivity2()
+
+    print("\n[9/9] Generating optimized-window sensitivity comparison plot...")
+    plot_sensitivity4()
 
     print("\n" + "=" * 60)
     print("All plots generated successfully!")

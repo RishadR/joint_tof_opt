@@ -128,7 +128,7 @@ def main():
 
     digss_unit_sum_filtered = filter_data(digss_unit_sum_data, ANNOTATION_STEP)
     digss_unit_max_filtered = filter_data(digss_unit_max_data, ANNOTATION_STEP)
-    liu_filtered = filter_data(liu_data_h1, ANNOTATION_STEP)
+    liu_filtered = filter_data(liu_data_h2, ANNOTATION_STEP)
     cw_filtered = filter_data(cw_data, ANNOTATION_STEP)
 
     # Create figure

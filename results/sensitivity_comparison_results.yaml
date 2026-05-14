@@ -1140,7 +1140,7 @@ exp 002:
   - 0.05882352963089943
   - 0.05882352963089943
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 2.522479084937624
@@ -1455,7 +1455,7 @@ exp 002:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 42.65965914832133
+  - 67.09673196710155
   measurand_time_series:
   - 0.04194533824920654
   - 0.035514168441295624
@@ -3818,7 +3818,7 @@ exp 007:
   - 0.0
   - 0.0
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 0.5711609786471809
@@ -4133,7 +4133,7 @@ exp 007:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 39.7594615991678
+  - 62.36746804205059
   measurand_time_series:
   - 0.0021497791167348623
   - 0.0018128089141100645
@@ -6496,7 +6496,7 @@ exp 012:
   - 0.5
   - 0.5
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 0.13409159904733758
@@ -6811,7 +6811,7 @@ exp 012:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 45.875703880383064
+  - 71.93585641816306
   measurand_time_series:
   - 0.00011856432683998719
   - 0.00010153588664252311
@@ -9174,7 +9174,7 @@ exp 017:
   - 0.3333333432674408
   - 0.0
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 0.3994068807315346
@@ -9489,7 +9489,7 @@ exp 017:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 41.92116493734241
+  - 65.76205521137008
   measurand_time_series:
   - 0.0010540750809013844
   - 0.0009480708977207541
@@ -11852,7 +11852,7 @@ exp 022:
   - 0.25
   - 0.25
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 0.5445438564160283
@@ -12167,7 +12167,7 @@ exp 022:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 39.46740101806307
+  - 61.95355654814076
   measurand_time_series:
   - 0.0019608205184340477
   - 0.001807109802030027
@@ -14530,7 +14530,7 @@ exp 027:
   - 0.3333333432674408
   - 0.3333333432674408
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 0.6008153461756742
@@ -14845,7 +14845,7 @@ exp 027:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 36.202980073645946
+  - 56.87665656574135
   measurand_time_series:
   - 0.0023878496140241623
   - 0.002232968807220459
@@ -17208,7 +17208,7 @@ exp 032:
   - 0.5
   - 0.5
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 0.621083145530908
@@ -17523,7 +17523,7 @@ exp 032:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 33.82575909230075
+  - 53.252404910335486
   measurand_time_series:
   - 0.0025523079093545675
   - 0.002413612324744463
@@ -19886,7 +19886,7 @@ exp 037:
   - 0.1666666716337204
   - 0.1666666716337204
   - 0.0
-  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=1,
+  Optimizer: LiuOptimizer(measurand=WindowedSum, dtof_to_find_max_on=mean, half_width=0.01,harmonics=2,
     norm=1.0)
   evaluator_log:
     baseline_noise_std: 1.3853725722712518
@@ -20201,7 +20201,7 @@ exp 037:
   final_optimizer_loss:
   - 27.0
   - 28.0
-  - 29.317383688590112
+  - 46.27514393138833
   measurand_time_series:
   - 0.012702182866632938
   - 0.012171944603323936

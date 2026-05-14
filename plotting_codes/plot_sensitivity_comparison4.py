@@ -22,7 +22,7 @@ def main():
         "DIGSS(Unit Max)": lambda o: (
             o.startswith("DIGSSOptimizer") and "normalization_scheme=unit_max" in o
         ),
-        "BOxcar": lambda o: o.startswith("LiuOptimizer") and "harmonics=1" in o,
+        "BOxcar": lambda o: o.startswith("LiuOptimizer") and "harmonics=2" in o,
     }
     windows = {k: [] for k in targets}
 

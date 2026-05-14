@@ -158,13 +158,10 @@ def main() -> None:
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
     ]
 
-    exp_results = run_sensitivity_comparison(
-        eval_func, optimizer_funcs_to_test, ["abs"], print_log=True
-    )
+    exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], print_log=True)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
-
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import yaml
 from joint_tof_opt.plotting import load_plot_config
 
-def main(depth=10):
+def main(depth=6):
     """Generate false fetal frequency comparison plot for a given depth."""
     # Load matplotlib configuration
     load_plot_config()
@@ -110,4 +110,4 @@ def main(depth=10):
 
 
 if __name__ == "__main__":
-    main(6)
+    main()
