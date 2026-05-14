@@ -108,7 +108,7 @@ def main() -> None:
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand)
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalization_scheme="unit_max")
     ]
 
     exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)

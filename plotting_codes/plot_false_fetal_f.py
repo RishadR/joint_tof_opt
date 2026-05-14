@@ -96,7 +96,6 @@ def main(depth=10):
     # Configure axes
     ax.set_xlabel('Fetal Frequency Error (Hz)')
     ax.set_ylabel('Normalized Separated Fetal Energy')
-    ax.grid(True)
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / 'figures'
@@ -106,6 +105,7 @@ def main(depth=10):
     fig.savefig(figures_dir / 'false_fetal_f_comparison.svg', format='svg')
 
     print(f"False fetal frequency comparison plots saved to {figures_dir}")
+    plt.close(fig)
     # plt.show()
 
 
