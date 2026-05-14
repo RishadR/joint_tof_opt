@@ -31,14 +31,11 @@ def main():
     for _, exp_data in results.items():
         if not isinstance(exp_data, dict):
             continue
-        
         depth = round(float(exp_data.get('Depth_mm', 0.0))/10, 1) 
         sensitivity = exp_data.get('Optimized_Sensitivity')
         optimizer = exp_data.get('Optimizer', '')
-        
         if depth is None or sensitivity is None:
             continue
-        
         optimizer_str = str(optimizer)
 
         if optimizer_str.startswith('DIGSSOptimizer'):

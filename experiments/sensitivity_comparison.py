@@ -150,7 +150,7 @@ def main() -> None:
             tof_file, measurand, normalization_scheme="unit_max"
         ),
         lambda tof_file, measurand: LiuOptimizer(
-            tof_file, measurand, None, "mean", filter_hw, 1, 1.0
+            tof_file, measurand, None, "mean", filter_hw, 2, 1.0
         ),
         lambda tof_file, measurand: AltLiuOptimizer(
             tof_file, measurand, None, None, "mean", filter_hw, 2, 1.0
@@ -159,7 +159,7 @@ def main() -> None:
     ]
 
     exp_results = run_sensitivity_comparison(
-        eval_func, optimizer_funcs_to_test, ["abs"], print_log=False
+        eval_func, optimizer_funcs_to_test, ["abs"], print_log=True
     )
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
