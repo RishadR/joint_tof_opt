@@ -45,9 +45,9 @@ from joint_tof_opt import (
     OptimizationExperiment,
     PSAFESeparator,
     ToFData,
+    WindowSumNoiseCalculator,
     generate_tof,
     get_named_moment_module,
-    get_noise_calculator,
     named_moment_types,
 )
 from joint_tof_opt.plotting import load_plot_config
@@ -85,7 +85,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self,
         tof_dataset_path: Path,
         measurand: str | CompactStatProcess,
-        noise_calc: None | NoiseCalculator = None,
+        noise_calc: NoiseCalculator | None = None,
         fetal_f: float | None = None,
         max_epochs: int = 2000,
         lr: float = 0.1,
@@ -106,7 +106,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         :param tof_dataset_path: Path to the ToF dataset (.npz file).
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
-        :param noise_calc: Noise calculator for custom measurands.
+        :param noise_calc: Noise calculator for custom measurands - defaults to WindowSumNoiseCalculator
         :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param max_epochs: Maximum number of optimization epochs.
         :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
@@ -131,13 +131,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         if isinstance(measurand, str):
             if measurand not in named_moment_types:
                 raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
-            if noise_calc is not None:
-                logger.warning("noise_calc is ignored since a predefined measurand string is given")
-            self.noise_calc = get_noise_calculator(measurand)
         else:
-            if noise_calc is None:
-                raise ValueError("noise_calc must be provided when using a custom measurand module.")
             self.noise_calc = noise_calc
+        self.noise_calc = noise_calc if noise_calc is not None else WindowSumNoiseCalculator()
 
         if isinstance(measurand, str):
             tof_data = ToFData.from_npz(tof_dataset_path)
@@ -259,8 +255,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         for i in range(num_bins):
             window = torch.zeros(num_bins)
             window[i] = 1.0
-            windowed_average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False) * window.reshape(1, -1)
-            noise_var = windowed_average_tof_frame.sum()
+            noise_var = torch.mean(self.noise_calc.compute_noise(self.tof_data, window))
             noise_std = torch.sqrt(noise_var)
             compact_stats = self.moment_module(window)
             compact_stats = compact_stats - compact_stats.mean()
@@ -331,9 +326,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             ## Optimize the Target Directly
             fetal_energy = torch.sum(fetal_filtered_signal**2)
             maternal_energy = torch.sum(maternal_filtered_signal**2)
-            avergae_tof_frame = self.tof_data.tof_series.sum(dim=0, keepdim=True)
-            windowed_average_tof_frame = avergae_tof_frame * self.window_norm.reshape(1, -1)
-            baseline_noise_var = windowed_average_tof_frame.sum()
+            baseline_noise_var = self.noise_calc.compute_noise(self.tof_data, self.window_norm).sum()
             baseline_noise_std = torch.sqrt(baseline_noise_var)
             selectivity = torch.sqrt(fetal_energy / maternal_energy)
             snr = torch.sqrt(fetal_energy) / baseline_noise_std

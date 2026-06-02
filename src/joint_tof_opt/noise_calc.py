@@ -31,6 +31,32 @@ class WindowSumNoiseCalculator(NoiseCalculator):
         return "WindowSumNoiseCalculator"
 
 
+class WindowSumWithInstrumentNoiseCalculator(NoiseCalculator):
+    """
+    OOP wrapper for computing analytical noise for the windowed sum compact statistic, including an additional constant
+    instrument noise variance.
+    """
+
+    def __init__(self, instrument_noise_var: float):
+        """
+        Initialize the noise calculator with a specified instrument noise variance.
+
+        :param instrument_noise_var: The constant variance of the instrument noise additive to each TOF bin individually
+        """
+        self.instrument_noise_var = instrument_noise_var
+
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+        # Compute the weighted sum of the ToF series with the window
+        weighted_tof = tof_data.tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
+        signal_dependent_noise = weighted_tof.sum(dim=1)  # Shape: (num_timepoints,)
+        instrument_noise = (self.instrument_noise_var * window.abs()).sum()  # Shape: scalar
+        total_noise = signal_dependent_noise + instrument_noise  # Shape: (num_timepoints,)
+        return total_noise
+
+    def __str__(self) -> str:
+        return f"WindowSumWithInstrumentNoiseCalculator(instrument_noise_var={self.instrument_noise_var})"
+
+
 class FirstMomentNoiseCalculator(NoiseCalculator):
     """
     OOP wrapper for computing analytical noise for the first order non-centered moment compact statistic.

@@ -29,20 +29,22 @@ Notes:
 5. I do not consider her t_end.
 """
 
-import yaml
-import numpy as np
 import logging
+from pathlib import Path
+from typing import Literal
+
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
-from typing import Literal
-from pathlib import Path
-import matplotlib.pyplot as plt
+import yaml
+
 from joint_tof_opt import (
-    get_named_moment_module,
-    OptimizationExperiment,
     CompactStatProcess,
+    OptimizationExperiment,
     ToFData,
     generate_tof,
+    get_named_moment_module,
 )
 from sensitivity_compute import AltPaperEvaluator3
 
@@ -261,7 +263,7 @@ def plot_training_curves_and_window(
     ## Load config for plotting if available
     config_path = Path("./plotting_codes/plot_config.yaml")
     if config_path.exists():
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             plot_config = yaml.safe_load(f)
             plt.rcParams.update(plot_config)
 
@@ -306,7 +308,7 @@ def main() -> None:
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         experiment = AltLiuOptimizer(
@@ -333,4 +335,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    
