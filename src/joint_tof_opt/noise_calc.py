@@ -4,11 +4,12 @@ Analytical noise calculation for different compact statistics. The noise is alwa
 Taken from: https://doi.org/10.1117/1.JBO.17.5.057005
 """
 
-from typing import Callable
-from joint_tof_opt.core import NoiseCalculator, ToFData
-from joint_tof_opt.compact_stat_process import NthOrderMoment, WindowedSum, NthOrderCenteredMoment
+from collections.abc import Callable
+
 import torch
 
+from joint_tof_opt.compact_stat_process import NthOrderCenteredMoment, WindowedSum
+from joint_tof_opt.core import NoiseCalculator, ToFData
 
 # Type alias for backward compatibility
 NoiseFunc = Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]

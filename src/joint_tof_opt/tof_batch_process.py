@@ -3,12 +3,14 @@ Load and create a ToF dataset for testing purposes.
 """
 
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+
 import numpy as np
 import yaml
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
-from joint_tof_opt.tof_process import compute_tof_discrete, compute_inner_bin_moment
+
 from joint_tof_opt.core import ToFData
-from tempfile import NamedTemporaryFile
+from joint_tof_opt.tof_process import compute_inner_bin_moment, compute_tof_discrete
 
 
 def generate_tof(
@@ -98,8 +100,8 @@ def generate_tof(
     tof_dataset = np.zeros((len(time_axis), bin_count))
     var_dataset = np.zeros_like(tof_dataset)
     inner_moments_dataset = {str(order): np.zeros((len(time_axis), bin_count)) for order in inner_moment_orders}
-    
-    # Check if we are using time limits or thresholds - if timelimits, set the limits to ignore threshold 
+
+    # Check if we are using time limits or thresholds - if timelimits, set the limits to ignore threshold
     if time_limit_or_threshold == 'timelimit':
         time_limits = (gen_config["time_limit"][0] * 1e-9, gen_config["time_limit"][1] * 1e-9)  # Convert ns to s
     else:
@@ -145,16 +147,16 @@ def generate_tof(
                 time_limits,
             )
             inner_moments_dataset[str(order)][idx, :] = inner_moment_array
-        
+
         tof_dataset[idx, :] = tof_array
         var_dataset[idx, :] = var_array
 
     # Save the generated ToF dataset
     assert bin_edges is not None
-    
+
     # Flatten inner_moments_dataset dictionary into separate arrays
     inner_moments_kwargs = {f"inner_moment_{key}": value for key, value in inner_moments_dataset.items()}
-    
+
     np.savez(
         save_path,
         tof_dataset=tof_dataset,
@@ -202,6 +204,6 @@ def compute_tof_data_series(
 if __name__ == "__main__":
     in_file = Path("./data/experiment_0000.npz")
     config_file = Path("./experiments/tof_config.yaml")
-    config = yaml.safe_load(open(config_file, "r"))
+    config = yaml.safe_load(open(config_file))
     out_file = Path("./data/generated_tof_set.npz")
     generate_tof(in_file, config, out_file)

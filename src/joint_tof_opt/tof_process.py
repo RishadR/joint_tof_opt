@@ -4,8 +4,10 @@ experiments, use the functions inside tof_batch_process.py - which provide highe
 """
 
 from typing import Any
+
 import numpy as np
 import torch
+
 from joint_tof_opt.core import ToFData
 
 
@@ -169,6 +171,7 @@ def compute_tof_discrete(
 
     return histogram, bin_edges, variance_per_bin
 
+
 def compute_inner_bin_moment(
     partialpath_table: np.ndarray,
     light_speed: list[float],
@@ -219,9 +222,9 @@ def compute_inner_bin_moment(
             bin_weights = filtered_weights[bin_mask]
             # Compute weighted n-th order moment
             total_weight_in_bin = np.sum(bin_weights)
-            moment_per_bin[bin_idx] = np.sum(bin_weights * (bin_times ** order)) / total_weight_in_bin
+            moment_per_bin[bin_idx] = np.sum(bin_weights * (bin_times**order)) / total_weight_in_bin
     return moment_per_bin
-    
+
 
 def compute_tof_data_single_time_point(
     partialpath_table: np.ndarray,
@@ -277,7 +280,7 @@ def compute_tof_data_single_time_point(
             (bin_edges[0], bin_edges[-1]),
         )
         inner_moments[order] = torch.tensor(moment_array, dtype=torch.float32).reshape(1, -1)
-    
+
     tof_data = ToFData(
         tof_series=tof_tensor,
         bin_edges=bin_edges_tensor,

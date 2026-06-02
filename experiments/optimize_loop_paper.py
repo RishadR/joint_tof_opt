@@ -40,46 +40,19 @@ import yaml
 from joint_tof_opt import (
     CombSeparator,
     CompactStatProcess,
-    ContrastToNoiseMetric,
-    EnergyRatioMetric,
-    Evaluator,
-    FilteredContrastToNoiseMetric,
-    FirstMomentNoiseCalculator,
     FourierSeparator,
     NoiseCalculator,
-    NthOrderCenteredMoment,
-    NthOrderMoment,
     OptimizationExperiment,
     PSAFESeparator,
-    RevisedContrastToNoiseMetric,
     ToFData,
-    VarianceNoiseCalculator,
-    WindowedSum,
-    WindowSumNoiseCalculator,
-    compute_tof_data_series,
     generate_tof,
     get_named_moment_module,
     get_noise_calculator,
     named_moment_types,
-    pretty_print_log,
 )
 from joint_tof_opt.plotting import load_plot_config
 from sensitivity_compute import (
-    AltPaperEvaluator,
-    AltPaperEvaluator2,
     AltPaperEvaluator3,
-    CorrelationEvaluator,
-    FetalSelectivityEvaluator,
-    FetalSensitivityEvaluator,
-    NormalizedFetalSensitivityEvaluator,
-    NormalizedFetalSNREvaluator,
-    NormalizedPureFetalSensitivityEvaluator,
-    NormalizedSNREvaluator,
-    PaperEvaluator,
-    ProductEvaluator,
-    PureSensitivityEvaluator,
-    SNREvaluator,
-    SpectralCorrelationEvaluator,
 )
 
 logger = logging.getLogger(__name__)
@@ -157,17 +130,13 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Handle measurand and noise function
         if isinstance(measurand, str):
             if measurand not in named_moment_types:
-                raise ValueError(
-                    f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}."
-                )
+                raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
             if noise_calc is not None:
                 logger.warning("noise_calc is ignored since a predefined measurand string is given")
             self.noise_calc = get_noise_calculator(measurand)
         else:
             if noise_calc is None:
-                raise ValueError(
-                    "noise_calc must be provided when using a custom measurand module."
-                )
+                raise ValueError("noise_calc must be provided when using a custom measurand module.")
             self.noise_calc = noise_calc
 
         if isinstance(measurand, str):
@@ -200,14 +169,10 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
         self.training_curves: np.ndarray = np.zeros((self.max_epochs, 3))
         self.normalize_reward = normalize_reward
-        self.training_cruves_extra = np.zeros(
-            (self.max_epochs, 10)
-        )  # Logging the independent 3 elements
+        self.training_cruves_extra = np.zeros((self.max_epochs, 10))  # Logging the independent 3 elements
 
         ## Compute Best Case Windows
-        self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = (
-            self._compute_max_values()
-        )
+        self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
         max_index = self.max_snr_index
 
         # max_index = 0
@@ -229,13 +194,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.training_curve_extra_labels = ["Fetal Energy", "Maternal Energy", "Baseline Noise STD"]
 
     def _get_filters(self, filter_type: str):
-        filter_len = int(
-            2 * self.sampling_rate / self.fetal_f
-        )  # Ensure at least 2 periods are captured
+        filter_len = int(2 * self.sampling_rate / self.fetal_f)  # Ensure at least 2 periods are captured
         if filter_type == "comb":
-            f1 = CombSeparator(
-                self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw, filter_len, True
-            )
+            f1 = CombSeparator(self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw, filter_len, True)
             f2 = CombSeparator(
                 self.sampling_rate,
                 self.maternal_f,
@@ -245,12 +206,8 @@ class DIGSSOptimizer(OptimizationExperiment):
                 True,
             )
         elif filter_type == "fourier":
-            f1 = FourierSeparator(
-                self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw
-            )
-            f2 = FourierSeparator(
-                self.sampling_rate, self.maternal_f, self.maternal_f * 2, self.filter_hw
-            )
+            f1 = FourierSeparator(self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw)
+            f2 = FourierSeparator(self.sampling_rate, self.maternal_f, self.maternal_f * 2, self.filter_hw)
         elif filter_type == "psafe_same_width":
             f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
             f2 = PSAFESeparator(self.sampling_rate, self.maternal_f, True)
@@ -277,9 +234,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         elif self.normalization_scheme == "unit_max":
             return torch.clamp(win, max=1.0)
         else:
-            raise NotImplementedError(
-                f"Normalization scheme {self.normalization_scheme} not recognized"
-            )
+            raise NotImplementedError(f"Normalization scheme {self.normalization_scheme} not recognized")
 
     @staticmethod
     def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
@@ -304,9 +259,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         for i in range(num_bins):
             window = torch.zeros(num_bins)
             window[i] = 1.0
-            windowed_average_tof_frame = self.tof_data.tof_series.mean(
-                dim=0, keepdim=False
-            ) * window.reshape(1, -1)
+            windowed_average_tof_frame = self.tof_data.tof_series.mean(dim=0, keepdim=False) * window.reshape(1, -1)
             noise_var = windowed_average_tof_frame.sum()
             noise_std = torch.sqrt(noise_var)
             compact_stats = self.moment_module(window)
@@ -337,9 +290,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         if self.window_smoothening:
             max_weight = torch.max(self.window)
             threshold = 0.01 * max_weight
-            self.window = torch.where(
-                self.window < threshold, torch.zeros_like(self.window), self.window
-            )
+            self.window = torch.where(self.window < threshold, torch.zeros_like(self.window), self.window)
             self.window_norm = self._win_norm_func(self.window)
 
     def optimize(self):
@@ -406,9 +357,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
             # L1 regularization (L2 is already in Adam weight_decay)
             if self.reg_type == "l1" and self.reg_weight > 0:
-                loss = loss + self.reg_weight * torch.sum(
-                    torch.abs(self.learnable_component_exponents)
-                )
+                loss = loss + self.reg_weight * torch.sum(torch.abs(self.learnable_component_exponents))
 
             optimizer.zero_grad()
             loss.backward()
@@ -489,9 +438,7 @@ def plot_training_curves_and_window(
     :type filename: str
     """
     ## Validity Checks
-    assert training_curves.shape[1] == len(curve_column_labels), (
-        "Number of curve labels must match number of metrics."
-    )
+    assert training_curves.shape[1] == len(curve_column_labels), "Number of curve labels must match number of metrics."
 
     ## Bin Centers
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
@@ -533,19 +480,15 @@ def plot_training_curves_and_window(
 
 
 def main() -> None:
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
     for file_idx in range(7, 8):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
-        logger.info(
-            "Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand
-        )
+        logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         experiment = DIGSSOptimizer(
@@ -562,9 +505,6 @@ def main() -> None:
         )
         experiment.optimize()
 
-        # Temp - Test with this window
-        # optimzied_window = torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.])
-
         optimized_window = experiment.window  # type: ignore
         result_curves = experiment.training_curves
         logger.info("Optimized Window: %s", optimized_window.numpy())
@@ -577,14 +517,10 @@ def main() -> None:
         loss_names = experiment.training_curve_labels
         bin_edges = np.load(tof_dataset_path)["bin_edges"]
         logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])
-        plot_training_curves_and_window(
-            result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False
-        )
+        plot_training_curves_and_window(result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False)
 
         # Evaluate using an Evaluator and print log
-        evaluator = AltPaperEvaluator3(
-            ppath_file, optimized_window, measurand, gen_config, filter_hw
-        )
+        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
         eval_results = evaluator.evaluate()
         logger.info("Evaluation Results: %s", eval_results)
         logger.info("Evaluator log: %s", evaluator.get_log())
