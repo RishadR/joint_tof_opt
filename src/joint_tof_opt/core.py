@@ -3,12 +3,13 @@ Core modules for joint TOF optimization to make life easier.
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
-from typing import Any, Literal
-from dataclasses import dataclass, field
 
 
 @dataclass
@@ -260,6 +261,28 @@ class NoiseCalculator(ABC):
 
     @abstractmethod
     def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+class ToFModifier(ABC):
+    """
+    Base class for ToF modifiers that can be applied to ToFData instances.
+
+    Things to Implement in Subclasses:
+    -----------------------
+    - self.modify() : Method to take in a ToFData instance and return a modified ToFData instance.
+    - __str__() : String representation of the modifier for easy identification.
+
+    Extra:
+    -----------------------
+    If you need to have other parameters go into the modifier, you can add them to the __init__ method
+    """
+
+    @abstractmethod
+    def modify(self, tof_data: ToFData) -> ToFData:
         pass
 
     @abstractmethod

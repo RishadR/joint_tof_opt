@@ -9,9 +9,9 @@ METRIC MODULES RULE:
 
 import torch
 import torch.nn as nn
-from joint_tof_opt.noise_calc import NoiseCalculator
-from joint_tof_opt.core import ToFData
 
+from joint_tof_opt.core import ToFData
+from joint_tof_opt.noise_calc import NoiseCalculator
 
 
 class EnergyRatioMetric(nn.Module):
@@ -117,7 +117,7 @@ class RevisedContrastToNoiseMetric(nn.Module):
         self.noise_calc = noise_calc
         self.tof_data = tof_data
         self.dB_scale = dB_scale
-    
+
     def forward(self, window: torch.Tensor, measurand_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_calc.compute_noise(self.tof_data, window)
         noise_var = noise.mean()
@@ -129,7 +129,7 @@ class RevisedContrastToNoiseMetric(nn.Module):
             contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)
         return contrast
 
-    
+
 class FilteredContrastToNoiseMetric(nn.Module):
     """
     Computes the contrast-to-noise ratio (CNR) metric where the measurand signal is filtered. 
@@ -161,7 +161,7 @@ class FilteredContrastToNoiseMetric(nn.Module):
         self.tof_data = tof_data
         self.filter_module = filter_module
         self.dB_scale = dB_scale
-    
+
     def forward(self, window: torch.Tensor, measurand_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_calc.compute_noise(self.tof_data, window)  # sigma^2
         noise_var = noise.sum()
@@ -172,4 +172,4 @@ class FilteredContrastToNoiseMetric(nn.Module):
         if self.dB_scale:
             contrast = 20 * torch.log10(contrast + 1e-40)  # Convert to dB scale, add epsilon to avoid log(0)
         return contrast
-    
+

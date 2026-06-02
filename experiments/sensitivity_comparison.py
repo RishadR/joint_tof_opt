@@ -10,11 +10,13 @@ import torch
 import yaml
 
 from joint_tof_opt import (
+    AdditiveGaussianToFModifier,
     CombSeparator,
     CompactStatProcess,
     Evaluator,
     OptimizationExperiment,
     ToFData,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     pretty_print_log,
 )
@@ -27,7 +29,7 @@ from sensitivity_compute import AltPaperEvaluator3
 
 
 def read_parameter_mapping():
-    with open("./data/parameter_mapping.json", "r") as tof_config_file:
+    with open("./data/parameter_mapping.json") as tof_config_file:
         parameter_mapping = yaml.safe_load(tof_config_file)
     return parameter_mapping
 
@@ -36,6 +38,7 @@ def run_sensitivity_comparison(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
     optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
+    noise_variance: float,
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -55,7 +58,7 @@ def run_sensitivity_comparison(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml"))
     fetal_filter = CombSeparator(
         gen_config["sampling_rate"],
         gen_config["fetal_f"],
@@ -64,6 +67,7 @@ def run_sensitivity_comparison(
         gen_config["datapoint_count"] // 2 + 1,
         True,
     )
+    tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
 
     # Initialize results table and windows storage
     results = []
@@ -77,6 +81,9 @@ def run_sensitivity_comparison(
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config, tof_dataset_file, True, True)
+            tof_data = ToFData.from_npz(tof_dataset_file)
+            tof_data = tof_modifier.modify(tof_data)
+            tof_data.to_npz(tof_dataset_file)
 
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
@@ -137,18 +144,22 @@ def run_sensitivity_comparison(
 
 def main() -> None:
     filter_hw = 0.01  # Hz
+    noise_var = 0.001
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
+    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand),
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalization_scheme="unit_max"),
+        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, noise_calc=noise_calc),
+        lambda tof_file, measurand: DIGSSOptimizer(
+            tof_file, measurand, normalization_scheme="unit_max", noise_calc=noise_calc
+        ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, None),
         lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
         lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
     ]
 
-    exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], print_log=True)
+    exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
     with open("./results/sensitivity_comparison_results.yaml", "w") as f:
         yaml.dump(results_dict, f, default_flow_style=False)
