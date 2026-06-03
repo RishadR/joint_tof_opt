@@ -23,6 +23,8 @@ from joint_tof_opt import (
     NoiseCalculator,
     PSAFESeparator,
     ToFData,
+    WindowSumNoiseCalculator,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
     compute_tof_data_series,
     get_named_moment_module,
     get_noise_calculator,
@@ -336,7 +338,8 @@ class CorrelationEvaluator(Evaluator):
     :type signal_type: Literal["fetal", "maternal"]
     :param filter_hw: Half-width of the filter to apply.
     :type filter_hw: float
-    :param terminal_ignore_points: Number of points to ignore at the start and end of the signal when computing correlation to account for edge effects.
+    :param terminal_ignore_points: Number of points to ignore at the start and end of the signal when computing
+    correlation to account for edge effects.
     :type terminal_ignore_points: int
     """
 
@@ -694,7 +697,7 @@ class PureFetalSNREvaluator(SNREvaluator):
     The entire signal is Fetal Signal. Ignores internal measurand data.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand, gen_config: dict):   # type: ignore
+    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand, gen_config: dict):  # type: ignore
         super().__init__(ppath_file, window, measurand, gen_config, filter_module=None)
 
     def str(self) -> str:
@@ -878,7 +881,7 @@ class ProductEvaluator(Evaluator):
         return final_log
 
 
-def _compute_baseline_noise_std(window: torch.Tensor, tof_data: ToFData) -> float:
+def _compute_baseline_noise_std(window: torch.Tensor, tof_data: ToFData, gaussian_noise_var: float = 0.0) -> float:
     """
     Computes the baseline noise standard deviation assuming a windowed sum approach.
     Formula:
@@ -887,12 +890,15 @@ def _compute_baseline_noise_std(window: torch.Tensor, tof_data: ToFData) -> floa
 
     :param window: The window used for the ToF Data. Should be a 1D Tensor on the same device as ToF.tof_series
     :param tof_data: The ToF data object computed using compute_tof_data_series. Should be unnormalized!
+    :param gaussian_noise_var: The variance of the additive Gaussian noise. Defaults to 0.0 (aka ignored)
     :return: The baseline noise standard deviation.
     :rtype: float
     """
-    avg_tof_frame = tof_data.tof_series.sum(dim=0, keepdim=True)  # Shape: (1, num_timepoints)
-    windowed_avg_tof_frame = avg_tof_frame * window.unsqueeze(0)  # Shape: (1, num_timepoints)
-    baseline_noise_var = windowed_avg_tof_frame.sum().item()
+    if gaussian_noise_var <= 0.0:
+        noise_calc = WindowSumNoiseCalculator()
+    else:
+        noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(gaussian_noise_var)
+    baseline_noise_var = noise_calc.compute_noise(tof_data, window).mean().item()
     baseline_noise_std = sqrt(baseline_noise_var)
     return baseline_noise_std
 
@@ -972,7 +978,15 @@ class AltPaperEvaluator(Evaluator):
     compute the delta measurand values.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, delta: float = 15.0):
+    def __init__(
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str,
+        gen_config: dict,
+        delta: float = 15.0,
+        gaussian_noise_var: float = 0.0,
+    ):
         super().__init__(ppath_file, window, measurand, gen_config)
         self.measurand = measurand  # Overwrite to keep the type a string
         self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
@@ -980,6 +994,7 @@ class AltPaperEvaluator(Evaluator):
         self.maternal_ac_energy = 0.0  # Reflects the (M1 - M0)^2 term
         self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
         self.delta = delta
+        self.gaussian_noise_var = gaussian_noise_var
         self.fetal_sensitivity_eval = PureSensitivityEvaluator(
             ppath_file, window, measurand, gen_config, "fetal", delta
         )
@@ -992,7 +1007,7 @@ class AltPaperEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
-        self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data)
+        self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data, self.gaussian_noise_var)
         # Run these evals to actually compute the values for delta_measurands!
         fetal_sensitivity = self.fetal_sensitivity_eval.evaluate()
         maternal_sensitivity = self.maternal_sensitivity_eval.evaluate()
@@ -1027,7 +1042,13 @@ class AltPaperEvaluator2(PaperEvaluator):
     """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str,
+        gen_config: dict,
+        filter_hw: float = 0.3,
+        gaussian_noise_var: float = 0.0,
     ):
         super().__init__(ppath_file, window, measurand, gen_config, filter_hw)
         self.measurand = measurand  # Overwrite to keep the type a string
@@ -1035,13 +1056,14 @@ class AltPaperEvaluator2(PaperEvaluator):
         self.maternal_ac_energy = 0.0
         self.baseline_noise_std = 0.0  # Reflects the sigma(M0) term
         self.maternal_ac_amp = 0.0  # Reflects the (M1 - M0) term
+        self.gaussian_noise_var = gaussian_noise_var
 
     def __str__(self) -> str:
         return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
 
     def evaluate(self) -> float:
         baseline_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
-        self.baseline_noise_std = _compute_baseline_noise_std(self.window, baseline_tof_data)
+        self.baseline_noise_std = _compute_baseline_noise_std(self.window, baseline_tof_data, self.gaussian_noise_var)
 
         only_maternal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, False)
         only_fetal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, False, True)
@@ -1079,9 +1101,15 @@ class AltPaperEvaluator3(AltPaperEvaluator2):
     """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: dict, filter_hw: float = 0.3
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str,
+        gen_config: dict,
+        filter_hw: float = 0.3,
+        gaussian_noise_var: float = 0.0,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config, filter_hw)
+        super().__init__(ppath_file, window, measurand, gen_config, filter_hw, gaussian_noise_var)
         self.measurand = measurand  # Overwrite to keep the type a string
         self.fetal_ac_energy = 0.0  # Reflects the (M2 - M0)^2 term
         self.maternal_ac_energy = 0.0

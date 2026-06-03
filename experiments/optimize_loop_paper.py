@@ -49,6 +49,8 @@ from joint_tof_opt import (
     generate_tof,
     get_named_moment_module,
     named_moment_types,
+    AdditiveGaussianToFModifier,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
 )
 from joint_tof_opt.plotting import load_plot_config
 from sensitivity_compute import (
@@ -150,6 +152,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.filter_type = filter_type
         self.window_smoothening = window_smoothening
         self.normalization_scheme = normalization_scheme
+        self.impulse_window_snr_list = [0.0] * len(self.tof_data.bin_edges)
+        self.impulse_window_selectivity_list = [0.0] * len(self.tof_data.bin_edges)
+        self.impulse_window_product_list = [0.0] * len(self.tof_data.bin_edges)
 
         if self.reg_type not in ("l1", "l2"):
             raise ValueError(f"Unsupported reg_type: {self.reg_type}. Use 'l1' or 'l2'.")
@@ -275,18 +280,24 @@ class DIGSSOptimizer(OptimizationExperiment):
             if snr * selectivity > best_product:
                 best_product = (snr * selectivity).item()
                 best_product_index = i
+
+            # Logging the impulse window results
+            self.impulse_window_snr_list[i] = snr.item()
+            self.impulse_window_selectivity_list[i] = selectivity.item()
+            self.impulse_window_product_list[i] = (snr * selectivity).item()
         logger.info("Best Product : %.4f at index %d", best_product, best_product_index)
         return best_snr, best_selectivity, best_snr_index, best_selectivity_index
 
-    def _smoothen_window(self):
+    def smoothen_window(self, threshold_prct: float = 0.03) -> torch.Tensor:
         """
         Smoothen the window & window norm by zeroing out values below a certain threshold.
         """
+        smoothed_window = self.window_norm.clone()
         if self.window_smoothening:
             max_weight = torch.max(self.window)
-            threshold = 0.01 * max_weight
-            self.window = torch.where(self.window < threshold, torch.zeros_like(self.window), self.window)
-            self.window_norm = self._win_norm_func(self.window)
+            threshold = threshold_prct * max_weight
+            smoothed_window[smoothed_window < threshold] = 0.0
+        return smoothed_window
 
     def optimize(self):
         """
@@ -378,8 +389,24 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.training_curves_extra = self.training_curves_extra[: epoch + 1]
 
         # Set the normalized window as final window
-        self._smoothen_window()
+        self.window_norm = self.smoothen_window()
+        self.window_norm = self.window_post_process()
         self.window = self.window_norm.detach()
+
+    def window_post_process(self) -> torch.Tensor:
+        """
+        Apply custom post-processing"
+        """
+        if self.normalization_scheme == "unit_max":
+            # Find left and right edges
+            left_edge = self.window.nonzero(as_tuple=True)[0][0].item()
+            right_edge = self.window.nonzero(as_tuple=True)[0][-1].item()
+            # Fill everything in-between with 1s
+            processed_window = torch.zeros_like(self.window)
+            processed_window[left_edge : right_edge + 1] = 1.0
+            return processed_window
+        else:
+            return self.window_norm
 
     def __str__(self) -> str:
         return (
@@ -476,25 +503,33 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
-    for file_idx in range(7, 8):
+    for file_idx in range(4, 5):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
+        noise_var = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
+        tof_data = ToFData.from_npz(tof_dataset_path)
+        modifier = AdditiveGaussianToFModifier(noise_var)
+        modified_tof = modifier.modify(tof_data)
+        modified_tof.to_npz(tof_dataset_path)  # Overwrite
+        noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
         experiment = DIGSSOptimizer(
             tof_dataset_path=tof_dataset_path,
             measurand=measurand,
+            noise_calc=noise_calc,
             fetal_f=gen_config["fetal_f"],
             normalize_reward=False,
-            lr=0.1,
+            lr=0.01,
             filter_hw=filter_hw,
             patience=50,
             reg_type="l1",
-            reg_weight=0.0000,
+            reg_weight=0.001,
             filter_type="psafe_same_width",
+            normalization_scheme="unit_max",
         )
         experiment.optimize()
 
@@ -523,7 +558,9 @@ def main() -> None:
             experiment.max_selectivity,
             experiment.max_selectivity_index,
         )
-
+        logger.info("Impulse Window SNR List: %s", experiment.impulse_window_snr_list)
+        logger.info("Impulse Window Selectivity List: %s", experiment.impulse_window_selectivity_list)
+        logger.info("Impulse Window Product List: %s", experiment.impulse_window_product_list)
         # Clean up
         tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
 

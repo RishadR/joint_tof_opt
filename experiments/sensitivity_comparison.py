@@ -45,7 +45,8 @@ def run_sensitivity_comparison(
     Main function to run sensitivity comparison experiments across measurands and depths.
 
     :param evaluator_gen_func: Function to generate an evaluator for sensitivity computation. The function should take
-    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an Evaluator instance.
+    (ppath_file: Path, window: torch.Tensor, measurand: nn.Module, noise_func: NoiseCalculator) and return an
+        Evaluator instance.
     :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
     (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
@@ -144,19 +145,19 @@ def run_sensitivity_comparison(
 
 def main() -> None:
     filter_hw = 0.01  # Hz
-    noise_var = 0.001
+    noise_var = 0.1
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
+    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, noise_calc=noise_calc),
+        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, noise_calc=noise_calc),
         lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file, measurand, normalization_scheme="unit_max", noise_calc=noise_calc
+            tof_file, measurand, normalization_scheme="unit_max", noise_calc=noise_calc, reg_weight=0.1,
         ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, None),
-        lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
-        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
+        # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
+        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
     ]
 
     exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
