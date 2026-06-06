@@ -175,9 +175,15 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         ## Compute Best Case Windows
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
-
+        if isinstance(noise_calc, WindowSumWithAdditiveGaussianNoiseCalculator):
+            average_frame = torch.mean(self.tof_data.tof_series, dim=0)
+            noisy_bin_indices = torch.where(average_frame < 1/2 * noise_calc.noise_var ** (1/2))[0]
+            right_most_bin = noisy_bin_indices[0]
+        else:
+            right_most_bin = self.max_selectivity_index
+        print(f"Rightmost bin index: {right_most_bin}")
         # Initalize the learnable window parameters - all else is fixed to 0.0
-        initial_params = torch.zeros(self.max_selectivity_index - self.max_snr_index + 1, dtype=torch.float32)
+        initial_params = torch.zeros(right_most_bin - self.max_snr_index + 1, dtype=torch.float32)
         # initial_params[-2: 0] = 10.0  # Initialize the last 3 learnable parameters to 1 (before exponentiation)
 
         self.learnable_component_exponents = torch.nn.Parameter(initial_params, requires_grad=True)
@@ -188,7 +194,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             device=self.learnable_component_exponents.device,
         )
         self.fixed_right = torch.zeros(
-            num_bins - self.max_selectivity_index,
+            num_bins - right_most_bin,
             dtype=self.learnable_component_exponents.dtype,
             device=self.learnable_component_exponents.device,
         )
@@ -396,7 +402,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Set the normalized window as final window
         self.unprocessed_window = self.window_norm.clone().detach()
         self.window_norm = self.smoothen_window()
-        # self.window_norm = self.window_post_process()
+        self.window_norm = self.window_post_process()
         self.window = self.window_norm.detach()
 
     def window_post_process(self) -> torch.Tensor:
@@ -509,14 +515,14 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
-    for file_idx in range(4, 5):
+    for file_idx in range(2, 3):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
-        noise_var = 1000.0
+        noise_var = 100.0
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         tof_data = ToFData.from_npz(tof_dataset_path)
         modifier = AdditiveGaussianToFModifier(noise_var)
@@ -533,7 +539,7 @@ def main() -> None:
             filter_hw=filter_hw,
             patience=50,
             reg_type="l2",
-            reg_weight=0.00,
+            reg_weight=0.001,
             filter_type="psafe_same_width",
             normalization_scheme="unit_max",
         )

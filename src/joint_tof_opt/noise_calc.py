@@ -49,7 +49,7 @@ class WindowSumWithAdditiveGaussianNoiseCalculator(NoiseCalculator):
         # Compute the weighted sum of the ToF series with the window
         weighted_tof = tof_data.tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
         signal_dependent_noise = weighted_tof.sum(dim=1)  # Shape: (num_timepoints,)
-        instrument_noise = (self.noise_var * window.abs()).sum()  # Shape: scalar
+        instrument_noise = (self.noise_var * window.square()).sum()  # Shape: scalar
         total_noise = signal_dependent_noise + instrument_noise  # Shape: (num_timepoints,)
         return total_noise
 

@@ -161,6 +161,7 @@ def main() -> None:
             lr=0.1,
             filter_type="psafe_same_width",
             normalize_reward=False,
+            window_smoothening=False,
         ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, None),
         # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
