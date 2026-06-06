@@ -38,6 +38,7 @@ import torch.optim as optim
 import yaml
 
 from joint_tof_opt import (
+    AdditiveGaussianToFModifier,
     CombSeparator,
     CompactStatProcess,
     FourierSeparator,
@@ -46,11 +47,10 @@ from joint_tof_opt import (
     PSAFESeparator,
     ToFData,
     WindowSumNoiseCalculator,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
     named_moment_types,
-    AdditiveGaussianToFModifier,
-    WindowSumWithAdditiveGaussianNoiseCalculator,
 )
 from joint_tof_opt.plotting import load_plot_config
 from sensitivity_compute import (
@@ -155,6 +155,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.impulse_window_snr_list = [0.0] * len(self.tof_data.bin_edges)
         self.impulse_window_selectivity_list = [0.0] * len(self.tof_data.bin_edges)
         self.impulse_window_product_list = [0.0] * len(self.tof_data.bin_edges)
+        self.unprocessed_window = torch.ones(len(self.tof_data.bin_edges))  # For logging purposes
 
         if self.reg_type not in ("l1", "l2"):
             raise ValueError(f"Unsupported reg_type: {self.reg_type}. Use 'l1' or 'l2'.")
@@ -174,20 +175,24 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         ## Compute Best Case Windows
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
-        max_index = self.max_snr_index
 
-        # max_index = 0
-        initial_params = torch.zeros(num_bins - max_index)
+        # Initalize the learnable window parameters - all else is fixed to 0.0
+        initial_params = torch.zeros(self.max_selectivity_index - self.max_snr_index + 1, dtype=torch.float32)
         # initial_params[-2: 0] = 10.0  # Initialize the last 3 learnable parameters to 1 (before exponentiation)
 
         self.learnable_component_exponents = torch.nn.Parameter(initial_params, requires_grad=True)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
-        self.fixed_components = torch.zeros(
-            max_index,
+        self.fixed_left = torch.zeros(
+            self.max_snr_index - 1,
             dtype=self.learnable_component_exponents.dtype,
             device=self.learnable_component_exponents.device,
         )
-        self.window = torch.cat([self.fixed_components, self.learnable_component], dim=0)
+        self.fixed_right = torch.zeros(
+            num_bins - self.max_selectivity_index,
+            dtype=self.learnable_component_exponents.dtype,
+            device=self.learnable_component_exponents.device,
+        )
+        self.window = torch.cat([self.fixed_left, self.learnable_component, self.fixed_right], dim=0)
         self.window_norm = self._win_norm_func(self.window)
 
         # Set training curve labels
@@ -320,7 +325,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         for epoch in range(self.max_epochs):
             optimizer.zero_grad()
             self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
-            self.window = torch.cat([self.fixed_components, self.learnable_component], dim=0)
+            self.window = torch.cat([self.fixed_left, self.learnable_component, self.fixed_right], dim=0)
             self.window_norm = self._win_norm_func(self.window)
 
             # Compute compact statistics
@@ -389,8 +394,9 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.training_curves_extra = self.training_curves_extra[: epoch + 1]
 
         # Set the normalized window as final window
+        self.unprocessed_window = self.window_norm.clone().detach()
         self.window_norm = self.smoothen_window()
-        self.window_norm = self.window_post_process()
+        # self.window_norm = self.window_post_process()
         self.window = self.window_norm.detach()
 
     def window_post_process(self) -> torch.Tensor:
@@ -510,7 +516,7 @@ def main() -> None:
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
-        noise_var = 0.01
+        noise_var = 1000.0
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         tof_data = ToFData.from_npz(tof_dataset_path)
         modifier = AdditiveGaussianToFModifier(noise_var)
@@ -523,11 +529,11 @@ def main() -> None:
             noise_calc=noise_calc,
             fetal_f=gen_config["fetal_f"],
             normalize_reward=False,
-            lr=0.01,
+            lr=0.1,
             filter_hw=filter_hw,
             patience=50,
-            reg_type="l1",
-            reg_weight=0.001,
+            reg_type="l2",
+            reg_weight=0.00,
             filter_type="psafe_same_width",
             normalization_scheme="unit_max",
         )
@@ -561,6 +567,7 @@ def main() -> None:
         logger.info("Impulse Window SNR List: %s", experiment.impulse_window_snr_list)
         logger.info("Impulse Window Selectivity List: %s", experiment.impulse_window_selectivity_list)
         logger.info("Impulse Window Product List: %s", experiment.impulse_window_product_list)
+        logger.info("Unprocessed Window: %s", experiment.unprocessed_window.numpy())
         # Clean up
         tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
 

@@ -145,7 +145,7 @@ def run_sensitivity_comparison(
 
 def main() -> None:
     filter_hw = 0.01  # Hz
-    noise_var = 0.1
+    noise_var = 100.0
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
@@ -153,7 +153,14 @@ def main() -> None:
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
         # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, noise_calc=noise_calc),
         lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file, measurand, normalization_scheme="unit_max", noise_calc=noise_calc, reg_weight=0.1,
+            tof_file,
+            measurand,
+            normalization_scheme="unit_max",
+            noise_calc=noise_calc,
+            reg_weight=0.0,
+            lr=0.1,
+            filter_type="psafe_same_width",
+            normalize_reward=False,
         ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, None),
         # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
