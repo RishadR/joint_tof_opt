@@ -299,7 +299,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         logger.info("Best Product : %.4f at index %d", best_product, best_product_index)
         return best_snr, best_selectivity, best_snr_index, best_selectivity_index
 
-    def smoothen_window(self, threshold_prct: float = 0.03) -> torch.Tensor:
+    def smoothen_window(self, threshold_prct: float = 0.01) -> torch.Tensor:
         """
         Smoothen the window & window norm by zeroing out values below a certain threshold.
         """
@@ -410,13 +410,21 @@ class DIGSSOptimizer(OptimizationExperiment):
         Apply custom post-processing"
         """
         if self.normalization_scheme == "unit_max":
-            # Find left and right edges
-            left_edge = self.window.nonzero(as_tuple=True)[0][0].item()
-            right_edge = self.window.nonzero(as_tuple=True)[0][-1].item()
-            # Fill everything in-between with 1s
-            processed_window = torch.zeros_like(self.window)
-            processed_window[left_edge : right_edge + 1] = 1.0
-            return processed_window
+            window_to_process = self.window_norm
+            one_indices = torch.where(
+                torch.isclose(window_to_process, torch.tensor(1.0, device=window_to_process.device))
+            )[0]
+
+            # If there are at least two 1.0 values, bridge the gap between first and last.
+            if one_indices.numel() >= 2:
+                left_edge = one_indices[0].item()
+                right_edge = one_indices[-1].item()
+                processed_window = window_to_process.clone()
+                processed_window[left_edge : right_edge + 1] = 1.0
+                return processed_window
+
+            # If there is only one (or zero) 1.0 value, keep the window unchanged.
+            return window_to_process
         else:
             return self.window_norm
 
