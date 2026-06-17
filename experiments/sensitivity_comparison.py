@@ -23,8 +23,8 @@ from joint_tof_opt import (
 from joint_tof_opt.compact_stat_process import get_named_moment_module
 from optimize_dummy import DummyOptimizationExperiment
 from optimize_liu import LiuOptimizer
-from optimize_liu_alt import AltLiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
+from result_writer import write_results_to_yaml
 from sensitivity_compute import AltPaperEvaluator3
 
 
@@ -125,6 +125,7 @@ def run_sensitivity_comparison(
                         "evaluator_log": evaluator.get_log(),
                         "final_optimizer_loss": final_optimizer_loss,
                         "measurand_time_series": measurand_time_series.numpy().tolist(),
+                        "noise_variance": noise_variance,
                     }
                 )
                 print(
@@ -143,7 +144,8 @@ def run_sensitivity_comparison(
     return results
 
 
-def main() -> None:
+def main(append_results: bool = False) -> None:
+    results_path = Path("./results/sensitivity_comparison_results.yaml")
     filter_hw = 0.01  # Hz
     noise_var = 100.0
     # eval_func = lambda ppath, win, meas, conf, noise_calc: PaperEvaluator(ppath, win, meas, conf, filter_hw)
@@ -151,7 +153,13 @@ def main() -> None:
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        # lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, noise_calc=noise_calc),
+        lambda tof_file, measurand: DIGSSOptimizer(
+            tof_file,
+            measurand,
+            normalization_scheme="unit_sum",
+            noise_calc=noise_calc,
+            window_smoothening=False,
+        ),
         lambda tof_file, measurand: DIGSSOptimizer(
             tof_file,
             measurand,
@@ -159,20 +167,18 @@ def main() -> None:
             noise_calc=noise_calc,
             reg_weight=0.0,
             lr=0.1,
-            filter_type="psafe_same_width",
-            normalize_reward=False,
             window_smoothening=False,
         ),
         lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, None),
         # lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
-        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
+        lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
     ]
 
     exp_results = run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/sensitivity_comparison_results.yaml", "w") as f:
-        yaml.dump(results_dict, f, default_flow_style=False)
+    write_results_to_yaml(exp_results, results_path, append_results)
 
 
 if __name__ == "__main__":
-    main()
+    for i in range(10):
+        print(f"Running sensitivity comparison iteration {i+1}/10...")
+        main(True)

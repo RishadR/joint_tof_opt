@@ -14,7 +14,9 @@ from joint_tof_opt import (
     pretty_print_log,
 )
 from optimize_loop_paper import DIGSSOptimizer
+from result_writer import write_results_to_yaml
 import numpy as np
+
 
 def read_parameter_mapping():
     with open("./data/parameter_mapping.json", "r") as f:
@@ -108,6 +110,7 @@ def run_false_fetal_frequency_experiment(
 
 
 def main() -> None:
+    results_path = Path("./results/false_fetal_f_results2.yaml")
     filter_hw = 0.01  # Hz
     # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
@@ -120,9 +123,7 @@ def main() -> None:
     error_rates_np = np.arange(0.0, 1.01, 0.05)
     error_rates = [float(x) for x in error_rates_np]
     exp_results = run_false_fetal_frequency_experiment(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/false_fetal_f_results2.yaml", "w") as f:
-        yaml.dump(results_dict, f, default_flow_style=False)
+    write_results_to_yaml(exp_results, results_path, append=False)
 
 
 if __name__ == "__main__":

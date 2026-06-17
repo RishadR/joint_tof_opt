@@ -177,10 +177,14 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
         if isinstance(noise_calc, WindowSumWithAdditiveGaussianNoiseCalculator):
             average_frame = torch.mean(self.tof_data.tof_series, dim=0)
-            noisy_bin_indices = torch.where(average_frame < 1/2 * noise_calc.noise_var ** (1/2))[0]
+            noisy_bin_indices = torch.where(average_frame < 1 / 2 * noise_calc.noise_var ** (1 / 2))[0]
             right_most_bin = noisy_bin_indices[0]
         else:
             right_most_bin = self.max_selectivity_index
+
+        if right_most_bin <= self.max_snr_index:
+            right_most_bin = self.max_snr_index + 1  # Ensure at least one learnable parameter
+
         print(f"Rightmost bin index: {right_most_bin}")
         # Initalize the learnable window parameters - all else is fixed to 0.0
         initial_params = torch.zeros(right_most_bin - self.max_snr_index + 1, dtype=torch.float32)
