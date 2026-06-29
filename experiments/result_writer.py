@@ -2,6 +2,17 @@ import yaml
 from pathlib import Path
 from typing import Any
 
+def clear_results(results_path: Path) -> None:
+    """
+    Clears the content of a YAML file if it exists, or creates a new empty one.
+
+    Args:
+        results_path: Path to the YAML file to clear.
+    """
+    with results_path.open("w") as f:
+        yaml.dump({}, f)
+
+
 def write_results_to_yaml(results: list[dict[str, Any]], results_path: Path, append: bool = False) -> None:
     """
     Writes or appends a list of result dictionaries to a YAML file with indexed keys.

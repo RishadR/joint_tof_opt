@@ -192,17 +192,22 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         self.learnable_component_exponents = torch.nn.Parameter(initial_params, requires_grad=True)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
+
+        left_fixed_size = max(0, self.max_snr_index - 1)
+        right_fixed_size = max(0, num_bins - right_most_bin)
         self.fixed_left = torch.zeros(
-            self.max_snr_index - 1,
+            left_fixed_size,
             dtype=self.learnable_component_exponents.dtype,
             device=self.learnable_component_exponents.device,
         )
         self.fixed_right = torch.zeros(
-            num_bins - right_most_bin,
+            right_fixed_size,
             dtype=self.learnable_component_exponents.dtype,
             device=self.learnable_component_exponents.device,
         )
-        self.window = torch.cat([self.fixed_left, self.learnable_component, self.fixed_right], dim=0)
+
+        window_parts = [self.fixed_left, self.learnable_component, self.fixed_right]
+        self.window = torch.cat([part for part in window_parts if part.numel() > 0], dim=0)
         self.window_norm = self._win_norm_func(self.window)
 
         # Set training curve labels

@@ -1,6 +1,7 @@
 """
 Plot Selectivity vs. SNR for different optimizers at various fetal depths.
 Compares DIGSS, Liu et al., and CW methods.
+Plots mean values with shaded "error balls" (ellipses) representing uncertainty.
 """
 
 from pathlib import Path
@@ -8,14 +9,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+from matplotlib.patches import Ellipse
 
 from joint_tof_opt.plotting import load_plot_config
 
 
 def main():
-    """Generate Selectivity vs. SNR scatter plot."""
+    """Generate Selectivity vs. SNR scatter plot with error balls."""
     # Configuration: Control which depth points to annotate (step size)
-    # Set to 1 to annotate all points, 2 for every other point, 3 for every third, etc.
     ANNOTATION_STEP = 3  # Annotate every Nth point for all methods
 
     # Load matplotlib configuration
@@ -23,17 +24,11 @@ def main():
 
     # Load sensitivity comparison results
     results_path = (Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml")
-    with open(results_path, "r") as f:
+    with open(results_path) as f:
         results = yaml.safe_load(f)
 
-    # Extract data for each optimizer
-    digss_unit_sum_data = {"snr": [], "selectivity": [], "depths": []}
-    digss_unit_max_data = {"snr": [], "selectivity": [], "depths": []}
-    liu_data_h1 = {"snr": [], "selectivity": [], "depths": []}
-    liu_data_h2 = {"snr": [], "selectivity": [], "depths": []}
-    alt_liu_data_h1 = {"snr": [], "selectivity": [], "depths": []}
-    alt_liu_data_h2 = {"snr": [], "selectivity": [], "depths": []}
-    cw_data = {"snr": [], "selectivity": [], "depths": []}
+    # Group data: {label: {depth: {"snr": [], "selectivity": []}}}
+    grouped_data = {}
 
     for _, exp_data in results.items():
         if not isinstance(exp_data, dict):
@@ -60,85 +55,89 @@ def main():
         selectivity = np.sqrt(fetal_ac_energy / maternal_ac_energy)
         snr = np.sqrt(fetal_ac_energy) / baseline_noise_std
 
-        # Store data based on optimizer type
+        # Determine label
         optimizer_str = str(optimizer)
-
+        label = None
         if optimizer_str.startswith("DIGSSOptimizer"):
             if "normalization_scheme=unit_sum" in optimizer_str:
-                digss_unit_sum_data["snr"].append(snr)
-                digss_unit_sum_data["selectivity"].append(selectivity)
-                digss_unit_sum_data["depths"].append(depth)
+                label = "DIGSS(Unit Sum)"
             elif "normalization_scheme=unit_max" in optimizer_str:
-                digss_unit_max_data["snr"].append(snr)
-                digss_unit_max_data["selectivity"].append(selectivity)
-                digss_unit_max_data["depths"].append(depth)
-        elif str(optimizer).startswith("LiuOptimizer"):
-            if "harmonics=1" in str(optimizer):
-                liu_data_h1["snr"].append(snr)
-                liu_data_h1["selectivity"].append(selectivity)
-                liu_data_h1["depths"].append(depth)
-            elif "harmonics=2" in str(optimizer):
-                liu_data_h2["snr"].append(snr)
-                liu_data_h2["selectivity"].append(selectivity)
-                liu_data_h2["depths"].append(depth)
-        elif str(optimizer).startswith("AltLiuOptimizer"):
-            if "harmonics=1" in str(optimizer):
-                alt_liu_data_h1["snr"].append(snr)
-                alt_liu_data_h1["selectivity"].append(selectivity)
-                alt_liu_data_h1["depths"].append(depth)
-            elif "harmonics=2" in str(optimizer):
-                alt_liu_data_h2["snr"].append(snr)
-                alt_liu_data_h2["selectivity"].append(selectivity)
-                alt_liu_data_h2["depths"].append(depth)
-        elif str(optimizer).startswith("DummyUnitWindowGenerator"):
-            cw_data["snr"].append(snr)
-            cw_data["selectivity"].append(selectivity)
-            cw_data["depths"].append(depth)
+                label = "DIGSS(Unit Max)"
+        elif optimizer_str.startswith("LiuOptimizer"):
+            if "harmonics=2" in optimizer_str:
+                label = "Boxcar$^{[27]}$"
+        elif optimizer_str.startswith("DummyUnitWindowGenerator"):
+            label = "CW"
 
-    # Filter data to only include every Nth point
-    def filter_data(data, step):
-        """Filter data dictionary to only include every Nth point."""
-        filtered = {key: [] for key in data.keys()}
-        for i in range(0, len(data["snr"]), step):
-            for key in data.keys():
-                filtered[key].append(data[key][i])
-        return filtered
-
-    def plot_method_with_annotations(ax, data, label):
-        """Plot a method's data with depth annotations."""
-        if not data["snr"]:
-            return
-
-        ax.plot(data["snr"], data["selectivity"], label=label)
-        # Add depth annotations
-        for i, depth in enumerate(data["depths"]):
-            depth_cm = depth / 10  # Convert mm to cm
-            ax.annotate(
-                f"{depth_cm:.1f} cm",
-                (data["snr"][i], data["selectivity"][i]),
-                textcoords="offset points",
-                xytext=(5, 5),
-                ha="left",
-                fontsize=7,
-                alpha=0.7,
-                bbox=dict(
-                    boxstyle="round,pad=0.15", fc="lightgray", ec="none", alpha=0.7
-                ),
-            )
-
-    digss_unit_sum_filtered = filter_data(digss_unit_sum_data, ANNOTATION_STEP)
-    digss_unit_max_filtered = filter_data(digss_unit_max_data, ANNOTATION_STEP)
-    liu_filtered = filter_data(liu_data_h2, ANNOTATION_STEP)
-    cw_filtered = filter_data(cw_data, ANNOTATION_STEP)
+        if label:
+            if label not in grouped_data:
+                grouped_data[label] = {}
+            if depth not in grouped_data[label]:
+                grouped_data[label][depth] = {"snr": [], "selectivity": []}
+            grouped_data[label][depth]["snr"].append(snr)
+            grouped_data[label][depth]["selectivity"].append(selectivity)
 
     # Create figure
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    # Plot each optimizer with lines connecting points
-    plot_method_with_annotations(ax, digss_unit_sum_filtered, "DIGSS(Unit Sum)")
-    plot_method_with_annotations(ax, digss_unit_max_filtered, "DIGSS(Unit Max)")
-    plot_method_with_annotations(ax, liu_filtered, "Boxcar$^{[27]}$")
-    plot_method_with_annotations(ax, cw_filtered, "CW")
+    # labels_to_plot = ["DIGSS(Unit Sum)", "DIGSS(Unit Max)", "Boxcar$^{[27]}$", "CW"]
+    labels_to_plot = ["DIGSS(Unit Sum)", "DIGSS(Unit Max)", "CW"]
+
+    for label in labels_to_plot:
+        if label not in grouped_data:
+            continue
+
+        depths = sorted(grouped_data[label].keys())
+        snr_means = []
+        snr_stds = []
+        sel_means = []
+        sel_stds = []
+        plot_depths = []
+
+        for d in depths:
+            snrs = grouped_data[label][d]["snr"]
+            sels = grouped_data[label][d]["selectivity"]
+
+            snr_means.append(np.mean(snrs))
+            snr_stds.append(np.std(snrs))
+            sel_means.append(np.mean(sels))
+            sel_stds.append(np.std(sels))
+            plot_depths.append(d)
+
+        # Plot the mean line
+        line, = ax.plot(snr_means, sel_means, label=label, marker='o', markersize=4, linestyle='-')
+        color = line.get_color()
+
+        # Add "error balls" (ellipses) for each point
+        for i in range(len(snr_means)):
+            # Draw an ellipse representing 1 standard deviation
+            # Note: Width and height are 2*std
+            ellipse = Ellipse(
+                (snr_means[i], sel_means[i]),
+                width=2*snr_stds[i],
+                height=2*sel_stds[i],
+                facecolor=color,
+                alpha=0.15,
+                edgecolor='none'
+            )
+            ax.add_patch(ellipse)
+
+        # Add depth annotations for filtered points
+        for i, depth in enumerate(plot_depths):
+            if i % ANNOTATION_STEP == 0:
+                depth_cm = depth / 10  # Convert mm to cm
+                ax.annotate(
+                    f"{depth_cm:.1f} cm",
+                    (snr_means[i], sel_means[i]),
+                    textcoords="offset points",
+                    xytext=(5, 5),
+                    ha="left",
+                    fontsize=7,
+                    alpha=0.7,
+                    bbox=dict(
+                        boxstyle="round,pad=0.15", fc="lightgray", ec="none", alpha=0.7
+                    ),
+                )
 
     # Configure axes
     ax.set_xlabel("Fetal SNR")

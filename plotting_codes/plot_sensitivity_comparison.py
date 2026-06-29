@@ -61,8 +61,9 @@ def main():
 
     # Process and plot each group
     labels_to_plot = ["DIGSS(Unit Sum)", "DIGSS(Unit Max)", "Boxcar$^{[27]}$", "CW"]
+    offsets = [-0.03, -0.01, 0.01, 0.03]
 
-    for label in labels_to_plot:
+    for label, offset in zip(labels_to_plot, offsets):
         if label not in grouped_data:
             continue
 
@@ -76,7 +77,7 @@ def main():
         means = np.array(means)
         stds = np.array(stds)
         # Plot with error bars
-        ax.errorbar(depths, means, yerr=stds, label=label, capsize=3)
+        ax.errorbar(np.array(depths) + offset, means, yerr=stds, label=label, capsize=3)
 
     # Configure axes
     ax.set_xlabel("Fetal Depth (cm)")
