@@ -177,9 +177,14 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
         if isinstance(noise_calc, WindowSumWithAdditiveGaussianNoiseCalculator):
             average_frame = torch.mean(self.tof_data.tof_series, dim=0)
-            noisy_bin_indices = torch.where(average_frame < 1 / 2 * noise_calc.noise_var ** (1 / 2))[0]
-            right_most_bin = noisy_bin_indices[0]
+            noisy_bin_indices = torch.where(average_frame < noise_calc.noise_var ** (1 / 2))[0]
+            if len(noisy_bin_indices) != 0:
+                right_most_bin = noisy_bin_indices[0]
+            else:
+                # Non-Noisy condition - revert back to this
+                right_most_bin = self.max_selectivity_index
         else:
+            # Non-noisy condition
             right_most_bin = self.max_selectivity_index
 
         if right_most_bin <= self.max_snr_index:
@@ -187,14 +192,13 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         print(f"Rightmost bin index: {right_most_bin}")
         # Initalize the learnable window parameters - all else is fixed to 0.0
-        initial_params = torch.zeros(right_most_bin - self.max_snr_index + 1, dtype=torch.float32)
-        # initial_params[-2: 0] = 10.0  # Initialize the last 3 learnable parameters to 1 (before exponentiation)
+        left_fixed_size = max(0, self.max_snr_index - 1)
+        right_fixed_size = max(0, num_bins - right_most_bin)
+        # ponytail: use left_fixed_size (not max_snr_index-1) so the max(0,...) clamp is reflected in learnable size
+        initial_params = torch.zeros(right_most_bin - left_fixed_size, dtype=torch.float32)
 
         self.learnable_component_exponents = torch.nn.Parameter(initial_params, requires_grad=True)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
-
-        left_fixed_size = max(0, self.max_snr_index - 1)
-        right_fixed_size = max(0, num_bins - right_most_bin)
         self.fixed_left = torch.zeros(
             left_fixed_size,
             dtype=self.learnable_component_exponents.dtype,
@@ -280,7 +284,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         for i in range(num_bins):
             window = torch.zeros(num_bins)
             window[i] = 1.0
-            noise_var = torch.mean(self.noise_calc.compute_noise(self.tof_data, window))
+            noise_var = self.noise_calc.compute_noise(self.tof_data, window).sum()
             noise_std = torch.sqrt(noise_var)
             compact_stats = self.moment_module(window)
             compact_stats = compact_stats - compact_stats.mean()

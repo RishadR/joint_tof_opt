@@ -67,7 +67,7 @@ def main():
     # Sort variances for consistent plotting
     sorted_vars = sorted(grouped_data.keys())
 
-    for noise_var in sorted_vars:
+    for noise_var in sorted_vars[:4]:
         depths = sorted(grouped_data[noise_var].keys())
         means = []
         stds = []
@@ -78,10 +78,8 @@ def main():
 
         # Calculate noise as percentage of input photon count
         # Total Noise Std Dev / Total Photons * 100
-        total_std = np.sqrt(noise_var * num_bins)
-        noise_percent = (noise_var / TOTAL_PHOTONS) * 100
-
-        label = f"{noise_percent:.2e}% Noise"
+        noise_pct = 100 * np.sqrt(noise_var) / TOTAL_PHOTONS
+        label = f"{noise_pct:.2g}% noise"
 
         # Let plot_config handle linestyle and markers
         ax.errorbar(depths, means, yerr=stds, label=label, capsize=3)

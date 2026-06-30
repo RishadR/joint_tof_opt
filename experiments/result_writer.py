@@ -1,6 +1,8 @@
-import yaml
 from pathlib import Path
 from typing import Any
+
+import yaml
+
 
 def clear_results(results_path: Path) -> None:
     """
@@ -42,6 +44,6 @@ def write_results_to_yaml(results: list[dict[str, Any]], results_path: Path, app
 
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(results, start=next_exp_index)}
     results_to_write = existing_results | results_dict if append else results_dict
-    
+
     with results_path.open("w") as f:
         yaml.dump(results_to_write, f, default_flow_style=False)

@@ -153,13 +153,13 @@ def main(append_results: bool = False) -> None:
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file,
-            measurand,
-            normalization_scheme="unit_sum",
-            noise_calc=noise_calc,
-            window_smoothening=False,
-        ),
+        # lambda tof_file, measurand: DIGSSOptimizer(
+        #     tof_file,
+        #     measurand,
+        #     normalization_scheme="unit_sum",
+        #     noise_calc=noise_calc,
+        #     window_smoothening=False,
+        # ),
         lambda tof_file, measurand: DIGSSOptimizer(
             tof_file,
             measurand,
