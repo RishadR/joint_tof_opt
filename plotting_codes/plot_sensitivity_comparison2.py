@@ -107,12 +107,12 @@ def main():
 
         # Add "error balls" (ellipses) for each point
         for i in range(len(snr_means)):
-            # Draw an ellipse representing 1 standard deviation
-            # Note: Width and height are 2*std
+            dz_x = 0.434 * snr_stds[i] / snr_means[i]
+            dz_y = 0.434 * sel_stds[i] / sel_means[i]
             ellipse = Ellipse(
                 (snr_means[i], sel_means[i]),
-                width=2 * snr_stds[i],
-                height=2 * sel_stds[i],
+                width=snr_means[i] * (10**dz_x - 10**(-dz_x)),
+                height=sel_means[i] * (10**dz_y - 10**(-dz_y)),
                 facecolor=color,
                 alpha=0.15,
                 edgecolor="none",

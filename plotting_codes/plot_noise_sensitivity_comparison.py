@@ -80,8 +80,12 @@ def main():
         noise_pct = 100 * np.sqrt(noise_var) / TOTAL_PHOTONS
         label = f"{noise_pct:.2g}% noise"
 
-        # Let plot_config handle linestyle and markers
-        ax.errorbar(depths, means, yerr=stds, label=label, capsize=3)
+        means = np.array(means)
+        stds = np.array(stds)
+        dz = 0.434 * stds / means
+        upper = means * (10**dz - 1)
+        lower = means * (1 - 10**(-dz))
+        ax.errorbar(depths, means, yerr=[lower, upper], label=label, capsize=3)
 
     # Configure axes
     ax.set_xlabel("Fetal Depth (cm)")

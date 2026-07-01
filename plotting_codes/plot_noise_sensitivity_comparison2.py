@@ -80,10 +80,12 @@ def main():
         color = line.get_color()
 
         for j in range(len(snr_means)):
+            dz_x = 0.434 * snr_stds[j] / snr_means[j]
+            dz_y = 0.434 * sel_stds[j] / sel_means[j]
             ellipse = Ellipse(
                 (snr_means[j], sel_means[j]),
-                width=2 * snr_stds[j],
-                height=2 * sel_stds[j],
+                width=snr_means[j] * (10**dz_x - 10**(-dz_x)),
+                height=sel_means[j] * (10**dz_y - 10**(-dz_y)),
                 facecolor=color,
                 alpha=0.15,
                 edgecolor="none",

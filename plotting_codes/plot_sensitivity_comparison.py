@@ -77,7 +77,10 @@ def main():
         means = np.array(means)
         stds = np.array(stds)
         # Plot with error bars
-        ax.errorbar(np.array(depths) + offset, means, yerr=stds, label=label, capsize=3)
+        dz = 0.434 * stds / means
+        upper = means * (10**dz - 1)
+        lower = means * (1 - 10**(-dz))
+        ax.errorbar(np.array(depths) + offset, means, yerr=[lower, upper], label=label, capsize=3)
 
     # Configure axes
     ax.set_xlabel("Fetal Depth (cm)")

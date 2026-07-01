@@ -102,6 +102,8 @@ class DIGSSOptimizer(OptimizationExperiment):
             "comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"
         ] = "psafe_same_width",
         normalization_scheme: Literal["unit_sum", "unit_max"] = "unit_sum",
+        use_window_post_process: bool = True,
+        use_snr_left_bound: bool = True,
     ):
         """
         Initialize the PaperOptimizer.
@@ -151,6 +153,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.filter_type = filter_type
         self.window_smoothening = window_smoothening
         self.normalization_scheme = normalization_scheme
+        self.use_window_post_process = use_window_post_process
+        self.use_snr_left_bound = use_snr_left_bound
         self.impulse_window_snr_list = [0.0] * len(self.tof_data.bin_edges)
         self.impulse_window_selectivity_list = [0.0] * len(self.tof_data.bin_edges)
         self.impulse_window_product_list = [0.0] * len(self.tof_data.bin_edges)
@@ -192,7 +196,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         print(f"Rightmost bin index: {right_most_bin}")
         # Initalize the learnable window parameters - all else is fixed to 0.0
-        left_fixed_size = max(0, self.max_snr_index - 1)
+        left_fixed_size = max(0, self.max_snr_index - 1) if use_snr_left_bound else 0
         right_fixed_size = max(0, num_bins - right_most_bin)
         # ponytail: use left_fixed_size (not max_snr_index-1) so the max(0,...) clamp is reflected in learnable size
         initial_params = torch.zeros(right_most_bin - left_fixed_size, dtype=torch.float32)
@@ -415,7 +419,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         # Set the normalized window as final window
         self.unprocessed_window = self.window_norm.clone().detach()
         self.window_norm = self.smoothen_window()
-        self.window_norm = self.window_post_process()
+        if self.use_window_post_process:
+            self.window_norm = self.window_post_process()
         self.window = self.window_norm.detach()
 
     def window_post_process(self) -> torch.Tensor:
@@ -447,7 +452,9 @@ class DIGSSOptimizer(OptimizationExperiment):
             f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience}, grad_clip={self.grad_clip},"
             f"fetal_f={self.fetal_f}), type={self.filter_type}, filter_smoothening={self.window_smoothening},"
             f"reg_type={self.reg_type}, reg_weight={self.reg_weight}, normalize_reward={self.normalize_reward},"
-            f"normalization_scheme={self.normalization_scheme}"
+            f"normalization_scheme={self.normalization_scheme},"
+            f"use_window_post_process={self.use_window_post_process},"
+            f"use_snr_left_bound={self.use_snr_left_bound}"
         )
 
     def components(self) -> dict[str, nn.Module]:
