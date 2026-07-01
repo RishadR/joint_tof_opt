@@ -99,7 +99,7 @@ def run_sensitivity_comparison(
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(noisy_tof_file, measurand)
+                optimizer_experiment = optimizer_func(tof_data, measurand)
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window.detach().cpu()
@@ -157,18 +157,18 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        # lambda tof_file, measurand: DIGSSOptimizer(
-        #     tof_file,
-        #     measurand,
-        #     normalization_scheme="unit_max",
-        #     noise_calc=noise_calc,
-        #     reg_weight=0.0,
-        #     lr=0.1,
-        #     window_smoothening=False,
-        # ),
-        # lambda tof_file, measurand: LiuOptimizer(tof_file, measurand, None, "mean", filter_hw, 2, None),
-        lambda tof_file, measurand: AltLiuOptimizer(tof_file, measurand, None, None, "mean", filter_hw, 2, None),
-        # lambda tof_file, measurand: DummyOptimizationExperiment(tof_file, measurand, None),
+        lambda tof_data, measurand: DIGSSOptimizer(
+            tof_data,
+            measurand,
+            normalization_scheme="unit_max",
+            noise_calc=noise_calc,
+            reg_weight=0.0,
+            lr=0.1,
+            window_smoothening=False,
+        ),
+        lambda tof_data, measurand: LiuOptimizer(tof_data, measurand, None, "mean", filter_hw, 2, None),
+        lambda tof_data, measurand: AltLiuOptimizer(tof_data, measurand, None, None, "mean", filter_hw, 2, None),
+        lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand, None),
     ]
 
     return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
@@ -176,7 +176,7 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
 
 if __name__ == "__main__":
     results_path = Path("./results/sensitivity_comparison_results.yaml")
-    # clear_results(results_path)   # Clears older results - otherwise appends to the existing results file
+    clear_results(results_path)   # Clears older results - otherwise appends to the existing results file
     iterations = 20
     print(f"Running {iterations} iterations in parallel...")
     with ThreadPoolExecutor(max_workers=iterations) as executor:

@@ -68,7 +68,7 @@ class AltLiuOptimizer(OptimizationExperiment):
 
     def __init__(
         self,
-        tof_dataset_path: Path,
+        tof_data: ToFData,
         measurand: str | CompactStatProcess,
         fetal_f: float | None = None,
         maternal_f: float | None = None,
@@ -78,9 +78,9 @@ class AltLiuOptimizer(OptimizationExperiment):
         norm: None | float = None,
     ):
         """
-        Initialize the LiuOptimizer.
+        Initialize the AltLiuOptimizer.
 
-        :param tof_dataset_path: Path to the ToF dataset (.npz file).
+        :param tof_data: ToFData instance to optimize on.
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
         :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
         :param dtof_to_find_max_on: Which DTOF to use to find bmax and b0 ("mean", "median", or "first").
@@ -89,9 +89,8 @@ class AltLiuOptimizer(OptimizationExperiment):
         :param norm: If specified, normalizes the window to have this p-norm. Ex: norm=1 for L1 norm, norm=2 for L2 norm.
         """
         if isinstance(measurand, str):
-            tof_data = ToFData.from_npz(tof_dataset_path)
             measurand = get_named_moment_module(measurand, tof_data)
-        super().__init__(tof_dataset_path, measurand)
+        super().__init__(tof_data, measurand)
 
         self.dtof_to_find_max_on = dtof_to_find_max_on
         self.half_width = half_width
@@ -311,8 +310,9 @@ def main() -> None:
         gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
+        tof_data = ToFData.from_npz(tof_dataset_path)
         experiment = AltLiuOptimizer(
-            tof_dataset_path=tof_dataset_path,
+            tof_data=tof_data,
             measurand=measurand,
             dtof_to_find_max_on='mean',
             half_width = 0.1,

@@ -8,7 +8,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-
 from joint_tof_opt.plotting import load_plot_config
 
 

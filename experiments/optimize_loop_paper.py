@@ -85,7 +85,7 @@ class DIGSSOptimizer(OptimizationExperiment):
 
     def __init__(
         self,
-        tof_dataset_path: Path,
+        tof_data: ToFData,
         measurand: str | CompactStatProcess,
         noise_calc: NoiseCalculator | None = None,
         fetal_f: float | None = None,
@@ -138,10 +138,9 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.noise_calc = noise_calc if noise_calc is not None else WindowSumNoiseCalculator()
 
         if isinstance(measurand, str):
-            tof_data = ToFData.from_npz(tof_dataset_path)
             measurand = get_named_moment_module(measurand, tof_data)
 
-        super().__init__(tof_dataset_path, measurand, lr)
+        super().__init__(tof_data, measurand, lr)
 
         self.max_epochs = max_epochs
         self.filter_hw = filter_hw
@@ -549,10 +548,9 @@ def main() -> None:
         tof_data = ToFData.from_npz(tof_dataset_path)
         modifier = AdditiveGaussianToFModifier(noise_var)
         modified_tof = modifier.modify(tof_data)
-        modified_tof.to_npz(tof_dataset_path)  # Overwrite
         noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
         experiment = DIGSSOptimizer(
-            tof_dataset_path=tof_dataset_path,
+            tof_data=modified_tof,
             measurand=measurand,
             noise_calc=noise_calc,
             fetal_f=gen_config["fetal_f"],
@@ -577,7 +575,7 @@ def main() -> None:
         logger.info("Best SNR Index : %d", experiment.max_snr_index)
         logger.info("Best Selectivity Index : %d", experiment.max_selectivity_index)
         loss_names = experiment.training_curve_labels
-        bin_edges = np.load(tof_dataset_path)["bin_edges"]
+        bin_edges = modified_tof.bin_edges.numpy()
         logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])
         plot_training_curves_and_window(result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False)
 

@@ -91,7 +91,7 @@ def run_sensitivity_comparison(
 
             # Run Optimizers
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(noisy_tof_file, measurand)
+                optimizer_experiment = optimizer_func(tof_data, measurand)
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window.detach().cpu()
@@ -150,8 +150,8 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(
-            tof_file,
+        lambda tof_data, measurand: DIGSSOptimizer(
+            tof_data,
             measurand,
             normalization_scheme="unit_max",
             noise_calc=noise_calc,
@@ -159,7 +159,7 @@ def main(noise_var: float) -> list[dict[str, Any]]:
             lr=0.1,
             window_smoothening=False,
         ),
-        # lambda tof_file, measurand: DIGSSOptimizer(
+        # lambda tof_data, measurand: DIGSSOptimizer(
         #     tof_file,
         #     measurand,
         #     normalization_scheme="unit_sum",

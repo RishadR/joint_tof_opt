@@ -4,11 +4,12 @@ Plot Optimized Sensitivity vs. Fetal Depth for different SDD indices.
 Only for DIGSS optimizer.
 """
 
-import yaml
-import matplotlib.pyplot as plt
-from cycler import cycler
-import numpy as np
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import yaml
+
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -19,7 +20,7 @@ def main():
 
     # Load detector comparison results
     results_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
-    with open(results_path, "r") as f:
+    with open(results_path) as f:
         results = yaml.safe_load(f)
 
     # SDD distances in mm

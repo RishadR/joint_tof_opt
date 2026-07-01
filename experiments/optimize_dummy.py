@@ -30,12 +30,11 @@ class DummyOptimizationExperiment(OptimizationExperiment):
     """
 
     def __init__(
-        self, tof_dataset_path: Path, measurand: CompactStatProcess | str, norm: float | None = None
+        self, tof_data: ToFData, measurand: CompactStatProcess | str, norm: float | None = None
     ):
         if isinstance(measurand, str):
-            tof_data = ToFData.from_npz(tof_dataset_path)
             measurand = get_named_moment_module(measurand, tof_data)
-        super().__init__(tof_dataset_path, measurand)
+        super().__init__(tof_data, measurand)
         self.norm = norm
 
     def optimize(self) -> None:

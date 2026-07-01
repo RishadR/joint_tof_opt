@@ -9,12 +9,7 @@ from typing import Any
 import torch
 import yaml
 
-from joint_tof_opt import (
-    CompactStatProcess,
-    Evaluator,
-    generate_tof,
-    pretty_print_log,
-)
+from joint_tof_opt import CompactStatProcess, Evaluator, ToFData, generate_tof, pretty_print_log
 from optimize_loop_paper import DIGSSOptimizer
 from sensitivity_compute import AltPaperEvaluator3
 
@@ -66,10 +61,11 @@ def run_detector_comparison(
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config, tof_dataset_file)
+            tof_data = ToFData.from_npz(tof_dataset_file)
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(tof_dataset_file, measurand)
+                optimizer_experiment = optimizer_func(tof_data, measurand)
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window
@@ -111,7 +107,7 @@ def main() -> None:
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
-        lambda tof_file, measurand: DIGSSOptimizer(tof_file, measurand, normalization_scheme="unit_max")
+        lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, normalization_scheme="unit_max")
     ]
 
     exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
