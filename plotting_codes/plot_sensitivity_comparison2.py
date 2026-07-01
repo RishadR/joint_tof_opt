@@ -132,7 +132,7 @@ def main():
                         ha="left",
                         fontsize=7,
                         alpha=0.7,
-                        bbox=dict(boxstyle="round,pad=0.15", fc="lightgray", ec="none", alpha=0.7),
+                        bbox={"boxstyle": "round,pad=0.15", "fc": "lightgray", "ec": "none", "alpha": 0.7},
                     )
 
     # Configure axes

@@ -45,7 +45,7 @@ def run_datalength_sweep(
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
 
         for datapoint_count in datapoint_counts:
-            with open("./experiments/tof_config.yaml", "r", encoding="utf-8") as f:
+            with open("./experiments/tof_config.yaml", encoding="utf-8") as f:
                 gen_config: dict[str, Any] = yaml.safe_load(f)
 
             sampling_rate = float(gen_config["sampling_rate"])
