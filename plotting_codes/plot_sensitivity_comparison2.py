@@ -23,7 +23,7 @@ def main():
     load_plot_config()
 
     # Load sensitivity comparison results
-    results_path = (Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml")
+    results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
     with open(results_path) as f:
         results = yaml.safe_load(f)
 
@@ -43,12 +43,7 @@ def main():
         maternal_ac_energy = evaluator_log.get("maternal_ac_energy")
         baseline_noise_std = evaluator_log.get("baseline_noise_std")
 
-        if (
-            depth is None
-            or fetal_ac_energy is None
-            or maternal_ac_energy is None
-            or baseline_noise_std is None
-        ):
+        if depth is None or fetal_ac_energy is None or maternal_ac_energy is None or baseline_noise_std is None:
             continue
 
         # Compute Selectivity and SNR
@@ -62,13 +57,13 @@ def main():
             if "normalization_scheme=unit_sum" in optimizer_str:
                 label = "DIGSS(Unit Sum)"
             elif "normalization_scheme=unit_max" in optimizer_str:
-                label = "DIGSS(Unit Max)"
+                label = "DIGSS"
         elif optimizer_str.startswith("LiuOptimizer"):
-            if "harmonics=2" in optimizer_str:
-                label = "Boxcar$^{[27]}$"
+            label = "Boxcar$^{[27]}$"
+        elif optimizer_str.startswith("AltLiuOptimizer"):
+            label = "Alt. Boxcar"
         elif optimizer_str.startswith("DummyUnitWindowGenerator"):
             label = "CW"
-
         if label:
             if label not in grouped_data:
                 grouped_data[label] = {}
@@ -80,8 +75,10 @@ def main():
     # Create figure
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    # labels_to_plot = ["DIGSS(Unit Sum)", "DIGSS(Unit Max)", "Boxcar$^{[27]}$", "CW"]
-    labels_to_plot = ["DIGSS(Unit Sum)", "DIGSS(Unit Max)", "CW"]
+    labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "Alt. Boxcar", "CW"]
+    # offsets = [-0.02, 0.00, +0.02]
+
+    # labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "CW"]
 
     for label in labels_to_plot:
         if label not in grouped_data:
@@ -105,7 +102,7 @@ def main():
             plot_depths.append(d)
 
         # Plot the mean line
-        line, = ax.plot(snr_means, sel_means, label=label, marker='o', markersize=4, linestyle='-')
+        (line,) = ax.plot(snr_means, sel_means, label=label)
         color = line.get_color()
 
         # Add "error balls" (ellipses) for each point
@@ -114,30 +111,29 @@ def main():
             # Note: Width and height are 2*std
             ellipse = Ellipse(
                 (snr_means[i], sel_means[i]),
-                width=2*snr_stds[i],
-                height=2*sel_stds[i],
+                width=2 * snr_stds[i],
+                height=2 * sel_stds[i],
                 facecolor=color,
                 alpha=0.15,
-                edgecolor='none'
+                edgecolor="none",
             )
             ax.add_patch(ellipse)
 
-        # Add depth annotations for filtered points
-        for i, depth in enumerate(plot_depths):
-            if i % ANNOTATION_STEP == 0:
-                depth_cm = depth / 10  # Convert mm to cm
-                ax.annotate(
-                    f"{depth_cm:.1f} cm",
-                    (snr_means[i], sel_means[i]),
-                    textcoords="offset points",
-                    xytext=(5, 5),
-                    ha="left",
-                    fontsize=7,
-                    alpha=0.7,
-                    bbox=dict(
-                        boxstyle="round,pad=0.15", fc="lightgray", ec="none", alpha=0.7
-                    ),
-                )
+        # Add depth annotations on DIGSS only
+        if label == labels_to_plot[-1]:  # Only annotate for the last label (Ideally CW - cleaner curve)
+            for i, depth in enumerate(plot_depths):
+                if i % ANNOTATION_STEP == 0:
+                    depth_cm = depth / 10
+                    ax.annotate(
+                        f"{depth_cm:.1f} cm",
+                        (snr_means[i], sel_means[i]),
+                        textcoords="offset points",
+                        xytext=(5, 0),
+                        ha="left",
+                        fontsize=7,
+                        alpha=0.7,
+                        bbox=dict(boxstyle="round,pad=0.15", fc="lightgray", ec="none", alpha=0.7),
+                    )
 
     # Configure axes
     ax.set_xlabel("Fetal SNR")

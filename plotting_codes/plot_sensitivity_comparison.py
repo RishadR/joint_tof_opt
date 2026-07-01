@@ -42,13 +42,13 @@ def main():
             if "normalization_scheme=unit_sum" in optimizer:
                 label = "DIGSS(Unit Sum)"
             elif "normalization_scheme=unit_max" in optimizer:
-                label = "DIGSS(Unit Max)"
+                label = "DIGSS"
         elif optimizer.startswith("LiuOptimizer"):
-            if "harmonics=2" in optimizer:
-                label = "Boxcar$^{[27]}$"
+            label = "Boxcar$^{[27]}$"
+        elif optimizer.startswith("AltLiuOptimizer"):
+            label = "Alt. Boxcar"
         elif optimizer.startswith("DummyUnitWindowGenerator"):
             label = "CW"
-
         if label:
             if label not in grouped_data:
                 grouped_data[label] = {}
@@ -60,13 +60,13 @@ def main():
     fig, ax = plt.subplots(figsize=(6, 4))
 
     # Process and plot each group
-    labels_to_plot = ["DIGSS(Unit Sum)", "DIGSS(Unit Max)", "Boxcar$^{[27]}$", "CW"]
+    # labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "CW"]
+    # offsets = [-0.02, 0.00, +0.02]
+
+    labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "Alt. Boxcar", "CW"]
     offsets = [-0.03, -0.01, 0.01, 0.03]
 
-    for label, offset in zip(labels_to_plot, offsets):
-        if label not in grouped_data:
-            continue
-
+    for label, offset in zip(labels_to_plot, offsets, strict=True):
         depths = sorted(grouped_data[label].keys())
         means = []
         stds = []

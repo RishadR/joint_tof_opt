@@ -4,11 +4,12 @@ Plot selectivity vs. fetal SNR for different SDD indices.
 """
 
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 from adjustText import adjust_text
-from cycler import cycler
+
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -19,7 +20,7 @@ def main():
 
     # Load detector comparison results
     results_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
-    with open(results_path, "r") as f:
+    with open(results_path) as f:
         results = yaml.safe_load(f)
 
     # SDD distances in cm

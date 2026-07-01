@@ -16,10 +16,10 @@ def main():
         results = yaml.safe_load(f)
 
     targets = {
-        "DIGSS(Unit Sum)": lambda o: (
-            o.startswith("DIGSSOptimizer") and "normalization_scheme=unit_sum" in o
-        ),
-        "DIGSS(Unit Max)": lambda o: (
+        # "DIGSS(Unit Sum)": lambda o: (
+        #     o.startswith("DIGSSOptimizer") and "normalization_scheme=unit_sum" in o
+        # ),
+        "DIGSS": lambda o: (
             o.startswith("DIGSSOptimizer") and "normalization_scheme=unit_max" in o
         ),
         "BOxcar": lambda o: o.startswith("LiuOptimizer") and "harmonics=2" in o,
@@ -41,7 +41,7 @@ def main():
                 windows[name].append((float(depth), win, centers_ns))
                 break
 
-    fig, axes = plt.subplots(1, 3, figsize=(12, 3.6), sharey=True)
+    fig, axes = plt.subplots(1, len(targets), figsize=(12, 3.6), sharey=True)
     for ax, (name, rows) in zip(axes, windows.items(), strict=True):
         for depth, win, centers_ns in sorted(rows, key=lambda x: x[0])[:4]:
             n = min(len(win), len(centers_ns))

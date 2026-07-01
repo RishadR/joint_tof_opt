@@ -30,22 +30,17 @@ Notes:
 """
 
 import logging
-import yaml
+from pathlib import Path
+from typing import Literal
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-from typing import Literal
-from pathlib import Path
-import matplotlib.pyplot as plt
-from joint_tof_opt import (
-    get_named_moment_module,
-    OptimizationExperiment,
-    CompactStatProcess,
-    ToFData,
-    generate_tof
-)
-from sensitivity_compute import AltPaperEvaluator3
+import yaml
 
+from joint_tof_opt import CompactStatProcess, OptimizationExperiment, ToFData, generate_tof, get_named_moment_module
+from sensitivity_compute import AltPaperEvaluator3
 
 logger = logging.getLogger(__name__)
 
@@ -202,10 +197,10 @@ class LiuOptimizer(OptimizationExperiment):
 
                 # Compute SNR
                 snr = fetal_fft_component / noise_floor
-                
+
                 # Log training curve data
                 results.append([b2, b3, snr])
-                
+
                 if snr >= best_snr:  # Bias towards later windows
                     best_snr = snr
                     best_window = window.clone()
@@ -251,7 +246,7 @@ def plot_training_curves_and_window(
     ## Load config for plotting if available
     config_path = Path("./plotting_codes/plot_config.yaml")
     if config_path.exists():
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             plot_config = yaml.safe_load(f)
             plt.rcParams.update(plot_config)
 
@@ -284,7 +279,7 @@ def plot_training_curves_and_window(
     plt.tight_layout()
 
     plt.savefig(f"./figures/{filename}.svg")
-    plt.savefig(f"./figures/{filename}.pdf")    
+    plt.savefig(f"./figures/{filename}.pdf")
 
 
 def main() -> None:
@@ -296,7 +291,7 @@ def main() -> None:
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         experiment = LiuOptimizer(

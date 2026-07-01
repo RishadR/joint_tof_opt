@@ -2,22 +2,25 @@
 Compare the sensitivity of our metric between different detector indices
 """
 
-from typing import Any, Callable
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
+
 import torch
 import yaml
-from sensitivity_compute import AltPaperEvaluator3
+
 from joint_tof_opt import (
-    Evaluator,
     CompactStatProcess,
+    Evaluator,
     generate_tof,
     pretty_print_log,
 )
 from optimize_loop_paper import DIGSSOptimizer
+from sensitivity_compute import AltPaperEvaluator3
 
 
 def read_parameter_mapping():
-    with open("./data/parameter_mapping.json", "r") as f:
+    with open("./data/parameter_mapping.json") as f:
         parameter_mapping = yaml.safe_load(f)
     return parameter_mapping
 
@@ -49,7 +52,7 @@ def run_detector_comparison(
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
     for sdd_index in sdd_indices_to_test:
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
+        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml"))
         gen_config["selected_sdd_index"] = sdd_index
         # Get the noise function for the measurand
 
