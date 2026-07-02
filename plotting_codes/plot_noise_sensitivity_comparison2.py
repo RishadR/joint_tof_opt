@@ -73,8 +73,10 @@ def main():
             sel_stds.append(np.std(sels))
             plot_depths.append(d)
 
-        noise_pct = 100 * np.sqrt(noise_var) / TOTAL_PHOTONS
-        label = f"{noise_pct:.2g}% noise"
+        if noise_var == 0.0:
+            label = "Noiseless"
+        else:
+            label = f"Noise Var. : {noise_var:.0e}"
 
         (line,) = ax.plot(snr_means, sel_means, label=label)
         color = line.get_color()

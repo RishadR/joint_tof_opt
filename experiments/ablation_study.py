@@ -123,9 +123,8 @@ def run_ablation(
     return results, tof_files
 
 
-def main() -> tuple[list[dict[str, Any]], set[Path]]:
+def main(noise_var: float) -> tuple[list[dict[str, Any]], set[Path]]:
     filter_hw = 0.01  # Hz
-    noise_var = 100.0
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
@@ -166,15 +165,17 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
 if __name__ == "__main__":
     results_path = Path("./results/ablation_results.yaml")
     clear_results(results_path)
+    noise_variances = [0.0, 10.0, 100.0, 1000.0, 10000.0]  # 1000.0 already computed
     iterations = 20
-    print(f"Running {iterations} iterations in parallel...")
-    with ThreadPoolExecutor(max_workers=iterations) as executor:
-        futures = [executor.submit(main) for _ in range(iterations)]
     all_tof_files: set[Path] = set()
-    for i, future in enumerate(futures):
-        exp_results, tof_files = future.result()
-        all_tof_files |= tof_files
-        print(f"Writing results: iteration {i + 1}/{iterations}")
-        write_results_to_yaml(exp_results, results_path, append=True)
+    for noise_var in noise_variances:
+        print(f"Running {iterations} iterations in parallel for noise_var={noise_var}...")
+        with ThreadPoolExecutor(max_workers=iterations) as executor:
+            futures = [executor.submit(main, noise_var) for _ in range(iterations)]
+        for i, future in enumerate(futures):
+            exp_results, tof_files = future.result()
+            all_tof_files |= tof_files
+            print(f"  Writing results: iteration {i + 1}/{iterations}")
+            write_results_to_yaml(exp_results, results_path, append=True)
     for f in all_tof_files:
         f.unlink(missing_ok=True)

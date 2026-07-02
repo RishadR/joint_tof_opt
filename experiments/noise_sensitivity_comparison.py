@@ -177,10 +177,9 @@ def main(noise_var: float) -> list[dict[str, Any]]:
 if __name__ == "__main__":
     results_path = Path("./results/noise_sensitivity_comparison_results.yaml")
     clear_results(results_path)
-    noise_stds = np.logspace(0, 5, 6).tolist()  # [1.0, 10.0, 100.0, 1000.0, 10000.0]
-    noise_stds = [0] + noise_stds  # Add the noiseless case
-    noise_vars = [std**2 for std in noise_stds]
-    iterations = 10
+    # [0.0, 1.0, 10.0, 100.0, 1000.0, 10000.0]
+    noise_vars = [0] + np.logspace(0, 5, 6).tolist()
+    iterations = 20
     for noise_var in noise_vars:
         iteration_count = iterations if noise_var > 0.0 else 1  # If its noiseless - just chill
         print(f"Running {iteration_count} iterations for noise_var={noise_var} in parallel...")

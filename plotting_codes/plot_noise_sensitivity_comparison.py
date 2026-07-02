@@ -8,6 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -60,13 +61,10 @@ def main():
     # Create figure
     fig, ax = plt.subplots(figsize=(7, 5))
 
-    # Total input photon count as specified by user
-    TOTAL_PHOTONS = 1e9
-
     # Sort variances for consistent plotting
     sorted_vars = sorted(grouped_data.keys())
 
-    for noise_var in sorted_vars[:4]:
+    for noise_var in sorted_vars[::2]:
         depths = sorted(grouped_data[noise_var].keys())
         means = []
         stds = []
@@ -74,11 +72,10 @@ def main():
             sens_list = grouped_data[noise_var][d]
             means.append(np.mean(sens_list))
             stds.append(np.std(sens_list))
-
-        # Calculate noise as percentage of input photon count
-        # Total Noise Std Dev / Total Photons * 100
-        noise_pct = 100 * np.sqrt(noise_var) / TOTAL_PHOTONS
-        label = f"{noise_pct:.2g}% noise"
+        if noise_var == 0.0:
+            label = "Noiseless"
+        else:
+            label = f"Noise Var. : {noise_var:.0e}"
 
         means = np.array(means)
         stds = np.array(stds)
