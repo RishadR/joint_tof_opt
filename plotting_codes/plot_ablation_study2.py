@@ -111,9 +111,6 @@ def main():
     ax_log.spines["left"].set_visible(False)
     ax_log.tick_params(left=False)
     ax_log.legend(loc="best", fontsize=8)
-
-    fig.suptitle(f"Depth = {FIXED_DEPTH_MM / 10:.1f} cm")
-
     fig.tight_layout()
 
     figures_dir = Path(__file__).parent.parent / "figures"

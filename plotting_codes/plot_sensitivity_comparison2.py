@@ -9,7 +9,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-from matplotlib.patches import Ellipse
 
 from joint_tof_opt.plotting import load_plot_config
 
@@ -105,19 +104,13 @@ def main():
         (line,) = ax.plot(snr_means, sel_means, label=label)
         color = line.get_color()
 
-        # Add "error balls" (ellipses) for each point
+        theta = np.linspace(0, 2 * np.pi, 100)
         for i in range(len(snr_means)):
             dz_x = 0.434 * snr_stds[i] / snr_means[i]
             dz_y = 0.434 * sel_stds[i] / sel_means[i]
-            ellipse = Ellipse(
-                (snr_means[i], sel_means[i]),
-                width=snr_means[i] * (10**dz_x - 10**(-dz_x)),
-                height=sel_means[i] * (10**dz_y - 10**(-dz_y)),
-                facecolor=color,
-                alpha=0.15,
-                edgecolor="none",
-            )
-            ax.add_patch(ellipse)
+            x_pts = 10 ** (np.log10(snr_means[i]) + dz_x * np.cos(theta))
+            y_pts = 10 ** (np.log10(sel_means[i]) + dz_y * np.sin(theta))
+            ax.fill(x_pts, y_pts, color=color, alpha=0.15, edgecolor="none")
 
         # Add depth annotations on DIGSS only
         if label == labels_to_plot[-1]:  # Only annotate for the last label (Ideally CW - cleaner curve)
