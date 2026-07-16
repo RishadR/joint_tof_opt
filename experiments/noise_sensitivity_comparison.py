@@ -170,7 +170,7 @@ def main(noise_var: float) -> list[dict[str, Any]]:
         # ),
     ]
 
-    return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)  
+    return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
     # (results, tof_files)
 
 

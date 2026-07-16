@@ -179,10 +179,9 @@ class AltLiuOptimizer(OptimizationExperiment):
 
         # Step 3: Exhaustive search over all (b2, b3) window pairs (Both inclusive)
         best_selectivity = 0.0
-        best_window = None
+        best_window = torch.zeros(num_bins, dtype=torch.float32)
+        best_window[self.b0] = 1.0  # Default to single bin window at b0 if no better window is found
 
-        ## DEBUG CODE : TODO REMOVE LATER
-        self.b0 = 0
         ##################################
         for b2 in range(self.b0, self.bf):
             for b3 in range(b2 + 1, self.bf):
