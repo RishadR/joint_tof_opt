@@ -26,6 +26,7 @@ from joint_tof_opt.compact_stat_process import get_named_moment_module
 from optimize_dummy import DummyOptimizationExperiment
 from optimize_liu import LiuOptimizer
 from optimize_loop_paper import DIGSSOptimizer
+from optimize_loop_boxcar import BoxCarOptimizer
 from optimize_liu_alt import AltLiuOptimizer
 from result_writer import clear_results, write_results_to_yaml
 from sensitivity_compute import AltPaperEvaluator3
@@ -157,7 +158,16 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_data, measurand: DIGSSOptimizer(
+        # lambda tof_data, measurand: DIGSSOptimizer(
+        #     tof_data,
+        #     measurand,
+        #     normalization_scheme="unit_max",
+        #     noise_calc=noise_calc,
+        #     reg_weight=0.0,
+        #     lr=0.1,
+        #     window_smoothening=False,
+        # ),
+        lambda tof_data, measurand: BoxCarOptimizer(
             tof_data,
             measurand,
             normalization_scheme="unit_max",
@@ -166,9 +176,9 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
             lr=0.1,
             window_smoothening=False,
         ),
-        lambda tof_data, measurand: LiuOptimizer(tof_data, measurand, None, "mean", filter_hw, 2, None),
-        lambda tof_data, measurand: AltLiuOptimizer(tof_data, measurand, None, None, "mean", filter_hw, 2, None),
-        lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand, None),
+        # lambda tof_data, measurand: LiuOptimizer(tof_data, measurand, None, "mean", filter_hw, 2, None),
+        # lambda tof_data, measurand: AltLiuOptimizer(tof_data, measurand, None, None, "mean", filter_hw, 2, None),
+        # lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand, None),
     ]
 
     return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
@@ -176,7 +186,7 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
 
 if __name__ == "__main__":
     results_path = Path("./results/sensitivity_comparison_results.yaml")
-    clear_results(results_path)   # Clears older results - otherwise appends to the existing results file
+    # clear_results(results_path)   # Clears older results - otherwise appends to the existing results file
     iterations = 20
     print(f"Running {iterations} iterations in parallel...")
     with ThreadPoolExecutor(max_workers=iterations) as executor:

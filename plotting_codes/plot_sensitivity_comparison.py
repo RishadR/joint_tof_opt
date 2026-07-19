@@ -44,11 +44,13 @@ def main():
             elif "normalization_scheme=unit_max" in optimizer:
                 label = "DIGSS"
         elif optimizer.startswith("LiuOptimizer"):
-            label = "Boxcar$^{[27]}$"
+            label = "Spectrum Boxcar$^{[27]}$"
         elif optimizer.startswith("AltLiuOptimizer"):
             label = "Alt. Boxcar"
         elif optimizer.startswith("DummyUnitWindowGenerator"):
             label = "CW"
+        elif optimizer.startswith("BoxCarOptimizer"):
+            label = "Non-Spectrum Boxcar"
         if label:
             if label not in grouped_data:
                 grouped_data[label] = {}
@@ -63,7 +65,7 @@ def main():
     # labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "CW"]
     # offsets = [-0.02, 0.00, +0.02]
 
-    labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "Alt. Boxcar", "CW"]
+    labels_to_plot = ["DIGSS", "Spectrum Boxcar$^{[27]}$", "Non-Spectrum Boxcar", "CW"]
     offsets = [-0.03, -0.01, 0.01, 0.03]
 
     for label, offset in zip(labels_to_plot, offsets, strict=True):

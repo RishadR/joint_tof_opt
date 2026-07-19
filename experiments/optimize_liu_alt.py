@@ -40,6 +40,7 @@ import torch.nn as nn
 import yaml
 
 from joint_tof_opt import (
+    AdditiveGaussianToFModifier,
     CompactStatProcess,
     OptimizationExperiment,
     ToFData,
@@ -297,11 +298,11 @@ def plot_training_curves_and_window(
     plt.savefig(f"./figures/{filename}.pdf")
 
 
-def main() -> None:
+def main(noise_var: float = 100.0) -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     # file_idx = 7
-    for file_idx in range(7, 8):
+    for file_idx in range(2, 3):
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
@@ -310,6 +311,8 @@ def main() -> None:
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         tof_data = ToFData.from_npz(tof_dataset_path)
+        modifier = AdditiveGaussianToFModifier(noise_var)
+        tof_data = modifier.modify(tof_data)
         experiment = AltLiuOptimizer(
             tof_data=tof_data,
             measurand=measurand,
