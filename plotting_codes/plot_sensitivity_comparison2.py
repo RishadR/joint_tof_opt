@@ -16,7 +16,7 @@ from joint_tof_opt.plotting import load_plot_config
 def main():
     """Generate Selectivity vs. SNR scatter plot with error balls."""
     # Configuration: Control which depth points to annotate (step size)
-    ANNOTATION_STEP = 3  # Annotate every Nth point for all methods
+    ANNOTATION_STEP = 1     # Annotate every Nth point for all methods
 
     # Load matplotlib configuration
     load_plot_config()
@@ -58,11 +58,13 @@ def main():
             elif "normalization_scheme=unit_max" in optimizer_str:
                 label = "DIGSS"
         elif optimizer_str.startswith("LiuOptimizer"):
-            label = "Boxcar$^{[27]}$"
+            label = "Spectral Boxcar$^{[27]}$"
         elif optimizer_str.startswith("AltLiuOptimizer"):
             label = "Alt. Boxcar"
         elif optimizer_str.startswith("DummyUnitWindowGenerator"):
             label = "CW"
+        elif optimizer_str.startswith("BoxCarOptimizer"):
+            label = "Brute Force Boxcar"
         if label:
             if label not in grouped_data:
                 grouped_data[label] = {}
@@ -74,7 +76,7 @@ def main():
     # Create figure
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "Alt. Boxcar", "CW"]
+    labels_to_plot = ["DIGSS", "Spectral Boxcar$^{[27]}$", "Brute Force Boxcar", "CW"]
     # offsets = [-0.02, 0.00, +0.02]
 
     # labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "CW"]
