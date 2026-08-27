@@ -17,6 +17,12 @@ def main():
     # Load matplotlib configuration
     load_plot_config()
 
+    # Load total photon count from configuration
+    with open(Path(__file__).parent.parent / "experiments" / "tof_config.yaml") as f:
+        config = yaml.safe_load(f)
+        total_photon_count = config.get("total_photon_count", 1e6)  # Default to 1e6 if not specified
+
+
     # Load sensitivity comparison results
     results_path = Path(__file__).parent.parent / "results" / "noise_sensitivity_comparison_results.yaml"
     if not results_path.exists():
@@ -75,13 +81,14 @@ def main():
         if noise_var == 0.0:
             label = "Noiseless"
         else:
-            label = f"Noise Var. : {noise_var:.0e}"
+            # label = f"Noise Var. : {noise_var:.0e}" # Use Variance as is
+            label = f"Normalized Noise Std. Dev. : {np.sqrt(noise_var) / total_photon_count:.2e}"
 
         means = np.array(means)
         stds = np.array(stds)
         dz = 0.434 * stds / means
         upper = means * (10**dz - 1)
-        lower = means * (1 - 10**(-dz))
+        lower = means * (1 - 10 ** (-dz))
         ax.errorbar(depths, means, yerr=[lower, upper], label=label, capsize=3)
 
     # Configure axes
