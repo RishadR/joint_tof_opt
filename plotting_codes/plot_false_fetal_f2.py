@@ -60,7 +60,7 @@ def main(depth=10):
         error_data[error_hz].append(fom)
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     # Build one curve: x=error (Hz), y=average FoM at that error.
     error_values = sorted(error_data.keys())

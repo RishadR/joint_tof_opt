@@ -41,7 +41,7 @@ def main():
                 windows[name].append((float(depth), win, centers_ns))
                 break
 
-    fig, axes = plt.subplots(1, len(targets), figsize=(12, 3.6), sharey=True)
+    fig, axes = plt.subplots(1, len(targets), sharey=True)
     for ax, (name, rows) in zip(axes, windows.items(), strict=True):
         for depth, win, centers_ns in sorted(rows, key=lambda x: x[0])[:4]:
             n = min(len(win), len(centers_ns))

@@ -75,7 +75,7 @@ def main():
     ]
 
     # Create figure and twin y-axis
-    fig, ax1 = plt.subplots(figsize=(6, 4))
+    fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
 
     # Left axis: sensitivity curves with error bars

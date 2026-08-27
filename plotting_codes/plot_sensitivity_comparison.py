@@ -59,7 +59,7 @@ def main():
             grouped_data[label][depth].append(sensitivity)
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     # Process and plot each group
     # labels_to_plot = ["DIGSS", "Boxcar$^{[27]}$", "CW"]
@@ -88,7 +88,7 @@ def main():
     ax.set_xlabel("Fetal Depth (cm)")
     ax.set_ylabel("Selectivity $\\times$ SNR")
     ax.set_yscale("log")
-    ax.legend(loc="upper right")
+    ax.legend(loc="lower left")
     ax.grid(True, which="both", ls="-", alpha=0.5)
 
     # Save figure

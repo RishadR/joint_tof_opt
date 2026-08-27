@@ -15,9 +15,12 @@ from joint_tof_opt.plotting import load_plot_config
 def main():
     """Generate Selectivity vs. Fetal SNR scatter plot grouped by noise level."""
     ANNOTATION_STEP = 3
-    TOTAL_PHOTONS = 1e9
 
     load_plot_config()
+
+    with open(Path(__file__).parent.parent / "experiments" / "tof_config.yaml") as f:
+        config = yaml.safe_load(f)
+        total_photon_count = config.get("total_photon_count", 1e6)  # Default to 1e6 if not specified
 
     results_path = Path(__file__).parent.parent / "results" / "noise_sensitivity_comparison_results.yaml"
     if not results_path.exists():
@@ -55,7 +58,7 @@ def main():
         grouped_data[noise_var][depth]["snr"].append(snr)
         grouped_data[noise_var][depth]["selectivity"].append(selectivity)
 
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     sorted_vars = sorted(grouped_data.keys())[::2]  # every other noise level
 
@@ -75,7 +78,7 @@ def main():
         if noise_var == 0.0:
             label = "Noiseless"
         else:
-            label = f"Noise Var. : {noise_var:.0e}"
+            label = f"Normalized Noise $\\sigma$ : {np.sqrt(noise_var) / total_photon_count:.2e}"
 
         (line,) = ax.plot(snr_means, sel_means, label=label)
         color = line.get_color()
@@ -107,7 +110,7 @@ def main():
     ax.set_ylabel("Fetal Selectivity")
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.legend(loc="best", fontsize=8)
+    ax.legend(loc="best")
     ax.grid(True, which="major")
     ax.grid(True, which="minor", alpha=0.3)
     ax.minorticks_on()

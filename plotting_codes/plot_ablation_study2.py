@@ -57,7 +57,6 @@ def main():
     fig, (ax_nl, ax_log) = plt.subplots(
         1,
         2,
-        figsize=(8, 5),
         gridspec_kw={"width_ratios": [1, 4]},
         sharey=True,
     )
@@ -110,7 +109,7 @@ def main():
     ax_log.grid(True, which="both", ls="-", alpha=0.5)
     ax_log.spines["left"].set_visible(False)
     ax_log.tick_params(left=False)
-    ax_log.legend(loc="best", fontsize=8)
+    ax_log.legend(loc="best")
     fig.tight_layout()
 
     figures_dir = Path(__file__).parent.parent / "figures"

@@ -65,7 +65,7 @@ def main():
         grouped_data[noise_var][depth_cm].append(float(sensitivity))
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, ax = plt.subplots()
 
     # Sort variances for consistent plotting
     sorted_vars = sorted(grouped_data.keys())
@@ -82,7 +82,7 @@ def main():
             label = "Noiseless"
         else:
             # label = f"Noise Var. : {noise_var:.0e}" # Use Variance as is
-            label = f"Normalized Noise Std. Dev. : {np.sqrt(noise_var) / total_photon_count:.2e}"
+            label = f"Normalized Noise $\\sigma$ : {np.sqrt(noise_var) / total_photon_count:.2e}"
 
         means = np.array(means)
         stds = np.array(stds)
@@ -95,7 +95,7 @@ def main():
     ax.set_xlabel("Fetal Depth (cm)")
     ax.set_ylabel("Selectivity $\\times$ SNR")
     ax.set_yscale("log")
-    ax.legend(loc="upper right", fontsize=8)
+    ax.legend(loc="lower left")
     ax.grid(True, which="both", ls="-", alpha=0.5)
 
     # Save figure

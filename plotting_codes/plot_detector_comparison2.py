@@ -84,7 +84,7 @@ def main():
             sdd_data[sdd_index]["depth_cm"] = np.array(sdd_data[sdd_index]["depth_cm"])[sorted_indices]
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     # I have way too make Fetal Depths. Only plotting alternate ones
     for sdd_index in sorted(sdd_data.keys()):

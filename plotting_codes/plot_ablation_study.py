@@ -57,7 +57,7 @@ def main():
                 grouped_data[idx].setdefault(depth_cm, []).append(float(sensitivity))
                 break
 
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, ax = plt.subplots()
 
     for (_, _, label, zorder, offset), data in zip(VARIANTS, grouped_data, strict=True):
         depths = sorted(data.keys())
@@ -71,7 +71,7 @@ def main():
     ax.set_xlabel("Fetal Depth (cm)")
     ax.set_ylabel("Selectivity $\\times$ SNR")
     ax.set_yscale("log")
-    ax.legend(loc="upper right", fontsize=8)
+    ax.legend(loc="upper right")
     ax.grid(True, which="both", ls="-", alpha=0.5)
 
     fig.tight_layout()

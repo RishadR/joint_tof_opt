@@ -85,7 +85,7 @@ def main(depth=6):
         error_data[error_hz].append(fetal_energy)
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     # Build one curve: x=error (Hz), y=average fetal energy at that error.
     error_values = sorted(error_data.keys())

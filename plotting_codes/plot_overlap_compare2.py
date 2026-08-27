@@ -1,9 +1,11 @@
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
-import yaml
 import matplotlib.pyplot as plt
+import yaml
+
 from joint_tof_opt.plotting import load_plot_config
+
 
 def _combo_label(filter_type: str, filter_hw: float) -> str:
     if filter_type == "psafe_same_width":
@@ -17,8 +19,10 @@ def main(
 ) -> None:
     # Load matplotlib configuration (same implementation as plot_detector_comparison.py)
     load_plot_config()
+    fig_size_x = plt.rcParams.get("figure.figsize", [6, 4])[0]
+    fig_size_y = plt.rcParams.get("figure.figsize", [6, 4])[1]
 
-    with open(input_yaml, "r", encoding="utf-8") as f:
+    with open(input_yaml, encoding="utf-8") as f:
         data = yaml.safe_load(f)
 
     grouped_s1 = defaultdict(list)
@@ -35,7 +39,7 @@ def main(
         grouped_s2[(ftype, hw)].append((depth, s2))
         grouped_diff[(ftype, hw)].append((depth, abs(s1 - s2)))
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True, sharey=False)
+    fig, axes = plt.subplots(1, 2, sharex=True, sharey=False, figsize=(fig_size_x * 1.5, fig_size_y))
 
     for (ftype, hw) in sorted(grouped_s1.keys(), key=lambda k: (k[0], k[1])):
         label = _combo_label(ftype, hw)
@@ -65,7 +69,7 @@ def main(
     fig.savefig(output_base.with_suffix(".pdf"), format="pdf")
     fig.savefig(output_base.with_suffix(".svg"), format="svg")
 
-    fig_alt, ax_alt = plt.subplots(1, 1, figsize=(6, 4), sharex=True, sharey=False)
+    fig_alt, ax_alt = plt.subplots(1, 1, sharex=True, sharey=False)
 
     for (ftype, hw) in sorted(grouped_diff.keys(), key=lambda k: (k[0], k[1])):
         label = _combo_label(ftype, hw)

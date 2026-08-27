@@ -85,7 +85,7 @@ def plot_impulse_bin_heatmaps(
     """
     load_plot_config()
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2)
     plot_specs = [
         (axes[0, 0], snr_grid, "Normalized SNR"),
         (axes[0, 1], selectivity_grid, "Normalized Selectivity"),

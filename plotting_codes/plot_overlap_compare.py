@@ -1,13 +1,12 @@
 """
 What happens when Fetal and Maternal HR are overlapping/close? How do the two evaluators compare?
 """
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
-import yaml
 import matplotlib.pyplot as plt
+import yaml
 from matplotlib.ticker import PercentFormatter
-from cycler import cycler
 
 from joint_tof_opt.plotting import load_plot_config
 
@@ -24,8 +23,10 @@ def main(
 ) -> None:
     # Load matplotlib configuration (same implementation as plot_detector_comparison.py)
     load_plot_config()
-    with open(input_yaml, "r", encoding="utf-8") as f:
+    with open(input_yaml, encoding="utf-8") as f:
         data = yaml.safe_load(f)
+    fig_size_x = plt.rcParams.get("figure.figsize", [6, 4])[0]
+    fig_size_y = plt.rcParams.get("figure.figsize", [6, 4])[1]
 
     grouped_s1 = defaultdict(list)
     grouped_s2 = defaultdict(list)
@@ -35,7 +36,7 @@ def main(
         sep = float(entry["Separation_Hz"])
         hw = float(entry["Filter_HW"])
         ftype = str(entry["Filter_Type"])
-        s1 = float(entry["Sensitivity1"])   # FoM 
+        s1 = float(entry["Sensitivity1"])   # FoM
         s2 = float(entry["Sensitivity2"])   # Reward Metric
         # s2 = float(entry["Optimizer Best Metric"])
         # s2 = float(entry["Optimizer Best Selectivity"])
@@ -44,7 +45,7 @@ def main(
         grouped_s2[(ftype, hw)].append((sep, s2))
         grouped_diff[(ftype, hw)].append((sep, abs(s1 - s2)))
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True, sharey=False)
+    fig, axes = plt.subplots(1, 2, sharex=True, sharey=False, figsize=(fig_size_x * 1.5, fig_size_y))
 
     for (ftype, hw) in sorted(grouped_s1.keys(), key=lambda k: (k[0], k[1])):
         label = _combo_label(ftype, hw)
@@ -59,12 +60,12 @@ def main(
         y2 = [p[1] for p in points2]
         axes[1].plot(x2, y2, linewidth=2, markersize=8, label=label)
 
-    axes[0].set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
+    axes[0].set_xlabel("Fetal Fundemental &\nMaternal 2nd Harmonic\nSeparation (Hz)")
     axes[0].set_ylabel("Figure of Merit(FoM)")
     axes[0].legend(title="Filter Setup")
     axes[0].grid(True)
 
-    axes[1].set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
+    axes[1].set_xlabel("Fetal Fundemental &\nMaternal 2nd Harmonic\nSeparation (Hz)")
     axes[1].set_ylabel("Reward Metric")
     axes[1].legend(title="Filter Setup")
     axes[1].grid(True)
@@ -74,7 +75,7 @@ def main(
     fig.savefig(output_base.with_suffix(".pdf"), format="pdf")
     fig.savefig(output_base.with_suffix(".svg"), format="svg")
 
-    fig_alt, ax_alt = plt.subplots(1, 1, figsize=(6, 4), sharex=True, sharey=False)
+    fig_alt, ax_alt = plt.subplots(1, 1, sharex=True, sharey=False)
     # Normalize the differences by the max FoM value across all points to get a relative difference
     max_fom = max(max(y1 for _, y1 in points) for points in grouped_s1.values())
     for (ftype, hw) in sorted(grouped_diff.keys(), key=lambda k: (k[0], k[1])):

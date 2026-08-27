@@ -74,7 +74,7 @@ def main():
             grouped_data[label][depth]["selectivity"].append(selectivity)
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     labels_to_plot = ["DIGSS", "Spectral Boxcar$^{[27]}$", "Brute Force Boxcar", "CW"]
     # offsets = [-0.02, 0.00, +0.02]

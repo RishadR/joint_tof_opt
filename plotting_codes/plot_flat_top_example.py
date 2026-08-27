@@ -61,7 +61,6 @@ def plot_flat_top_example(
     window: torch.Tensor,
     unprocessed_window: torch.Tensor,
     bin_edges: np.ndarray,
-    fig_size: tuple[int, int] = (6, 2),
     filename: str = "flat_top_example",
 ) -> None:
     """
@@ -70,7 +69,6 @@ def plot_flat_top_example(
     :param window: Final, post-processed window tensor.
     :param unprocessed_window: Raw normalized window tensor before smoothening/post-processing.
     :param bin_edges: Bin edges tensor.
-    :param fig_size: Figure size for the plot. Defaults to (6, 4).
     :param filename: Filename to save the plots. Saves to ./figures/{filename}.svg and ./figures/{filename}.pdf
     """
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
@@ -78,7 +76,7 @@ def plot_flat_top_example(
 
     load_plot_config()
 
-    fig, ax = plt.subplots(figsize=fig_size)
+    fig, ax = plt.subplots()
     ax.plot(bin_centers_ns, unprocessed_window.detach().cpu().numpy(), marker="o", label="Unprocessed Window")
     ax.plot(bin_centers_ns, window.detach().cpu().numpy(), marker="o", label="Flat-Top Window")
     ax.set_xlabel("Bin Center (ns)")

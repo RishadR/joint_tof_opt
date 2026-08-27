@@ -73,7 +73,7 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     line_color = plt.rcParams["axes.prop_cycle"].by_key()["color"][1]
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(4, 3))
+    fig, ax = plt.subplots()
     ax.grid(True)
     plt.gca().set_axisbelow(True)
 

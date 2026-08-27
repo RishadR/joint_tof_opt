@@ -60,7 +60,7 @@ def main():
             sdd_data[sdd_index]["sensitivities"] = np.array(sdd_data[sdd_index]["sensitivities"])[sorted_indices]
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots()
 
     # Plot each SDD index
     for idx, sdd_index in enumerate(sorted(sdd_data.keys())):

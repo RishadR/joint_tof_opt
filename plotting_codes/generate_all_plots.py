@@ -8,9 +8,13 @@ import matplotlib
 
 matplotlib.use("Agg")  # Use non-interactive backend for batch processing
 
+from plot_ablation_study import main as plot_ablation_study
+from plot_ablation_study2 import main as plot_ablation_study2
 from plot_detector_comparison import main as plot_detector
 from plot_detector_comparison2 import main as plot_detector_comparison2
 from plot_false_fetal_f import main as plot_false_f
+from plot_noise_sensitivity_comparison import main as plot_noise_sensitivity
+from plot_noise_sensitivity_comparison2 import main as plot_noise_sensitivity2
 from plot_overlap_compare import main as plot_overlap_compare
 from plot_overlap_compare2 import main as plot_overlap_compare2
 from plot_sample_tof import main as plot_sample_tof
@@ -52,6 +56,15 @@ def main():
 
     print("\n[9/9] Generating optimized-window sensitivity comparison plot...")
     plot_sensitivity4()
+
+    print("\n[10/9] Generating noise sensitivity comparison plot...")
+    plot_noise_sensitivity()
+    print("\n[11/9] Generating noise sensitivity comparison plot (variant)...")
+    plot_noise_sensitivity2()
+    print("\n[12/9] Generating ablation study plot...")
+    plot_ablation_study()
+    print("\n[13/9] Generating ablation study plot (variant)...")
+    plot_ablation_study2()
 
     print("\n" + "=" * 60)
     print("All plots generated successfully!")
