@@ -22,7 +22,7 @@ def main():
         "DIGSS": lambda o: (
             o.startswith("DIGSSOptimizer") and "normalization_scheme=unit_max" in o
         ),
-        "BOxcar": lambda o: o.startswith("LiuOptimizer") and "harmonics=2" in o,
+        "Spectral Boxcar": lambda o: o.startswith("LiuOptimizer") and "harmonics=2" in o,
     }
     windows = {k: [] for k in targets}
 
@@ -43,7 +43,10 @@ def main():
 
     fig, axes = plt.subplots(1, len(targets), sharey=True)
     for ax, (name, rows) in zip(axes, windows.items(), strict=True):
-        for depth, win, centers_ns in sorted(rows, key=lambda x: x[0])[:4]:
+        seen_depths = {}
+        for depth, win, centers_ns in rows:
+            seen_depths.setdefault(depth, (depth, win, centers_ns))
+        for depth, win, centers_ns in sorted(seen_depths.values(), key=lambda x: x[0])[:4]:
             n = min(len(win), len(centers_ns))
             ax.plot(centers_ns[:n], win[:n], label=f"{depth / 10:.1f} cm")
         ax.set_title(name)
