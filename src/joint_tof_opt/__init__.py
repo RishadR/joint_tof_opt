@@ -6,7 +6,13 @@ from joint_tof_opt.compact_stat_process import (
     get_named_moment_module,
     named_moment_types,
 )
-from joint_tof_opt.core import Evaluator, NoiseCalculator, OptimizationExperiment, ToFData, ToFModifier
+from joint_tof_opt.core import (
+    Evaluator,
+    NoiseCalculator,
+    OptimizationExperiment,
+    ToFData,
+    ToFModifier,
+)
 from joint_tof_opt.metric_process import (
     ContrastToNoiseMetric,
     EnergyRatioMetric,

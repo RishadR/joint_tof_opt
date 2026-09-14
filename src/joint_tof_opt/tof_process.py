@@ -6,12 +6,15 @@ experiments, use the functions inside tof_batch_process.py - which provide highe
 from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 import torch
 
 from joint_tof_opt.core import ToFData
 
 
-def compute_arrival_times(partialpath_table: np.ndarray, light_speed: list[float]) -> np.ndarray:
+def compute_arrival_times(
+    partialpath_table: npt.NDArray[np.float64], light_speed: list[float]
+) -> npt.NDArray[np.float64]:
     """
     Computes arrival times based on partial path lengths and light speeds in different mediums
 
@@ -35,7 +38,9 @@ def compute_arrival_times(partialpath_table: np.ndarray, light_speed: list[float
     return arrival_times
 
 
-def compute_weighted_intensity(partialpath_table: np.ndarray, tissue_model: Any) -> np.ndarray:
+def compute_weighted_intensity(
+    partialpath_table: npt.NDArray[np.float64], tissue_model: Any
+) -> npt.NDArray[np.float64]:
     """
     Computes weighted intensity for each photon path based on tissue model properties.
 
@@ -62,13 +67,13 @@ def compute_weighted_intensity(partialpath_table: np.ndarray, tissue_model: Any)
 
 
 def compute_tof_discrete(
-    partialpath_table: np.ndarray,
+    partialpath_table: npt.NDArray[np.float64],
     light_speed: list[float],
     tissue_model: Any,
     num_bins: int,
     weight_threshold_fraction: float | None = 0.99,
     time_limits: tuple[float, float] | None = None,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Computes a weighted time-of-flight (ToF) histogram for photon paths with per-bin variance.
 
@@ -173,13 +178,13 @@ def compute_tof_discrete(
 
 
 def compute_inner_bin_moment(
-    partialpath_table: np.ndarray,
+    partialpath_table: npt.NDArray[np.float64],
     light_speed: list[float],
     tissue_model: Any,
     num_bins: int,
     order: float,
     time_limits: tuple[float, float],
-) -> np.ndarray:
+) -> npt.NDArray[np.float64]:
     """
     Computes the n-th order moment of arrival times within each bin of the ToF histogram.
         m_i = Σ(t^n * w) / Σ(w) for all photons in bin i
@@ -227,7 +232,7 @@ def compute_inner_bin_moment(
 
 
 def compute_tof_data_single_time_point(
-    partialpath_table: np.ndarray,
+    partialpath_table: npt.NDArray[np.float64],
     light_speed: list[float],
     tissue_model: Any,
     num_bins: int,

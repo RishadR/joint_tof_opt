@@ -15,6 +15,7 @@ dependencies = [
     "matplotlib",
     "scipy",
     "cycler",
+    "pydantic",
     "tfo_sim2 @ git+https://github.com/RishadR/tfo_sim2.git",
 ]
 
@@ -36,14 +37,13 @@ packages = ["joint_tof_opt"]
 joint_tof_opt = ["*.yaml", "*.yml"]
 
 [tool.basedpyright]
-venvPath = "."
-venv = ".venv"
 extraPaths = ["experiments", "src"]
 include = ["src", "experiments"]
+reportMissingTypeStubs = false
 
 [tool.ruff]
 target-version = "py310"
-line-length = 100
+line-length = 120
 src = ["src", "experiments"]
 
 [tool.ruff.lint]

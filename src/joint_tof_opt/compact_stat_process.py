@@ -2,9 +2,9 @@
 Code to compute compact statistics from time-of-flight (TOF) data for joint optimization tasks.
 """
 
-from abc import ABC, abstractmethod
+
 import torch
-import torch.nn as nn
+
 from joint_tof_opt.core import CompactStatProcess, ToFData
 
 
@@ -93,7 +93,9 @@ class NthOrderCenteredMoment(CompactStatProcess):
         # Point-wise multiply with window
         windowed_histograms = self.tof_series * window
         normalizer = torch.sum(windowed_histograms, dim=1, keepdim=True)
-        mean_time = (windowed_histograms * self.bin_centers.unsqueeze(0)).sum(dim=1, keepdim=True) / normalizer
+        mean_time = (windowed_histograms * self.bin_centers.unsqueeze(0)).sum(
+            dim=1, keepdim=True
+        ) / normalizer
 
         # Compute centered values: (t - μ)
         centered_times = self.bin_centers.unsqueeze(0) - mean_time
@@ -102,7 +104,9 @@ class NthOrderCenteredMoment(CompactStatProcess):
         centered_times_pow = centered_times**self.order
 
         # Compute n-th centered moment: Σ((t - μ)^n * h(t)) / Σ(h(t))
-        centered_moment = (windowed_histograms * centered_times_pow).sum(dim=1) / normalizer.flatten()
+        centered_moment = (windowed_histograms * centered_times_pow).sum(
+            dim=1
+        ) / normalizer.flatten()
         return centered_moment
 
 
@@ -128,7 +132,9 @@ class CorrectedNthOrderMoment(CompactStatProcess):
         super().__init__(tof_data)
         self.num_tofs, self.num_bins = tof_data.tof_series.shape
         self.order = order
-        assert tof_data.inner_moments[order] is not None, f"Inner moment of order {order} not found in ToFData."
+        assert tof_data.inner_moments[order] is not None, (
+            f"Inner moment of order {order} not found in ToFData."
+        )
         self.inner_moments = tof_data.inner_moments[order]
 
     def forward(self, window: torch.Tensor) -> torch.Tensor:
@@ -159,8 +165,12 @@ class CorrectedVarianceMoment(CompactStatProcess):
     def __init__(self, tof_data: ToFData):
         super().__init__(tof_data)
         self.num_tofs, self.num_bins = tof_data.tof_series.shape
-        assert tof_data.inner_moments[1.0] is not None, "Inner moment of order 1 not found in ToFData."
-        assert tof_data.inner_moments[2.0] is not None, "Inner moment of order 2 not found in ToFData."
+        assert tof_data.inner_moments[1.0] is not None, (
+            "Inner moment of order 1 not found in ToFData."
+        )
+        assert tof_data.inner_moments[2.0] is not None, (
+            "Inner moment of order 2 not found in ToFData."
+        )
         self.inner_mean = tof_data.inner_moments[1.0]
         self.inner_second_moment = tof_data.inner_moments[2.0]
 
@@ -170,7 +180,9 @@ class CorrectedVarianceMoment(CompactStatProcess):
         normalizer = torch.sum(windowed_histograms, dim=1)  # Σ(f_i * w_i)
         mean_time = (windowed_histograms * self.inner_mean).sum(dim=1) / normalizer  # E[X|Y]
         inter_bin_variace = window * (self.inner_mean - mean_time) ** 2  # (μ_i - E[X|Y])^2
-        total_variance = ((windowed_histograms * inner_variance).sum(dim=1) +inter_bin_variace.sum(dim=1)) / normalizer
+        total_variance = (
+            (windowed_histograms * inner_variance).sum(dim=1) + inter_bin_variace.sum(dim=1)
+        ) / normalizer
         return total_variance.flatten()
 
 

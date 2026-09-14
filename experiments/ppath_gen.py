@@ -13,19 +13,24 @@ About the Model
 
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 import pmcx
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 
-# TODO: create proper model -> Place source -> Simulate -> filter & store data -> store parameter_mapping
+from config_loader import load_tof_config
 
-## Create the simulation config\
+## Load Simulation Parameters
+tof_config = load_tof_config()
+
+## Create the simulation config
 src_x = 110
 src_y = 110
-base_cfg = {
-    "nphoton": 1e7,
-    "vol": np.ones((20, 20, 20), dtype="uint8"),
+base_cfg: dict[str, Any] = {
+    "nphoton": tof_config.total_photon_count,
+    "vol": np.ones((1, 1, 1), dtype="uint8"),   # Will be overwritten
     "tstart": 0,
     "tend": 5e-9,
     "tstep": 5e-9,
@@ -46,13 +51,13 @@ base_cfg = {
 }
 
 ## Simulation Loop
-wavelength = 735.0
-epi_thickness = 2
-donut_half_thickness = 1
-donut_radii = np.linspace(5.0, 50.0, 10, endpoint=True)
-for idx, derm_thickness in enumerate([4, 6, 8, 10, 12, 14, 16, 18]):
+wavelength = tof_config.wavelength
+epi_thickness = tof_config.epidermis_thickness
+donut_half_thickness = tof_config.donut_half_thickness
+donut_radii = tof_config.sdd_distances
+for idx, derm_thickness in enumerate(tof_config.dermis_thicknesses):
 # for idx, derm_thickness in enumerate([4]):
-    tissue_model = DanModel4LayerX(wavelength, epi_thickness, derm_thickness)
+    tissue_model = DanModel4LayerX(wavelength, epi_thickness, int(derm_thickness))
     filename = f"experiment_{idx:04}"
     cfg = deepcopy(base_cfg)
     vol = tissue_model.vol
@@ -64,7 +69,7 @@ for idx, derm_thickness in enumerate([4, 6, 8, 10, 12, 14, 16, 18]):
     cfg["srcpos"][2] = tissue_model.topmost_pixel()
     data = pmcx.run(cfg)
     assert isinstance(data, dict), "MCX simulation failed to run"
-    photon_data: np.ndarray = data["detp"].T
+    photon_data: npt.NDArray[np.float64] = data["detp"].T
     # photon_data format -> First 4 columns: ppath through 4 mediums, Last 3 columns: Escape (x, y, z)
     distances_mm = np.sqrt(
         (photon_data[:, -2] - src_y) ** 2 + (photon_data[:, -3] - src_x) ** 2
@@ -89,14 +94,14 @@ for idx, derm_thickness in enumerate([4, 6, 8, 10, 12, 14, 16, 18]):
     filtered_data = np.column_stack((valid_detector_ids, valid_ppaths))
 
     # Calculate detector positions
-    # Each detector is on a line along x-axis from srcpos, at distance 
+    # Each detector is on a line along x-axis from srcpos, at distance
     detpos = np.zeros((len(donut_radii), 3))
     for i, radius in enumerate(donut_radii):
         detpos[i] = [cfg["srcpos"][0], cfg["srcpos"][1] + radius, cfg["srcpos"][2]]
 
     # Storing the number of photons hitting each detector for reference (not required, but useful for debugging)
     detector_counts = np.bincount(valid_detector_ids)[1:]   # Skip 0 - this version does not have any 0s
-    
+
     # Save the filtered data with proper keys
     output_path = Path(f"data/{filename}.npz")
     output_path.parent.mkdir(parents=True, exist_ok=True)

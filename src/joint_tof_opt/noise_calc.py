@@ -7,6 +7,7 @@ Taken from: https://doi.org/10.1117/1.JBO.17.5.057005
 from collections.abc import Callable
 
 import torch
+from typing_extensions import override
 
 from joint_tof_opt.compact_stat_process import NthOrderCenteredMoment, WindowedSum
 from joint_tof_opt.core import NoiseCalculator, ToFData, ToFModifier
@@ -20,6 +21,7 @@ class WindowSumNoiseCalculator(NoiseCalculator):
     OOP wrapper for computing analytical noise for the windowed sum compact statistic.
     """
 
+    @override
     def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
         # Compute the weighted sum of the ToF series with the window
         weighted_tof = tof_data.tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
@@ -45,6 +47,7 @@ class WindowSumWithAdditiveGaussianNoiseCalculator(NoiseCalculator):
         """
         self.noise_var = noise_var
 
+    @override
     def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
         # Compute the weighted sum of the ToF series with the window
         weighted_tof = tof_data.tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
@@ -62,6 +65,7 @@ class FirstMomentNoiseCalculator(NoiseCalculator):
     OOP wrapper for computing analytical noise for the first order non-centered moment compact statistic.
     """
 
+    @override
     def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
         variance_calculator = NthOrderCenteredMoment(tof_data, order=2)
         variance = variance_calculator.forward(window)  # Shape: (num_timepoints,)
@@ -72,6 +76,7 @@ class FirstMomentNoiseCalculator(NoiseCalculator):
         noise = variance / (N)  # Shape: (num_timepoints,)
         return noise
 
+    @override
     def __str__(self) -> str:
         return "FirstMomentNoiseCalculator"
 
@@ -81,6 +86,7 @@ class VarianceNoiseCalculator(NoiseCalculator):
     OOP wrapper for computing analytical noise for the second order centered moment (variance) compact statistic.
     """
 
+    @override
     def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
         variance_calculator = NthOrderCenteredMoment(tof_data, order=2)
         variance = variance_calculator.forward(window)  # Shape: (num_timepoints,)
@@ -94,8 +100,28 @@ class VarianceNoiseCalculator(NoiseCalculator):
         noise = (fourth_centered_moment - (variance**2)) / (N)  # Shape: (num_timepoints,)
         return noise
 
+    @override
     def __str__(self) -> str:
         return "VarianceNoiseCalculator"
+
+
+class AdditiveNoiseCalculator(NoiseCalculator):
+    """
+    Adds a noise value to each time series point output to its underlying NoiseCalculator
+    """
+
+    def __init__(self, additional_noise_variance: float, noise_calc: NoiseCalculator):
+        self.noise_variance: float = additional_noise_variance
+        self.noise_calc: NoiseCalculator = noise_calc
+
+    @override
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+        baseline_noise_var = self.noise_calc.compute_noise(tof_data, window)
+        return baseline_noise_var + self.noise_variance
+
+    @override
+    def __str__(self) -> str:
+        return f"Baseline of '{self.noise_calc} with an additional noise of {self.noise_variance}"
 
 
 def get_noise_calculator(moment_type: str) -> NoiseCalculator:
@@ -124,8 +150,9 @@ class AdditiveGaussianToFModifier(ToFModifier):
     """
 
     def __init__(self, noise_var: float):
-        self.noise_var = noise_var
+        self.noise_var: float = noise_var
 
+    @override
     def modify(self, tof_data: ToFData) -> ToFData:
         noise = (torch.randn_like(tof_data.tof_series) - 0.5) * torch.sqrt(torch.tensor(self.noise_var))
         modified_tof_series = tof_data.tof_series + noise
@@ -144,5 +171,6 @@ class AdditiveGaussianToFModifier(ToFModifier):
             meta_data=meta_data,
         )
 
+    @override
     def __str__(self) -> str:
         return f"AdditiveGaussianToFModifier(noise_var={self.noise_var})"
