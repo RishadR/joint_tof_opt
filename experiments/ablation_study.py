@@ -1,8 +1,28 @@
 """
 Ablation study for DIGSSOptimizer.
 Tests two ablations:
-  1. use_window_post_process: whether the bridging post-process is applied after optimization.
+  1. use_window_post_process: (aka Flat-top Projection) - applied after optimization.
   2. use_snr_left_bound: whether the left fixed region starts at max_snr_index (True) or 0 (False).
+
+Purpose
+-------
+Sweeps the 4 combinations of the two ablation flags above, at 5 instrument noise levels (20 parallel
+iterations each), to see how much each trick contributes to optimized-window sensitivity.
+
+Runtime
+-------
+Watch out, might take a while - 5 noise levels x 20 parallel iterations x 4 optimizer configs x every
+experiment in data/parameter_mapping.json.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/parameter_mapping.json
+- data/*.npz (ppath files listed in parameter_mapping.json)
+
+Outputs
+-------
+- results/ablation_results.yaml
 """
 
 import threading
@@ -19,15 +39,18 @@ from joint_tof_opt import (
     CompactStatProcess,
     Evaluator,
     OptimizationExperiment,
+    ToFConfig,
     ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
+    load_tof_config,
     pretty_print_log,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-from optimize_loop_paper import DIGSSOptimizer
-from result_writer import clear_results, write_results_to_yaml
-from sensitivity_compute import AltPaperEvaluator3
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .result_writer import clear_results, write_results_to_yaml
+from .sensitivity_compute import AltPaperEvaluator3
 
 _tof_gen_locks: dict[Path, threading.Lock] = {}
 _tof_gen_locks_mutex = threading.Lock()
@@ -47,13 +70,13 @@ def read_parameter_mapping():
 
 
 def run_ablation(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
     optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
     noise_variance: float,
     print_log: bool = False,
 ) -> tuple[list[dict[str, Any]], set[Path]]:
-    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml"))
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
 
     results = []

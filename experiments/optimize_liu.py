@@ -39,8 +39,16 @@ import torch
 import torch.nn as nn
 import yaml
 
-from joint_tof_opt import CompactStatProcess, OptimizationExperiment, ToFData, generate_tof, get_named_moment_module
-from sensitivity_compute import AltPaperEvaluator3
+from joint_tof_opt import (
+    CompactStatProcess,
+    OptimizationExperiment,
+    ToFData,
+    generate_tof,
+    get_named_moment_module,
+    load_tof_config,
+)
+
+from .sensitivity_compute import AltPaperEvaluator3
 
 logger = logging.getLogger(__name__)
 
@@ -290,7 +298,7 @@ def main() -> None:
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
+        gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
         tof_data = ToFData.from_npz(tof_dataset_path)

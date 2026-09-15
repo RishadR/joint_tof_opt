@@ -8,16 +8,17 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import yaml
 
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
     ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
+    load_tof_config,
 )
-from optimize_loop_paper import DIGSSOptimizer
-from sensitivity_compute import AltPaperEvaluator3
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .sensitivity_compute import AltPaperEvaluator3
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +103,7 @@ def main() -> None:
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     logger.info("Running BoxCar optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
     tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     filter_hw = 0.01
     noise_var = 100.0
     generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
@@ -114,7 +115,7 @@ def main() -> None:
         tof_data=modified_tof,
         measurand=measurand,
         noise_calc=noise_calc,
-        fetal_f=gen_config["fetal_f"],
+        fetal_f=gen_config.fetal_f,
         normalize_reward=False,
         filter_hw=filter_hw,
         filter_type="psafe_same_width",

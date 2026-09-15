@@ -28,10 +28,11 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["joint_tof_opt"]
+packages = ["joint_tof_opt", "experiments"]
 
 [tool.setuptools.package-dir]
-"" = "src"
+joint_tof_opt = "src/joint_tof_opt"
+experiments = "experiments"
 
 [tool.setuptools.package-data]
 joint_tof_opt = ["*.yaml", "*.yml"]

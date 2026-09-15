@@ -1,5 +1,25 @@
 """
 Compare the performance when there is overlap between maternal and fetal frequencies.
+
+Purpose
+-------
+Sweeps fetal-maternal frequency separation (0.01-0.7 Hz, fetal_f = 2*maternal_f + separation) and 3
+filter setups (comb hw=0.10, comb hw=0.30, psafe_same_width), re-optimizing each time, to see how
+filter choice handles closely-spaced maternal/fetal harmonics. Uses a single fixed experiment file
+(file_idx=3).
+
+Runtime
+-------
+Slow - 8 separations x 3 filter setups = 24 full DIGSS optimizations, single-threaded.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/experiment_0003.npz
+
+Outputs
+-------
+- results/overlap_results.yaml
 """
 from __future__ import annotations
 
@@ -10,9 +30,10 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import generate_tof
-from sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
-from optimize_loop_paper import DIGSSOptimizer
+from joint_tof_opt import ToFData, generate_tof, load_tof_config
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
 def _to_builtin(obj: Any) -> Any:
@@ -40,16 +61,14 @@ def run_overlap_sweep(
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     results: dict[str, Any] = {}
     exp_idx = 0
+    base_gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
 
     for separation in separations_hz:
         for filter_type, filter_hw in filter_setups:
-            # Read config each run, then modify fetal_f
-            with open("./experiments/tof_config.yaml", "r", encoding="utf-8") as f:
-                gen_config: dict[str, Any] = yaml.safe_load(f)
-
-            maternal_f = float(gen_config["maternal_f"])
+            # Modify fetal_f for this run
+            maternal_f = float(base_gen_config.maternal_f)
             fetal_f = 2 * maternal_f + float(separation)
-            gen_config["fetal_f"] = fetal_f
+            gen_config = base_gen_config.model_copy(update={"fetal_f": fetal_f})
 
             sep_tag = f"{separation:.3f}".replace(".", "p")
             hw_tag = f"{float(filter_hw):.3f}".replace(".", "p")
@@ -60,9 +79,10 @@ def run_overlap_sweep(
             )
 
             generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
+            tof_data = ToFData.from_npz(tof_dataset_path)
 
             experiment = DIGSSOptimizer(
-                tof_dataset_path=tof_dataset_path,
+                tof_data=tof_data,
                 measurand=measurand,
                 lr=lr,
                 filter_hw=float(filter_hw),

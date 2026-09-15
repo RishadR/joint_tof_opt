@@ -11,6 +11,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from joint_tof_opt.config_loader import ToFConfig
+
 
 @dataclass
 class ToFData:
@@ -167,8 +169,7 @@ class OptimizationExperiment(ABC):
 
     Things It Stores:
     -----------------------
-    - tof_dataset_path : Path to the TOF dataset (.npz file).
-    - tof_data : Loaded TOF data from the dataset. This also contains metadata like bin edges, sampling rate, etc.
+    - tof_data : TOF data to optimize on. This also contains metadata like bin edges, sampling rate, etc.
     - tof_series : Torch tensor of the TOF series data. Each row is a separate DTOF measurement.
     - bin_edges : Torch tensor of the bin edges of the DTOF. Correponds to the columns of the TOF series.
     - time_axis : Time axis corresponding each row of the TOF series.
@@ -178,9 +179,8 @@ class OptimizationExperiment(ABC):
     - window : Torch tensor to store the optimized window. Leave empty if not yet optimized.
     """
 
-    def __init__(self, tof_dataset_path: Path, measurand: CompactStatProcess, lr: float = 0.01):
-        self.tof_dataset_path = tof_dataset_path
-        self.tof_data = ToFData.from_npz(tof_dataset_path)
+    def __init__(self, tof_data: ToFData, measurand: CompactStatProcess, lr: float = 0.01):
+        self.tof_data = tof_data
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
         assert "time_axis" in self.tof_data.meta_data, "ToFData meta_data must contain time_axis"
         self.moment_module = measurand
@@ -212,7 +212,7 @@ class Evaluator(ABC):
     - ppath_file : Path to the partial path file (.json or similar).
     - window : Torch tensor representing the time-gating window.
     - measurand : The measurand to evaluate. Can be a string (named moment) or a custom nn.Module.
-    - gen_config : DTOF generation configs. This will be used on the ppath file to generate the ToF data.
+    - gen_config : ToFConfig. DTOF generation configs. This will be used on the ppath file to generate the ToF data.
 
     Stored Attributes:
     -----------------------
@@ -225,7 +225,9 @@ class Evaluator(ABC):
     - self.get_log() : Method to return a dictionary of relevant evaluation metrics and their corresponding values.
     """
 
-    def __init__(self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: dict):
+    def __init__(
+        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: ToFConfig
+    ):
         self.ppath_file = ppath_file
         self.window = window
         self.measurand = measurand

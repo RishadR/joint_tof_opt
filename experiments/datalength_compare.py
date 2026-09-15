@@ -1,5 +1,23 @@
 """
 Compare optimizer and evaluator performance across data lengths and experiment files.
+
+Purpose
+-------
+Sweeps time-series datapoint counts (5-30 heartbeat periods) across 8 experiment files, re-optimizing
+a window each time, to see how optimizer/evaluator performance depends on how much data is available.
+
+Runtime
+-------
+Slow - 8 experiment files x 6 datapoint counts = 48 full DIGSS optimizations, single-threaded.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/experiment_0000.npz .. data/experiment_0007.npz
+
+Outputs
+-------
+- results/datalength_compare_results.yaml
 """
 from __future__ import annotations
 
@@ -10,9 +28,10 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import generate_tof
-from optimize_loop_paper import DIGSSOptimizer
-from sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
+from joint_tof_opt import ToFData, generate_tof, load_tof_config
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
 def _to_builtin(obj: Any) -> Any:
@@ -40,18 +59,17 @@ def run_datalength_sweep(
 ) -> dict[str, Any]:
     results: dict[str, Any] = {}
     exp_idx = 0
+    base_gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
 
     for file_idx in file_indices:
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
 
         for datapoint_count in datapoint_counts:
-            with open("./experiments/tof_config.yaml", encoding="utf-8") as f:
-                gen_config: dict[str, Any] = yaml.safe_load(f)
-
-            sampling_rate = float(gen_config["sampling_rate"])
+            sampling_rate = float(base_gen_config.sampling_rate)
             end_sec = (int(datapoint_count) - 1) / sampling_rate
-            gen_config["datapoint_count"] = int(datapoint_count)
-            gen_config["end_sec"] = end_sec
+            gen_config = base_gen_config.model_copy(
+                update={"datapoint_count": int(datapoint_count), "end_sec": end_sec}
+            )
 
             datapoint_tag = f"{int(datapoint_count):04d}"
             tof_dataset_path = (
@@ -60,9 +78,10 @@ def run_datalength_sweep(
             )
 
             generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
+            tof_data = ToFData.from_npz(tof_dataset_path)
 
             experiment = DIGSSOptimizer(
-                tof_dataset_path=tof_dataset_path,
+                tof_data=tof_data,
                 measurand=measurand,
                 lr=lr,
                 filter_hw=float(filter_hw),

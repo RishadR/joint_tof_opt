@@ -1,5 +1,25 @@
 """
 Compare the Sensitivity across different noise variances for DIGSSOptimizer (unit_max).
+
+Purpose
+-------
+Sweeps instrument noise variance (0, then log-spaced 1 to 1e5, 20 parallel iterations each except the
+noiseless case) and re-optimizes a window at each level, to see how sensitivity degrades with noise.
+
+Runtime
+-------
+Watch out, might take a while - 7 noise levels x up to 20 parallel iterations x every experiment in
+data/parameter_mapping.json.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/parameter_mapping.json
+- data/*.npz (ppath files listed in parameter_mapping.json)
+
+Outputs
+-------
+- results/noise_sensitivity_comparison_results.yaml
 """
 
 import threading
@@ -18,15 +38,18 @@ from joint_tof_opt import (
     CompactStatProcess,
     Evaluator,
     OptimizationExperiment,
+    ToFConfig,
     ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
+    load_tof_config,
     pretty_print_log,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-from optimize_loop_paper import DIGSSOptimizer
-from result_writer import clear_results, write_results_to_yaml
-from sensitivity_compute import AltPaperEvaluator3
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .result_writer import clear_results, write_results_to_yaml
+from .sensitivity_compute import AltPaperEvaluator3
 
 _tof_gen_locks: dict[Path, threading.Lock] = {}
 _tof_gen_locks_mutex = threading.Lock()
@@ -46,8 +69,8 @@ def read_parameter_mapping():
 
 
 def run_sensitivity_comparison(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
+    optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
     noise_variance: float,
     print_log: bool = False,
@@ -56,13 +79,13 @@ def run_sensitivity_comparison(
     Main function to run sensitivity comparison experiments across measurands and depths.
     """
     ## Params
-    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml"))
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     fetal_filter = CombSeparator(
-        gen_config["sampling_rate"],
-        gen_config["fetal_f"],
-        2 * gen_config["fetal_f"],
+        gen_config.sampling_rate,
+        gen_config.fetal_f,
+        2 * gen_config.fetal_f,
         0.3,
-        gen_config["datapoint_count"] // 2 + 1,
+        gen_config.datapoint_count // 2 + 1,
         True,
     )
     tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
@@ -149,7 +172,7 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
+    optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_data, measurand: DIGSSOptimizer(
             tof_data,
             measurand,

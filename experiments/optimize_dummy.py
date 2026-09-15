@@ -23,7 +23,7 @@ class DummyOptimizationExperiment(OptimizationExperiment):
     """
     Always returns a unit window for testing purposes.
     Arguments:
-        tof_dataset_path: Path to the ToF dataset (.npz file).
+        tof_data: ToFData instance to optimize on.
         measurand: CompactStatProcess instance or name of the moment to optimize.
         norm: If specified, normalizes the window to have this p-norm. Ex: norm=1 for L1 norm.
 

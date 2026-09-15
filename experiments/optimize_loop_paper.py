@@ -50,10 +50,12 @@ from joint_tof_opt import (
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
+    load_tof_config,
     named_moment_types,
 )
 from joint_tof_opt.plotting import load_plot_config
-from sensitivity_compute import (
+
+from .sensitivity_compute import (
     AltPaperEvaluator3,
 )
 
@@ -108,7 +110,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         """
         Initialize the PaperOptimizer.
 
-        :param tof_dataset_path: Path to the ToF dataset (.npz file).
+        :param tof_data: ToFData instance to optimize on.
         :param measurand: The measurand to optimize for ("abs", "m1", "V") or custom module.
         :param noise_calc: Noise calculator for custom measurands - defaults to WindowSumNoiseCalculator
         :param fetal_f: Central frequency of fetal comb filter (in Hz). If None, extracted from dataset metadata.
@@ -548,7 +550,7 @@ def main() -> None:
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
         tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-        gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
+        gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         noise_var = 100.0
         generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
@@ -560,7 +562,7 @@ def main() -> None:
             tof_data=modified_tof,
             measurand=measurand,
             noise_calc=noise_calc,
-            fetal_f=gen_config["fetal_f"],
+            fetal_f=gen_config.fetal_f,
             normalize_reward=False,
             lr=0.1,
             filter_hw=filter_hw,

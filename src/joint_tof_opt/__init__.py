@@ -6,6 +6,7 @@ from joint_tof_opt.compact_stat_process import (
     get_named_moment_module,
     named_moment_types,
 )
+from joint_tof_opt.config_loader import ToFConfig, load_tof_config
 from joint_tof_opt.core import (
     Evaluator,
     NoiseCalculator,
@@ -32,6 +33,8 @@ from joint_tof_opt.signal_process import CombSeparator, FourierSeparator, PSAFES
 from joint_tof_opt.tof_batch_process import compute_tof_data_series, generate_tof
 
 __all__ = [
+    "ToFConfig",
+    "load_tof_config",
     "ToFData",
     "ToFModifier",
     "CompactStatProcess",

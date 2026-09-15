@@ -1,19 +1,40 @@
 """
-Compare the performance across different tissue depths (file_idx sweep).
+Compare the performance across different tissue depths (file_idx sweep) when there is overlap between maternal and fetal.
+
+Purpose
+-------
+Companion to overlap_compare.py: instead of sweeping separation, fixes fetal-maternal separation at
+0.5 Hz and sweeps tissue depth across all 8 experiment files x 3 filter setups (comb hw=0.10, comb
+hw=0.30, psafe_same_width), to see how filter choice performs at different depths.
+
+Runtime
+-------
+Slow - 8 depths x 3 filter setups = 24 full DIGSS optimizations, single-threaded.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/parameter_mapping.json
+- data/experiment_0000.npz .. data/experiment_0007.npz
+
+Outputs
+-------
+- results/overlap_results2.yaml
 """
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
-import json
 
 import numpy as np
 import yaml
 
-from joint_tof_opt import generate_tof
-from sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
-from optimize_loop_paper import DIGSSOptimizer
+from joint_tof_opt import ToFData, generate_tof, load_tof_config
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
 def _to_builtin(obj: Any) -> Any:
@@ -54,19 +75,17 @@ def run_depth_sweep(
 ) -> dict[str, Any]:
     results: dict[str, Any] = {}
     exp_idx = 0
+    base_gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
 
     for file_idx in file_idx_list:
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         depth_mm = _get_depth_mm(file_idx, param_mapping_path)
-        
-        for filter_type, filter_hw in filter_setups:
-            # Read config each run, then modify fetal_f
-            with open("./experiments/tof_config.yaml", "r", encoding="utf-8") as f:
-                gen_config: dict[str, Any] = yaml.safe_load(f)
 
-            maternal_f = float(gen_config["maternal_f"])
+        for filter_type, filter_hw in filter_setups:
+            # Modify fetal_f for this run
+            maternal_f = float(base_gen_config.maternal_f)
             fetal_f = 2 * maternal_f + float(separation_hz)
-            gen_config["fetal_f"] = fetal_f
+            gen_config = base_gen_config.model_copy(update={"fetal_f": fetal_f})
 
             sep_tag = f"{separation_hz:.3f}".replace(".", "p")
             hw_tag = f"{float(filter_hw):.3f}".replace(".", "p")
@@ -77,9 +96,10 @@ def run_depth_sweep(
             )
 
             generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
+            tof_data = ToFData.from_npz(tof_dataset_path)
 
             experiment = DIGSSOptimizer(
-                tof_dataset_path=tof_dataset_path,
+                tof_data=tof_data,
                 measurand=measurand,
                 lr=lr,
                 filter_hw=float(filter_hw),

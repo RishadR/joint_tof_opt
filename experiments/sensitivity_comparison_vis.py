@@ -1,4 +1,5 @@
 """
+***DEPRECATED***
 Visualization for sensitivity comparison results with optimized window display.
 
 Layout:
@@ -7,16 +8,17 @@ Layout:
 - Right bottom pane: Optimized & Vanilla Sensitivity vs Depth for 'V' measurand (dual y-axes with Improvement %)
 """
 
-import matplotlib.pyplot as plt
+from pathlib import Path
+
 import matplotlib.gridspec as gridspec
-import yaml
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pathlib import Path
+import yaml
 
 # Get Plot config
 config_file = "./experiments/plot_config.yaml"
-with open(config_file, "r") as f:
+with open(config_file) as f:
     plot_config = yaml.safe_load(f)
 plt.rcParams.update(plot_config)
 
@@ -50,7 +52,7 @@ ax_right_bottom = fig.add_subplot(gs[1, 1])
 ax_left.plot(bin_centers_ns, optimized_window, marker="o", linewidth=2, markersize=5)
 ax_left.set_xlabel("Quantized Distribution of Time-of-Flight(DTOF)\nBin Centers (ns)", fontsize=12)
 ax_left.set_ylabel("Window Value", fontsize=12)
-ax_left.set_title(f"(a) Example of a DIGSS-Optimized Window", fontsize=14)
+ax_left.set_title("(a) Example of a DIGSS-Optimized Window", fontsize=14)
 ax_left.grid(True, alpha=0.3)
 
 # ============ RIGHT TOP PANE: 'abs' measurand ============

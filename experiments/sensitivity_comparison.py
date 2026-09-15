@@ -1,5 +1,25 @@
 """
-Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
+Compare figure of merit across different optimizers
+
+Purpose
+-------
+Runs BoxCarOptimizer (other optimizers commented out) across every experiment file in
+data/parameter_mapping.json for the "abs" measurand, 20 parallel iterations, to compare optimized vs.
+vanilla window sensitivity.
+
+Runtime
+-------
+Watch out, might take a while - 20 parallel iterations x every experiment in data/parameter_mapping.json.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/parameter_mapping.json
+- data/*.npz (ppath files listed in parameter_mapping.json)
+
+Outputs
+-------
+- results/sensitivity_comparison_results.yaml
 """
 
 import threading
@@ -17,19 +37,22 @@ from joint_tof_opt import (
     CompactStatProcess,
     Evaluator,
     OptimizationExperiment,
+    ToFConfig,
     ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
+    load_tof_config,
     pretty_print_log,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-from optimize_dummy import DummyOptimizationExperiment
-from optimize_liu import LiuOptimizer
-from optimize_loop_paper import DIGSSOptimizer
-from optimize_loop_boxcar import BoxCarOptimizer
-from optimize_liu_alt import AltLiuOptimizer
-from result_writer import clear_results, write_results_to_yaml
-from sensitivity_compute import AltPaperEvaluator3
+
+from .optimize_dummy import DummyOptimizationExperiment
+from .optimize_liu import LiuOptimizer
+from .optimize_liu_alt import AltLiuOptimizer
+from .optimize_loop_boxcar import BoxCarOptimizer
+from .optimize_loop_paper import DIGSSOptimizer
+from .result_writer import clear_results, write_results_to_yaml
+from .sensitivity_compute import AltPaperEvaluator3
 
 _tof_gen_locks: dict[Path, threading.Lock] = {}
 _tof_gen_locks_mutex = threading.Lock()
@@ -49,8 +72,8 @@ def read_parameter_mapping():
 
 
 def run_sensitivity_comparison(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
+    optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
     noise_variance: float,
     print_log: bool = False,
@@ -63,8 +86,8 @@ def run_sensitivity_comparison(
         Evaluator instance.
     :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
-    (ppath_file: Path, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
-    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess], OptimizationExperiment]]
+    (tof_data: ToFData, measurand: CompactStatProcess) and return an OptimizationExperiment instance.
+    :type optimizers_to_compare: list[Callable[[ToFData, CompactStatProcess], OptimizationExperiment]]
     :param measurands_to_test: List of measurand names to test (e.g., ['abs', 'm1', 'V']).
     :type measurands_to_test: list[str]
     :param print_log: Whether to print log messages during execution. (Default: False)
@@ -73,7 +96,7 @@ def run_sensitivity_comparison(
     :rtype: list[dict[str, Any]]
     """
     ## Params
-    gen_config = yaml.safe_load(open("./experiments/tof_config.yaml"))
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
 
     # Initialize results table and windows storage
@@ -157,7 +180,7 @@ def main() -> tuple[list[dict[str, Any]], set[Path]]:
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], OptimizationExperiment]] = [
+    optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
         # lambda tof_data, measurand: DIGSSOptimizer(
         #     tof_data,
         #     measurand,

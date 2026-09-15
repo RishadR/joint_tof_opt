@@ -1,21 +1,48 @@
 """
 Comparing our optimizers performance when the Fetal F is off by some margin
+
+Purpose
+-------
+Sweeps error in the assumed fetal heartbeat frequency (0% to 100% of the true rate, in 5% steps) and
+re-optimizes with the errored frequency as the BPF center, to see how sensitive the optimizer is to
+getting fetal_f wrong. Tests 3 DIGSSOptimizer configs (comb filter, varying filter_hw and normalize_reward).
+
+Runtime
+-------
+Slow - 21 error levels x 2 experiment files x 3 optimizer configs = 126 full DIGSS optimizations,
+single-threaded.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/parameter_mapping.json
+- data/*.npz (first 2 ppath files listed in parameter_mapping.json)
+
+Outputs
+-------
+- results/false_fetal_f_results2.yaml
 """
 
-from typing import Any, Callable
 from pathlib import Path
+from typing import Any, Callable
+
+import numpy as np
 import torch
 import yaml
-from sensitivity_compute import AltPaperEvaluator3
+
 from joint_tof_opt import (
-    Evaluator,
     CompactStatProcess,
+    Evaluator,
+    ToFConfig,
+    ToFData,
     generate_tof,
+    load_tof_config,
     pretty_print_log,
 )
-from optimize_loop_paper import DIGSSOptimizer
-from result_writer import write_results_to_yaml
-import numpy as np
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .result_writer import write_results_to_yaml
+from .sensitivity_compute import AltPaperEvaluator3
 
 
 def read_parameter_mapping():
@@ -25,8 +52,8 @@ def read_parameter_mapping():
 
 
 def run_false_fetal_frequency_experiment(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
+    optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]],
     error_hzs: list[float],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
@@ -37,8 +64,8 @@ def run_false_fetal_frequency_experiment(
     (ppath_file: Path, window: torch.Tensor, measurand: nn.Module) and return an Evaluator instance.
     :type evaluator_gen_func: Callable[[Path, torch.Tensor, nn.Module], Evaluator]
     :param optimizers_to_compare: List of optimizer functions to compare. Each function should take
-    (ppath_file: Path, measurand: CompactStatProcess) and return a DIGSSOptimizer instance.
-    :type optimizers_to_compare: list[Callable[[Path, CompactStatProcess, float], DIGSSOptimizer]]
+    (tof_data: ToFData, measurand: CompactStatProcess) and return a DIGSSOptimizer instance.
+    :type optimizers_to_compare: list[Callable[[ToFData, CompactStatProcess, float], DIGSSOptimizer]]
     :param error_hzs: List of fetal frequency errors to test (e.g., [0.1, 0.2, 0.3]).
     :type error_hzs: list[float]
     :param print_log: Whether to print log messages during execution. (Default: False)
@@ -49,10 +76,10 @@ def run_false_fetal_frequency_experiment(
     # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
+    gen_config_true = load_tof_config(Path("./experiments/tof_config.yaml"))
     for error_hz in error_hzs:
         print(f"Running experiments for fetal frequency error: {error_hz*100:.1f}%")
-        gen_config_true = yaml.safe_load(open("./experiments/tof_config.yaml", "r"))
-        true_fetal_f: float = gen_config_true["fetal_f"]
+        true_fetal_f: float = gen_config_true.fetal_f
         new_fetal_f = true_fetal_f - error_hz
         # Get the noise function for the measurand
         ppath_file_mapping = read_parameter_mapping()
@@ -63,11 +90,12 @@ def run_false_fetal_frequency_experiment(
             ppath_file: Path = Path("./data") / ppath_filename
             tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
             generate_tof(ppath_file, gen_config_true, tof_dataset_file)
+            tof_data = ToFData.from_npz(tof_dataset_file)
             # Run Optimizers
 
             for optimizer_func in optimizers_to_compare:
                 # Optimize with the new (errored) fetal F as the BPF Center Freq
-                optimizer_experiment = optimizer_func(tof_dataset_file, measurand, new_fetal_f)
+                optimizer_experiment = optimizer_func(tof_data, measurand, new_fetal_f)
                 optimizer_experiment.optimize()
                 optimizer_name = str(optimizer_experiment)
                 window = optimizer_experiment.window.detach().cpu()
@@ -114,10 +142,10 @@ def main() -> None:
     filter_hw = 0.01  # Hz
     # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess, float], DIGSSOptimizer]] = [
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb",),
-        lambda tof_file, measurand, new_fetal_f: DIGSSOptimizer(tof_file, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb", normalize_reward=False)
+    optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]] = [
+        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, filter_type="comb",),
+        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb",),
+        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb", normalize_reward=False)
     ]
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
     error_rates_np = np.arange(0.0, 1.01, 0.05)

@@ -1,5 +1,24 @@
 """
 Compare the sensitivity of our metric between different detector indices
+
+Purpose
+-------
+Sweeps SDD (source-detector distance) indices 1-7 and, for each, optimizes a window and evaluates
+sensitivity, to find which detector position gives the best signal.
+
+Runtime
+-------
+Slow - 7 SDD indices x every experiment in data/parameter_mapping.json, single-threaded.
+
+Inputs
+------
+- experiments/tof_config.yaml
+- data/parameter_mapping.json
+- data/*.npz (ppath files listed in parameter_mapping.json)
+
+Outputs
+-------
+- results/detector_comparison_results.yaml
 """
 
 from collections.abc import Callable
@@ -9,9 +28,18 @@ from typing import Any
 import torch
 import yaml
 
-from joint_tof_opt import CompactStatProcess, Evaluator, ToFData, generate_tof, pretty_print_log
-from optimize_loop_paper import DIGSSOptimizer
-from sensitivity_compute import AltPaperEvaluator3
+from joint_tof_opt import (
+    CompactStatProcess,
+    Evaluator,
+    ToFConfig,
+    ToFData,
+    generate_tof,
+    load_tof_config,
+    pretty_print_log,
+)
+
+from .optimize_loop_paper import DIGSSOptimizer
+from .sensitivity_compute import AltPaperEvaluator3
 
 
 def read_parameter_mapping():
@@ -21,8 +49,8 @@ def read_parameter_mapping():
 
 
 def run_detector_comparison(
-    evaluator_gen_func: Callable[[Path, torch.Tensor, str, dict], Evaluator],
-    optimizers_to_compare: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]],
+    evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
+    optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]],
     sdd_indices_to_test: list[int],
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
@@ -46,9 +74,9 @@ def run_detector_comparison(
     # Initialize results table and windows storage
     results = []
     measurand = "abs"  # Fixed measurand for this experiment
+    base_gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     for sdd_index in sdd_indices_to_test:
-        gen_config = yaml.safe_load(open("./experiments/tof_config.yaml"))
-        gen_config["selected_sdd_index"] = sdd_index
+        gen_config = base_gen_config.model_copy(update={"selected_sdd_index": sdd_index})
         # Get the noise function for the measurand
 
         ## Run experiments
@@ -106,14 +134,14 @@ def run_detector_comparison(
 def main() -> None:
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
 
-    optimizer_funcs_to_test: list[Callable[[Path, str | CompactStatProcess], DIGSSOptimizer]] = [
+    optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, normalization_scheme="unit_max")
     ]
-
-    exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/detector_comparison_results.yaml", "w") as f:
-        yaml.dump(results_dict, f, default_flow_style=False)
+    run_detector_comparison(eval_func, optimizer_funcs_to_test, [5, 6], print_log=False)    
+    # exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
+    # results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
+    # with open("./results/detector_comparison_results.yaml", "w") as f:
+    #     yaml.dump(results_dict, f, default_flow_style=False)
 
 
 if __name__ == "__main__":

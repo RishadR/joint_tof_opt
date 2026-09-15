@@ -4,7 +4,7 @@ numpy arrays rather than plain lists.
 """
 
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, cast
 
 import numpy as np
 import yaml
@@ -16,11 +16,12 @@ IntVector1D = np.ndarray[tuple[int], np.dtype[np.int64]]
 
 
 def _to_float_array(value: object) -> Vector1D:
-    return np.asarray(value, dtype=np.float64)
+    # np.asarray's stub can't prove the result is exactly 1D; these fields always are (from yaml lists)
+    return cast(Vector1D, np.asarray(value, dtype=np.float64))
 
 
 def _to_int_array(value: object) -> IntVector1D:
-    return np.asarray(value, dtype=np.int64)
+    return cast(IntVector1D, np.asarray(value, dtype=np.int64))
 
 
 FloatArray = Annotated[Vector1D, BeforeValidator(_to_float_array)]
@@ -28,7 +29,7 @@ IntArray = Annotated[IntVector1D, BeforeValidator(_to_int_array)]
 
 
 class ToFConfig(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
 
     # Baseline Simulation Parameters
     total_photon_count: int
@@ -66,10 +67,7 @@ class ToFConfig(BaseModel):
     dermis_thicknesses: IntArray
 
 
-DEFAULT_CONFIG_PATH = Path(__file__).parent / "tof_config.yaml"
-
-
-def load_tof_config(path: str | Path = DEFAULT_CONFIG_PATH) -> ToFConfig:
+def load_tof_config(path: Path) -> ToFConfig:
     with open(path) as f:
-        raw = yaml.safe_load(f)
+        raw = yaml.safe_load(f)  # pyright: ignore[reportAny]
     return ToFConfig.model_validate(raw)
