@@ -23,7 +23,6 @@ Outputs
 """
 from __future__ import annotations
 
-import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -31,7 +30,7 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import ToFData, generate_tof, load_tof_config
+from joint_tof_opt import generate_tof, load_parameter_mapping, load_tof_config
 
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
@@ -50,15 +49,12 @@ def _to_builtin(obj: Any) -> Any:
 
 def _get_depth_mm(file_idx: int, param_mapping_path: Path) -> float:
     """Extract depth_mm from parameter_mapping.json for given file_idx."""
-    with open(param_mapping_path, "r", encoding="utf-8") as f:
-        param_data = json.load(f)
-    
-    for exp in param_data["experiments"]:
-        if exp["index"] == file_idx:
-            derm_thickness = exp["sweep_parameters"]["derm_thickness"]["value"]
-            return float(derm_thickness + 2)
-    
-    raise ValueError(f"file_idx {file_idx} not found in parameter_mapping.json")
+    file_sweep_params = load_parameter_mapping(param_mapping_path)
+    filename = f"experiment_{file_idx:04d}.npz"
+    if filename not in file_sweep_params:
+        raise ValueError(f"file_idx {file_idx} not found in parameter_mapping.json")
+    derm_thickness = file_sweep_params[filename]["derm_thickness"]
+    return float(derm_thickness + 2)
 
 
 def run_depth_sweep(
@@ -87,16 +83,7 @@ def run_depth_sweep(
             fetal_f = 2 * maternal_f + float(separation_hz)
             gen_config = base_gen_config.model_copy(update={"fetal_f": fetal_f})
 
-            sep_tag = f"{separation_hz:.3f}".replace(".", "p")
-            hw_tag = f"{float(filter_hw):.3f}".replace(".", "p")
-            type_tag = str(filter_type).replace(" ", "_")
-            tof_dataset_path = (
-                Path("./data")
-                / f"generated_tof_set_{ppath_file.stem}_sep_{sep_tag}_{type_tag}_hw_{hw_tag}.npz"
-            )
-
-            generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
-            tof_data = ToFData.from_npz(tof_dataset_path)
+            tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
 
             experiment = DIGSSOptimizer(
                 tof_data=tof_data,

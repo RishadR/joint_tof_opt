@@ -28,7 +28,6 @@ from typing import Any, Callable
 
 import numpy as np
 import torch
-import yaml
 
 from joint_tof_opt import (
     CompactStatProcess,
@@ -36,6 +35,7 @@ from joint_tof_opt import (
     ToFConfig,
     ToFData,
     generate_tof,
+    load_parameter_mapping,
     load_tof_config,
     pretty_print_log,
     write_results_to_yaml,
@@ -43,12 +43,6 @@ from joint_tof_opt import (
 
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator3
-
-
-def read_parameter_mapping():
-    with open("./data/parameter_mapping.json", "r") as f:
-        parameter_mapping = yaml.safe_load(f)
-    return parameter_mapping
 
 
 def run_false_fetal_frequency_experiment(
@@ -82,15 +76,11 @@ def run_false_fetal_frequency_experiment(
         true_fetal_f: float = gen_config_true.fetal_f
         new_fetal_f = true_fetal_f - error_hz
         # Get the noise function for the measurand
-        ppath_file_mapping = read_parameter_mapping()
-        experiments = ppath_file_mapping["experiments"]
-        for experiment in experiments[:2]:
-            ppath_filename = experiment["filename"]
-            derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
+        file_sweep_params = load_parameter_mapping(Path("./data/parameter_mapping.json"))
+        for ppath_filename, sweep_params in list(file_sweep_params.items())[:2]:
+            derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-            generate_tof(ppath_file, gen_config_true, tof_dataset_file)
-            tof_data = ToFData.from_npz(tof_dataset_file)
+            tof_data = generate_tof(ppath_file, gen_config_true)
             # Run Optimizers
 
             for optimizer_func in optimizers_to_compare:

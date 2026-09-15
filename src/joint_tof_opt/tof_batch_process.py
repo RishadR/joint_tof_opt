@@ -2,8 +2,8 @@
 Load and create a ToF dataset for testing purposes.
 """
 
+from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import numpy as np
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
@@ -17,55 +17,53 @@ from joint_tof_opt.tof_process import compute_inner_bin_moment, compute_tof_disc
 def generate_tof(
     ppath_dataset_filename: Path,
     gen_config: ToFConfig,
-    save_path: Path,
     pulse_maternal: bool = True,
     pulse_fetal: bool = True,
     inner_moment_orders: list[float] = [],
-) -> None:
+) -> ToFData:
     """
-    Generate a DToF dataset based on the provided path length dataset and save it.
+    Generate (or fetch from the local cache) a DToF dataset for the given path length dataset.
     This function modulates maternal and fetal hemoglobin concentrations over time to simulate physiological changes and
-    generates a set of time-of-flight histograms accordingly for a single detector. It then stores the generated dataset
-    along with relevant metadata in a .npz file.
+    generates a set of time-of-flight histograms accordingly for a single detector.
 
     The optical properties are explained in the paper.
 
     To modify parameters, edit the ./experiments/tof_config.yaml file.
+
+    Results are cached in a local DuckDB database (joint_tof_opt.tof_cache), keyed by every argument below -
+    calling this again with the same arguments returns the cached result instead of re-simulating.
 
     :param ppath_dataset_filename: Filepath to the MC path length dataset from tfo_sim2 (.npz file). The file should
     contain a ppath array with shape (num_photons, num_layers)
     :type ppath_dataset_filename: Path
     :param gen_config: Parameters for ToF dataset generation, loaded via joint_tof_opt.config_loader.load_tof_config.
     :type gen_config: ToFConfig
-    :param save_path: Filepath to save the generated ToF dataset (.npz file). The savefile contains the following
-    information - tof_dataset, bin_edges, time_axis, sd_distance, maternal_hb_series, fetal_hb_series, wavelength,
-        weight_threshold_fraction, fetal_f, maternal_f, and sampling_rate.
-    :type save_path: Path
     :param pulse_maternal: Whether to pulse maternal hemoglobin concentration. Default is True.
     :type pulse_maternal: bool
     :param pulse_fetal: Whether to pulse fetal hemoglobin concentration. Default is True.
     :type pulse_fetal: bool
     :param inner_moment_orders: List of orders for which to compute inner moments. Default is empty list.
     :type inner_moment_orders: list[float]
-    :return: None
-    :rtype: None
+    :return: The generated (or cached) ToF dataset.
+    :rtype: ToFData
     """
     key = cache_key(ppath_dataset_filename, gen_config, pulse_maternal, pulse_fetal, inner_moment_orders)
     with lock_for(key):
-        cached_bytes = get_cached_npz_bytes(key)
-        if cached_bytes is not None:
-            save_path.write_bytes(cached_bytes)
-            return
-        _generate_tof_uncached(
-            ppath_dataset_filename, gen_config, save_path, pulse_maternal, pulse_fetal, inner_moment_orders
-        )
-        store_npz_bytes(key, save_path.read_bytes())
+        npz_bytes = get_cached_npz_bytes(key)
+        if npz_bytes is None:
+            buffer = BytesIO()
+            _generate_tof_uncached(
+                ppath_dataset_filename, gen_config, buffer, pulse_maternal, pulse_fetal, inner_moment_orders
+            )
+            npz_bytes = buffer.getvalue()
+            store_npz_bytes(key, npz_bytes)
+    return ToFData.from_npz(BytesIO(npz_bytes))
 
 
 def _generate_tof_uncached(
     ppath_dataset_filename: Path,
     gen_config: ToFConfig,
-    save_path: Path,
+    save_target: BytesIO,
     pulse_maternal: bool,
     pulse_fetal: bool,
     inner_moment_orders: list[float],
@@ -179,7 +177,7 @@ def _generate_tof_uncached(
     inner_moments_kwargs = {f"inner_moment_{key}": value for key, value in inner_moments_dataset.items()}
 
     np.savez(
-        save_path,
+        save_target,
         tof_dataset=tof_dataset,
         var_dataset=var_dataset,
         bin_edges=bin_edges,
@@ -196,35 +194,8 @@ def _generate_tof_uncached(
     )
 
 
-def compute_tof_data_series(
-    ppath_dataset_filename: Path,
-    gen_config: ToFConfig,
-    pulse_maternal: bool = True,
-    pulse_fetal: bool = True,
-    inner_moment_orders: list[float] = [],
-) -> ToFData:
-    """
-    An OOP wrapper around generate_tof to return a ToFData object.
-    """
-    temp_file = NamedTemporaryFile(delete=False, suffix=".npz")
-    temp_path = Path(temp_file.name)
-    temp_file.close()
-    generate_tof(
-        ppath_dataset_filename,
-        gen_config,
-        temp_path,
-        pulse_maternal,
-        pulse_fetal,
-        inner_moment_orders
-    )
-    tof_data = ToFData.from_npz(temp_path)
-    temp_path.unlink()  # Delete the temporary file
-    return tof_data
-
-
 if __name__ == "__main__":
     in_file = Path("./data/experiment_0000.npz")
     config_file = Path("./experiments/tof_config.yaml")
     config = load_tof_config(config_file)
-    out_file = Path("./data/generated_tof_set.npz")
-    generate_tof(in_file, config, out_file)
+    tof_data = generate_tof(in_file, config)

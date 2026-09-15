@@ -1,7 +1,6 @@
 """
-Ablation study for DIGSSOptimizer.
-Tests two ablations:
-  1. use_window_post_process: (aka Flat-top Projection) - applied after optimization.
+Ablation study for DIGSSOptimizer for two ablations:
+  1. use_window_post_process: (aka Flat-top Projection) - applied post-optimization.
   2. use_snr_left_bound: whether the left fixed region starts at max_snr_index (True) or 0 (False).
 
 Purpose
@@ -32,7 +31,6 @@ from pathlib import Path
 from typing import Any
 
 import torch
-import yaml
 
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
@@ -44,6 +42,7 @@ from joint_tof_opt import (
     WindowSumWithAdditiveGaussianNoiseCalculator,
     clear_results,
     generate_tof,
+    load_parameter_mapping,
     load_tof_config,
     pretty_print_log,
     write_results_to_yaml,
@@ -53,22 +52,6 @@ from joint_tof_opt.compact_stat_process import get_named_moment_module
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator3
 
-_tof_gen_locks: dict[Path, threading.Lock] = {}
-_tof_gen_locks_mutex = threading.Lock()
-
-
-def _tof_lock(path: Path) -> threading.Lock:
-    with _tof_gen_locks_mutex:
-        if path not in _tof_gen_locks:
-            _tof_gen_locks[path] = threading.Lock()
-        return _tof_gen_locks[path]
-
-
-def read_parameter_mapping():
-    with open("./data/parameter_mapping.json") as tof_config_file:
-        parameter_mapping = yaml.safe_load(tof_config_file)
-    return parameter_mapping
-
 
 def run_ablation(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
@@ -76,27 +59,19 @@ def run_ablation(
     measurands_to_test: list[str],
     noise_variance: float,
     print_log: bool = False,
-) -> tuple[list[dict[str, Any]], set[Path]]:
+) -> list[dict[str, Any]]:
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
 
     results = []
-    tof_files: set[Path] = set()
     for measurand in measurands_to_test:
-        ppath_file_mapping = read_parameter_mapping()
-        experiments = ppath_file_mapping["experiments"]
-        for experiment in experiments:
-            print(f"Running Experiment: {experiment['filename']} | Measurand: {measurand}")
-            ppath_filename = experiment["filename"]
-            derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
+        file_sweep_params = load_parameter_mapping(Path("./data/parameter_mapping.json"))
+        for ppath_filename, sweep_params in file_sweep_params.items():
+            print(f"Running Experiment: {ppath_filename} | Measurand: {measurand}")
+            derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-            with _tof_lock(tof_dataset_file):
-                if not tof_dataset_file.exists():
-                    generate_tof(ppath_file, gen_config, tof_dataset_file, True, True)
-                tof_files.add(tof_dataset_file)
-            noisy_tof_file = tof_dataset_file.with_stem(f"{tof_dataset_file.stem}_t{threading.get_ident()}")
-            tof_data = ToFData.from_npz(tof_dataset_file)
+            tof_data = generate_tof(ppath_file, gen_config, True, True)
+            noisy_tof_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}_t{threading.get_ident()}.npz"
             tof_data = tof_modifier.modify(tof_data)
             tof_data.to_npz(noisy_tof_file)
 
@@ -144,15 +119,15 @@ def run_ablation(
                     print("Log Details:")
                     pretty_print_log(evaluator.get_log())
             noisy_tof_file.unlink(missing_ok=True)
-    return results, tof_files
+    return results
 
 
-def main(noise_var: float) -> tuple[list[dict[str, Any]], set[Path]]:
+def main(noise_var: float) -> list[dict[str, Any]]:
     filter_hw = 0.01  # Hz
     eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
-    base_kwargs = {
+    base_kwargs: dict[str, Any] = {
         "normalization_scheme": "unit_max",
         "noise_calc": noise_calc,
         "reg_weight": 0.0,
@@ -191,15 +166,11 @@ if __name__ == "__main__":
     clear_results(results_path)
     noise_variances = [0.0, 10.0, 100.0, 1000.0, 10000.0]  # 1000.0 already computed
     iterations = 20
-    all_tof_files: set[Path] = set()
     for noise_var in noise_variances:
         print(f"Running {iterations} iterations in parallel for noise_var={noise_var}...")
         with ThreadPoolExecutor(max_workers=iterations) as executor:
             futures = [executor.submit(main, noise_var) for _ in range(iterations)]
         for i, future in enumerate(futures):
-            exp_results, tof_files = future.result()
-            all_tof_files |= tof_files
+            exp_results = future.result()
             print(f"  Writing results: iteration {i + 1}/{iterations}")
             write_results_to_yaml(exp_results, results_path, append=True)
-    for f in all_tof_files:
-        f.unlink(missing_ok=True)

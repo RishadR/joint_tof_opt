@@ -29,9 +29,10 @@ from joint_tof_opt.noise_calc import (
     WindowSumWithAdditiveGaussianNoiseCalculator,
     get_noise_calculator,
 )
+from joint_tof_opt.parameter_mapping import load_parameter_mapping
 from joint_tof_opt.result_writer import clear_results, write_results_to_yaml
 from joint_tof_opt.signal_process import CombSeparator, FourierSeparator, PSAFESeparator
-from joint_tof_opt.tof_batch_process import compute_tof_data_series, generate_tof
+from joint_tof_opt.tof_batch_process import generate_tof
 
 __all__ = [
     "ToFConfig",
@@ -63,8 +64,8 @@ __all__ = [
     "generate_tof",
     "pretty_print_log",
     "FirstMomentNoiseCalculator",
-    "compute_tof_data_series",
     "get_named_moment_module",
     "clear_results",
     "write_results_to_yaml",
+    "load_parameter_mapping",
 ]

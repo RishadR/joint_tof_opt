@@ -13,9 +13,10 @@ from joint_tof_opt.tof_process import (
     compute_tof_data_single_time_point,
 )
 import yaml
-from joint_tof_opt.tof_batch_process import generate_tof, compute_tof_data_series
+from joint_tof_opt.tof_batch_process import generate_tof
 import tempfile
 from pathlib import Path
+from joint_tof_opt.config_loader import ToFConfig
 from joint_tof_opt.core import ToFData
 
 
@@ -412,11 +413,23 @@ class TestComputeToFDataSeries(unittest.TestCase):
         """Test generate_tof function works with using our test config"""
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)
-            
-            # Load config
+
+            # Load config - test_config.yaml predates a few now-required ToFConfig fields, so fill those in
             config_path = Path(__file__).parent / "test_config.yaml"
-            with open(config_path, "r") as f:
-                config = yaml.safe_load(f)
+            with open(config_path) as f:
+                raw_config = yaml.safe_load(f)
+            config = ToFConfig.model_validate(
+                {
+                    **raw_config,
+                    "total_photon_count": 1000,
+                    "epidermis_thickness": 2,
+                    "donut_half_thickness": 1.0,
+                    "time_limit_or_threshold": "weightthreshold",
+                    "time_limit": [0.0, 5.0],
+                    "sdd_distances": [10, 20, 30],
+                    "dermis_thicknesses": [2, 4, 6],
+                }
+            )
 
             # Create temporary ppath dataset file
             ppath_dataset_path = tmp_path / "test_ppath_dataset.npz"
@@ -425,19 +438,12 @@ class TestComputeToFDataSeries(unittest.TestCase):
             detpos = np.array([[10.0, 0.0, 0.0, 2.0]])
             np.savez(ppath_dataset_path, ppath=ppath_table, srcpos=srcpos, detpos=detpos)
 
-            # Create temporary save directory
-            save_path = tmp_path / "tof_output.npz"
+            # Call generate_tof - no save_path anymore, results are returned directly (and cached internally)
+            tof_data = generate_tof(ppath_dataset_path, config, True, True, [])
 
-            # Call generate_tof
-            generate_tof(ppath_dataset_path, config, save_path, True, True, [])
-
-            # Verify that output files were created (adjust based on what generate_tof actually saves)
-            self.assertTrue(save_path.exists(), "Save path should be created")
-            # Verify the saved npz file contains the expected keys
-            saved_file = np.load(save_path)
-            self.assertIn("tof_dataset", saved_file.files)
-            self.assertIn("bin_edges", saved_file.files)
-            self.assertIn("time_axis", saved_file.files)
+            self.assertIsInstance(tof_data, ToFData)
+            self.assertEqual(tof_data.tof_series.shape[1], config.bin_count)
+            self.assertIsNotNone(tof_data.meta_data)
 
 
 if __name__ == "__main__":

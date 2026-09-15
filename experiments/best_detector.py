@@ -26,26 +26,22 @@ from pathlib import Path
 from typing import Any
 
 import torch
-import yaml
 
 from joint_tof_opt import (
     CompactStatProcess,
     Evaluator,
     ToFConfig,
     ToFData,
+    clear_results,
     generate_tof,
+    load_parameter_mapping,
     load_tof_config,
     pretty_print_log,
+    write_results_to_yaml,
 )
 
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator3
-
-
-def read_parameter_mapping():
-    with open("./data/parameter_mapping.json") as f:
-        parameter_mapping = yaml.safe_load(f)
-    return parameter_mapping
 
 
 def run_detector_comparison(
@@ -80,16 +76,12 @@ def run_detector_comparison(
         # Get the noise function for the measurand
 
         ## Run experiments
-        ppath_file_mapping = read_parameter_mapping()
-        experiments = ppath_file_mapping["experiments"]
-        for experiment in experiments:
-            print(f"Running experiment: {experiment} with SDD index: {sdd_index}")
-            ppath_filename = experiment["filename"]
-            derm_thickness_mm = experiment["sweep_parameters"]["derm_thickness"]["value"]
+        file_sweep_params = load_parameter_mapping(Path("./data/parameter_mapping.json"))
+        for ppath_filename, sweep_params in file_sweep_params.items():
+            print(f"Running experiment: {ppath_filename} with SDD index: {sdd_index}")
+            derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_dataset_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-            generate_tof(ppath_file, gen_config, tof_dataset_file)
-            tof_data = ToFData.from_npz(tof_dataset_file)
+            tof_data = generate_tof(ppath_file, gen_config)
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
@@ -137,11 +129,11 @@ def main() -> None:
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, normalization_scheme="unit_max")
     ]
-    # run_detector_comparison(eval_func, optimizer_funcs_to_test, [5, 6], print_log=False)    
+    # run_detector_comparison(eval_func, optimizer_funcs_to_test, [5, 6], print_log=False)
     exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
-    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    with open("./results/detector_comparison_results.yaml", "w") as f:
-        yaml.dump(results_dict, f, default_flow_style=False)
+    result_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
+    clear_results(result_path)
+    write_results_to_yaml(exp_results, result_path)
 
 
 if __name__ == "__main__":

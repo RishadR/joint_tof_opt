@@ -4,6 +4,7 @@ Core modules for joint TOF optimization to make life easier.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
@@ -52,12 +53,13 @@ class ToFData:
     meta_data: dict[str, Any] | None = None
 
     @classmethod
-    def from_npz(cls, npz_path: Path) -> "ToFData":
+    def from_npz(cls, npz_path: Path | BytesIO) -> "ToFData":
         """
-        Create a ToFData instance from a .npz file.
+        Create a ToFData instance from a .npz file, either on disk or already loaded into memory.
 
-        :param npz_path: Path to the .npz file containing tof_series, bin_edges, bin_centers, var_series, and optional meta_data
-        :type npz_path: Path
+        :param npz_path: Path to the .npz file, or an in-memory buffer of its contents, containing tof_series,
+        bin_edges, bin_centers, var_series, and optional meta_data
+        :type npz_path: Path | BytesIO
         :return: ToFData instance
         :rtype: ToFData
         """

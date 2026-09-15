@@ -26,7 +26,7 @@ from joint_tof_opt import (
     ToFData,
     WindowSumNoiseCalculator,
     WindowSumWithAdditiveGaussianNoiseCalculator,
-    compute_tof_data_series,
+    generate_tof,
     get_named_moment_module,
     get_noise_calculator,
     named_moment_types,
@@ -234,7 +234,7 @@ class FetalSensitivityEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
-            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+            tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
             tof_series_tensor = tof_data.tof_series
             bin_edges_tensor = tof_data.bin_edges
             self.moment_module = get_named_moment_module(self.measurand, tof_data)
@@ -372,7 +372,7 @@ class CorrelationEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
-            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+            tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
             meta_data = tof_data.meta_data
             tof_series_tensor = tof_data.tof_series
             bin_edges_tensor = tof_data.bin_edges
@@ -454,7 +454,7 @@ class SpectralCorrelationEvaluator(Evaluator):
 
     def evaluate(self) -> float:
         if isinstance(self.measurand, str):
-            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+            tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
             meta_data = tof_data.meta_data
             tof_series_tensor = tof_data.tof_series
             bin_edges_tensor = tof_data.bin_edges
@@ -544,7 +544,7 @@ class SNREvaluator(Evaluator):
     def evaluate(self) -> float:
         # Two Paths: If measurand is string, generate new data via tof_config. Otherwise use internal data
         if isinstance(self.measurand, str):
-            tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+            tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
             moment_module = get_named_moment_module(self.measurand, tof_data)
         else:
             moment_module = self.measurand
@@ -594,7 +594,7 @@ class NormalizedSNREvaluator(SNREvaluator):
     def evaluate(self) -> float:
         raw_snr = super().evaluate()
         # Compute Best SNR - The best SNR always appears when using a unit window!
-        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
         moment_module = get_named_moment_module(self.measurand_str, tof_data)
         unit_window = torch.ones_like(self.window)
         unit_window /= unit_window.sum()
@@ -673,7 +673,7 @@ class FetalSelectivityEvaluator(Evaluator):
         return "Computes Fetal Selectivity as Fetal SNR / Maternal SNR"
 
     def evaluate(self) -> float:
-        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
         moment_module = get_named_moment_module(self.measurand, tof_data)
         # Compute compact statistics
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
@@ -705,7 +705,7 @@ class PureFetalSNREvaluator(SNREvaluator):
         return "Computes Pure Fetal SNR when there is no maternal interference"
 
     def evaluate(self) -> float:
-        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, pulse_maternal=False, pulse_fetal=True)
+        tof_data = generate_tof(self.ppath_file, self.gen_config, pulse_maternal=False, pulse_fetal=True)
         if isinstance(self.measurand, str):
             moment_module = get_named_moment_module(self.measurand, tof_data)
         else:
@@ -890,7 +890,7 @@ def _compute_baseline_noise_std(window: torch.Tensor, tof_data: ToFData, gaussia
     where w_i is the window value at time bin i, and N_i is the photon count at time bin i.
 
     :param window: The window used for the ToF Data. Should be a 1D Tensor on the same device as ToF.tof_series
-    :param tof_data: The ToF data object computed using compute_tof_data_series. Should be unnormalized!
+    :param tof_data: The ToF data object computed using generate_tof. Should be unnormalized!
     :param gaussian_noise_var: The variance of the additive Gaussian noise. Defaults to 0.0 (aka ignored)
     :return: The baseline noise standard deviation.
     :rtype: float
@@ -939,7 +939,7 @@ class PaperEvaluator(Evaluator):
         return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
 
     def evaluate(self) -> float:
-        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
         self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data)
         moment_module = get_named_moment_module(self.measurand, tof_data)
         compact_stats = moment_module(self.window)  # Shape: (num_timepoints,)
@@ -1007,7 +1007,7 @@ class AltPaperEvaluator(Evaluator):
         return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
 
     def evaluate(self) -> float:
-        tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
         self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data, self.gaussian_noise_var)
         # Run these evals to actually compute the values for delta_measurands!
         fetal_sensitivity = self.fetal_sensitivity_eval.evaluate()
@@ -1063,11 +1063,11 @@ class AltPaperEvaluator2(PaperEvaluator):
         return "Computes fetal AC Energy / (Baseline Noise Std * Maternal AC Amp)"
 
     def evaluate(self) -> float:
-        baseline_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, True)
+        baseline_tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
         self.baseline_noise_std = _compute_baseline_noise_std(self.window, baseline_tof_data, self.gaussian_noise_var)
 
-        only_maternal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, True, False)
-        only_fetal_tof_data = compute_tof_data_series(self.ppath_file, self.gen_config, False, True)
+        only_maternal_tof_data = generate_tof(self.ppath_file, self.gen_config, True, False)
+        only_fetal_tof_data = generate_tof(self.ppath_file, self.gen_config, False, True)
         pure_maternal_measurand = get_named_moment_module(self.measurand, only_maternal_tof_data).forward(self.window)
         pure_fetal_measurand = get_named_moment_module(self.measurand, only_fetal_tof_data).forward(self.window)
         pure_maternal_measurand = pure_maternal_measurand - pure_maternal_measurand.mean()

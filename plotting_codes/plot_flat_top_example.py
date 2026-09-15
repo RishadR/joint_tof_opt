@@ -3,25 +3,20 @@ Plot the raw (unprocessed) vs post-processed flat-top optimized window from the 
 """
 
 import logging
-import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import yaml
 
+from experiments.optimize_loop_paper import DIGSSOptimizer
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
-    ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
+    load_tof_config,
 )
 from joint_tof_opt.plotting import load_plot_config
-
-# ponytail: sys.path hack to reuse DIGSSOptimizer from experiments/ instead of duplicating its ~150 lines here
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "experiments"))
-from optimize_loop_paper import DIGSSOptimizer  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +25,9 @@ def run_experiment(file_idx: int = 5) -> tuple[DIGSSOptimizer, np.ndarray]:
     """Reproduce the single-experiment setup from optimize_loop_paper.main() and return the fitted experiment."""
     measurand = "abs"
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
-    tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     noise_var = 100000.0
-    generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
-    tof_data = ToFData.from_npz(tof_dataset_path)
+    tof_data = generate_tof(ppath_file, gen_config, True, True)
     modifier = AdditiveGaussianToFModifier(noise_var)
     modified_tof = modifier.modify(tof_data)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
@@ -42,7 +35,7 @@ def run_experiment(file_idx: int = 5) -> tuple[DIGSSOptimizer, np.ndarray]:
         tof_data=modified_tof,
         measurand=measurand,
         noise_calc=noise_calc,
-        fetal_f=gen_config["fetal_f"],
+        fetal_f=gen_config.fetal_f,
         normalize_reward=False,
         lr=0.1,
         filter_hw=0.01,
@@ -53,7 +46,6 @@ def run_experiment(file_idx: int = 5) -> tuple[DIGSSOptimizer, np.ndarray]:
         normalization_scheme="unit_max",
     )
     experiment.optimize()
-    tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
     return experiment, modified_tof.bin_edges.numpy()
 
 

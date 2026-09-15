@@ -122,10 +122,10 @@ class CorrectedNthOrderMoment(CompactStatProcess):
     Example Code:
     ----------------------------------------------------------------------------------
     from joint_tof_opt.config_loader import load_tof_config
-    from joint_tof_opt.tof_batch_process import compute_tof_data_series
+    from joint_tof_opt.tof_batch_process import generate_tof
     n = 2  # Example for 2nd order moment
     gen_config = load_tof_config(config_path)
-    tof_data = compute_tof_data_series(ppath_file, gen_config, inner_moment_orders=[n])
+    tof_data = generate_tof(ppath_file, gen_config, inner_moment_orders=[n])
     moment_module = CorrectedNthOrderMoment(tof_data, order=n)
     moment_values = moment_module(window)
     """

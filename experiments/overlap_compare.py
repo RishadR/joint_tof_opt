@@ -30,7 +30,7 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import ToFData, generate_tof, load_tof_config
+from joint_tof_opt import generate_tof, load_tof_config
 
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
@@ -70,16 +70,7 @@ def run_overlap_sweep(
             fetal_f = 2 * maternal_f + float(separation)
             gen_config = base_gen_config.model_copy(update={"fetal_f": fetal_f})
 
-            sep_tag = f"{separation:.3f}".replace(".", "p")
-            hw_tag = f"{float(filter_hw):.3f}".replace(".", "p")
-            type_tag = str(filter_type).replace(" ", "_")
-            tof_dataset_path = (
-                Path("./data")
-                / f"generated_tof_set_{ppath_file.stem}_sep_{sep_tag}_{type_tag}_hw_{hw_tag}.npz"
-            )
-
-            generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
-            tof_data = ToFData.from_npz(tof_dataset_path)
+            tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
 
             experiment = DIGSSOptimizer(
                 tof_data=tof_data,
@@ -133,7 +124,6 @@ def run_overlap_sweep(
                 f"eval_results1={eval_results1:.6g} | eval_results2={eval_results2:.6g}"
             )
             exp_idx += 1
-            tof_dataset_path.unlink()  # Clean up generated ToF dataset after use
 
     output_yaml.parent.mkdir(parents=True, exist_ok=True)
     with open(output_yaml, "w", encoding="utf-8") as f:

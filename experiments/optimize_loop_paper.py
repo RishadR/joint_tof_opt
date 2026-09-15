@@ -549,12 +549,10 @@ def main() -> None:
         measurand = "abs"
         ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
         logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
-        tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
         gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
         filter_hw = 0.01
         noise_var = 100.0
-        generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
-        tof_data = ToFData.from_npz(tof_dataset_path)
+        tof_data = generate_tof(ppath_file, gen_config, True, True)
         modifier = AdditiveGaussianToFModifier(noise_var)
         modified_tof = modifier.modify(tof_data)
         noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
@@ -603,8 +601,6 @@ def main() -> None:
         logger.info("Impulse Window Selectivity List: %s", experiment.impulse_window_selectivity_list)
         logger.info("Impulse Window Product List: %s", experiment.impulse_window_product_list)
         logger.info("Unprocessed Window: %s", experiment.unprocessed_window.numpy())
-        # Clean up
-        tof_dataset_path.unlink()  # Remove the generated ToF dataset to save space
 
 
 if __name__ == "__main__":

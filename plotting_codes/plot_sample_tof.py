@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import yaml
 from pathlib import Path
 from scipy.interpolate import UnivariateSpline
-from joint_tof_opt.tof_batch_process import compute_tof_data_series, ToFData
+from joint_tof_opt.tof_batch_process import generate_tof, ToFData
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -34,7 +34,7 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     gen_config["datapoint_count"] = 10  # Only generate 10 ToFs for quick loading
 
     # Load data
-    tof_data = compute_tof_data_series(ppath, gen_config, False, False)
+    tof_data = generate_tof(ppath, gen_config, False, False)
 
     # Get first row (first time point)
     tof_histogram = tof_data.tof_series.numpy()

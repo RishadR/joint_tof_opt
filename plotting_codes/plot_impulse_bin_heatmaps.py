@@ -17,10 +17,11 @@ import yaml
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
     PSAFESeparator,
-    ToFData,
+    ToFConfig,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
+    load_tof_config,
 )
 from joint_tof_opt.plotting import load_plot_config
 
@@ -28,7 +29,7 @@ NOISE_VAR = 100.0  # Fixed additive Gaussian noise variance
 MEASURAND = "abs"
 
 
-def compute_bin_metrics_for_file(ppath_file: Path, gen_config: dict) -> np.ndarray:
+def compute_bin_metrics_for_file(ppath_file: Path, gen_config: ToFConfig) -> np.ndarray:
     """
     Turn each bin on individually and compute (SNR, Selectivity, Final Metric) for that single-bin window.
 
@@ -36,17 +37,15 @@ def compute_bin_metrics_for_file(ppath_file: Path, gen_config: dict) -> np.ndarr
     :param gen_config: ToF dataset generation config (from tof_config.yaml).
     :return: Array of shape (num_bins, 3) with columns [SNR, Selectivity, Final Metric].
     """
-    tof_dataset_path = Path("./data") / f"generated_tof_set_{ppath_file.stem}.npz"
-    generate_tof(ppath_file, gen_config, tof_dataset_path, True, True)
-    tof_data = ToFData.from_npz(tof_dataset_path)
+    tof_data = generate_tof(ppath_file, gen_config, True, True)
     modifier = AdditiveGaussianToFModifier(NOISE_VAR)
     modified_tof = modifier.modify(tof_data)
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(NOISE_VAR)
     moment_module = get_named_moment_module(MEASURAND, modified_tof)
 
-    sampling_rate = gen_config["sampling_rate"]
-    fetal_filter = PSAFESeparator(sampling_rate, gen_config["fetal_f"], True)
-    maternal_filter = PSAFESeparator(sampling_rate, gen_config["maternal_f"], True)
+    sampling_rate = gen_config.sampling_rate
+    fetal_filter = PSAFESeparator(sampling_rate, gen_config.fetal_f, True)
+    maternal_filter = PSAFESeparator(sampling_rate, gen_config.maternal_f, True)
 
     num_bins = modified_tof.tof_series.shape[1]
     metrics = np.zeros((num_bins, 3))
@@ -63,7 +62,6 @@ def compute_bin_metrics_for_file(ppath_file: Path, gen_config: dict) -> np.ndarr
         selectivity = torch.sqrt(fetal_energy / maternal_energy).item()
         metrics[i] = [snr, selectivity, snr * selectivity]
 
-    tof_dataset_path.unlink()
     return metrics
 
 
@@ -115,7 +113,7 @@ def plot_impulse_bin_heatmaps(
 
 
 def main() -> None:
-    gen_config: dict = yaml.safe_load(open("./experiments/tof_config.yaml"))
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     parameter_mapping: dict = yaml.safe_load(open("./data/parameter_mapping.json"))
     experiments = sorted(
         parameter_mapping["experiments"], key=lambda e: e["sweep_parameters"]["derm_thickness"]["value"]

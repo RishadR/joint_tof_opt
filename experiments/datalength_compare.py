@@ -28,7 +28,7 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import ToFData, generate_tof, load_tof_config
+from joint_tof_opt import generate_tof, load_tof_config
 
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
@@ -71,14 +71,7 @@ def run_datalength_sweep(
                 update={"datapoint_count": int(datapoint_count), "end_sec": end_sec}
             )
 
-            datapoint_tag = f"{int(datapoint_count):04d}"
-            tof_dataset_path = (
-                Path("./data")
-                / f"generated_tof_set_{ppath_file.stem}_datapoints_{datapoint_tag}.npz"
-            )
-
-            generate_tof(ppath_file, deepcopy(gen_config), tof_dataset_path, True, True)
-            tof_data = ToFData.from_npz(tof_dataset_path)
+            tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
 
             experiment = DIGSSOptimizer(
                 tof_data=tof_data,
@@ -132,7 +125,6 @@ def run_datalength_sweep(
                 f"eval_results1={eval_results1:.6g} | eval_results2={eval_results2:.6g}"
             )
             exp_idx += 1
-            tof_dataset_path.unlink()
 
     output_yaml.parent.mkdir(parents=True, exist_ok=True)
     with open(output_yaml, "w", encoding="utf-8") as f:
