@@ -137,11 +137,11 @@ def main() -> None:
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, normalization_scheme="unit_max")
     ]
-    run_detector_comparison(eval_func, optimizer_funcs_to_test, [5, 6], print_log=False)    
-    # exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
-    # results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
-    # with open("./results/detector_comparison_results.yaml", "w") as f:
-    #     yaml.dump(results_dict, f, default_flow_style=False)
+    # run_detector_comparison(eval_func, optimizer_funcs_to_test, [5, 6], print_log=False)    
+    exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
+    results_dict = {f"exp {i:03d}": res for i, res in enumerate(exp_results)}
+    with open("./results/detector_comparison_results.yaml", "w") as f:
+        yaml.dump(results_dict, f, default_flow_style=False)
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ from tfo_sim2.tissue_model_extended import DanModel4LayerX
 
 from joint_tof_opt.config_loader import ToFConfig, load_tof_config
 from joint_tof_opt.core import ToFData
+from joint_tof_opt.tof_cache import cache_key, get_cached_npz_bytes, lock_for, store_npz_bytes
 from joint_tof_opt.tof_process import compute_inner_bin_moment, compute_tof_discrete
 
 
@@ -49,6 +50,26 @@ def generate_tof(
     :return: None
     :rtype: None
     """
+    key = cache_key(ppath_dataset_filename, gen_config, pulse_maternal, pulse_fetal, inner_moment_orders)
+    with lock_for(key):
+        cached_bytes = get_cached_npz_bytes(key)
+        if cached_bytes is not None:
+            save_path.write_bytes(cached_bytes)
+            return
+        _generate_tof_uncached(
+            ppath_dataset_filename, gen_config, save_path, pulse_maternal, pulse_fetal, inner_moment_orders
+        )
+        store_npz_bytes(key, save_path.read_bytes())
+
+
+def _generate_tof_uncached(
+    ppath_dataset_filename: Path,
+    gen_config: ToFConfig,
+    save_path: Path,
+    pulse_maternal: bool,
+    pulse_fetal: bool,
+    inner_moment_orders: list[float],
+) -> None:
     datapoint_count = gen_config.datapoint_count
     maternal_f = gen_config.maternal_f
     fetal_f = gen_config.fetal_f

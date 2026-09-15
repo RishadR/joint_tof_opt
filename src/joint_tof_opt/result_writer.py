@@ -25,22 +25,14 @@ def write_results_to_yaml(results: list[dict[str, Any]], results_path: Path, app
         append: If True, appends to existing results. If False, overwrites.
     """
     existing_results: dict[str, Any] = {}
-    if append and results_path.exists():
-        with results_path.open() as f:
-            existing_results = yaml.safe_load(f) or {}
-        if not isinstance(existing_results, dict):
-            raise ValueError(f"Expected a mapping in {results_path}, got {type(existing_results).__name__}.")
+    if append:
+        if not results_path.exists():
+            raise FileExistsError(f"Could not append results to {results_path}. File does not exist")
+        else:
+            with results_path.open() as f:
+                existing_results = yaml.safe_load(f)  # pyright: ignore[reportAny]
 
-    next_exp_index = 0
-    if existing_results:
-        existing_exp_indices = []
-        for key in existing_results:
-            if key.startswith("exp "):
-                try:
-                    existing_exp_indices.append(int(key.split()[1]))
-                except (IndexError, ValueError):
-                    continue
-        next_exp_index = max(existing_exp_indices) + 1 if existing_exp_indices else len(existing_results)
+    next_exp_index = len(existing_results)
 
     results_dict = {f"exp {i:03d}": res for i, res in enumerate(results, start=next_exp_index)}
     results_to_write = existing_results | results_dict if append else results_dict

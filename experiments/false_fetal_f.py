@@ -38,10 +38,10 @@ from joint_tof_opt import (
     generate_tof,
     load_tof_config,
     pretty_print_log,
+    write_results_to_yaml,
 )
 
 from .optimize_loop_paper import DIGSSOptimizer
-from .result_writer import write_results_to_yaml
 from .sensitivity_compute import AltPaperEvaluator3
 
 

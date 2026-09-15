@@ -16,6 +16,7 @@ dependencies = [
     "scipy",
     "cycler",
     "pydantic",
+    "duckdb",
     "tfo_sim2 @ git+https://github.com/RishadR/tfo_sim2.git",
 ]
 
