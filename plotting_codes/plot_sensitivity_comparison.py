@@ -39,10 +39,7 @@ def main():
         # Determine label
         label = None
         if optimizer.startswith("DIGSSOptimizer"):
-            if "normalization_scheme=unit_sum" in optimizer:
-                label = "DIGSS(Unit Sum)"
-            elif "normalization_scheme=unit_max" in optimizer:
-                label = "DIGSS"
+            label = "DIGSS"
         elif optimizer.startswith("LiuOptimizer"):
             label = "Spectral Boxcar$^{[27]}$"
         elif optimizer.startswith("AltLiuOptimizer"):

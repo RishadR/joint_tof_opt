@@ -3,7 +3,10 @@ Code to compute compact statistics from time-of-flight (TOF) data for joint opti
 """
 
 
+from collections.abc import Callable
+
 import torch
+from typing_extensions import override
 
 from joint_tof_opt.core import CompactStatProcess, ToFData
 
@@ -18,8 +21,10 @@ class WindowedSum(CompactStatProcess):
 
     def __init__(self, tof_data: ToFData):
         super().__init__(tof_data)
-        self.num_tofs, self.num_bins = tof_data.tof_series.shape
+        self.num_tofs: int = tof_data.tof_series.shape[0]
+        self.num_bins: int = tof_data.tof_series.shape[1]
 
+    @override
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
         Apply window and compute row-wise sum.
@@ -46,9 +51,11 @@ class NthOrderMoment(CompactStatProcess):
 
     def __init__(self, tof_data: ToFData, order: int):
         super().__init__(tof_data)
-        self.num_tofs, self.num_bins = tof_data.tof_series.shape
-        self.order = order
+        self.num_tofs: int = tof_data.tof_series.shape[0]
+        self.num_bins: int = tof_data.tof_series.shape[1]
+        self.order: int = order
 
+    @override
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
         Apply window and compute n-th order moment for each ToF.
@@ -78,9 +85,11 @@ class NthOrderCenteredMoment(CompactStatProcess):
 
     def __init__(self, tof_data: ToFData, order: int):
         super().__init__(tof_data)
-        self.num_tofs, self.num_bins = tof_data.tof_series.shape
-        self.order = order
+        self.num_tofs: int = tof_data.tof_series.shape[0]
+        self.num_bins: int = tof_data.tof_series.shape[1]
+        self.order: int = order
 
+    @override
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
         Apply window and compute n-th order centered moment for each ToF.
@@ -132,13 +141,15 @@ class CorrectedNthOrderMoment(CompactStatProcess):
 
     def __init__(self, tof_data: ToFData, order: float):
         super().__init__(tof_data)
-        self.num_tofs, self.num_bins = tof_data.tof_series.shape
-        self.order = order
+        self.num_tofs: int = tof_data.tof_series.shape[0]
+        self.num_bins: int = tof_data.tof_series.shape[1]
+        self.order: float = order
         assert tof_data.inner_moments[order] is not None, (
             f"Inner moment of order {order} not found in ToFData."
         )
-        self.inner_moments = tof_data.inner_moments[order]
+        self.inner_moments: torch.Tensor = tof_data.inner_moments[order]
 
+    @override
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
         Apply window and compute corrected n-th order moment for each ToF.
@@ -166,24 +177,26 @@ class CorrectedVarianceMoment(CompactStatProcess):
 
     def __init__(self, tof_data: ToFData):
         super().__init__(tof_data)
-        self.num_tofs, self.num_bins = tof_data.tof_series.shape
+        self.num_tofs: int = tof_data.tof_series.shape[0]
+        self.num_bins: int = tof_data.tof_series.shape[1]
         assert tof_data.inner_moments[1.0] is not None, (
             "Inner moment of order 1 not found in ToFData."
         )
         assert tof_data.inner_moments[2.0] is not None, (
             "Inner moment of order 2 not found in ToFData."
         )
-        self.inner_mean = tof_data.inner_moments[1.0]
-        self.inner_second_moment = tof_data.inner_moments[2.0]
+        self.inner_mean: torch.Tensor = tof_data.inner_moments[1.0]
+        self.inner_second_moment: torch.Tensor = tof_data.inner_moments[2.0]
 
+    @override
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         inner_variance = self.inner_second_moment - self.inner_mean**2
         windowed_histograms = self.tof_series * window  # f_i * w_i
         normalizer = torch.sum(windowed_histograms, dim=1)  # Σ(f_i * w_i)
         mean_time = (windowed_histograms * self.inner_mean).sum(dim=1) / normalizer  # E[X|Y]
-        inter_bin_variace = window * (self.inner_mean - mean_time) ** 2  # (μ_i - E[X|Y])^2
+        inter_bin_variance = window * (self.inner_mean - mean_time) ** 2  # (μ_i - E[X|Y])^2
         total_variance = (
-            (windowed_histograms * inner_variance).sum(dim=1) + inter_bin_variace.sum(dim=1)
+            (windowed_histograms * inner_variance).sum(dim=1) + inter_bin_variance.sum(dim=1)
         ) / normalizer
         return total_variance.flatten()
 
@@ -191,7 +204,7 @@ class CorrectedVarianceMoment(CompactStatProcess):
 # Gather all moment modules for easy access
 # Single source of truth: define moment configurations once
 # Add new moment types here to make them accessible throughout the package
-MOMENT_CONFIGS = {
+MOMENT_CONFIGS: dict[str, Callable[[ToFData], CompactStatProcess]] = {
     "abs": lambda tof_data: WindowedSum(tof_data),
     "m1": lambda tof_data: NthOrderMoment(tof_data, order=1),
     "V": lambda tof_data: NthOrderCenteredMoment(tof_data, order=2),

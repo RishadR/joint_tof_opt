@@ -3,14 +3,19 @@ Code to process the generated compact stats signal to extract FHR
 """
 
 import math
-import numpy as np
 from typing import Tuple
+
+import numpy as np
+import numpy.typing as npt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing_extensions import override
 
 
-def create_sinc_bandpass_filter(fs: float, lowcut: float, highcut: float, filter_length: int) -> np.ndarray:
+def create_sinc_bandpass_filter(
+    fs: float, lowcut: float, highcut: float, filter_length: int
+) -> npt.NDArray[np.float64]:
     """
     Creates a Bandpass filter as the difference of two lowpass sinc filters. Outputs a time domain filter kernel
     that can be convolved with the signal. The kernel has unit energy. Uses a Hamming window to reduce side lobes.
@@ -45,7 +50,9 @@ def create_sinc_bandpass_filter(fs: float, lowcut: float, highcut: float, filter
     return bandpass_filter
 
 
-def create_sinc_comb_filter(fs: float, f0: float, f1: float, half_width: float, filter_length: int) -> np.ndarray:
+def create_sinc_comb_filter(
+    fs: float, f0: float, f1: float, half_width: float, filter_length: int
+) -> npt.NDArray[np.float64]:
     """
     Creates a comb filter in time domain using sinc functions to isolate frequencies around f0 and f1.
     The filter has unit energy.
@@ -105,14 +112,14 @@ class CombSeparator(nn.Module):
         if filter_length % 2 == 0:
             filter_length += 1  # FIR filters for bandpass usually need to be odd
 
-        self.fs = fs
-        self.filter_len = int(filter_length)
-        self.phase_preserve = phase_preserve
+        self.fs: float = fs
+        self.filter_len: int = int(filter_length)
+        self.phase_preserve: bool = phase_preserve
 
         # Define parameters (requires_grad=False as requested)
-        self.low_mid = nn.Parameter(torch.tensor(float(f0)), requires_grad=False)
-        self.high_mid = nn.Parameter(torch.tensor(float(f1)), requires_grad=False)
-        self.width = nn.Parameter(torch.tensor(float(half_width)), requires_grad=False)
+        self.low_mid: nn.Parameter = nn.Parameter(torch.tensor(float(f0)), requires_grad=False)
+        self.high_mid: nn.Parameter = nn.Parameter(torch.tensor(float(f1)), requires_grad=False)
+        self.width: nn.Parameter = nn.Parameter(torch.tensor(float(half_width)), requires_grad=False)
 
         # Pre-compute coefficients
 
@@ -120,6 +127,7 @@ class CombSeparator(nn.Module):
         filter_coeffs = create_sinc_comb_filter(fs, f0, f1, half_width, filter_length)
         self.register_buffer("comb_filter", torch.tensor(filter_coeffs, dtype=torch.float32).view(1, 1, -1))
 
+    @override
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         """
         Apply the comb filter to the input signal.
@@ -162,11 +170,12 @@ class FourierSeparator(nn.Module):
 
     def __init__(self, fs: float, f0: float, f1: float, half_width: float):
         super().__init__()
-        self.fs = fs
-        self.f0 = f0
-        self.f1 = f1
-        self.half_width = half_width
+        self.fs: float = fs
+        self.f0: float = f0
+        self.f1: float = f1
+        self.half_width: float = half_width
 
+    @override
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         # Compute FFT
         fft_signal = torch.fft.rfft(signal)
@@ -192,11 +201,12 @@ class PSAFESeparator(nn.Module):
     """
     def __init__(self, fs: float, center_freq: float, equate_length: bool = False):
         super().__init__()
-        self.fs = fs
-        self.center_freq = center_freq
-        self.window_len = int(round(fs / center_freq))
-        self.equate_length = equate_length
-    
+        self.fs: float = fs
+        self.center_freq: float = center_freq
+        self.window_len: int = int(round(fs / center_freq))
+        self.equate_length: bool = equate_length
+
+    @override
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         # Step 1: Divide signal into non-overlapping windows
         num_windows = signal.shape[-1] // self.window_len

@@ -1,6 +1,7 @@
 """
-Loads the filename -> sweep parameters mapping out of parameter_mapping.json. Only the
-"experiments" key is used; everything else in that file (metadata, base sim/tissue params) is ignored.
+Single source of truth for the schema of parameter_mapping.json (the filename -> sweep parameters
+mapping). Only the "experiments" key is used; everything else in that file (metadata, base sim/tissue
+params) is ignored on load.
 """
 
 import json
@@ -9,17 +10,26 @@ from pathlib import Path
 from pydantic import BaseModel
 
 
-class _SweepParameterValue(BaseModel):
+class SweepParameterSpec(BaseModel):
     value: int
+    object_type: str
 
 
-class _ExperimentEntry(BaseModel):
+class ExperimentEntry(BaseModel):
     filename: str
-    sweep_parameters: dict[str, _SweepParameterValue]
+    index: int
+    sweep_parameters: dict[str, SweepParameterSpec]
 
 
-class _ParameterMappingFile(BaseModel):
-    experiments: list[_ExperimentEntry]
+class ParameterMappingFile(BaseModel):
+    experiments: list[ExperimentEntry]
+
+
+def load_parameter_mapping_entries(path: Path) -> list[ExperimentEntry]:
+    """Load the full ExperimentEntry list (including index), e.g. to append more experiments onto it."""
+    with open(path) as f:
+        raw = json.load(f)  # pyright: ignore[reportAny]
+    return ParameterMappingFile.model_validate(raw).experiments
 
 
 def load_parameter_mapping(path: Path) -> dict[str, dict[str, int]]:
@@ -28,10 +38,15 @@ def load_parameter_mapping(path: Path) -> dict[str, dict[str, int]]:
     Only derm_thickness is swept today, but each filename maps to a dict (not a single value) to leave
     room for a second sweep parameter later.
     """
-    with open(path) as f:
-        raw = json.load(f)  # pyright: ignore[reportAny]
-    parsed = _ParameterMappingFile.model_validate(raw)
     return {
         experiment.filename: {name: spec.value for name, spec in experiment.sweep_parameters.items()}
-        for experiment in parsed.experiments
+        for experiment in load_parameter_mapping_entries(path)
     }
+
+
+def save_parameter_mapping(path: Path, experiments: list[ExperimentEntry]) -> None:
+    """Write experiments out to parameter_mapping.json, in ExperimentEntry field order."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    mapping_file = ParameterMappingFile(experiments=experiments)
+    with open(path, "w") as f:
+        json.dump(mapping_file.model_dump(), f, indent=2)

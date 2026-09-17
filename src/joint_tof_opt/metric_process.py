@@ -9,6 +9,7 @@ METRIC MODULES RULE:
 
 import torch
 import torch.nn as nn
+from typing_extensions import override
 
 from joint_tof_opt.core import ToFData
 from joint_tof_opt.noise_calc import NoiseCalculator
@@ -35,6 +36,7 @@ class EnergyRatioMetric(nn.Module):
     def __init__(self):
         super().__init__()
 
+    @override
     def forward(self, filtered_signal: torch.Tensor, original_signal: torch.Tensor) -> torch.Tensor:
         """
         Compute energy ratio metric.
@@ -86,10 +88,11 @@ class ContrastToNoiseMetric(nn.Module):
         self, noise_calc: NoiseCalculator, tof_data: ToFData, dB_scale: bool = False
     ):
         super().__init__()
-        self.noise_calc = noise_calc
-        self.tof_data = tof_data
-        self.dB_scale = dB_scale
+        self.noise_calc: NoiseCalculator = noise_calc
+        self.tof_data: ToFData = tof_data
+        self.dB_scale: bool = dB_scale
 
+    @override
     def forward(self, window: torch.Tensor, filtered_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_calc.compute_noise(self.tof_data, window)  # sigma^2
         noise_var = noise.sum()
@@ -114,10 +117,11 @@ class RevisedContrastToNoiseMetric(nn.Module):
         dB_scale: bool = False,
     ):
         super().__init__()
-        self.noise_calc = noise_calc
-        self.tof_data = tof_data
-        self.dB_scale = dB_scale
+        self.noise_calc: NoiseCalculator = noise_calc
+        self.tof_data: ToFData = tof_data
+        self.dB_scale: bool = dB_scale
 
+    @override
     def forward(self, window: torch.Tensor, measurand_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_calc.compute_noise(self.tof_data, window)
         noise_var = noise.mean()
@@ -157,11 +161,12 @@ class FilteredContrastToNoiseMetric(nn.Module):
         dB_scale: bool = False,
     ):
         super().__init__()
-        self.noise_calc = noise_calc
-        self.tof_data = tof_data
-        self.filter_module = filter_module
-        self.dB_scale = dB_scale
+        self.noise_calc: NoiseCalculator = noise_calc
+        self.tof_data: ToFData = tof_data
+        self.filter_module: nn.Module = filter_module
+        self.dB_scale: bool = dB_scale
 
+    @override
     def forward(self, window: torch.Tensor, measurand_signal: torch.Tensor) -> torch.Tensor:
         noise = self.noise_calc.compute_noise(self.tof_data, window)  # sigma^2
         noise_var = noise.sum()

@@ -22,13 +22,15 @@ class WindowSumNoiseCalculator(NoiseCalculator):
     """
 
     @override
-    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor, sum_axis: int = 1) -> torch.Tensor:
         # Compute the weighted sum of the ToF series with the window
         weighted_tof = tof_data.tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
         # The absolute value ensures that noise contributions are non-negative
-        noise = weighted_tof.sum(dim=1)  # Shape: (num_timepoints,)
-        return noise
+        if sum_axis == -1:
+            return weighted_tof
+        return weighted_tof.sum(dim=sum_axis)  # Shape: (num_timepoints,)
 
+    @override
     def __str__(self) -> str:
         return "WindowSumNoiseCalculator"
 
@@ -45,17 +47,19 @@ class WindowSumWithAdditiveGaussianNoiseCalculator(NoiseCalculator):
 
         :param noise_var: The constant variance of the instrument noise additive to each TOF bin individually
         """
-        self.noise_var = noise_var
+        self.noise_var: float = noise_var
 
     @override
-    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor, sum_axis: int = 1) -> torch.Tensor:
         # Compute the weighted sum of the ToF series with the window
         weighted_tof = tof_data.tof_series * window.unsqueeze(0).abs()  # Shape: (num_timepoints, num_bins)
-        signal_dependent_noise = weighted_tof.sum(dim=1)  # Shape: (num_timepoints,)
-        instrument_noise = (self.noise_var * window.square()).sum()  # Shape: scalar
-        total_noise = signal_dependent_noise + instrument_noise  # Shape: (num_timepoints,)
-        return total_noise
+        instrument_noise_per_bin = self.noise_var * window.square()  # Shape: (num_bins,)
+        total_noise = weighted_tof + instrument_noise_per_bin.unsqueeze(0)
+        if sum_axis == -1:
+            return total_noise  # Shape: (num_timepoints, num_bins)
+        return total_noise.sum(dim=sum_axis)
 
+    @override
     def __str__(self) -> str:
         return f"WindowSumWithInstrumentNoiseCalculator(noise_var={self.noise_var})"
 
@@ -66,7 +70,12 @@ class FirstMomentNoiseCalculator(NoiseCalculator):
     """
 
     @override
-    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor, sum_axis: int = 1) -> torch.Tensor:
+        if sum_axis == -1:
+            raise NotImplementedError(
+                "FirstMomentNoiseCalculator's noise is a ratio of quantities already collapsed across "
+                + "bins internally (by NthOrderCenteredMoment/WindowedSum) - there is no per-bin result."
+            )
         variance_calculator = NthOrderCenteredMoment(tof_data, order=2)
         variance = variance_calculator.forward(window)  # Shape: (num_timepoints,)
 
@@ -87,7 +96,12 @@ class VarianceNoiseCalculator(NoiseCalculator):
     """
 
     @override
-    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor, sum_axis: int = 1) -> torch.Tensor:
+        if sum_axis == -1:
+            raise NotImplementedError(
+                "VarianceNoiseCalculator's noise is a ratio of quantities already collapsed across "
+                + "bins internally (by NthOrderCenteredMoment/WindowedSum) - there is no per-bin result."
+            )
         variance_calculator = NthOrderCenteredMoment(tof_data, order=2)
         variance = variance_calculator.forward(window)  # Shape: (num_timepoints,)
 
@@ -115,8 +129,8 @@ class AdditiveNoiseCalculator(NoiseCalculator):
         self.noise_calc: NoiseCalculator = noise_calc
 
     @override
-    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
-        baseline_noise_var = self.noise_calc.compute_noise(tof_data, window)
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor, sum_axis: int = 1) -> torch.Tensor:
+        baseline_noise_var = self.noise_calc.compute_noise(tof_data, window, sum_axis)
         return baseline_noise_var + self.noise_variance
 
     @override
@@ -141,6 +155,20 @@ def get_noise_calculator(moment_type: str) -> NoiseCalculator:
         return VarianceNoiseCalculator()
     else:
         raise ValueError(f"Invalid moment type: {moment_type}")
+
+
+class UnityTofModifier(ToFModifier):
+    """
+    ToFModifier that does nothing. Useful as a dummy replacement when a modifier is expected
+    """
+
+    @override
+    def modify(self, tof_data: ToFData) -> ToFData:
+        return tof_data
+
+    @override
+    def __str__(self) -> str:
+        return "UnityModifier()"
 
 
 class AdditiveGaussianToFModifier(ToFModifier):

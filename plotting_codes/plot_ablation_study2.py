@@ -116,7 +116,8 @@ def main():
     figures_dir.mkdir(exist_ok=True)
     fig.savefig(figures_dir / "ablation_study2.pdf", format="pdf")
     fig.savefig(figures_dir / "ablation_study2.svg", format="svg")
-    print(f"Ablation study 2 plot saved to {figures_dir}")
+    print(f"Ablation study plot saved to {figures_dir / 'ablation_study2.pdf'}")
+    print(f"Ablation study plot saved to {figures_dir / 'ablation_study2.svg'}")
 
 
 if __name__ == "__main__":

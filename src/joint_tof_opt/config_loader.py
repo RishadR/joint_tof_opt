@@ -29,6 +29,11 @@ IntArray = Annotated[IntVector1D, BeforeValidator(_to_int_array)]
 
 
 class ToFConfig(BaseModel):
+    """
+    What configurations to use when generating Time-of-Flight (ToF) & its corresponding time series.
+
+    Use load_tof_config( ) to create one from a JSON. Check `experiments/tof_config.yaml` for an example.
+    """
     model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
 
     # Baseline Simulation Parameters

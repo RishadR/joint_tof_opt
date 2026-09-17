@@ -12,7 +12,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import yaml
 
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
@@ -21,6 +20,7 @@ from joint_tof_opt import (
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
+    load_parameter_mapping,
     load_tof_config,
 )
 from joint_tof_opt.plotting import load_plot_config
@@ -114,18 +114,16 @@ def plot_impulse_bin_heatmaps(
 
 def main() -> None:
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-    parameter_mapping: dict = yaml.safe_load(open("./data/parameter_mapping.json"))
-    experiments = sorted(
-        parameter_mapping["experiments"], key=lambda e: e["sweep_parameters"]["derm_thickness"]["value"]
-    )
+    file_sweep_params = load_parameter_mapping(Path("./data/parameter_mapping.json"))
+    sorted_files = sorted(file_sweep_params.items(), key=lambda item: item[1]["derm_thickness"])
 
     depths_mm = []
     snr_rows, selectivity_rows, final_metric_rows = [], [], []
-    for experiment in experiments:
-        ppath_file = Path("./data") / experiment["filename"]
-        print(f"Computing per-bin metrics for: {experiment['filename']}")
+    for ppath_filename, sweep_params in sorted_files:
+        ppath_file = Path("./data") / ppath_filename
+        print(f"Computing per-bin metrics for: {ppath_filename}")
         metrics = compute_bin_metrics_for_file(ppath_file, gen_config)
-        depths_mm.append(experiment["sweep_parameters"]["derm_thickness"]["value"] + 2)
+        depths_mm.append(sweep_params["derm_thickness"] + 2)
         snr_rows.append(metrics[:, 0])
         selectivity_rows.append(metrics[:, 1])
         final_metric_rows.append(metrics[:, 2])

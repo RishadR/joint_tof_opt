@@ -32,7 +32,7 @@ import yaml
 
 from joint_tof_opt import generate_tof, load_tof_config
 
-from .optimize_loop_paper import DIGSSOptimizer
+from .optimize_loop_paper import DIGSSOptimizer, FilterType, RegType
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
@@ -50,11 +50,11 @@ def _to_builtin(obj: Any) -> Any:
 def run_overlap_sweep(
     file_idx: int,
     separations_hz: list[float],
-    filter_setups: list[tuple[str, float]],  # (filter_type, filter_hw)
+    filter_setups: list[tuple[FilterType, float]],  # (filter_type, filter_hw)
     measurand: str = "abs",
     lr: float = 0.1,
     patience: int = 50,
-    reg_type: str = "l1",
+    reg_type: RegType = "l1",
     reg_weight: float = 0.1,
     output_yaml: Path = Path("./results/overlap_results.yaml"),
 ) -> dict[str, Any]:
@@ -78,9 +78,9 @@ def run_overlap_sweep(
                 lr=lr,
                 filter_hw=float(filter_hw),
                 patience=patience,
-                reg_type=reg_type,  # type: ignore
+                reg_type=reg_type,
                 reg_weight=reg_weight,
-                filter_type=filter_type,  # type: ignore
+                filter_type=filter_type,
             )
             experiment.optimize()
 
@@ -136,7 +136,7 @@ def run_overlap_sweep(
 def main() -> None:
     # separations = [0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # Hz
     separations = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]  # Hz
-    filter_combos = [
+    filter_combos: list[tuple[FilterType, float]] = [
         ("comb", 0.10),
         ("comb", 0.30),
         # ("comb", 0.50),
@@ -150,7 +150,7 @@ def main() -> None:
         filter_setups=filter_combos,
         output_yaml=Path("./results/overlap_results.yaml"),
         reg_weight=0.0001,
-        reg_type='l2'
+        reg_type="l2",
     )
 
 

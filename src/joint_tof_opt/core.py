@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 import torch
 import torch.nn as nn
+from typing_extensions import override
 
 from joint_tof_opt.config_loader import ToFConfig
 
@@ -139,13 +141,14 @@ class CompactStatProcess(ABC, nn.Module):
 
     def __init__(self, tof_data: ToFData):
         super().__init__()
-        self.tof_data = tof_data
+        self.tof_data: ToFData = tof_data
         # Keep the relevant attributes for backward compatibility
-        self.tof_series = tof_data.tof_series
-        self.bin_edges = tof_data.bin_edges
-        self.bin_centers = tof_data.bin_centers
-        self.meta_data = tof_data.meta_data
+        self.tof_series: torch.Tensor = tof_data.tof_series
+        self.bin_edges: torch.Tensor = tof_data.bin_edges
+        self.bin_centers: torch.Tensor = tof_data.bin_centers
+        self.meta_data: dict[str, Any] | None = tof_data.meta_data
 
+    @override
     @abstractmethod
     def forward(self, window: torch.Tensor) -> torch.Tensor:
         """
@@ -182,20 +185,21 @@ class OptimizationExperiment(ABC):
     """
 
     def __init__(self, tof_data: ToFData, measurand: CompactStatProcess, lr: float = 0.01):
-        self.tof_data = tof_data
+        self.tof_data: ToFData = tof_data
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
         assert "time_axis" in self.tof_data.meta_data, "ToFData meta_data must contain time_axis"
-        self.moment_module = measurand
-        self.training_curves = np.array([])
-        self.training_curve_labels = []
-        self.window = torch.tensor([])
-        self.lr = lr
-        self.final_signal = torch.tensor([])
+        self.moment_module: CompactStatProcess = measurand
+        self.training_curves: npt.NDArray[np.float64] = np.array([])
+        self.training_curve_labels: list[str] = []
+        self.window: torch.Tensor = torch.tensor([])
+        self.lr: float = lr
+        self.final_signal: torch.Tensor = torch.tensor([])
 
     @abstractmethod
     def optimize(self):
         pass
 
+    @override
     @abstractmethod
     def __str__(self) -> str:
         pass
@@ -230,15 +234,17 @@ class Evaluator(ABC):
     def __init__(
         self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: ToFConfig
     ):
-        self.ppath_file = ppath_file
-        self.window = window
-        self.measurand = measurand
-        self.final_metric = None
-        self.gen_config = gen_config
+        self.ppath_file: Path = ppath_file
+        self.window: torch.Tensor = window
+        self.measurand: str | CompactStatProcess = measurand
+        self.final_metric: float | None = None
+        self.gen_config: ToFConfig = gen_config
+
     @abstractmethod
     def evaluate(self) -> float:
         pass
 
+    @override
     @abstractmethod
     def __str__(self) -> str:
         pass
@@ -255,7 +261,9 @@ class NoiseCalculator(ABC):
     Things to Implement in Subclasses:
     -----------------------
     - self.compute_noise() : Method to compute the analytical noise for a given ToFData instance and window.
-    The method should return a 1D tensor of noise values - same length as number of ToF series.
+    sum_axis controls how the (num_timepoints, num_bins) computation is collapsed: 1 (default) sums across
+    bins, returning a 1D tensor of length num_timepoints; -1 skips summing entirely, returning the full
+    (num_timepoints, num_bins) tensor. Not every subclass can support sum_axis=-1 - see its own docstring.
     - __str__() : String representation of the noise calculator for easy identification.
 
     Extra:
@@ -264,12 +272,14 @@ class NoiseCalculator(ABC):
     """
 
     @abstractmethod
-    def compute_noise(self, tof_data: ToFData, window: torch.Tensor) -> torch.Tensor:
+    def compute_noise(self, tof_data: ToFData, window: torch.Tensor, sum_axis: int = 1) -> torch.Tensor:
         pass
 
+    @override
     @abstractmethod
     def __str__(self) -> str:
         pass
+
 
 class ToFModifier(ABC):
     """
@@ -289,6 +299,7 @@ class ToFModifier(ABC):
     def modify(self, tof_data: ToFData) -> ToFData:
         pass
 
+    @override
     @abstractmethod
     def __str__(self) -> str:
         pass

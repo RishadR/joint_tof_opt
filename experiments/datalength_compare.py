@@ -30,7 +30,7 @@ import yaml
 
 from joint_tof_opt import generate_tof, load_tof_config
 
-from .optimize_loop_paper import DIGSSOptimizer
+from .optimize_loop_paper import DIGSSOptimizer, FilterType, RegType
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
@@ -52,9 +52,9 @@ def run_datalength_sweep(
     lr: float = 0.1,
     filter_hw: float = 0.3,
     patience: int = 50,
-    reg_type: str = "l1",
+    reg_type: RegType = "l1",
     reg_weight: float = 0.1,
-    filter_type: str = "comb",
+    filter_type: FilterType = "comb",
     output_yaml: Path = Path("./results/datalength_compare_results.yaml"),
 ) -> dict[str, Any]:
     results: dict[str, Any] = {}
@@ -79,9 +79,9 @@ def run_datalength_sweep(
                 lr=lr,
                 filter_hw=float(filter_hw),
                 patience=patience,
-                reg_type=reg_type,  # type: ignore
+                reg_type=reg_type,
                 reg_weight=reg_weight,
-                filter_type=filter_type,  # type: ignore
+                filter_type=filter_type,
             )
             experiment.optimize()
 

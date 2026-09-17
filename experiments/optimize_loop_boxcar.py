@@ -51,7 +51,7 @@ class BoxCarOptimizer(DIGSSOptimizer):
                     boxcar = torch.zeros(num_learnable, dtype=self.learnable_component_exponents.dtype)
                     boxcar[left_idx : right_idx + 1] = 1.0
                     window = torch.cat([self.fixed_left, boxcar, self.fixed_right], dim=0)
-                    window_norm = self._win_norm_func(window)
+                    window_norm = self._win_norm_func(window, 'unit_max')
 
                     compact_stats = self.moment_module(window_norm)
                     compact_stats = compact_stats - compact_stats.mean()

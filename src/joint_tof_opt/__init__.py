@@ -1,5 +1,4 @@
 from joint_tof_opt.compact_stat_process import (
-    CompactStatProcess,
     NthOrderCenteredMoment,
     NthOrderMoment,
     WindowedSum,
@@ -8,6 +7,7 @@ from joint_tof_opt.compact_stat_process import (
 )
 from joint_tof_opt.config_loader import ToFConfig, load_tof_config
 from joint_tof_opt.core import (
+    CompactStatProcess,
     Evaluator,
     NoiseCalculator,
     OptimizationExperiment,
@@ -24,12 +24,19 @@ from joint_tof_opt.misc import pretty_print_log
 from joint_tof_opt.noise_calc import (
     AdditiveGaussianToFModifier,
     FirstMomentNoiseCalculator,
+    UnityTofModifier,
     VarianceNoiseCalculator,
     WindowSumNoiseCalculator,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     get_noise_calculator,
 )
-from joint_tof_opt.parameter_mapping import load_parameter_mapping
+from joint_tof_opt.parameter_mapping import (
+    ExperimentEntry,
+    SweepParameterSpec,
+    load_parameter_mapping,
+    load_parameter_mapping_entries,
+    save_parameter_mapping,
+)
 from joint_tof_opt.result_writer import clear_results, write_results_to_yaml
 from joint_tof_opt.signal_process import CombSeparator, FourierSeparator, PSAFESeparator
 from joint_tof_opt.tof_batch_process import generate_tof
@@ -59,6 +66,7 @@ __all__ = [
     "named_moment_types",
     "get_noise_calculator",
     "AdditiveGaussianToFModifier",
+    "UnityTofModifier",
     "OptimizationExperiment",
     "Evaluator",
     "generate_tof",
@@ -68,4 +76,8 @@ __all__ = [
     "clear_results",
     "write_results_to_yaml",
     "load_parameter_mapping",
+    "load_parameter_mapping_entries",
+    "save_parameter_mapping",
+    "ExperimentEntry",
+    "SweepParameterSpec",
 ]

@@ -32,15 +32,17 @@ from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import yaml
 
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
     CombSeparator,
     CompactStatProcess,
+    ContrastToNoiseMetric,
+    EnergyRatioMetric,
     FourierSeparator,
     NoiseCalculator,
     OptimizationExperiment,
@@ -60,6 +62,10 @@ from .sensitivity_compute import (
 )
 
 logger = logging.getLogger(__name__)
+
+RegType = Literal["l1", "l2"]
+FilterType = Literal["comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"]
+NormalizationScheme = Literal["unit_sum", "unit_max"]
 
 
 class DIGSSOptimizer(OptimizationExperiment):
@@ -96,14 +102,12 @@ class DIGSSOptimizer(OptimizationExperiment):
         filter_hw: float = 0.01,
         patience: int = 50,
         grad_clip: bool = False,
-        reg_type: Literal["l1", "l2"] = "l1",
+        reg_type: RegType = "l1",
         reg_weight: float = 1e-4,
         window_smoothening: bool = True,
         normalize_reward: bool = True,
-        filter_type: Literal[
-            "comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"
-        ] = "psafe_same_width",
-        normalization_scheme: Literal["unit_sum", "unit_max"] = "unit_sum",
+        filter_type: FilterType = "psafe_same_width",
+        normalization_scheme: NormalizationScheme = "unit_sum",
         use_window_post_process: bool = True,
         use_snr_left_bound: bool = True,
     ):
@@ -137,9 +141,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         if isinstance(measurand, str):
             if measurand not in named_moment_types:
                 raise ValueError(f"Invalid measurand string: {measurand}. Must be one of {named_moment_types}.")
-        else:
-            self.noise_calc = noise_calc
-        self.noise_calc = noise_calc if noise_calc is not None else WindowSumNoiseCalculator()
+        self.noise_calc: NoiseCalculator = noise_calc if noise_calc is not None else WindowSumNoiseCalculator()
 
         if isinstance(measurand, str):
             measurand = get_named_moment_module(measurand, tof_data)
@@ -157,10 +159,10 @@ class DIGSSOptimizer(OptimizationExperiment):
         self.normalization_scheme = normalization_scheme
         self.use_window_post_process = use_window_post_process
         self.use_snr_left_bound = use_snr_left_bound
-        self.impulse_window_snr_list = [0.0] * len(self.tof_data.bin_edges)
-        self.impulse_window_selectivity_list = [0.0] * len(self.tof_data.bin_edges)
-        self.impulse_window_product_list = [0.0] * len(self.tof_data.bin_edges)
-        self.unprocessed_window = torch.ones(len(self.tof_data.bin_edges))  # For logging purposes
+        self.impulse_window_snr_list = [0.0] * self.tof_data.tof_series.shape[1]
+        self.impulse_window_selectivity_list = [0.0] * self.tof_data.tof_series.shape[1]
+        self.impulse_window_product_list = [0.0] * self.tof_data.tof_series.shape[1]
+        self.unprocessed_window = torch.ones(self.tof_data.tof_series.shape[1])  # For logging purposes
 
         if self.reg_type not in ("l1", "l2"):
             raise ValueError(f"Unsupported reg_type: {self.reg_type}. Use 'l1' or 'l2'.")
@@ -169,438 +171,480 @@ class DIGSSOptimizer(OptimizationExperiment):
 
         # Extract additional metadata
         assert self.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
-        self.sampling_rate = self.tof_data.meta_data["sampling_rate"]
-        self.fetal_f = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
-        self.maternal_f = self.tof_data.meta_data["maternal_f"]
-        _, num_bins = self.tof_data.tof_series.shape
-        self.fetal_filter, self.maternal_filter = self._get_filters(filter_type)
-        self.training_curves: np.ndarray = np.zeros((self.max_epochs, 3))
+        self.sampling_rate: float = self.tof_data.meta_data["sampling_rate"]
+        self.fetal_f: float = fetal_f if fetal_f is not None else self.tof_data.meta_data["fetal_f"]
+        self.maternal_f: float = self.tof_data.meta_data["maternal_f"]
+
+        self.fetal_filter, self.maternal_filter = self._get_filters(self.filter_type)
+
         self.normalize_reward = normalize_reward
-        self.training_cruves_extra = np.zeros((self.max_epochs, 10))  # Logging the independent 3 elements
+        self.training_curves: npt.NDArray[np.float64] = np.zeros((self.max_epochs, 3), dtype=np.float64)
+        self.training_curves_extra: npt.NDArray[np.float64] = np.zeros((self.max_epochs, 10), dtype=np.float64)
 
-        ## Compute Best Case Windows
+        # Compute max single bin values
         self.max_snr, self.max_selectivity, self.max_snr_index, self.max_selectivity_index = self._compute_max_values()
-        if isinstance(noise_calc, WindowSumWithAdditiveGaussianNoiseCalculator):
-            average_frame = torch.mean(self.tof_data.tof_series, dim=0)
-            noisy_bin_indices = torch.where(average_frame < 1 / 2 * noise_calc.noise_var ** (1 / 2))[0]
-            if len(noisy_bin_indices) != 0:
-                right_most_bin = min(num_bins, noisy_bin_indices[0] + 1)
-            else:
-                # Non-Noisy condition - revert back to this
-                right_most_bin = min(num_bins, self.max_selectivity_index + 1)
-        else:
-            # Non-noisy condition
-            right_most_bin = min(num_bins, self.max_selectivity_index + 1)
-        if right_most_bin <= self.max_snr_index:
-            right_most_bin = self.max_snr_index + 1  # Ensure at least one learnable parameter
+        # Learnable parameter initialized with uniform weights
+        num_bins = self.tof_data.tof_series.shape[1]
+        time_points = self.tof_data.tof_series.shape[0]
 
-        # right_most_bin = num_bins
+        # max_snr_index must always fall inside learnable_component, so fixed_left stops right before it.
+        self.left_bound_length = self.max_snr_index if self.use_snr_left_bound else 0
 
-        print(f"Rightmost bin index: {right_most_bin}")
-        # Initalize the learnable window parameters - all else is fixed to 0.0
-        left_fixed_size = max(0, self.max_snr_index - 1) if use_snr_left_bound else 0
-        right_fixed_size = max(0, num_bins - right_most_bin)
-        # ponytail: use left_fixed_size (not max_snr_index-1) so the max(0,...) clamp is reflected in learnable size
-        initial_params = torch.zeros(right_most_bin - left_fixed_size, dtype=torch.float32)
+        # Computing the right bound - power should always be greater than variance
+        mean_frame = self.tof_data.tof_series.mean(dim=0)  # Shape: (num_bins,)
+        signal_power = mean_frame**2  # Shape: (num_bins,)
+        unity_window = torch.ones(num_bins, device=self.tof_data.bin_edges.device)
+        total_noise_variance = self.noise_calc.compute_noise(self.tof_data, unity_window, sum_axis=0) #Shape:(num_bins,)
+        mean_noise_variance = total_noise_variance / time_points 
+        viable_bins = torch.where(signal_power >= mean_noise_variance)[0]
+        right_most_bin = int(viable_bins[-1].item()) if viable_bins.numel() > 0 else -1
+        assert right_most_bin >= self.left_bound_length, (
+            "No viable bins at/after max_snr_index - every trailing bin's signal power is below its noise variance."
+        )
 
-        self.learnable_component_exponents = torch.nn.Parameter(initial_params, requires_grad=True)
+        learnable_len = (right_most_bin + 1) - self.left_bound_length
+        # initialize uniform weights
+        self.learnable_component_exponents = nn.Parameter(torch.ones(learnable_len) * 0.0)
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
-        self.fixed_left = torch.zeros(
-            left_fixed_size,
-            dtype=self.learnable_component_exponents.dtype,
-            device=self.learnable_component_exponents.device,
+        self.fixed_left = (
+            torch.ones(self.left_bound_length, device=self.tof_data.bin_edges.device) * 1e-4
+            if self.left_bound_length > 0
+            else torch.tensor([], device=self.tof_data.bin_edges.device)
         )
-        self.fixed_right = torch.zeros(
-            right_fixed_size,
-            dtype=self.learnable_component_exponents.dtype,
-            device=self.learnable_component_exponents.device,
+        self.fixed_right = (
+            torch.ones(num_bins - right_most_bin - 1, device=self.tof_data.bin_edges.device) * 1e-4
+            if right_most_bin < num_bins - 1
+            else torch.tensor([], device=self.tof_data.bin_edges.device)
         )
 
-        window_parts = [self.fixed_left, self.learnable_component, self.fixed_right]
-        self.window = torch.cat([part for part in window_parts if part.numel() > 0], dim=0)
-        self.window_norm = self._win_norm_func(self.window)
+        unnormalized_window = torch.cat([self.fixed_left, self.learnable_component, self.fixed_right])
 
-        # Set training curve labels
-        self.training_curve_labels = ["Normalized Selectivity", "Normalized SNR", "Final Metric"]
-        self.training_curve_extra_labels = ["Fetal Energy", "Maternal Energy", "Baseline Noise STD"]
+        self.window = self._win_norm_func(unnormalized_window, self.normalization_scheme)
+        self.window_norm = self.window.clone()
 
-    def _get_filters(self, filter_type: str):
-        filter_len = int(2 * self.sampling_rate / self.fetal_f)  # Ensure at least 2 periods are captured
+        # Labels for the 3 metrics recorded in training_curves
+        self.training_curve_labels = ["Energy Ratio", "Contrast-to-Noise", "Final Metric"]
+        self.training_curve_extra_labels = [
+            "Fetal Filtered Energy",
+            "Maternal Filtered Energy",
+            "Fetal AC Energy",
+            "Noise STD",
+            "Fetal AC Amp",
+            "Maternal AC Amp",
+            "SNR Metric 1",
+            "Loss",
+            "Gradient Norm",
+            "Reg Loss",
+        ]
+
+    def _get_filters(self, filter_type: FilterType) -> tuple[nn.Module, nn.Module]:
+        datapoint_count = int(self.tof_data.tof_series.shape[0])
+        sampling_rate = self.sampling_rate
         if filter_type == "comb":
-            f1 = CombSeparator(self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw, filter_len, True)
-            f2 = CombSeparator(
-                self.sampling_rate,
-                self.maternal_f,
-                self.maternal_f * 2,
-                self.filter_hw,
-                filter_len,
-                True,
+            fetal_filter = CombSeparator(
+                fs=sampling_rate,
+                f0=self.fetal_f,
+                f1=2 * self.fetal_f,
+                half_width=self.filter_hw,
+                filter_length=datapoint_count // 2 + 1,
+            )
+            maternal_filter = CombSeparator(
+                fs=sampling_rate,
+                f0=self.maternal_f,
+                f1=2 * self.maternal_f,
+                half_width=self.filter_hw,
+                filter_length=datapoint_count // 2 + 1,
             )
         elif filter_type == "fourier":
-            f1 = FourierSeparator(self.sampling_rate, self.fetal_f, self.fetal_f * 2, self.filter_hw)
-            f2 = FourierSeparator(self.sampling_rate, self.maternal_f, self.maternal_f * 2, self.filter_hw)
+            fetal_filter = FourierSeparator(
+                fs=sampling_rate,
+                f0=self.fetal_f,
+                f1=2 * self.fetal_f,
+                half_width=self.filter_hw,
+            )
+            maternal_filter = FourierSeparator(
+                fs=sampling_rate,
+                f0=self.maternal_f,
+                f1=2 * self.maternal_f,
+                half_width=self.filter_hw,
+            )
         elif filter_type == "psafe_same_width":
-            f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
-            f2 = PSAFESeparator(self.sampling_rate, self.maternal_f, True)
+            fetal_filter = PSAFESeparator(fs=sampling_rate, center_freq=self.fetal_f, equate_length=True)
+            maternal_filter = PSAFESeparator(fs=sampling_rate, center_freq=self.maternal_f, equate_length=True)
         elif filter_type == "psafe_true_width":
-            f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, False)
-            f2 = PSAFESeparator(self.sampling_rate, self.maternal_f, False)
+            fetal_filter = PSAFESeparator(fs=sampling_rate, center_freq=self.fetal_f, equate_length=False)
+            maternal_filter = PSAFESeparator(fs=sampling_rate, center_freq=self.maternal_f, equate_length=False)
         elif filter_type == "comb_psafe_hybrid":
-            f1 = PSAFESeparator(self.sampling_rate, self.fetal_f, True)
-            f2 = CombSeparator(
-                self.sampling_rate,
-                self.maternal_f,
-                self.maternal_f * 2,
-                self.filter_hw,
-                filter_len,
-                True,
+            fetal_filter = PSAFESeparator(fs=sampling_rate, center_freq=self.fetal_f, equate_length=True)
+            maternal_filter = CombSeparator(
+                fs=sampling_rate,
+                f0=self.maternal_f,
+                f1=2 * self.maternal_f,
+                half_width=self.filter_hw,
+                filter_length=datapoint_count // 2 + 1,
             )
         else:
-            raise NotImplementedError(f"Filter type {filter_type} not recognized")
-        return f1, f2
+            raise ValueError(f"Unknown filter_type: {filter_type}")
+        return fetal_filter, maternal_filter
 
-    def _win_norm_func(self, win: torch.Tensor) -> torch.Tensor:
-        if self.normalization_scheme == "unit_sum":
-            return win / torch.norm(win, p=1)
-        elif self.normalization_scheme == "unit_max":
-            return torch.clamp(win, max=1.0)
+    def _win_norm_func(self, window: torch.Tensor, scheme: str) -> torch.Tensor:
+        if scheme == "unit_sum":
+            return window / torch.norm(window, p=1)
+        elif scheme == "unit_max":
+            return window / torch.max(window)
         else:
-            raise NotImplementedError(f"Normalization scheme {self.normalization_scheme} not recognized")
+            raise ValueError(f"Unknown normalization scheme: {scheme}")
 
-    @staticmethod
-    def _winexp_to_win_func(win_exp: torch.Tensor) -> torch.Tensor:
-        return torch.exp(win_exp)
+    def _winexp_to_win_func(self, window_exp: torch.Tensor) -> torch.Tensor:
+        return torch.exp(window_exp)
 
-    def _compute_max_values(self):
+    def _compute_max_values(self) -> tuple[float, float, int, int]:
         """
-        Compute the maximum possible SNR and Selectivity by brute force turning each bin "on" individually.
-        Returns:
-            max_snr: The maximum SNR achieved by any single-bin window
-            max_selectivity: The maximum selectivity achieved by any single-bin window
-            max_snr_index: The index of the bin that achieves the maximum SNR
-            max_selectivity_index: The index of the bin that achieves the maximum selectivity
+        Compute maximum SNR and Selectivity for single-bin windows.
+
+        This method computes single-bin metrics for normalization purposes.
+
+        :return: (max_snr, max_selectivity, max_snr_index, max_selectivity_index)
         """
-        _, num_bins = self.tof_data.tof_series.shape
-        best_snr = 0.0
-        best_selectivity = 0.0
-        best_product = 0.0
-        best_product_index = -1
-        best_snr_index = -1
-        best_selectivity_index = -1
+        num_bins = self.tof_data.tof_series.shape[1]
+        snr_metric_list = []
+        selectivity_metric_list = []
+        product_metric_list = []
+
+        snr_calc = ContrastToNoiseMetric(noise_calc=self.noise_calc, tof_data=self.tof_data)
+        selectivity_calc = EnergyRatioMetric()
+
         for i in range(num_bins):
-            window = torch.zeros(num_bins)
-            window[i] = 1.0
-            noise_var = self.noise_calc.compute_noise(self.tof_data, window).sum()
-            noise_std = torch.sqrt(noise_var)
-            compact_stats = self.moment_module(window)
+            # Single-bin window (one-hot vector)
+            single_bin_window = torch.zeros(num_bins)
+            single_bin_window[i] = 1.0
+
+            # Compute compact statistics
+            compact_stats = self.moment_module(single_bin_window)
             compact_stats = compact_stats - compact_stats.mean()
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)
             maternal_filtered_signal = self.maternal_filter(compact_stats_reshaped)
             fetal_filtered_signal = self.fetal_filter(compact_stats_reshaped)
-            fetal_energy = torch.sum(fetal_filtered_signal**2)
             maternal_energy = torch.sum(maternal_filtered_signal**2)
-            snr = torch.sqrt(fetal_energy) / noise_std
-            selectivity = torch.sqrt(fetal_energy / maternal_energy)
-            if snr > best_snr:
-                best_snr = snr.item()
-                best_snr_index = i
-            if selectivity > best_selectivity:
-                best_selectivity = selectivity.item()
-                best_selectivity_index = i
-            if snr * selectivity > best_product:
-                best_product = (snr * selectivity).item()
-                best_product_index = i
+            fetal_energy = torch.sum(fetal_filtered_signal**2)
 
-            # Logging the impulse window results
-            self.impulse_window_snr_list[i] = snr.item()
-            self.impulse_window_selectivity_list[i] = selectivity.item()
-            self.impulse_window_product_list[i] = (snr * selectivity).item()
-        logger.info("Best Product : %.4f at index %d", best_product, best_product_index)
-        return best_snr, best_selectivity, best_snr_index, best_selectivity_index
+            # Compute selectivity
+            selectivity = selectivity_calc(fetal_energy, maternal_energy)
+            selectivity_metric_list.append(selectivity.item())
 
-    def smoothen_window(self, threshold_prct: float = 0.01) -> torch.Tensor:
-        """
-        Smoothen the window & window norm by zeroing out values below a certain threshold.
-        """
-        smoothed_window = self.window_norm.clone()
-        if self.window_smoothening:
-            max_weight = torch.max(self.window)
-            threshold = threshold_prct * max_weight
-            smoothed_window[smoothed_window < threshold] = 0.0
-        return smoothed_window
+            # Compute SNR using noise calculator
+            snr = snr_calc(single_bin_window, fetal_filtered_signal)
+            snr_metric_list.append(snr.item())
 
-    def optimize(self):
-        """
-        Perform the optimization loop and populate self.window and self.training_curves.
-        """
-        best_metric = -np.inf
-        epochs_no_improve = 0
-        optimizer = optim.AdamW(
-            [self.learnable_component_exponents],
-            lr=self.lr,
-            weight_decay=self.reg_weight if self.reg_type == "l2" else 0.0,
-        )
-        logger.info(
-            "[DIGSSOptimizer] Using %s regularization (weight=%g)",
-            self.reg_type.upper(),
-            self.reg_weight,
-        )
+            # Store for logging
+            product_metric_list.append(snr.item() * selectivity.item())
 
-        epoch = 0
-        for epoch in range(self.max_epochs):
+        max_snr = max(snr_metric_list)
+        max_selectivity = max(selectivity_metric_list)
+        max_snr_index = snr_metric_list.index(max_snr)
+        max_selectivity_index = selectivity_metric_list.index(max_selectivity)
+
+        # Store impulse response metrics for logging
+        self.impulse_window_snr_list = snr_metric_list
+        self.impulse_window_selectivity_list = selectivity_metric_list
+        self.impulse_window_product_list = product_metric_list
+
+        return max_snr, max_selectivity, max_snr_index, max_selectivity_index
+
+    def smoothen_window(self, window: torch.Tensor) -> torch.Tensor:
+        """
+        Apply thresholding: set weights < 1% of max to zero.
+
+        :param window: Window tensor to smoothen.
+        :type window: torch.Tensor
+        :return: Smoothened window tensor.
+        :rtype: torch.Tensor
+        """
+        threshold = 0.01 * torch.max(window)
+        return torch.where(window < threshold, torch.zeros_like(window), window)
+
+    def optimize(self) -> None:
+        """
+        Execute the optimization process to find the optimal window function.
+
+        This method initializes parameters, sets up the optimizer, and runs the training loop with early stopping.
+        """
+        optimizer = optim.Adam([self.learnable_component_exponents], lr=self.lr)
+
+        best_metric = -float("inf")
+        patience_counter = 0
+
+        # Loss history tracking - 3 metrics per epoch
+        loss_history = []
+        loss_history_extra = []
+
+        snr_calc = ContrastToNoiseMetric(noise_calc=self.noise_calc, tof_data=self.tof_data)
+        selectivity_calc = EnergyRatioMetric()
+
+        for _ in range(self.max_epochs):
             optimizer.zero_grad()
+
+            # Window parameterization with non-negativity constraint
             self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
-            self.window = torch.cat([self.fixed_left, self.learnable_component, self.fixed_right], dim=0)
-            self.window_norm = self._win_norm_func(self.window)
+            unnormalized_window = torch.cat([self.fixed_left, self.learnable_component, self.fixed_right])
+            self.window = self._win_norm_func(unnormalized_window, self.normalization_scheme)
 
-            # Compute compact statistics
-            compact_stats = self.moment_module(self.window_norm)
+            # Extract compact statistics and apply comb filtering
+            compact_stats = self.moment_module(self.window)
 
-            # Apply comb filters
+            # Center the signal
             compact_stats = compact_stats - compact_stats.mean()
-            compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)  # For conv1d
-            # Account for the filter's attenuation of energy by scaling
+            compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)
+
             maternal_filtered_signal = self.maternal_filter(compact_stats_reshaped)
             fetal_filtered_signal = self.fetal_filter(compact_stats_reshaped)
             self.final_signal = fetal_filtered_signal.squeeze().detach().cpu()
 
-            ## Optimize the Target Directly
-            fetal_energy = torch.sum(fetal_filtered_signal**2)
+            # Compute energies
             maternal_energy = torch.sum(maternal_filtered_signal**2)
-            baseline_noise_var = self.noise_calc.compute_noise(self.tof_data, self.window_norm).sum()
-            baseline_noise_std = torch.sqrt(baseline_noise_var)
-            selectivity = torch.sqrt(fetal_energy / maternal_energy)
-            snr = torch.sqrt(fetal_energy) / baseline_noise_std
+            fetal_energy = torch.sum(fetal_filtered_signal**2)
 
-            # Normalize by the best possble values
+            # Compute metrics
+            energy_ratio = selectivity_calc(fetal_energy, maternal_energy)
+            contrast_to_noise = snr_calc(self.window, fetal_filtered_signal)
+
+            # Normalize rewards if requested
             if self.normalize_reward:
-                snr = snr / float(self.max_snr)
-                selectivity = selectivity / float(self.max_selectivity)
-            final_metric = selectivity * snr
+                energy_ratio_norm = energy_ratio / self.max_selectivity
+                contrast_to_noise_norm = contrast_to_noise / self.max_snr
+                final_metric = energy_ratio_norm * contrast_to_noise_norm
+            else:
+                final_metric = energy_ratio * contrast_to_noise
 
-            # Base objective (maximize final_metric)
-            loss = -torch.log(final_metric)
-            # loss = -selectivity
+            # Add regularization
+            if self.reg_type == "l1":
+                reg_loss = self.reg_weight * torch.sum(torch.abs(self.window))
+            elif self.reg_type == "l2":
+                reg_loss = self.reg_weight * torch.sum(self.window**2)
+            else:
+                reg_loss = torch.tensor(0.0)
 
-            self.training_curves[epoch, 0] = selectivity.item()
-            self.training_curves[epoch, 1] = snr.item()
-            self.training_curves[epoch, 2] = final_metric.item()
-            self.training_cruves_extra[epoch, 0] = fetal_energy.item()
-            self.training_cruves_extra[epoch, 1] = maternal_energy.item()
-            self.training_cruves_extra[epoch, 2] = baseline_noise_std.item()
+            loss = -final_metric + reg_loss
 
-            # L1 regularization (L2 is already in Adam weight_decay)
-            if self.reg_type == "l1" and self.reg_weight > 0:
-                loss = loss + self.reg_weight * torch.sum(torch.abs(self.learnable_component_exponents))
+            # Record loss history - 3 metrics: Selectivity, SNR, Final Metric
+            loss_history.append([energy_ratio.item(), contrast_to_noise.item(), final_metric.item()])
+            loss_history_extra.append(
+                [
+                    fetal_energy.item(),
+                    maternal_energy.item(),
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    loss.item(),
+                    0.0,
+                    reg_loss.item(),
+                ]
+            )
 
-            optimizer.zero_grad()
+            # Optimization step
             loss.backward()
 
+            # Optional gradient clipping
             if self.grad_clip:
-                torch.nn.utils.clip_grad_norm_([self.learnable_component_exponents], max_norm=1.0)
+                nn.utils.clip_grad_norm_([self.learnable_component_exponents], max_norm=1.0)
 
             optimizer.step()
 
-            # Early stopping check
-            if final_metric.item() > best_metric * 1.01:
-                best_metric = final_metric.item()
-                epochs_no_improve = 0
+            # Early stopping check: 1% improvement threshold
+            current_metric = final_metric.item()
+            if current_metric > best_metric * 1.01:
+                best_metric = current_metric
+                patience_counter = 0
             else:
-                epochs_no_improve += 1
-                if epochs_no_improve >= self.patience:
-                    logger.info("Early stopping at epoch %d", epoch + 1)
-                    self.training_curves = self.training_curves[: epoch + 1]
-                    self.training_curves_extra = self.training_cruves_extra[: epoch + 1]
+                patience_counter += 1
+                if patience_counter >= self.patience:
                     break
 
-        # Trim training curves if early stopping occurred
-        if self.training_curves.shape[0] > epoch + 1:
-            self.training_curves = self.training_curves[: epoch + 1]
-            self.training_curves_extra = self.training_curves_extra[: epoch + 1]
+        self.training_curves = np.array(loss_history, dtype=np.float64)
+        self.training_curves_extra = np.array(loss_history_extra, dtype=np.float64)
 
-        # Set the normalized window as final window
-        self.unprocessed_window = self.window_norm.clone().detach()
-        self.window_norm = self.smoothen_window()
+        # Apply post-processing smoothening if requested
+        if self.window_smoothening:
+            self.window = self.smoothen_window(self.window)
+
+        # Detach learnable parameter from computation graph
+        self.learnable_component = self.learnable_component.detach()
+
+        # Update final window representation
+        self.window = self.window.detach()
+        self.unprocessed_window = self.window.clone()
+
         if self.use_window_post_process:
-            self.window_norm = self.window_post_process()
-        self.window = self.window_norm.detach()
+            self.window = self.window_post_process(self.window)
 
-    def window_post_process(self) -> torch.Tensor:
+    def window_post_process(self, window: torch.Tensor) -> torch.Tensor:
         """
-        Apply custom post-processing"
+        Post-processes the window: sets all elements from the left up to and including
+        the maximum element to 1.0, and leaves the remaining elements untouched.
+
+        Parameters:
+            window (torch.Tensor): 1D tensor representing the window function.
+
+        Returns:
+            torch.Tensor: The post-processed window.
         """
-        if self.normalization_scheme == "unit_max":
-            window_to_process = self.window_norm
-            one_indices = torch.where(
-                torch.isclose(window_to_process, torch.tensor(1.0, device=window_to_process.device))
-            )[0]
+        # Find the index of the first occurrence of the maximum value
+        max_idx = torch.argmax(window).item()
 
-            # If there are at least two 1.0 values, bridge the gap between first and last.
-            if one_indices.numel() >= 2:
-                left_edge = one_indices[0].item()
-                right_edge = one_indices[-1].item()
-                processed_window = window_to_process.clone()
-                processed_window[left_edge : right_edge + 1] = 1.0
-                return processed_window
+        # Clone the window to avoid modifying in-place if necessary
+        post_processed_window = window.clone()
 
-            # If there is only one (or zero) 1.0 value, keep the window unchanged.
-            return window_to_process
-        else:
-            return self.window_norm
+        # Set all elements up to and including the max_idx to 1.0
+        post_processed_window[: max_idx + 1] = 1.0
+
+        return post_processed_window
 
     def __str__(self) -> str:
         return (
-            f"DIGSSOptimizer(measurand={self.moment_module.__class__.__name__}, "
-            f"lr={self.lr}, filter_hw={self.filter_hw}, patience={self.patience}, grad_clip={self.grad_clip},"
-            f"fetal_f={self.fetal_f}), type={self.filter_type}, filter_smoothening={self.window_smoothening},"
-            f"reg_type={self.reg_type}, reg_weight={self.reg_weight}, normalize_reward={self.normalize_reward},"
-            f"normalization_scheme={self.normalization_scheme},"
-            f"use_window_post_process={self.use_window_post_process},"
-            f"use_snr_left_bound={self.use_snr_left_bound}"
+            f"DIGSSOptimizer(normalization_scheme={self.normalization_scheme}, "
+            f"use_window_post_process={self.use_window_post_process}, "
+            f"use_snr_left_bound={self.use_snr_left_bound})"
         )
 
     def components(self) -> dict[str, nn.Module]:
-        """Return the internal components/modules used in optimization."""
         return {
-            "moment_module": self.moment_module,
-            "fetal_comb_filter": self.fetal_filter,
-            "maternal_comb_filter": self.maternal_filter,
+            "fetal_filter": self.fetal_filter,
+            "maternal_filter": self.maternal_filter,
+            "measurand": self.moment_module,
         }
 
 
 def plot_training_curves_and_window(
-    training_curves: np.ndarray,
-    curve_column_labels: list[str],
-    optimized_window: torch.Tensor,
-    bin_edges: np.ndarray,
-    fig_size: tuple[int, int] = (10, 6),
-    grid: bool = False,
-    normalize_curves: bool = True,
-    filename: str = "optimization_results",
+    training_curves: npt.NDArray[np.float64],
+    window: torch.Tensor,
+    bin_edges: npt.NDArray[np.float64],
+    training_curve_labels: list[str],
+    save_path: str = "./results/optimization_results",
 ) -> None:
     """
-    Plot the training curves and optimized window in two subplots and save to a file.
+    Plot the training curves and the optimized window function.
 
-    :param training_curves: Numpy array of shape (num_epochs, num_metrics) containing the training curves.
-    :type training_curves: np.ndarray
-    :param curve_column_labels: List of labels for each metric in the training curves.
-    :type curve_column_labels: list[str]
-    :param fig_size: Figure size for the plots. Defaults to (10, 6).
-    :type fig_size: tuple[int, int]
-    :param optimized_window: Optimized window tensor.
-    :type optimized_window: torch.Tensor
-    :param bin_edges: Bin edges tensor.
-    :type bin_edges: np.ndarray
-    :param grid: Whether to show grid on the training plots. Defaults to False.
-    :type grid: bool
-    :param normalize_curves: Whether to normalize each training curves for better visualization. Defaults to True.
-    :type normalize_curves: bool
-    :param filename: Filename to save the plots. Defaults to "optimization_results". Saves to ./figures/{filename}.svg
-    and ./figures/{filename}.pdf (Like the professionals we are)
-    :type filename: str
+    :param training_curves: 2D numpy array of metric values (epochs x metrics).
+    :type training_curves: npt.NDArray[np.float64]
+    :param window: 1D torch tensor of optimized window weights.
+    :type window: torch.Tensor
+    :param bin_edges: 1D numpy array of bin edges for plotting the window.
+    :type bin_edges: npt.NDArray[np.float64]
+    :param training_curve_labels: List of labels for each metric in training_curves.
+    :type training_curve_labels: list[str]
+    :param save_path: Path prefix for saving plot images (without extension).
+    :type save_path: str
     """
-    ## Validity Checks
-    assert training_curves.shape[1] == len(curve_column_labels), "Number of curve labels must match number of metrics."
+    # Load standardized plot configuration
+    plot_config = load_plot_config()
 
-    ## Bin Centers
-    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-    bin_centers_ns = bin_centers * 1e9  # Convert to nanoseconds for better readability
-    bin_centers_ns = np.round(bin_centers_ns, decimals=2)
+    plt.figure(
+        figsize=(
+            plot_config.figure_sizes.double_column[0],
+            plot_config.figure_sizes.double_column[1],
+        )
+    )
 
-    ## Load config for plotting if available
-    load_plot_config()
+    # Plot 1: Training Curves
+    plt.subplots(figsize=(6, 4))
+    epochs = range(training_curves.shape[0])
 
-    plt.subplots(1, 2, figsize=fig_size)
-
-    # Plot Training Curves
     plt.subplot(1, 2, 1)
     for i in range(training_curves.shape[1]):
-        if normalize_curves:
-            curve = training_curves[:, i] / (np.max(np.abs(training_curves[:, i])) + 1e-40)
-        else:
-            curve = training_curves[:, i]
-        plt.plot(curve, label=curve_column_labels[i])
-    plt.xlabel("Epoch")
-    plt.ylabel("Metric Value")
-    plt.yscale("log")
-    axes_title = "Normalized Training Metrics" if normalize_curves else "Training Metrics"
-    plt.title(axes_title)
-    plt.legend()
-    plt.grid(grid)
+        label = training_curve_labels[i] if i < len(training_curve_labels) else f"Metric {i + 1}"
+        curve = training_curves[:, i]
+        # Normalize each curve to start at 1
+        curve_normalized = curve / curve[0] if curve[0] != 0 else curve
+        plt.plot(epochs, curve_normalized, label=label)
+    plt.xlabel("Epoch", fontsize=plot_config.fonts.label_size)
+    plt.ylabel("Normalized Metric Value", fontsize=plot_config.fonts.label_size)
+    plt.yscale("log")  # Logarithmic scale for better visualization of improvement
+    # plt.ylim(bottom=1e-1, top=1e2)
+    plt.title("Training Curves", fontsize=plot_config.fonts.title_size)
+    plt.legend(fontsize=plot_config.fonts.legend_size)
+    plt.grid(True, linestyle=plot_config.grid.style, alpha=plot_config.grid.alpha)
 
-    # Plot Optimized Window
+    # Plot 2: Optimized Window
     plt.subplot(1, 2, 2)
-    plt.plot(bin_centers_ns, optimized_window.detach().cpu().numpy(), marker="o")
-    plt.xlabel("Bin Center (ns)")
-    plt.ylabel("Window Value")
-    plt.title("Optimized Window")
-    plt.tight_layout()
+    plt.plot(bin_edges, window.numpy(), label="Optimized Window", color="orange")
+    plt.xlabel("ToF Bins (ps)", fontsize=plot_config.fonts.label_size)
+    plt.ylabel("Window Weight", fontsize=plot_config.fonts.label_size)
+    plt.title("Optimized Window", fontsize=plot_config.fonts.title_size)
+    # plt.grid(True, linestyle=plot_config.grid.style, alpha=plot_config.grid.alpha)
 
-    plt.savefig(f"./figures/{filename}.svg")
-    plt.savefig(f"./figures/{filename}.pdf")
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(f"{save_path}.png", dpi=plot_config.figure_export.dpi, bbox_inches="tight")
+    plt.savefig(f"{save_path}.pdf", bbox_inches="tight")
     plt.close()
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+    # Setup logging
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    # file_idx = 7
-    for file_idx in range(2, 3):
-        measurand = "abs"
-        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
-        logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
-        gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-        filter_hw = 0.01
-        noise_var = 100.0
-        tof_data = generate_tof(ppath_file, gen_config, True, True)
-        modifier = AdditiveGaussianToFModifier(noise_var)
-        modified_tof = modifier.modify(tof_data)
-        noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
-        experiment = DIGSSOptimizer(
-            tof_data=modified_tof,
-            measurand=measurand,
-            noise_calc=noise_calc,
-            fetal_f=gen_config.fetal_f,
-            normalize_reward=False,
-            lr=0.1,
-            filter_hw=filter_hw,
-            patience=50,
-            reg_type="l2",
-            reg_weight=0.001,
-            filter_type="psafe_same_width",
-            normalization_scheme="unit_max",
-        )
-        experiment.optimize()
+    # Load configuration
+    tof_config = load_tof_config(Path("./experiments/tof_config.yaml"))
 
-        optimized_window = experiment.window  # type: ignore
-        result_curves = experiment.training_curves
-        logger.info("Optimized Window: %s", optimized_window.numpy())
-        logger.info("Best Selectivity: %s", result_curves[-1, 0])
-        logger.info("Best SNR: %s", result_curves[-1, 1])
-        logger.info("Best Final Metric: %s", result_curves[-1, 2])
-        logger.info("Total Epochs: %s", result_curves.shape[0])
-        logger.info("Best SNR Index : %d", experiment.max_snr_index)
-        logger.info("Best Selectivity Index : %d", experiment.max_selectivity_index)
-        loss_names = experiment.training_curve_labels
-        bin_edges = modified_tof.bin_edges.numpy()
-        logger.info("Training curves sample (every 50 epochs): %s", result_curves[::50, :])
-        plot_training_curves_and_window(result_curves, loss_names, optimized_window, bin_edges, normalize_curves=False)
+    # Load dataset
+    tof_data = generate_tof(Path("./data/experiment_0003.npz"), tof_config, True, True)
 
-        # Evaluate using an Evaluator and print log
-        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
-        eval_results = evaluator.evaluate()
-        logger.info("Evaluation Results: %s", eval_results)
-        logger.info("Evaluator log: %s", evaluator.get_log())
-        logger.info("Max SNR(SB): %.4f at i %d", experiment.max_snr, experiment.max_snr_index)
-        logger.info(
-            "Max Selectivity(SB): %.4f at i %d",
-            experiment.max_selectivity,
-            experiment.max_selectivity_index,
-        )
-        logger.info("Impulse Window SNR List: %s", experiment.impulse_window_snr_list)
-        logger.info("Impulse Window Selectivity List: %s", experiment.impulse_window_selectivity_list)
-        logger.info("Impulse Window Product List: %s", experiment.impulse_window_product_list)
-        logger.info("Unprocessed Window: %s", experiment.unprocessed_window.numpy())
+    noise_var = 100.0
+    tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_var)
+    noisy_tof = tof_modifier.modify(tof_data)
+
+    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
+
+    measurand = "abs"
+    # Create optimizer experiment instance
+    experiment = DIGSSOptimizer(
+        noisy_tof,
+        measurand,
+        max_epochs=2000,
+        lr=0.1,
+        filter_hw=0.01,
+        patience=100,
+        grad_clip=False,
+        reg_type="l1",
+        reg_weight=0.0,
+        window_smoothening=False,
+        normalize_reward=True,
+        filter_type="psafe_same_width",
+        normalization_scheme="unit_max",
+        noise_calc=noise_calc,
+    )
+
+    # Run optimization
+    experiment.optimize()
+
+    # Log results
+    logger.info("Optimization complete!")
+    logger.info("Final window shape: %s", experiment.window.shape)
+    logger.info("Final window weights: %s", experiment.window.numpy())
+    logger.info("Final Energy Ratio: %s", experiment.training_curves[-1, 0])
+    logger.info("Final SNR: %s", experiment.training_curves[-1, 1])
+    logger.info("Final Metric: %s", experiment.training_curves[-1, 2])
+
+    # Extract bin edges for plotting
+    assert experiment.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
+    bin_edges = experiment.tof_data.bin_edges.numpy()
+
+    plot_training_curves_and_window(
+        experiment.training_curves, experiment.window, bin_edges, experiment.training_curve_labels
+    )
+    evaluator = AltPaperEvaluator3(
+        Path("./data/experiment_0003.npz"),
+        experiment.window,
+        measurand,
+        tof_config,
+        filter_hw=0.01,
+        gaussian_noise_var=noise_var,
+    )
+    logger.info("Evaluator log:")
+    logger.info(evaluator.evaluate())
+    logger.info("Unprocessed Window:")
+    logger.info(experiment.unprocessed_window.numpy())
 
 
 if __name__ == "__main__":

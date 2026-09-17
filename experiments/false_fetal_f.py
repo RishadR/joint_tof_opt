@@ -130,8 +130,10 @@ def run_false_fetal_frequency_experiment(
 def main() -> None:
     results_path = Path("./results/false_fetal_f_results2.yaml")
     filter_hw = 0.01  # Hz
-    # eval_func = lambda ppath, win, meas, conf: PaperEvaluator(ppath, win, meas, conf)
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
+
+    def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
+        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
+
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]] = [
         lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, filter_type="comb",),
         lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb",),

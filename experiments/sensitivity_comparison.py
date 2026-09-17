@@ -22,9 +22,7 @@ Outputs
 - results/sensitivity_comparison_results.yaml
 """
 
-import threading
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -32,12 +30,12 @@ import torch
 
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
-    CombSeparator,
     CompactStatProcess,
     Evaluator,
     OptimizationExperiment,
     ToFConfig,
     ToFData,
+    UnityTofModifier,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     clear_results,
     generate_tof,
@@ -82,7 +80,8 @@ def run_sensitivity_comparison(
     """
     ## Params
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-    tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
+    # tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
+    tof_modifier = UnityTofModifier()
 
     # Initialize results table and windows storage
     results = []
@@ -93,9 +92,7 @@ def run_sensitivity_comparison(
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
             tof_data = generate_tof(ppath_file, gen_config, True, True)
-            noisy_tof_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}_t{threading.get_ident()}.npz"
             tof_data = tof_modifier.modify(tof_data)
-            tof_data.to_npz(noisy_tof_file)
 
             # Run Optimizers
             # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
@@ -115,7 +112,6 @@ def run_sensitivity_comparison(
                     final_optimizer_loss = []
 
                 # Compute the unfiltered measurand signal for logging
-                tof_data = ToFData.from_npz(noisy_tof_file)
                 assert tof_data.meta_data is not None, "ToFData meta_data was not found!"
                 bin_edges = tof_data.bin_edges
                 measurand_process = get_named_moment_module(measurand, tof_data)
@@ -147,26 +143,30 @@ def run_sensitivity_comparison(
                     log_dict = evaluator.get_log()
                     print("Log Details:")
                     pretty_print_log(log_dict)
-            noisy_tof_file.unlink(missing_ok=True)
     return results
 
 
 def main() -> list[dict[str, Any]]:
     filter_hw = 0.01  # Hz
-    noise_var = 100.0
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+    noise_var = 1000.0
+
+    def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
+        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
-        # lambda tof_data, measurand: DIGSSOptimizer(
-        #     tof_data,
-        #     measurand,
-        #     normalization_scheme="unit_max",
-        #     noise_calc=noise_calc,
-        #     reg_weight=0.0,
-        #     lr=0.1,
-        #     window_smoothening=False,
-        # ),
+        lambda tof_data, measurand: DIGSSOptimizer(
+            tof_data,
+            measurand,
+            normalization_scheme="unit_max",
+            noise_calc=noise_calc,
+            reg_weight=0.0,
+            lr=0.1,
+            window_smoothening=False,
+            use_window_post_process=False,
+            use_snr_left_bound=True,
+        ),
         lambda tof_data, measurand: BoxCarOptimizer(
             tof_data,
             measurand,
@@ -176,22 +176,21 @@ def main() -> list[dict[str, Any]]:
             lr=0.1,
             window_smoothening=False,
         ),
-        # lambda tof_data, measurand: LiuOptimizer(tof_data, measurand, None, "mean", filter_hw, 2, None),
-        # lambda tof_data, measurand: AltLiuOptimizer(tof_data, measurand, None, None, "mean", filter_hw, 2, None),
-        # lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand, None),
+        lambda tof_data, measurand: LiuOptimizer(tof_data, measurand, None, "mean", filter_hw, 2, None),
+        lambda tof_data, measurand: AltLiuOptimizer(tof_data, measurand, None, None, "mean", filter_hw, 2, None),
+        lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand, None),
     ]
 
     return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
 
 
-if __name__ == "__main__":
+def run_full_sweep() -> None:
+    """Run main() and write its results (main() alone only computes results, it does not persist them)."""
     results_path = Path("./results/sensitivity_comparison_results.yaml")
-    # clear_results(results_path)   # Clears older results - otherwise appends to the existing results file
-    iterations = 20
-    print(f"Running {iterations} iterations in parallel...")
-    with ThreadPoolExecutor(max_workers=iterations) as executor:
-        futures = [executor.submit(main) for _ in range(iterations)]
-    for i, future in enumerate(futures):
-        exp_results = future.result()
-        print(f"Writing results: iteration {i + 1}/{iterations}")
-        write_results_to_yaml(exp_results, results_path, append=True)
+    clear_results(results_path)   # Clears older results - otherwise appends to the existing results file
+    exp_results = main()
+    write_results_to_yaml(exp_results, results_path, append=True)
+
+
+if __name__ == "__main__":
+    run_full_sweep()

@@ -22,9 +22,7 @@ Outputs
 - results/noise_sensitivity_comparison_results.yaml
 """
 
-import threading
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +37,7 @@ from joint_tof_opt import (
     OptimizationExperiment,
     ToFConfig,
     ToFData,
+    UnityTofModifier,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     clear_results,
     generate_tof,
@@ -73,7 +72,8 @@ def run_sensitivity_comparison(
         gen_config.datapoint_count // 2 + 1,
         True,
     )
-    tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
+    # tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
+    tof_modifier = UnityTofModifier()
 
     # Initialize results table and windows storage
     results = []
@@ -84,10 +84,7 @@ def run_sensitivity_comparison(
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
             tof_data = generate_tof(ppath_file, gen_config, True, True)
-            # Each thread writes its noisy copy to a unique path to avoid collisions
-            noisy_tof_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}_t{threading.get_ident()}.npz"
             tof_data = tof_modifier.modify(tof_data)
-            tof_data.to_npz(noisy_tof_file)
 
             # Run Optimizers
             for optimizer_func in optimizers_to_compare:
@@ -106,7 +103,6 @@ def run_sensitivity_comparison(
                     final_optimizer_loss = []
 
                 # Compute the unfiltered measurand signal for logging
-                tof_data = ToFData.from_npz(noisy_tof_file)
                 assert tof_data.meta_data is not None, "ToFData meta_data was not found!"
                 bin_edges = tof_data.bin_edges
                 measurand_process = get_named_moment_module(measurand, tof_data)
@@ -140,13 +136,15 @@ def run_sensitivity_comparison(
                     log_dict = evaluator.get_log()
                     print("Log Details:")
                     pretty_print_log(log_dict)
-            noisy_tof_file.unlink(missing_ok=True)
     return results
 
 
 def main(noise_var: float) -> list[dict[str, Any]]:
     filter_hw = 0.01  # Hz
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+
+    def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
+        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
@@ -173,18 +171,17 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
 
 
-if __name__ == "__main__":
+def run_full_sweep() -> None:
+    """Run main() once for each noise variance level and write all results."""
     results_path = Path("./results/noise_sensitivity_comparison_results.yaml")
     clear_results(results_path)
     # [0.0, 1.0, 10.0, 100.0, 1000.0, 10000.0]
     noise_vars = [0] + np.logspace(0, 5, 6).tolist()
-    iterations = 20
     for noise_var in noise_vars:
-        iteration_count = iterations if noise_var > 0.0 else 1  # If its noiseless - just chill
-        print(f"Running {iteration_count} iterations for noise_var={noise_var} in parallel...")
-        with ThreadPoolExecutor(max_workers=iteration_count) as executor:
-            futures = [executor.submit(main, noise_var) for _ in range(iteration_count)]
-        for i, future in enumerate(futures):
-            exp_results = future.result()
-            print(f"Writing results: iteration {i + 1}/{iteration_count}, noise_var={noise_var}")
-            write_results_to_yaml(exp_results, results_path, append=True)
+        print(f"Running noise_var={noise_var}...")
+        exp_results = main(noise_var)
+        write_results_to_yaml(exp_results, results_path, append=True)
+
+
+if __name__ == "__main__":
+    run_full_sweep()

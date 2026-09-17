@@ -24,21 +24,19 @@ Outputs
 - results/ablation_results.yaml
 """
 
-import threading
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import torch
 
 from joint_tof_opt import (
-    AdditiveGaussianToFModifier,
     CompactStatProcess,
     Evaluator,
     OptimizationExperiment,
     ToFConfig,
     ToFData,
+    UnityTofModifier,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     clear_results,
     generate_tof,
@@ -61,7 +59,8 @@ def run_ablation(
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-    tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
+    # tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
+    tof_modifier = UnityTofModifier()
 
     results = []
     for measurand in measurands_to_test:
@@ -71,9 +70,7 @@ def run_ablation(
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
             tof_data = generate_tof(ppath_file, gen_config, True, True)
-            noisy_tof_file = Path("./data") / f"generated_tof_set_{ppath_file.stem}_t{threading.get_ident()}.npz"
             tof_data = tof_modifier.modify(tof_data)
-            tof_data.to_npz(noisy_tof_file)
 
             for optimizer_func in optimizers_to_compare:
                 optimizer_experiment = optimizer_func(tof_data, measurand)
@@ -87,7 +84,6 @@ def run_ablation(
                 epochs = len(loss_history)
                 final_optimizer_loss = loss_history[-1, :].tolist() if epochs > 0 else []
 
-                tof_data = ToFData.from_npz(noisy_tof_file)
                 assert tof_data.meta_data is not None, "ToFData meta_data was not found!"
                 bin_edges = tof_data.bin_edges
                 measurand_process = get_named_moment_module(measurand, tof_data)
@@ -118,13 +114,15 @@ def run_ablation(
                 if print_log:
                     print("Log Details:")
                     pretty_print_log(evaluator.get_log())
-            noisy_tof_file.unlink(missing_ok=True)
     return results
 
 
 def main(noise_var: float) -> list[dict[str, Any]]:
     filter_hw = 0.01  # Hz
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+
+    def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
+        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     base_kwargs: dict[str, Any] = {
@@ -161,16 +159,16 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     return run_ablation(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=False)
 
 
-if __name__ == "__main__":
+def run_full_sweep() -> None:
+    """Run main() once for each noise variance level and write all results."""
     results_path = Path("./results/ablation_results.yaml")
     clear_results(results_path)
-    noise_variances = [0.0, 10.0, 100.0, 1000.0, 10000.0]  # 1000.0 already computed
-    iterations = 20
+    noise_variances = [0.0, 10.0, 100.0, 1000.0]
     for noise_var in noise_variances:
-        print(f"Running {iterations} iterations in parallel for noise_var={noise_var}...")
-        with ThreadPoolExecutor(max_workers=iterations) as executor:
-            futures = [executor.submit(main, noise_var) for _ in range(iterations)]
-        for i, future in enumerate(futures):
-            exp_results = future.result()
-            print(f"  Writing results: iteration {i + 1}/{iterations}")
-            write_results_to_yaml(exp_results, results_path, append=True)
+        print(f"Running noise_var={noise_var}...")
+        exp_results = main(noise_var)
+        write_results_to_yaml(exp_results, results_path, append=True)
+
+
+if __name__ == "__main__":
+    run_full_sweep()

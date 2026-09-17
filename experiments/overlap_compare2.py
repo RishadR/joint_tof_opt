@@ -1,5 +1,6 @@
 """
-Compare the performance across different tissue depths (file_idx sweep) when there is overlap between maternal and fetal.
+Compare the performance across different tissue depths (file_idx sweep) when there is overlap
+between maternal and fetal.
 
 Purpose
 -------
@@ -32,7 +33,7 @@ import yaml
 
 from joint_tof_opt import generate_tof, load_parameter_mapping, load_tof_config
 
-from .optimize_loop_paper import DIGSSOptimizer
+from .optimize_loop_paper import DIGSSOptimizer, FilterType, RegType
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
@@ -60,11 +61,11 @@ def _get_depth_mm(file_idx: int, param_mapping_path: Path) -> float:
 def run_depth_sweep(
     file_idx_list: list[int],
     separation_hz: float,
-    filter_setups: list[tuple[str, float]],  # (filter_type, filter_hw)
+    filter_setups: list[tuple[FilterType, float]],  # (filter_type, filter_hw)
     measurand: str = "abs",
     lr: float = 0.1,
     patience: int = 50,
-    reg_type: str = "l1",
+    reg_type: RegType = "l1",
     reg_weight: float = 0.1,
     param_mapping_path: Path = Path("./data/parameter_mapping.json"),
     output_yaml: Path = Path("./results/overlap_results2.yaml"),
@@ -91,9 +92,9 @@ def run_depth_sweep(
                 lr=lr,
                 filter_hw=float(filter_hw),
                 patience=patience,
-                reg_type=reg_type,  # type: ignore
+                reg_type=reg_type,
                 reg_weight=reg_weight,
-                filter_type=filter_type,  # type: ignore
+                filter_type=filter_type,
             )
             experiment.optimize()
 
@@ -152,7 +153,7 @@ def run_depth_sweep(
 def main() -> None:
     file_indices = list(range(8))  # 0 to 7
     separation = 0.5  # Hz - fixed separation
-    filter_combos = [
+    filter_combos: list[tuple[FilterType, float]] = [
         ("comb", 0.10),
         ("comb", 0.30),
         # ("comb", 0.50),
@@ -165,7 +166,7 @@ def main() -> None:
         measurand="abs",
         filter_setups=filter_combos,
         reg_weight=0.001,
-        reg_type='l2'
+        reg_type="l2",
     )
 
 

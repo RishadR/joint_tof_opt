@@ -1,6 +1,10 @@
 """
-DuckDB-backed cache for generate_tof's output .npz bytes, keyed by a hash of everything that
-affects the result (ppath file identity, ToFConfig, pulse flags, inner_moment_orders).
+DuckDB-backed cache for generate_tof's output .npz bytes, keyed by a hash of ppath file identity,
+ToFConfig, and pulse flags.
+
+Note: inner_moment_orders is deliberately excluded from the key even though it changes generate_tof's
+output (adds inner_moment_* arrays) - no call site varies it today. If a caller ever requests different
+orders for the same ppath/config, it'll silently collide with whatever got cached first.
 """
 
 import hashlib
@@ -14,6 +18,16 @@ import numpy as np
 from joint_tof_opt.config_loader import ToFConfig
 
 CACHE_DB_PATH = Path("data/tof_cache.duckdb")
+
+# ToFConfig fields generate_tof() never reads - they only drive ppath_gen.py's simulation/sweep setup.
+# Excluded so editing e.g. dermis_thicknesses doesn't invalidate every cached entry's key.
+_CACHE_IRRELEVANT_CONFIG_FIELDS = {
+    "total_photon_count",
+    "epidermis_thickness",
+    "donut_half_thickness",
+    "sdd_distances",
+    "dermis_thicknesses",
+}
 
 _key_locks: dict[str, threading.Lock] = {}
 _key_locks_mutex = threading.Lock()
@@ -36,19 +50,18 @@ def cache_key(
     gen_config: ToFConfig,
     pulse_maternal: bool,
     pulse_fetal: bool,
-    inner_moment_orders: list[float],
+    _inner_moment_orders: list[float],
 ) -> str:
-    """Hash of every input that affects generate_tof's output."""
+    """Hash of ppath file identity, ToFConfig, and pulse flags. See module docstring re: inner_moment_orders."""
     resolved = ppath_dataset_filename.resolve()
     stat = resolved.stat()
     payload = {
         "ppath_path": str(resolved),
         "ppath_size": stat.st_size,
         "ppath_mtime": stat.st_mtime,
-        "gen_config": gen_config.model_dump(),
+        "gen_config": gen_config.model_dump(exclude=_CACHE_IRRELEVANT_CONFIG_FIELDS),
         "pulse_maternal": pulse_maternal,
         "pulse_fetal": pulse_fetal,
-        "inner_moment_orders": sorted(inner_moment_orders),
     }
     canonical = json.dumps(payload, sort_keys=True, default=_json_default)
     return hashlib.sha256(canonical.encode()).hexdigest()

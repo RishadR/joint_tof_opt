@@ -11,6 +11,7 @@ import yaml
 
 from joint_tof_opt.plotting import load_plot_config
 
+# [is–flat_top?, has_snr_bound?, plot_z_oder, plot_horizontal_offset]
 VARIANTS = [
     (True,  True,  "Flat-Top Projection + SNR bound", 10, +0.02),
     (False, True,  "No Flat-Top Projection",           3, +0.01),
@@ -80,7 +81,8 @@ def main():
     figures_dir.mkdir(exist_ok=True)
     fig.savefig(figures_dir / "ablation_study.pdf", format="pdf")
     fig.savefig(figures_dir / "ablation_study.svg", format="svg")
-    print(f"Ablation study plot saved to {figures_dir}")
+    print(f"Ablation study plot saved to {figures_dir / 'ablation_study.pdf'}")
+    print(f"Ablation study plot saved to {figures_dir / 'ablation_study.svg'}")
 
 
 if __name__ == "__main__":

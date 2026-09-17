@@ -1,5 +1,5 @@
 """
-Generate the ppath files
+Generate the ppath files & its corresponding mapping inside ./data
 
 About the Model
 ---------------
@@ -20,16 +20,60 @@ import numpy.typing as npt
 import torch
 from tfo_sim2.tissue_model_extended import DanModel4LayerX
 
-from joint_tof_opt.config_loader import load_tof_config
+from joint_tof_opt.config_loader import ToFConfig, load_tof_config
+from joint_tof_opt.parameter_mapping import (
+    ExperimentEntry,
+    SweepParameterSpec,
+    load_parameter_mapping_entries,
+    save_parameter_mapping,
+)
 
 if torch.cuda.is_available():
     import pmcx
 else:
     import pmcxcl as pmcx  # no NVIDIA GPU; pmcxcl runs the same API over OpenCL
 
+APPEND_MODE = True  # ponytail: flip to True to add new derm_thickness values without re-simulating existing ones
+
+
+def create_parameter_mapping(tof_config: ToFConfig, output_path: Path, append: bool = False) -> list[ExperimentEntry]:
+    """
+    Build/extend data/parameter_mapping.json from tof_config's dermis_thickness sweep.
+
+    If append and output_path already exists, existing entries are kept as-is (base sim/tissue params are
+    assumed unchanged) and only derm_thickness values not already covered get new entries, continuing the
+    index/filename numbering. Returns just the newly added entries, which is what the caller needs to simulate.
+    """
+    existing: list[ExperimentEntry] = []
+    if append and output_path.exists():
+        existing = load_parameter_mapping_entries(output_path)
+    covered = {int(e.sweep_parameters["derm_thickness"].value) for e in existing}
+    next_index = max((e.index for e in existing), default=-1) + 1
+
+    new_entries: list[ExperimentEntry] = []
+    for derm_thickness in tof_config.dermis_thicknesses:
+        if int(derm_thickness) in covered:
+            continue
+        covered.add(int(derm_thickness))
+        new_entries.append(
+            ExperimentEntry(
+                filename=f"experiment_{next_index:04}.npz",
+                index=next_index,
+                sweep_parameters={
+                    "derm_thickness": SweepParameterSpec(value=int(derm_thickness), object_type="tissue_model")
+                },
+            )
+        )
+        next_index += 1
+
+    save_parameter_mapping(output_path, existing + new_entries)
+    return new_entries
+
+
 if __name__ == "__main__":
     ## Load Simulation Parameters
     tof_config = load_tof_config(Path(__file__).parent / "tof_config.yaml")
+    new_experiments = create_parameter_mapping(tof_config, Path("data/parameter_mapping.json"), append=APPEND_MODE)
 
     ## Create the simulation config
     src_x = 110
@@ -61,10 +105,10 @@ if __name__ == "__main__":
     epi_thickness = tof_config.epidermis_thickness
     donut_half_thickness = tof_config.donut_half_thickness
     donut_radii = tof_config.sdd_distances
-    for idx, derm_thickness in enumerate(tof_config.dermis_thicknesses):
-        # for idx, derm_thickness in enumerate([4]):
+    for entry in new_experiments:
+        derm_thickness = entry.sweep_parameters["derm_thickness"].value
         tissue_model = DanModel4LayerX(wavelength, epi_thickness, int(derm_thickness))
-        filename = f"experiment_{idx:04}"
+        filename = f"experiment_{entry.index:04}"
         cfg = deepcopy(base_cfg)
         vol = tissue_model.vol
         topmost_pixel = tissue_model.topmost_pixel()

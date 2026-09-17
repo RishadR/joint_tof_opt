@@ -2,21 +2,16 @@
 Plot a sample time-of-flight (TOF) spectrum using matplotlib.
 """
 
-from typing import Literal
-import numpy as np
-import matplotlib.pyplot as plt
-import yaml
 from pathlib import Path
+from typing import Literal
+
+import matplotlib.pyplot as plt
+import numpy as np
 from scipy.interpolate import UnivariateSpline
-from joint_tof_opt.tof_batch_process import generate_tof, ToFData
+
+from joint_tof_opt.config_loader import load_tof_config
 from joint_tof_opt.plotting import load_plot_config
-
-
-def load_gen_config():
-    config_path = "./experiments/tof_config.yaml"
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    return config
+from joint_tof_opt.tof_batch_process import generate_tof
 
 
 def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
@@ -30,8 +25,8 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     plot_type : str
         Type of plot: 'distribution' or 'density'
     """
-    gen_config = load_gen_config()
-    gen_config["datapoint_count"] = 10  # Only generate 10 ToFs for quick loading
+    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
+    gen_config = gen_config.model_copy(update={"datapoint_count": 10})  # Only generate 10 ToFs for quick loading
 
     # Load data
     tof_data = generate_tof(ppath, gen_config, False, False)

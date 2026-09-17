@@ -73,7 +73,6 @@ def run_detector_comparison(
     base_gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
     for sdd_index in sdd_indices_to_test:
         gen_config = base_gen_config.model_copy(update={"selected_sdd_index": sdd_index})
-        # Get the noise function for the measurand
 
         ## Run experiments
         file_sweep_params = load_parameter_mapping(Path("./data/parameter_mapping.json"))
@@ -123,14 +122,17 @@ def run_detector_comparison(
     return results
 
 
-def main() -> None:
-    eval_func = lambda ppath, win, meas, conf: AltPaperEvaluator3(ppath, win, meas, conf)
+def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
+    return AltPaperEvaluator3(ppath, win, meas, conf)
 
+
+def main() -> None:
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
-        lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, normalization_scheme="unit_max")
+        lambda tof_data, measurand: DIGSSOptimizer(
+            tof_data, measurand, normalization_scheme="unit_max", use_snr_left_bound=False
+        )
     ]
-    # run_detector_comparison(eval_func, optimizer_funcs_to_test, [5, 6], print_log=False)
-    exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6, 7], print_log=False)
+    exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6], print_log=False)
     result_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
     clear_results(result_path)
     write_results_to_yaml(exp_results, result_path)
