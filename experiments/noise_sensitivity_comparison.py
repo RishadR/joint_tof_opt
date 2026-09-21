@@ -148,15 +148,7 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
-        lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data,
-            measurand,
-            normalization_scheme="unit_max",
-            noise_calc=noise_calc,
-            reg_weight=0.0,
-            lr=0.1,
-            window_smoothening=False,
-        ),
+        lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, noise_calc=noise_calc),
         # lambda tof_data, measurand: DIGSSOptimizer(
         #     tof_file,
         #     measurand,

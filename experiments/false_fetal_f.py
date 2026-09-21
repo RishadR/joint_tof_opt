@@ -72,7 +72,7 @@ def run_false_fetal_frequency_experiment(
     measurand = "abs"  # Fixed measurand for this experiment
     gen_config_true = load_tof_config(Path("./experiments/tof_config.yaml"))
     for error_hz in error_hzs:
-        print(f"Running experiments for fetal frequency error: {error_hz*100:.1f}%")
+        print(f"Running experiments for fetal frequency error: {error_hz * 100:.1f}%")
         true_fetal_f: float = gen_config_true.fetal_f
         new_fetal_f = true_fetal_f - error_hz
         # Get the noise function for the measurand
@@ -92,7 +92,7 @@ def run_false_fetal_frequency_experiment(
                 loss_history = optimizer_experiment.training_curves
                 evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true)
                 optimized_sensitivity = evaluator.evaluate()
-                fetal_energy = optimizer_experiment.training_curves_extra[-1, 0] 
+                fetal_energy = optimizer_experiment.training_curves_extra[-1, 0]
                 maternal_energy = optimizer_experiment.training_curves_extra[-1, 1]
                 noise_std = optimizer_experiment.training_curves_extra[-1, 2]
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
@@ -135,9 +135,15 @@ def main() -> None:
         return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]] = [
-        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.01, filter_type="comb",),
-        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb",),
-        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(tof_data, measurand, fetal_f=new_fetal_f, patience=100, filter_hw=0.1, filter_type="comb", normalize_reward=False)
+        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(
+            tof_data, measurand, fetal_f=new_fetal_f, filter_hw=0.01, filter_type="comb"
+        ),
+        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(
+            tof_data, measurand, fetal_f=new_fetal_f, filter_hw=0.1, filter_type="comb"
+        ),
+        lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(
+            tof_data, measurand, fetal_f=new_fetal_f, filter_hw=0.1, filter_type="comb", normalize_reward=False
+        ),
     ]
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
     error_rates_np = np.arange(0.0, 1.01, 0.05)

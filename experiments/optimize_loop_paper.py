@@ -28,7 +28,6 @@ the window energy.
 
 import logging
 from pathlib import Path
-from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,15 +42,19 @@ from joint_tof_opt import (
     CompactStatProcess,
     ContrastToNoiseMetric,
     EnergyRatioMetric,
+    FilterType,
     FourierSeparator,
     NoiseCalculator,
+    NormalizationScheme,
     OptimizationExperiment,
     PSAFESeparator,
+    RegType,
     ToFData,
     WindowSumNoiseCalculator,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
+    load_optimizer_specs,
     load_tof_config,
     named_moment_types,
 )
@@ -63,9 +66,7 @@ from .sensitivity_compute import (
 
 logger = logging.getLogger(__name__)
 
-RegType = Literal["l1", "l2"]
-FilterType = Literal["comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"]
-NormalizationScheme = Literal["unit_sum", "unit_max"]
+_DIGSS_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").digss
 
 
 class DIGSSOptimizer(OptimizationExperiment):
@@ -97,19 +98,19 @@ class DIGSSOptimizer(OptimizationExperiment):
         measurand: str | CompactStatProcess,
         noise_calc: NoiseCalculator | None = None,
         fetal_f: float | None = None,
-        max_epochs: int = 2000,
-        lr: float = 0.1,
-        filter_hw: float = 0.01,
-        patience: int = 50,
-        grad_clip: bool = False,
-        reg_type: RegType = "l1",
-        reg_weight: float = 1e-4,
-        window_smoothening: bool = True,
-        normalize_reward: bool = True,
-        filter_type: FilterType = "psafe_same_width",
-        normalization_scheme: NormalizationScheme = "unit_sum",
-        use_window_post_process: bool = True,
-        use_snr_left_bound: bool = True,
+        max_epochs: int = _DIGSS_SPEC.max_epochs,
+        lr: float = _DIGSS_SPEC.lr,
+        filter_hw: float = _DIGSS_SPEC.filter_hw,
+        patience: int = _DIGSS_SPEC.patience,
+        grad_clip: bool = _DIGSS_SPEC.grad_clip,
+        reg_type: RegType = _DIGSS_SPEC.reg_type,
+        reg_weight: float = _DIGSS_SPEC.reg_weight,
+        window_smoothening: bool = _DIGSS_SPEC.window_smoothening,
+        normalize_reward: bool = _DIGSS_SPEC.normalize_reward,
+        filter_type: FilterType = _DIGSS_SPEC.filter_type,
+        normalization_scheme: NormalizationScheme = _DIGSS_SPEC.normalization_scheme,
+        use_window_post_process: bool = _DIGSS_SPEC.use_window_post_process,
+        use_snr_left_bound: bool = _DIGSS_SPEC.use_snr_left_bound,
     ):
         """
         Initialize the PaperOptimizer.
@@ -194,8 +195,10 @@ class DIGSSOptimizer(OptimizationExperiment):
         mean_frame = self.tof_data.tof_series.mean(dim=0)  # Shape: (num_bins,)
         signal_power = mean_frame**2  # Shape: (num_bins,)
         unity_window = torch.ones(num_bins, device=self.tof_data.bin_edges.device)
-        total_noise_variance = self.noise_calc.compute_noise(self.tof_data, unity_window, sum_axis=0) #Shape:(num_bins,)
-        mean_noise_variance = total_noise_variance / time_points 
+        total_noise_variance = self.noise_calc.compute_noise(
+            self.tof_data, unity_window, sum_axis=0
+        )  # Shape:(num_bins,)
+        mean_noise_variance = total_noise_variance / time_points
         viable_bins = torch.where(signal_power >= mean_noise_variance)[0]
         right_most_bin = int(viable_bins[-1].item()) if viable_bins.numel() > 0 else -1
         assert right_most_bin >= self.left_bound_length, (
@@ -320,7 +323,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             single_bin_window[i] = 1.0
 
             # Compute compact statistics
-            compact_stats = self.moment_module(single_bin_window)
+            compact_stats = self.moment_module.forward(single_bin_window)
             compact_stats = compact_stats - compact_stats.mean()
             compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)
             maternal_filtered_signal = self.maternal_filter(compact_stats_reshaped)
@@ -390,7 +393,7 @@ class DIGSSOptimizer(OptimizationExperiment):
             self.window = self._win_norm_func(unnormalized_window, self.normalization_scheme)
 
             # Extract compact statistics and apply comb filtering
-            compact_stats = self.moment_module(self.window)
+            compact_stats = self.moment_module.forward(self.window)
 
             # Center the signal
             compact_stats = compact_stats - compact_stats.mean()

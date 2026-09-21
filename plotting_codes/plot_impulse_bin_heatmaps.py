@@ -53,7 +53,7 @@ def compute_bin_metrics_for_file(ppath_file: Path, gen_config: ToFConfig) -> np.
         window = torch.zeros(num_bins)
         window[i] = 1.0
         noise_std = torch.sqrt(noise_calc.compute_noise(modified_tof, window).sum())
-        compact_stats = moment_module(window)
+        compact_stats = moment_module.forward(window)
         compact_stats = compact_stats - compact_stats.mean()
         compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)
         fetal_energy = torch.sum(fetal_filter(compact_stats_reshaped) ** 2)

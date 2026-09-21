@@ -191,6 +191,7 @@ class FourierSeparator(nn.Module):
         filtered_signal = torch.fft.irfft(fft_signal, n=signal.shape[-1])
         return filtered_signal.flatten()
 
+
 class PSAFESeparator(nn.Module):
     """
     Base on Lambert's PSAFE paper. The method is as follows (Given that freq. doesn't change):
@@ -199,6 +200,7 @@ class PSAFESeparator(nn.Module):
     3. Demean each window and average them together to get an estimate of the periodic component
     4. Return the average window
     """
+
     def __init__(self, fs: float, center_freq: float, equate_length: bool = False):
         super().__init__()
         self.fs: float = fs
@@ -210,15 +212,15 @@ class PSAFESeparator(nn.Module):
     def forward(self, signal: torch.Tensor) -> torch.Tensor:
         # Step 1: Divide signal into non-overlapping windows
         num_windows = signal.shape[-1] // self.window_len
-        windows = signal[..., :num_windows * self.window_len].view(-1, num_windows, self.window_len)
+        windows = signal[..., : num_windows * self.window_len].view(-1, num_windows, self.window_len)
 
         # Step 2: Demean each window and average
         windows = windows - windows.mean(dim=-1, keepdim=True)
         avg_window = windows.mean(dim=1)
-        
+
         if self.equate_length and avg_window.shape[-1] != signal.shape[-1]:
             # Repeat the average window to match the original signal length
             repeat_factor = math.ceil(signal.shape[-1] / avg_window.shape[-1])
-            avg_window = avg_window.repeat(1, repeat_factor)[:, :signal.shape[-1]]
+            avg_window = avg_window.repeat(1, repeat_factor)[:, : signal.shape[-1]]
 
         return avg_window.flatten()

@@ -16,7 +16,10 @@ from joint_tof_opt import (
     OptimizationExperiment,
     ToFData,
     get_named_moment_module,
+    load_optimizer_specs,
 )
+
+_DUMMY_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").dummy
 
 
 class DummyOptimizationExperiment(OptimizationExperiment):
@@ -29,9 +32,7 @@ class DummyOptimizationExperiment(OptimizationExperiment):
 
     """
 
-    def __init__(
-        self, tof_data: ToFData, measurand: CompactStatProcess | str, norm: float | None = None
-    ):
+    def __init__(self, tof_data: ToFData, measurand: CompactStatProcess | str, norm: float | None = _DUMMY_SPEC.norm):
         if isinstance(measurand, str):
             measurand = get_named_moment_module(measurand, tof_data)
         super().__init__(tof_data, measurand)
@@ -41,7 +42,7 @@ class DummyOptimizationExperiment(OptimizationExperiment):
         self.window = torch.ones(self.tof_data.tof_series.shape[1], dtype=torch.float32)
         if self.norm is not None:
             self.window /= torch.norm(self.window, p=self.norm)
-        self.final_signal = self.moment_module(self.window)
+        self.final_signal = self.moment_module.forward(self.window)
         self.training_curves = []
 
     def __str__(self) -> str:

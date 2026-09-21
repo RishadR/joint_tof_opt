@@ -136,7 +136,7 @@ class CorrectedNthOrderMoment(CompactStatProcess):
     gen_config = load_tof_config(config_path)
     tof_data = generate_tof(ppath_file, gen_config, inner_moment_orders=[n])
     moment_module = CorrectedNthOrderMoment(tof_data, order=n)
-    moment_values = moment_module(window)
+    moment_values = moment_module.forward(window)
     """
 
     def __init__(self, tof_data: ToFData, order: float):

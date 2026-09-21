@@ -21,6 +21,7 @@ Outputs
 -------
 - results/overlap_results.yaml
 """
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -32,7 +33,7 @@ import yaml
 
 from joint_tof_opt import generate_tof, load_tof_config
 
-from .optimize_loop_paper import DIGSSOptimizer, FilterType, RegType
+from .optimize_loop_paper import DIGSSOptimizer, FilterType
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
@@ -52,10 +53,6 @@ def run_overlap_sweep(
     separations_hz: list[float],
     filter_setups: list[tuple[FilterType, float]],  # (filter_type, filter_hw)
     measurand: str = "abs",
-    lr: float = 0.1,
-    patience: int = 50,
-    reg_type: RegType = "l1",
-    reg_weight: float = 0.1,
     output_yaml: Path = Path("./results/overlap_results.yaml"),
 ) -> dict[str, Any]:
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
@@ -73,14 +70,7 @@ def run_overlap_sweep(
             tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
 
             experiment = DIGSSOptimizer(
-                tof_data=tof_data,
-                measurand=measurand,
-                lr=lr,
-                filter_hw=float(filter_hw),
-                patience=patience,
-                reg_type=reg_type,
-                reg_weight=reg_weight,
-                filter_type=filter_type,
+                tof_data=tof_data, measurand=measurand, filter_hw=float(filter_hw), filter_type=filter_type
             )
             experiment.optimize()
 
@@ -149,8 +139,6 @@ def main() -> None:
         separations_hz=separations,
         filter_setups=filter_combos,
         output_yaml=Path("./results/overlap_results.yaml"),
-        reg_weight=0.0001,
-        reg_type="l2",
     )
 
 

@@ -19,6 +19,7 @@ Outputs
 -------
 - results/datalength_compare_results.yaml
 """
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -30,7 +31,7 @@ import yaml
 
 from joint_tof_opt import generate_tof, load_tof_config
 
-from .optimize_loop_paper import DIGSSOptimizer, FilterType, RegType
+from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
 
 
@@ -49,12 +50,6 @@ def run_datalength_sweep(
     file_indices: list[int],
     datapoint_counts: list[int],
     measurand: str = "abs",
-    lr: float = 0.1,
-    filter_hw: float = 0.3,
-    patience: int = 50,
-    reg_type: RegType = "l1",
-    reg_weight: float = 0.1,
-    filter_type: FilterType = "comb",
     output_yaml: Path = Path("./results/datalength_compare_results.yaml"),
 ) -> dict[str, Any]:
     results: dict[str, Any] = {}
@@ -73,16 +68,7 @@ def run_datalength_sweep(
 
             tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
 
-            experiment = DIGSSOptimizer(
-                tof_data=tof_data,
-                measurand=measurand,
-                lr=lr,
-                filter_hw=float(filter_hw),
-                patience=patience,
-                reg_type=reg_type,
-                reg_weight=reg_weight,
-                filter_type=filter_type,
-            )
+            experiment = DIGSSOptimizer(tof_data=tof_data, measurand=measurand)
             experiment.optimize()
 
             training_curves = experiment.training_curves
@@ -107,8 +93,8 @@ def run_datalength_sweep(
                 "Datapoint_Count": int(datapoint_count),
                 "End_Sec": float(end_sec),
                 "Sampling_Rate_Hz": sampling_rate,
-                "Filter_Type": str(filter_type),
-                "Filter_HW": float(filter_hw),
+                "Filter_Type": str(experiment.filter_type),
+                "Filter_HW": float(experiment.filter_hw),
                 "Epochs": epochs,
                 "Optimizer Best Metric": best_final_metric,
                 "Optimizer Best Selectivity": best_selectivity,
@@ -142,11 +128,7 @@ def main() -> None:
         file_indices=file_indices,
         datapoint_counts=datapoint_counts,
         measurand="abs",
-        filter_hw=0.3,
-        filter_type="psafe_same_width",
         output_yaml=Path("./results/datalength_compare_results.yaml"),
-        reg_weight=0.0001,
-        reg_type="l1",
     )
 
 

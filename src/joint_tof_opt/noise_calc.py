@@ -4,7 +4,9 @@ Analytical noise calculation for different compact statistics. The noise is alwa
 Taken from: https://doi.org/10.1117/1.JBO.17.5.057005
 """
 
+import math
 from collections.abc import Callable
+from dataclasses import replace
 
 import torch
 from typing_extensions import override
@@ -182,7 +184,14 @@ class AdditiveGaussianToFModifier(ToFModifier):
 
     @override
     def modify(self, tof_data: ToFData) -> ToFData:
-        noise = (torch.randn_like(tof_data.tof_series) - 0.5) * torch.sqrt(torch.tensor(self.noise_var))
+        noise_std = math.sqrt(self.noise_var)
+        noise = torch.normal(
+            mean=0.0,
+            std=noise_std,
+            size=tuple(tof_data.tof_series.shape),
+            dtype=tof_data.tof_series.dtype,
+            device=tof_data.tof_series.device,
+        )
         modified_tof_series = tof_data.tof_series + noise
         modified_tof_series = torch.clamp(modified_tof_series, min=0.0)
         # Create a perfect copy & keep OG intact (Perhaps create a copy method in ToFData class later?)
@@ -202,3 +211,39 @@ class AdditiveGaussianToFModifier(ToFModifier):
     @override
     def __str__(self) -> str:
         return f"AdditiveGaussianToFModifier(noise_var={self.noise_var})"
+
+
+class ShotNoiseToFModifier(ToFModifier):
+    """
+    ToFModifier that emulates shot noise: each bin's value N is used as the expected value of a Poisson draw, and
+    that draw is added on top of N (so the noise variance equals N, matching WindowSumNoiseCalculator's analytical
+    assumption). Note the draw is not mean-subtracted, so each bin's mean roughly doubles to 2N.
+    """
+
+    @override
+    def modify(self, tof_data: ToFData) -> ToFData:
+        noise = torch.poisson(tof_data.tof_series.clamp(min=0.0))
+        meta_data = tof_data.meta_data.copy() if tof_data.meta_data is not None else None
+        return replace(tof_data, tof_series=tof_data.tof_series + noise, meta_data=meta_data)
+
+    @override
+    def __str__(self) -> str:
+        return "ShotNoiseToFModifier()"
+
+
+class SumToFModifier(ToFModifier):
+    """
+    ToFModifier that applies two ToFModifiers consecutively: `first`, then `second` on first's output.
+    """
+
+    def __init__(self, first: ToFModifier, second: ToFModifier):
+        self.first: ToFModifier = first
+        self.second: ToFModifier = second
+
+    @override
+    def modify(self, tof_data: ToFData) -> ToFData:
+        return self.second.modify(self.first.modify(tof_data))
+
+    @override
+    def __str__(self) -> str:
+        return f"SumToFModifier({self.first}, {self.second})"

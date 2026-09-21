@@ -31,7 +31,6 @@ Notes:
 
 import logging
 from pathlib import Path
-from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,16 +40,21 @@ import yaml
 
 from joint_tof_opt import (
     CompactStatProcess,
+    DtofSelection,
     OptimizationExperiment,
     ToFData,
     generate_tof,
     get_named_moment_module,
+    load_optimizer_specs,
     load_tof_config,
 )
 
 from .sensitivity_compute import AltPaperEvaluator3
 
 logger = logging.getLogger(__name__)
+
+_LIU_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").liu
+
 
 class LiuOptimizer(OptimizationExperiment):
     """
@@ -72,10 +76,10 @@ class LiuOptimizer(OptimizationExperiment):
         tof_data: ToFData,
         measurand: str | CompactStatProcess,
         fetal_f: float | None = None,
-        dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
-        half_width: float = 0.3,
-        harmonic_count: int = 2,
-        norm: None | float = None,
+        dtof_to_find_max_on: DtofSelection = _LIU_SPEC.dtof_to_find_max_on,
+        half_width: float = _LIU_SPEC.half_width,
+        harmonic_count: int = _LIU_SPEC.harmonic_count,
+        norm: None | float = _LIU_SPEC.norm,
     ):
         """
         Initialize the LiuOptimizer.
@@ -187,11 +191,11 @@ class LiuOptimizer(OptimizationExperiment):
                 window[b2 : b3 + 1] = 1.0
 
                 # Compute measurand signal
-                measurand_series = self.moment_module(window)
+                measurand_series = self.moment_module.forward(window)
                 measurand_series = measurand_series - torch.mean(measurand_series)  # Detrend
 
                 # Compute FFT
-                measurand_fft = torch.fft.rfft(measurand_series)   # pylint: disable=not-callable
+                measurand_fft = torch.fft.rfft(measurand_series)  # pylint: disable=not-callable
                 fetal_fft_component = float(measurand_fft[self.fetal_bins].abs().sum().item())
 
                 # Compute noise floor using MAD
@@ -221,6 +225,7 @@ class LiuOptimizer(OptimizationExperiment):
 
         # No training curves for this non-iterative method
         self.training_curves = np.array(results)
+
 
 def plot_training_curves_and_window(
     training_curves: np.ndarray,
@@ -269,9 +274,7 @@ def plot_training_curves_and_window(
         snr_grid /= snr_max
 
     plt.subplot(1, 2, 1)
-    plt.imshow(
-        snr_grid.T, origin="lower", cmap="viridis", aspect="auto"
-    )
+    plt.imshow(snr_grid.T, origin="lower", cmap="viridis", aspect="auto")
     plt.colorbar(label="SNR" if not normalize_curves else "SNR (Normalized)")
     plt.xlabel("Left Bin Index (b2)")
     plt.ylabel("Right Bin Index (b3)")
@@ -303,10 +306,10 @@ def main() -> None:
         experiment = LiuOptimizer(
             tof_data=tof_data,
             measurand=measurand,
-            dtof_to_find_max_on='mean',
-            half_width = 0.1,
+            dtof_to_find_max_on="mean",
+            half_width=0.1,
             harmonic_count=2,
-            norm=None
+            norm=None,
         )
         experiment.optimize()
 

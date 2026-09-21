@@ -128,9 +128,7 @@ def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Eva
 
 def main() -> None:
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
-        lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data, measurand, normalization_scheme="unit_max", use_snr_left_bound=False
-        )
+        lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand)
     ]
     exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6], print_log=False)
     result_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"

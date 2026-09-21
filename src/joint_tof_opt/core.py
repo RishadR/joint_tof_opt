@@ -232,12 +232,12 @@ class Evaluator(ABC):
     """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str | CompactStatProcess, gen_config: ToFConfig
+        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: ToFConfig
     ):
         self.ppath_file: Path = ppath_file
         self.window: torch.Tensor = window
-        self.measurand: str | CompactStatProcess = measurand
-        self.final_metric: float | None = None
+        self.measurand: str = measurand
+        self.final_metric: float = 0.0
         self.gen_config: ToFConfig = gen_config
 
     @abstractmethod

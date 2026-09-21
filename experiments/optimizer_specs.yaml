@@ -1,0 +1,54 @@
+# Default hyperparameters for the optimize_*.py optimizer experiments.
+# Loaded by src/joint_tof_opt/optimizer_specs.py and wired directly into each __init__'s parameter
+# defaults - edit values here rather than in the Python files.
+#
+# digss/liu/alt_liu's overridable values below (normalization_scheme, reg_weight, window_smoothening,
+# use_window_post_process, half_width) are drawn from experiments/sensitivity_comparison.py's main(),
+# which represents the current tuned/preferred configuration. Everything else keeps its prior hardcoded
+# default.
+
+digss:
+  max_epochs: 2000
+  lr: 0.1
+  filter_hw: 0.01
+  patience: 50
+  grad_clip: false
+  reg_type: l1
+  reg_weight: 0.0
+  window_smoothening: false
+  normalize_reward: false
+  filter_type: psafe_same_width # comb, fourier, psafe_same_width, psafe_true_width, comb_psafe_hybrid
+  normalization_scheme: unit_max  # unit_max, unit_sum
+  use_window_post_process: false
+  use_snr_left_bound: true
+
+# boxcar ignores everything except filter_hw and filter_type. Keeping the rest to maintain consistency with digss
+boxcar:
+  max_epochs: 2000
+  lr: 0.1
+  filter_hw: 0.01
+  patience: 50
+  grad_clip: false
+  reg_type: l1
+  reg_weight: 0.0
+  window_smoothening: false
+  normalize_reward: true
+  filter_type: psafe_same_width
+  normalization_scheme: unit_max
+  use_window_post_process: false
+  use_snr_left_bound: true
+
+liu:
+  dtof_to_find_max_on: mean
+  half_width: 0.01
+  harmonic_count: 2
+  norm: null
+
+alt_liu:
+  dtof_to_find_max_on: mean
+  half_width: 0.01
+  harmonic_count: 2
+  norm: null
+
+dummy:
+  norm: null

@@ -11,8 +11,15 @@ import torch
 
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
+    CompactStatProcess,
+    FilterType,
+    NoiseCalculator,
+    NormalizationScheme,
+    RegType,
+    ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
+    load_optimizer_specs,
     load_tof_config,
 )
 
@@ -20,6 +27,8 @@ from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator3
 
 logger = logging.getLogger(__name__)
+
+_BOXCAR_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").boxcar
 
 
 class BoxCarOptimizer(DIGSSOptimizer):
@@ -32,6 +41,46 @@ class BoxCarOptimizer(DIGSSOptimizer):
     the one that maximizes the same final_metric (selectivity * snr) DIGSSOptimizer uses. No early stopping, no
     regularization, no window smoothening/post-processing - the boxcar itself is already the final window.
     """
+
+    def __init__(
+        self,
+        tof_data: ToFData,
+        measurand: str | CompactStatProcess,
+        noise_calc: NoiseCalculator | None = None,
+        fetal_f: float | None = None,
+        max_epochs: int = _BOXCAR_SPEC.max_epochs,
+        lr: float = _BOXCAR_SPEC.lr,
+        filter_hw: float = _BOXCAR_SPEC.filter_hw,
+        patience: int = _BOXCAR_SPEC.patience,
+        grad_clip: bool = _BOXCAR_SPEC.grad_clip,
+        reg_type: RegType = _BOXCAR_SPEC.reg_type,
+        reg_weight: float = _BOXCAR_SPEC.reg_weight,
+        window_smoothening: bool = _BOXCAR_SPEC.window_smoothening,
+        normalize_reward: bool = _BOXCAR_SPEC.normalize_reward,
+        filter_type: FilterType = _BOXCAR_SPEC.filter_type,
+        normalization_scheme: NormalizationScheme = _BOXCAR_SPEC.normalization_scheme,
+        use_window_post_process: bool = _BOXCAR_SPEC.use_window_post_process,
+        use_snr_left_bound: bool = _BOXCAR_SPEC.use_snr_left_bound,
+    ):
+        super().__init__(
+            tof_data,
+            measurand,
+            noise_calc=noise_calc,
+            fetal_f=fetal_f,
+            max_epochs=max_epochs,
+            lr=lr,
+            filter_hw=filter_hw,
+            patience=patience,
+            grad_clip=grad_clip,
+            reg_type=reg_type,
+            reg_weight=reg_weight,
+            window_smoothening=window_smoothening,
+            normalize_reward=normalize_reward,
+            filter_type=filter_type,
+            normalization_scheme=normalization_scheme,
+            use_window_post_process=use_window_post_process,
+            use_snr_left_bound=use_snr_left_bound,
+        )
 
     def optimize(self):
         """
@@ -51,9 +100,9 @@ class BoxCarOptimizer(DIGSSOptimizer):
                     boxcar = torch.zeros(num_learnable, dtype=self.learnable_component_exponents.dtype)
                     boxcar[left_idx : right_idx + 1] = 1.0
                     window = torch.cat([self.fixed_left, boxcar, self.fixed_right], dim=0)
-                    window_norm = self._win_norm_func(window, 'unit_max')
+                    window_norm = self._win_norm_func(window, "unit_max")
 
-                    compact_stats = self.moment_module(window_norm)
+                    compact_stats = self.moment_module.forward(window_norm)
                     compact_stats = compact_stats - compact_stats.mean()
                     compact_stats_reshaped = compact_stats.unsqueeze(0).unsqueeze(0)
                     maternal_filtered_signal = self.maternal_filter(compact_stats_reshaped)

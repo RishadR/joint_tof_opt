@@ -31,7 +31,6 @@ Notes:
 
 import logging
 from pathlib import Path
-from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,16 +41,21 @@ import yaml
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
     CompactStatProcess,
+    DtofSelection,
     OptimizationExperiment,
     ToFData,
     generate_tof,
     get_named_moment_module,
+    load_optimizer_specs,
     load_tof_config,
 )
 
 from .sensitivity_compute import AltPaperEvaluator3
 
 logger = logging.getLogger(__name__)
+
+_ALT_LIU_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").alt_liu
+
 
 class AltLiuOptimizer(OptimizationExperiment):
     """
@@ -75,10 +79,10 @@ class AltLiuOptimizer(OptimizationExperiment):
         measurand: str | CompactStatProcess,
         fetal_f: float | None = None,
         maternal_f: float | None = None,
-        dtof_to_find_max_on: Literal["mean", "median", "first"] = "mean",
-        half_width: float = 0.3,
-        harmonic_count: int = 2,
-        norm: None | float = None,
+        dtof_to_find_max_on: DtofSelection = _ALT_LIU_SPEC.dtof_to_find_max_on,
+        half_width: float = _ALT_LIU_SPEC.half_width,
+        harmonic_count: int = _ALT_LIU_SPEC.harmonic_count,
+        norm: None | float = _ALT_LIU_SPEC.norm,
     ):
         """
         Initialize the AltLiuOptimizer.
@@ -156,7 +160,7 @@ class AltLiuOptimizer(OptimizationExperiment):
 
         # Step 1: Find bmax (bin with maximum count)
         if self.dtof_to_find_max_on == "mean":
-            representative_dtof = torch.mean(self.tof_data.tof_series, dim=0)   # type: ignore
+            representative_dtof = torch.mean(self.tof_data.tof_series, dim=0)  # type: ignore
         elif self.dtof_to_find_max_on == "median":
             representative_dtof = torch.median(self.tof_data.tof_series, dim=0).values  # type: ignore
         elif self.dtof_to_find_max_on == "first":
@@ -164,7 +168,7 @@ class AltLiuOptimizer(OptimizationExperiment):
         else:
             raise ValueError(f"Invalid dtof_to_find_max_on value: {self.dtof_to_find_max_on}")
 
-        self.bmax = int(torch.argmax(representative_dtof).item())   # type: ignore
+        self.bmax = int(torch.argmax(representative_dtof).item())  # type: ignore
 
         # Step 2: Find b0 (50% of bmax) and bf (10% of bmax)
         half_max_value = representative_dtof[self.bmax] * 0.5
@@ -189,20 +193,20 @@ class AltLiuOptimizer(OptimizationExperiment):
         for b2 in range(self.b0, self.bf):
             for b3 in range(b2 + 1, self.bf):
                 # Create rectangular window
-                window = torch.zeros(num_bins, dtype=torch.float32) # type: ignore
+                window = torch.zeros(num_bins, dtype=torch.float32)  # type: ignore
                 window[b2 : b3 + 1] = 1.0
 
                 # Compute measurand signal
-                measurand_series = self.moment_module(window)
+                measurand_series = self.moment_module.forward(window)
                 measurand_series = measurand_series - torch.mean(measurand_series)  # type: ignore
 
                 # Compute FFT
-                measurand_fft = torch.fft.rfft(measurand_series)    # pylint: disable=not-callable
+                measurand_fft = torch.fft.rfft(measurand_series)  # pylint: disable=not-callable
                 fetal_fft_component = float(measurand_fft[self.fetal_bins].abs().sum().item())
                 maternal_fft_component = float(measurand_fft[self.maternal_bins].abs().sum().item())
 
                 # Compute noise floor using MAD
-                median_fft = torch.median(measurand_fft.abs()).item()   # type: ignore
+                median_fft = torch.median(measurand_fft.abs()).item()  # type: ignore
                 mad_fft = torch.median(torch.abs(measurand_fft.abs() - median_fft)).item()  # type: ignore
                 noise_floor = mad_fft * 1.4826  # Convert MAD to std dev
 
@@ -223,7 +227,7 @@ class AltLiuOptimizer(OptimizationExperiment):
         # Store results
         if best_window is not None:
             if self.norm is not None:
-                self.window = best_window / torch.norm(best_window, p=self.norm)    # type: ignore
+                self.window = best_window / torch.norm(best_window, p=self.norm)  # type: ignore
             else:
                 self.window = best_window
         else:
@@ -280,9 +284,7 @@ def plot_training_curves_and_window(
         selectivity_grid /= selectivity_max
 
     plt.subplot(1, 2, 1)
-    plt.imshow(
-        selectivity_grid.T, origin="lower", cmap="viridis", aspect="auto"
-    )
+    plt.imshow(selectivity_grid.T, origin="lower", cmap="viridis", aspect="auto")
     plt.colorbar(label="Selectivity (Normalized)" if normalize_curves else "Selectivity")
     plt.xlabel("Left Bin Index (b2)")
     plt.ylabel("Right Bin Index (b3)")
@@ -316,10 +318,10 @@ def main(noise_var: float = 100.0) -> None:
         experiment = AltLiuOptimizer(
             tof_data=tof_data,
             measurand=measurand,
-            dtof_to_find_max_on='mean',
-            half_width = 0.1,
+            dtof_to_find_max_on="mean",
+            half_width=0.1,
             harmonic_count=2,
-            norm=None
+            norm=None,
         )
         experiment.optimize()
         optimized_window = experiment.window  # type: ignore
