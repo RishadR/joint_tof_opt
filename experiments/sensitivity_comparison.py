@@ -149,11 +149,11 @@ def run_sensitivity_comparison(
 def main() -> list[dict[str, Any]]:
     filter_hw = 0.01  # Hz
     noise_var = 1000.0
+    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+        return AltPaperEvaluator3(ppath, win, meas, conf, noise_calc, filter_hw)
 
-    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, noise_calc=noise_calc),

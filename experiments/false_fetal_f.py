@@ -34,6 +34,7 @@ from joint_tof_opt import (
     Evaluator,
     ToFConfig,
     ToFData,
+    WindowSumNoiseCalculator,
     generate_tof,
     load_parameter_mapping,
     load_tof_config,
@@ -132,7 +133,7 @@ def main() -> None:
     filter_hw = 0.01  # Hz
 
     def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw)
+        return AltPaperEvaluator3(ppath, win, meas, conf, WindowSumNoiseCalculator(), filter_hw)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]] = [
         lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(

@@ -32,6 +32,7 @@ from joint_tof_opt import (
     Evaluator,
     ToFConfig,
     ToFData,
+    WindowSumNoiseCalculator,
     clear_results,
     generate_tof,
     load_parameter_mapping,
@@ -123,7 +124,7 @@ def run_detector_comparison(
 
 
 def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-    return AltPaperEvaluator3(ppath, win, meas, conf)
+    return AltPaperEvaluator3(ppath, win, meas, conf, WindowSumNoiseCalculator())
 
 
 def main() -> None:

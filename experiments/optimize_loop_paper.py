@@ -189,7 +189,7 @@ class DIGSSOptimizer(OptimizationExperiment):
         time_points = self.tof_data.tof_series.shape[0]
 
         # max_snr_index must always fall inside learnable_component, so fixed_left stops right before it.
-        self.left_bound_length = self.max_snr_index if self.use_snr_left_bound else 0
+        self.left_bound_length: int = self.max_snr_index if self.use_snr_left_bound else 0
 
         # Computing the right bound - power should always be greater than variance
         mean_frame = self.tof_data.tof_series.mean(dim=0)  # Shape: (num_bins,)
@@ -641,8 +641,8 @@ def main() -> None:
         experiment.window,
         measurand,
         tof_config,
+        noise_calc,
         filter_hw=0.01,
-        gaussian_noise_var=noise_var,
     )
     logger.info("Evaluator log:")
     logger.info(evaluator.evaluate())

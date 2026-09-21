@@ -11,9 +11,9 @@ digss:
   max_epochs: 2000
   lr: 0.1
   filter_hw: 0.01
-  patience: 50
+  patience: 100
   grad_clip: false
-  reg_type: l1
+  reg_type: l2
   reg_weight: 0.0
   window_smoothening: false
   normalize_reward: false

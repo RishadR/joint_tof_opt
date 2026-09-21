@@ -9,7 +9,6 @@ use internal data (if measurand is a custom module) - in which case the DTOF com
 
 from math import sqrt
 from pathlib import Path
-from typing import Any
 
 import torch
 from typing_extensions import override
@@ -17,11 +16,9 @@ from typing_extensions import override
 from joint_tof_opt import (
     CombSeparator,
     Evaluator,
+    NoiseCalculator,
     PSAFESeparator,
     ToFConfig,
-    ToFData,
-    WindowSumNoiseCalculator,
-    WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
 )
@@ -33,35 +30,19 @@ __all__ = [
 ]
 
 
-def _compute_baseline_noise_std(window: torch.Tensor, tof_data: ToFData, gaussian_noise_var: float = 0.0) -> float:
-    """
-    Computes the baseline noise standard deviation assuming a windowed sum approach.
-    Formula:
-        std = sqrt(sum_i(w_i * N_i)) ;
-    where w_i is the window value at time bin i, and N_i is the photon count at time bin i.
-
-    :param window: The window used for the ToF Data. Should be a 1D Tensor on the same device as ToF.tof_series
-    :param tof_data: The ToF data object computed using generate_tof. Should be unnormalized!
-    :param gaussian_noise_var: The variance of the additive Gaussian noise. Defaults to 0.0 (aka ignored)
-    :return: The baseline noise standard deviation.
-    :rtype: float
-    """
-    if gaussian_noise_var <= 0.0:
-        noise_calc = WindowSumNoiseCalculator()
-    else:
-        noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(gaussian_noise_var)
-    baseline_noise_var = noise_calc.compute_noise(tof_data, window).mean().item()
-    baseline_noise_std = sqrt(baseline_noise_var)
-    return baseline_noise_std
-
-
 class PaperEvaluator(Evaluator):
     """ """
 
     def __init__(
-        self, ppath_file: Path, window: torch.Tensor, measurand: str, gen_config: ToFConfig, filter_hw: float = 0.3
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str,
+        gen_config: ToFConfig,
+        noise_calc: NoiseCalculator,
+        filter_hw: float = 0.3,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config)
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc)
         self.measurand: str = measurand
         self.fetal_ac_energy: float = 0.0  # Reflects the (M2 - M0)^2 term
         self.maternal_ac_energy: float = 0.0  # For selectivity calculation
@@ -93,7 +74,7 @@ class PaperEvaluator(Evaluator):
     @override
     def evaluate(self) -> float:
         tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
-        self.baseline_noise_std = _compute_baseline_noise_std(self.window, tof_data)
+        self.baseline_noise_std = sqrt(self.noise_calc.compute_noise(tof_data, self.window).mean().item())
         moment_module = get_named_moment_module(self.measurand, tof_data)
         compact_stats = moment_module.forward(self.window)  # Shape: (num_timepoints,)
         fetal_component = self.fetal_comb_filter.forward(compact_stats.unsqueeze(0).unsqueeze(0)).squeeze()
@@ -139,11 +120,10 @@ class AltPaperEvaluator2(PaperEvaluator):
         window: torch.Tensor,
         measurand: str,
         gen_config: ToFConfig,
+        noise_calc: NoiseCalculator,
         filter_hw: float = 0.3,
-        gaussian_noise_var: float = 0.0,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config, filter_hw)
-        self.gaussian_noise_var: float = gaussian_noise_var
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_hw)
 
     @override
     def __str__(self) -> str:
@@ -152,8 +132,8 @@ class AltPaperEvaluator2(PaperEvaluator):
     @override
     def evaluate(self) -> float:
         baseline_tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
-        self.baseline_noise_std: float = _compute_baseline_noise_std(
-            self.window, baseline_tof_data, self.gaussian_noise_var
+        self.baseline_noise_std: float = sqrt(
+            self.noise_calc.compute_noise(baseline_tof_data, self.window).mean().item()
         )
 
         only_maternal_tof_data = generate_tof(self.ppath_file, self.gen_config, True, False)
@@ -198,10 +178,10 @@ class AltPaperEvaluator3(AltPaperEvaluator2):
         window: torch.Tensor,
         measurand: str,
         gen_config: ToFConfig,
+        noise_calc: NoiseCalculator,
         filter_hw: float = 0.3,
-        gaussian_noise_var: float = 0.0,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config, filter_hw, gaussian_noise_var)
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_hw)
         self.fetal_comb_filter: CombSeparator | PSAFESeparator = PSAFESeparator(
             gen_config.sampling_rate, gen_config.fetal_f, True
         )

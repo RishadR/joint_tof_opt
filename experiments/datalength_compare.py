@@ -29,7 +29,7 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import generate_tof, load_tof_config
+from joint_tof_opt import WindowSumNoiseCalculator, generate_tof, load_tof_config
 
 from .optimize_loop_paper import DIGSSOptimizer
 from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
@@ -77,12 +77,13 @@ def run_datalength_sweep(
             best_snr = float(training_curves[-1, 1])
             epochs = int(training_curves.shape[0])
 
-            evaluator1 = AltPaperEvaluator2(ppath_file, experiment.window, measurand, gen_config, 0.01)
+            noise_calc = WindowSumNoiseCalculator()
+            evaluator1 = AltPaperEvaluator2(ppath_file, experiment.window, measurand, gen_config, noise_calc, 0.01)
             evaluator1.evaluate()
             eval_log1 = evaluator1.get_log()
             eval_results1 = float(eval_log1["final_metric"])
 
-            evaluator2 = PaperEvaluator(ppath_file, experiment.window, measurand, gen_config, 0.01)
+            evaluator2 = PaperEvaluator(ppath_file, experiment.window, measurand, gen_config, noise_calc, 0.01)
             evaluator2.evaluate()
             eval_log2 = evaluator2.get_log()
             eval_results2 = float(eval_log2["final_metric"])

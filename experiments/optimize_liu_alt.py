@@ -44,6 +44,7 @@ from joint_tof_opt import (
     DtofSelection,
     OptimizationExperiment,
     ToFData,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     get_named_moment_module,
     load_optimizer_specs,
@@ -315,6 +316,7 @@ def main(noise_var: float = 100.0) -> None:
         tof_data = generate_tof(ppath_file, gen_config, True, True)
         modifier = AdditiveGaussianToFModifier(noise_var)
         tof_data = modifier.modify(tof_data)
+        noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
         experiment = AltLiuOptimizer(
             tof_data=tof_data,
             measurand=measurand,
@@ -328,7 +330,7 @@ def main(noise_var: float = 100.0) -> None:
         logger.info("Optimized Window: %s", optimized_window.numpy())
 
         # Evaluate using an Evaluator and print log
-        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, noise_calc, filter_hw)
         eval_results = evaluator.evaluate()
         logger.info("Evaluation Results: %s", eval_results)
         logger.info("Evaluator log: %s", evaluator.get_log())

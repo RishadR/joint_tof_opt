@@ -143,7 +143,7 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     filter_hw = 0.01  # Hz
 
     def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-        return AltPaperEvaluator3(ppath, win, meas, conf, filter_hw, noise_var)
+        return AltPaperEvaluator3(ppath, win, meas, conf, noise_calc, filter_hw)
 
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
 

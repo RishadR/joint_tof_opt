@@ -43,6 +43,7 @@ from joint_tof_opt import (
     DtofSelection,
     OptimizationExperiment,
     ToFData,
+    WindowSumNoiseCalculator,
     generate_tof,
     get_named_moment_module,
     load_optimizer_specs,
@@ -320,7 +321,8 @@ def main() -> None:
         logger.info("Optimized Window: %s", optimized_window.numpy())
 
         # Evaluate using an Evaluator and print log
-        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, filter_hw)
+        noise_calc = WindowSumNoiseCalculator()
+        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, noise_calc, filter_hw)
         eval_results = evaluator.evaluate()
         logger.info("Evaluation Results: %s", eval_results)
         logger.info("Evaluator log: %s", evaluator.get_log())
