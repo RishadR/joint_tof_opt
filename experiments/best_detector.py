@@ -28,7 +28,9 @@ from typing import Any
 import torch
 
 from joint_tof_opt import (
+    AltPaperEvaluator3,
     CompactStatProcess,
+    DIGSSOptimizer,
     Evaluator,
     ToFConfig,
     ToFData,
@@ -40,9 +42,6 @@ from joint_tof_opt import (
     pretty_print_log,
     write_results_to_yaml,
 )
-
-from .optimize_loop_paper import DIGSSOptimizer
-from .sensitivity_compute import AltPaperEvaluator3
 
 
 def run_detector_comparison(

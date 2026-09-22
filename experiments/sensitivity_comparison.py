@@ -29,9 +29,14 @@ from typing import Any
 import torch
 
 from joint_tof_opt import (
-    AdditiveGaussianToFModifier,
+    AltLiuOptimizer,
+    AltPaperEvaluator3,
+    BoxCarOptimizer,
     CompactStatProcess,
+    DIGSSOptimizer,
+    DummyOptimizationExperiment,
     Evaluator,
+    LiuOptimizer,
     OptimizationExperiment,
     ToFConfig,
     ToFData,
@@ -45,13 +50,6 @@ from joint_tof_opt import (
     write_results_to_yaml,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-
-from .optimize_dummy import DummyOptimizationExperiment
-from .optimize_liu import LiuOptimizer
-from .optimize_liu_alt import AltLiuOptimizer
-from .optimize_loop_boxcar import BoxCarOptimizer
-from .optimize_loop_paper import DIGSSOptimizer
-from .sensitivity_compute import AltPaperEvaluator3
 
 
 def run_sensitivity_comparison(
@@ -153,7 +151,6 @@ def main() -> list[dict[str, Any]]:
 
     def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
         return AltPaperEvaluator3(ppath, win, meas, conf, noise_calc, filter_hw)
-
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, noise_calc=noise_calc),

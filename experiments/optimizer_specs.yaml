@@ -1,5 +1,5 @@
-# Default hyperparameters for the optimize_*.py optimizer experiments.
-# Loaded by src/joint_tof_opt/optimizer_specs.py and wired directly into each __init__'s parameter
+# Default hyperparameters for the joint_tof_opt.optimizers classes.
+# Loaded by src/joint_tof_opt/optimizers/specs.py and wired directly into each __init__'s parameter
 # defaults - edit values here rather than in the Python files.
 #
 # digss/liu/alt_liu's overridable values below (normalization_scheme, reg_weight, window_smoothening,

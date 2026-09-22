@@ -3,8 +3,8 @@ Plot per-bin impulse-response metrics (SNR, Selectivity, Final Metric) as heatma
 
 For every ppath file (one per dermis depth), each bin is individually turned "on" as a single-bin window and its
 SNR, Selectivity, and Final Metric (Selectivity x SNR) are computed - the same brute-force per-bin scan
-optimize_loop_paper.DIGSSOptimizer._compute_max_values() does, but reimplemented standalone here so this script
-does not depend on that module.
+joint_tof_opt.optimizers.digss.DIGSSOptimizer._compute_max_values() does, but reimplemented standalone here so
+this script does not depend on that method.
 """
 
 from pathlib import Path

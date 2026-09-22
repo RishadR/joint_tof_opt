@@ -29,32 +29,15 @@ Notes:
 5. I do not consider her t_end.
 """
 
-import logging
-from pathlib import Path
-
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-import yaml
 
-from joint_tof_opt import (
-    CompactStatProcess,
-    DtofSelection,
-    OptimizationExperiment,
-    ToFData,
-    WindowSumNoiseCalculator,
-    generate_tof,
-    get_named_moment_module,
-    load_optimizer_specs,
-    load_tof_config,
-)
+from joint_tof_opt.compact_stat_process import get_named_moment_module
+from joint_tof_opt.core import CompactStatProcess, OptimizationExperiment, ToFData
+from joint_tof_opt.optimizers.specs import DEFAULT_SPECS_PATH, DtofSelection, load_optimizer_specs
 
-from .sensitivity_compute import AltPaperEvaluator3
-
-logger = logging.getLogger(__name__)
-
-_LIU_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").liu
+_LIU_SPEC = load_optimizer_specs(DEFAULT_SPECS_PATH).liu
 
 
 class LiuOptimizer(OptimizationExperiment):
@@ -226,107 +209,3 @@ class LiuOptimizer(OptimizationExperiment):
 
         # No training curves for this non-iterative method
         self.training_curves = np.array(results)
-
-
-def plot_training_curves_and_window(
-    training_curves: np.ndarray,
-    curve_column_labels: list[str],
-    optimized_window: torch.Tensor,
-    bin_edges: np.ndarray,
-    fig_size: tuple[int, int] = (10, 6),
-    normalize_curves: bool = False,
-    filename: str = "liu_optimization_result",
-) -> None:
-    """
-    Plot the training curves and the optimized window.
-
-    :param training_curves: Numpy array of training curves.
-    :param curve_column_labels: Labels for each column in training_curves.
-    :param optimizer_window: The optimized window tensor.
-    :param bin_edges: The edges of the ToF bins for plotting the window.
-    :param fig_size: Size of the figure.
-    :param normalize_curves: Whether to normalize training curves for plotting.
-    :param filename: Base file name to save the plots.
-    """
-    ## Validity Checks
-    assert training_curves.shape[1] == len(curve_column_labels), "Mismatch between training curves and labels"
-
-    # Bin Centers
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-    bin_centers_ns = bin_centers * 1e9  # Convert to ns for plotting
-    bin_centers_ns = np.round(bin_centers_ns, 2)
-
-    ## Load config for plotting if available
-    config_path = Path("./plotting_codes/plot_config.yaml")
-    if config_path.exists():
-        with open(config_path) as f:
-            plot_config = yaml.safe_load(f)
-            plt.rcParams.update(plot_config)
-
-    plt.subplots(1, 2, figsize=fig_size)
-
-    # Plot Training Curves
-    win_length = len(optimized_window)
-    snr_grid = np.zeros((win_length, win_length))
-    for b2, b3, selectivity in training_curves:
-        snr_grid[int(b2), int(b3)] = selectivity
-    snr_max = np.max(snr_grid)
-    if normalize_curves:
-        snr_grid /= snr_max
-
-    plt.subplot(1, 2, 1)
-    plt.imshow(snr_grid.T, origin="lower", cmap="viridis", aspect="auto")
-    plt.colorbar(label="SNR" if not normalize_curves else "SNR (Normalized)")
-    plt.xlabel("Left Bin Index (b2)")
-    plt.ylabel("Right Bin Index (b3)")
-    plt.title("SNR Heatmap")
-
-    # Plot Optimized Window
-    plt.subplot(1, 2, 2)
-    plt.plot(bin_centers_ns, optimized_window.detach().cpu().numpy(), marker="o")
-    plt.xlabel("Bin Center (ns)")
-    plt.ylabel("Window Value")
-    plt.title("Optimized Window")
-    plt.tight_layout()
-
-    plt.savefig(f"./figures/{filename}.svg")
-    plt.savefig(f"./figures/{filename}.pdf")
-
-
-def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
-
-    # file_idx = 7
-    for file_idx in range(7, 8):
-        measurand = "abs"
-        ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
-        logger.info("Running optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
-        gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-        filter_hw = 0.01
-        tof_data = generate_tof(ppath_file, gen_config, True, True)
-        experiment = LiuOptimizer(
-            tof_data=tof_data,
-            measurand=measurand,
-            dtof_to_find_max_on="mean",
-            half_width=0.1,
-            harmonic_count=2,
-            norm=None,
-        )
-        experiment.optimize()
-
-        # Temp - Test with this window
-        # optimzied_window = torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.])
-
-        optimized_window = experiment.window  # type: ignore
-        logger.info("Optimized Window: %s", optimized_window.numpy())
-
-        # Evaluate using an Evaluator and print log
-        noise_calc = WindowSumNoiseCalculator()
-        evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, noise_calc, filter_hw)
-        eval_results = evaluator.evaluate()
-        logger.info("Evaluation Results: %s", eval_results)
-        logger.info("Evaluator log: %s", evaluator.get_log())
-
-
-if __name__ == "__main__":
-    main()

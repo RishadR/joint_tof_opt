@@ -1,25 +1,15 @@
 """
-Dummy optimizers that always return a fixed window for comparison purposes.
+Dummy optimizer that always returns a fixed window, for comparison purposes.
 """
-
-"""
-Compare the Sensitivity between optmized vs. non-optimized windows and visualize the results.
-"""
-
-from pathlib import Path
 
 import torch
 import torch.nn as nn
 
-from joint_tof_opt import (
-    CompactStatProcess,
-    OptimizationExperiment,
-    ToFData,
-    get_named_moment_module,
-    load_optimizer_specs,
-)
+from joint_tof_opt.compact_stat_process import get_named_moment_module
+from joint_tof_opt.core import CompactStatProcess, OptimizationExperiment, ToFData
+from joint_tof_opt.optimizers.specs import DEFAULT_SPECS_PATH, load_optimizer_specs
 
-_DUMMY_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").dummy
+_DUMMY_SPEC = load_optimizer_specs(DEFAULT_SPECS_PATH).dummy
 
 
 class DummyOptimizationExperiment(OptimizationExperiment):

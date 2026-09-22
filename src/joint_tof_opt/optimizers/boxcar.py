@@ -3,40 +3,20 @@ BoxCarOptimizer: Finds the optimal boxcar (rectangular) window via brute-force s
 (left_idx, right_idx) combinations, rather than gradient-based optimization (see DIGSSOptimizer).
 """
 
-import logging
-from pathlib import Path
-
 import numpy as np
 import numpy.typing as npt
 import torch
 import torch.nn as nn
 from typing_extensions import override
 
-from joint_tof_opt import (
-    AdditiveGaussianToFModifier,
-    CombSeparator,
-    CompactStatProcess,
-    ContrastToNoiseMetric,
-    EnergyRatioMetric,
-    FilterType,
-    FourierSeparator,
-    NoiseCalculator,
-    OptimizationExperiment,
-    PSAFESeparator,
-    ToFData,
-    WindowSumNoiseCalculator,
-    WindowSumWithAdditiveGaussianNoiseCalculator,
-    generate_tof,
-    get_named_moment_module,
-    load_optimizer_specs,
-    load_tof_config,
-)
+from joint_tof_opt.compact_stat_process import get_named_moment_module
+from joint_tof_opt.core import CompactStatProcess, NoiseCalculator, OptimizationExperiment, ToFData
+from joint_tof_opt.metric_process import ContrastToNoiseMetric, EnergyRatioMetric
+from joint_tof_opt.noise_calc import WindowSumNoiseCalculator
+from joint_tof_opt.optimizers.specs import DEFAULT_SPECS_PATH, FilterType, load_optimizer_specs
+from joint_tof_opt.signal_process import CombSeparator, FourierSeparator, PSAFESeparator
 
-from .sensitivity_compute import AltPaperEvaluator3
-
-logger = logging.getLogger(__name__)
-
-_BOXCAR_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").boxcar
+_BOXCAR_SPEC = load_optimizer_specs(DEFAULT_SPECS_PATH).boxcar
 
 _Filter = CombSeparator | FourierSeparator | PSAFESeparator
 
@@ -253,44 +233,3 @@ class BoxCarOptimizer(OptimizationExperiment):
             "maternal_filter": self.maternal_filter,
             "measurand": self.moment_module,
         }
-
-
-def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
-
-    file_idx = 2
-    measurand = "abs"
-    ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
-    logger.info("Running BoxCar optimization loop for file: %04d.npz | Measurand: %s", file_idx, measurand)
-    gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-    filter_hw = 0.01
-    noise_var = 100.0
-    tof_data = generate_tof(ppath_file, gen_config, True, True)
-    modifier = AdditiveGaussianToFModifier(noise_var)
-    modified_tof = modifier.modify(tof_data)
-    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
-    experiment = BoxCarOptimizer(
-        tof_data=modified_tof,
-        measurand=measurand,
-        noise_calc=noise_calc,
-        fetal_f=gen_config.fetal_f,
-        normalize_reward=False,
-        filter_hw=filter_hw,
-        filter_type="psafe_same_width",
-    )
-    experiment.optimize()
-
-    optimized_window = experiment.window  # type: ignore
-    result_curves = experiment.training_curves
-    logger.info("Optimized Window: %s", optimized_window.numpy())
-    logger.info("Best Final Metric: %s", result_curves[:, 2].max())
-    logger.info("Total Combos Tried: %s", result_curves.shape[0])
-
-    evaluator = AltPaperEvaluator3(ppath_file, optimized_window, measurand, gen_config, noise_calc, filter_hw)
-    eval_results = evaluator.evaluate()
-    logger.info("Evaluation Results: %s", eval_results)
-    logger.info("Evaluator log: %s", evaluator.get_log())
-
-
-if __name__ == "__main__":
-    main()

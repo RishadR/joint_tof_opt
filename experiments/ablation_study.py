@@ -31,7 +31,9 @@ from typing import Any
 import torch
 
 from joint_tof_opt import (
+    AltPaperEvaluator3,
     CompactStatProcess,
+    DIGSSOptimizer,
     Evaluator,
     OptimizationExperiment,
     ToFConfig,
@@ -46,9 +48,6 @@ from joint_tof_opt import (
     write_results_to_yaml,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-
-from .optimize_loop_paper import DIGSSOptimizer
-from .sensitivity_compute import AltPaperEvaluator3
 
 
 def run_ablation(
@@ -136,23 +135,35 @@ def main(noise_var: float) -> list[dict[str, Any]]:
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
         # Baseline: both ablations on
         lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data, measurand, **base_kwargs,
-            use_window_post_process=True, use_snr_left_bound=True,
+            tof_data,
+            measurand,
+            **base_kwargs,
+            use_window_post_process=True,
+            use_snr_left_bound=True,
         ),
         # No post-process
         lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data, measurand, **base_kwargs,
-            use_window_post_process=False, use_snr_left_bound=True,
+            tof_data,
+            measurand,
+            **base_kwargs,
+            use_window_post_process=False,
+            use_snr_left_bound=True,
         ),
         # No SNR left bound
         lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data, measurand, **base_kwargs,
-            use_window_post_process=True, use_snr_left_bound=False,
+            tof_data,
+            measurand,
+            **base_kwargs,
+            use_window_post_process=True,
+            use_snr_left_bound=False,
         ),
         # Neither
         lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data, measurand, **base_kwargs,
-            use_window_post_process=False, use_snr_left_bound=False,
+            tof_data,
+            measurand,
+            **base_kwargs,
+            use_window_post_process=False,
+            use_snr_left_bound=False,
         ),
     ]
 

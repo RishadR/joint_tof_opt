@@ -30,9 +30,10 @@ import numpy as np
 import torch
 
 from joint_tof_opt import (
-    AdditiveGaussianToFModifier,
+    AltPaperEvaluator3,
     CombSeparator,
     CompactStatProcess,
+    DIGSSOptimizer,
     Evaluator,
     OptimizationExperiment,
     ToFConfig,
@@ -47,9 +48,6 @@ from joint_tof_opt import (
     write_results_to_yaml,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
-
-from .optimize_loop_paper import DIGSSOptimizer
-from .sensitivity_compute import AltPaperEvaluator3
 
 
 def run_sensitivity_comparison(

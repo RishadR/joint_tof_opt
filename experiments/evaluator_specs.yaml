@@ -1,0 +1,23 @@
+# Default hyperparameters for the joint_tof_opt.evaluators classes.
+# Loaded by src/joint_tof_opt/evaluators/specs.py and wired directly into each __init__'s parameter
+# defaults - edit values here rather than in the Python files.
+
+# Which evaluator experiments/*.py scripts should use: paper (PaperEvaluator), alt_paper2
+# (AltPaperEvaluator2), or alt_paper3 (AltPaperEvaluator3).
+evaluator_to_use: alt_paper3
+
+# Whether to inject noise into the ToF data before evaluation.
+inject_noise: false
+# Multiplier on the shot noise (Poisson draw on the photon counts). Typically 1.
+shot_noise_multiplier: 1.0
+# Variance of the additive instrument (Gaussian) noise.
+instrument_noise_variance: 0.0
+
+paper:
+  filter_hw: 0.3
+
+alt_paper2:
+  filter_hw: 0.3
+
+alt_paper3:
+  filter_hw: 0.3

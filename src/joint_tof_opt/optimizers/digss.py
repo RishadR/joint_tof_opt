@@ -1,11 +1,8 @@
 """
-Implementation of the optimization loop used for the paper.
-
-This has an main_optimize function that loads a data, applies the optimization and outputs the optmized window as
-well as the training curves.
+DIGSSOptimizer: the gradient-based optimization loop used in the paper.
 
 Process Flow:
-1. Load DTOF dataset (Each row is a histogram/DTOF, each column is a timebin), the dataset also contains other info
+1. Load DTOF dataset (Each row is a histogram/DTOF, each column is a time bin), the dataset also contains other info
 2. Extract all the info from the dataset including fetal and maternal frequencies
 3. Initialize the Window vector as a learnable parameter
 4. Optimization Loop Starts: Compute the compact statistics using the current window
@@ -13,7 +10,7 @@ Process Flow:
 6. Compute the Energy Ratio Metric between filtered fetal and filtered maternal signals (Fetal Selectivity)
 7. Compute the Contrast-to-Noise Metric for the fetal signal (Using analytical noise equations)
 8. Final Metric is the product of Energy Ratio and Contrast-to-Noise
-9. Optimize the window parameters to maximize the final metric untill convergence - Optimization Loop Ends
+9. Optimize the window parameters to maximize the final metric until convergence - Optimization Loop Ends
 10. Output the optimized window and training curves - the curves contain each of the three metrics at each epoch
 
 Early Stopping Logic:
@@ -26,47 +23,27 @@ Window Parameterization:
 the window energy.
 """
 
-import logging
-from pathlib import Path
-
-import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from joint_tof_opt import (
-    AdditiveGaussianToFModifier,
-    CombSeparator,
-    CompactStatProcess,
-    ContrastToNoiseMetric,
-    EnergyRatioMetric,
+from joint_tof_opt.compact_stat_process import get_named_moment_module, named_moment_types
+from joint_tof_opt.core import CompactStatProcess, NoiseCalculator, OptimizationExperiment, ToFData
+from joint_tof_opt.metric_process import ContrastToNoiseMetric, EnergyRatioMetric
+from joint_tof_opt.noise_calc import WindowSumNoiseCalculator
+from joint_tof_opt.optimizers.boxcar import BoxCarOptimizer
+from joint_tof_opt.optimizers.specs import (
+    DEFAULT_SPECS_PATH,
     FilterType,
-    FourierSeparator,
-    NoiseCalculator,
     NormalizationScheme,
-    OptimizationExperiment,
-    PSAFESeparator,
     RegType,
-    ToFData,
-    WindowSumNoiseCalculator,
-    WindowSumWithAdditiveGaussianNoiseCalculator,
-    generate_tof,
-    get_named_moment_module,
     load_optimizer_specs,
-    load_tof_config,
-    named_moment_types,
 )
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.signal_process import CombSeparator, FourierSeparator, PSAFESeparator
 
-from .sensitivity_compute import (
-    AltPaperEvaluator3,
-)
-
-logger = logging.getLogger(__name__)
-
-_DIGSS_SPEC = load_optimizer_specs(Path(__file__).parent / "optimizer_specs.yaml").digss
+_DIGSS_SPEC = load_optimizer_specs(DEFAULT_SPECS_PATH).digss
 
 
 class DIGSSOptimizer(OptimizationExperiment):
@@ -205,9 +182,20 @@ class DIGSSOptimizer(OptimizationExperiment):
             "No viable bins at/after max_snr_index - every trailing bin's signal power is below its noise variance."
         )
 
-        learnable_len = (right_most_bin + 1) - self.left_bound_length
-        # initialize uniform weights
-        self.learnable_component_exponents = nn.Parameter(torch.ones(learnable_len) * 0.0)
+        # Initialize the weights from the best boxcar window: 1 inside the boxcar, floored to the same 1e-4 as the fixed
+        # regions outside (exp(exponents) can never reach 0). Only the learnable range of the boxcar is used.
+        boxcar = BoxCarOptimizer(
+            tof_data,
+            measurand,
+            noise_calc=self.noise_calc,
+            fetal_f=self.fetal_f,
+            filter_hw=self.filter_hw,
+            normalize_reward=self.normalize_reward,
+            filter_type=self.filter_type,
+        )
+        boxcar.optimize()
+        boxcar_window = boxcar.window[self.left_bound_length : right_most_bin + 1]
+        self.learnable_component_exponents = nn.Parameter(torch.log(boxcar_window.clamp(min=1e-4)))
         self.learnable_component = self._winexp_to_win_func(self.learnable_component_exponents)
         self.fixed_left = (
             torch.ones(self.left_bound_length, device=self.tof_data.bin_edges.device) * 1e-4
@@ -287,7 +275,7 @@ class DIGSSOptimizer(OptimizationExperiment):
                 filter_length=datapoint_count // 2 + 1,
             )
         else:
-            raise ValueError(f"Unknown filter_type: {filter_type}")
+            raise NotImplementedError(f"Unknown filter_type: {filter_type}")
         return fetal_filter, maternal_filter
 
     def _win_norm_func(self, window: torch.Tensor, scheme: str) -> torch.Tensor:
@@ -517,138 +505,3 @@ class DIGSSOptimizer(OptimizationExperiment):
             "maternal_filter": self.maternal_filter,
             "measurand": self.moment_module,
         }
-
-
-def plot_training_curves_and_window(
-    training_curves: npt.NDArray[np.float64],
-    window: torch.Tensor,
-    bin_edges: npt.NDArray[np.float64],
-    training_curve_labels: list[str],
-    save_path: str = "./results/optimization_results",
-) -> None:
-    """
-    Plot the training curves and the optimized window function.
-
-    :param training_curves: 2D numpy array of metric values (epochs x metrics).
-    :type training_curves: npt.NDArray[np.float64]
-    :param window: 1D torch tensor of optimized window weights.
-    :type window: torch.Tensor
-    :param bin_edges: 1D numpy array of bin edges for plotting the window.
-    :type bin_edges: npt.NDArray[np.float64]
-    :param training_curve_labels: List of labels for each metric in training_curves.
-    :type training_curve_labels: list[str]
-    :param save_path: Path prefix for saving plot images (without extension).
-    :type save_path: str
-    """
-    # Load standardized plot configuration
-    plot_config = load_plot_config()
-
-    plt.figure(
-        figsize=(
-            plot_config.figure_sizes.double_column[0],
-            plot_config.figure_sizes.double_column[1],
-        )
-    )
-
-    # Plot 1: Training Curves
-    plt.subplots(figsize=(6, 4))
-    epochs = range(training_curves.shape[0])
-
-    plt.subplot(1, 2, 1)
-    for i in range(training_curves.shape[1]):
-        label = training_curve_labels[i] if i < len(training_curve_labels) else f"Metric {i + 1}"
-        curve = training_curves[:, i]
-        # Normalize each curve to start at 1
-        curve_normalized = curve / curve[0] if curve[0] != 0 else curve
-        plt.plot(epochs, curve_normalized, label=label)
-    plt.xlabel("Epoch", fontsize=plot_config.fonts.label_size)
-    plt.ylabel("Normalized Metric Value", fontsize=plot_config.fonts.label_size)
-    plt.yscale("log")  # Logarithmic scale for better visualization of improvement
-    # plt.ylim(bottom=1e-1, top=1e2)
-    plt.title("Training Curves", fontsize=plot_config.fonts.title_size)
-    plt.legend(fontsize=plot_config.fonts.legend_size)
-    plt.grid(True, linestyle=plot_config.grid.style, alpha=plot_config.grid.alpha)
-
-    # Plot 2: Optimized Window
-    plt.subplot(1, 2, 2)
-    plt.plot(bin_edges, window.numpy(), label="Optimized Window", color="orange")
-    plt.xlabel("ToF Bins (ps)", fontsize=plot_config.fonts.label_size)
-    plt.ylabel("Window Weight", fontsize=plot_config.fonts.label_size)
-    plt.title("Optimized Window", fontsize=plot_config.fonts.title_size)
-    # plt.grid(True, linestyle=plot_config.grid.style, alpha=plot_config.grid.alpha)
-
-    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"{save_path}.png", dpi=plot_config.figure_export.dpi, bbox_inches="tight")
-    plt.savefig(f"{save_path}.pdf", bbox_inches="tight")
-    plt.close()
-
-
-def main() -> None:
-    # Setup logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-    # Load configuration
-    tof_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-
-    # Load dataset
-    tof_data = generate_tof(Path("./data/experiment_0003.npz"), tof_config, True, True)
-
-    noise_var = 100.0
-    tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_var)
-    noisy_tof = tof_modifier.modify(tof_data)
-
-    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
-
-    measurand = "abs"
-    # Create optimizer experiment instance
-    experiment = DIGSSOptimizer(
-        noisy_tof,
-        measurand,
-        max_epochs=2000,
-        lr=0.1,
-        filter_hw=0.01,
-        patience=100,
-        grad_clip=False,
-        reg_type="l1",
-        reg_weight=0.0,
-        window_smoothening=False,
-        normalize_reward=True,
-        filter_type="psafe_same_width",
-        normalization_scheme="unit_max",
-        noise_calc=noise_calc,
-    )
-
-    # Run optimization
-    experiment.optimize()
-
-    # Log results
-    logger.info("Optimization complete!")
-    logger.info("Final window shape: %s", experiment.window.shape)
-    logger.info("Final window weights: %s", experiment.window.numpy())
-    logger.info("Final Energy Ratio: %s", experiment.training_curves[-1, 0])
-    logger.info("Final SNR: %s", experiment.training_curves[-1, 1])
-    logger.info("Final Metric: %s", experiment.training_curves[-1, 2])
-
-    # Extract bin edges for plotting
-    assert experiment.tof_data.meta_data is not None, "ToFData meta_data cannot be None"
-    bin_edges = experiment.tof_data.bin_edges.numpy()
-
-    plot_training_curves_and_window(
-        experiment.training_curves, experiment.window, bin_edges, experiment.training_curve_labels
-    )
-    evaluator = AltPaperEvaluator3(
-        Path("./data/experiment_0003.npz"),
-        experiment.window,
-        measurand,
-        tof_config,
-        noise_calc,
-        filter_hw=0.01,
-    )
-    logger.info("Evaluator log:")
-    logger.info(evaluator.evaluate())
-    logger.info("Unprocessed Window:")
-    logger.info(experiment.unprocessed_window.numpy())
-
-
-if __name__ == "__main__":
-    main()

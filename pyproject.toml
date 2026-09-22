@@ -29,7 +29,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["joint_tof_opt", "experiments"]
+packages = ["joint_tof_opt", "joint_tof_opt.optimizers", "joint_tof_opt.evaluators", "experiments"]
 
 [tool.setuptools.package-dir]
 joint_tof_opt = "src/joint_tof_opt"

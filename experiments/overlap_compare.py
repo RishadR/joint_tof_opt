@@ -31,10 +31,15 @@ from typing import Any
 import numpy as np
 import yaml
 
-from joint_tof_opt import WindowSumNoiseCalculator, generate_tof, load_tof_config
-
-from .optimize_loop_paper import DIGSSOptimizer, FilterType
-from .sensitivity_compute import AltPaperEvaluator2, PaperEvaluator
+from joint_tof_opt import (
+    AltPaperEvaluator2,
+    DIGSSOptimizer,
+    FilterType,
+    PaperEvaluator,
+    WindowSumNoiseCalculator,
+    generate_tof,
+    load_tof_config,
+)
 
 
 def _to_builtin(obj: Any) -> Any:

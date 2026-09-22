@@ -1,9 +1,10 @@
 """
 Computing Different Evaluation Metrics for Sensitivity Analysis.
 
-- All modules here inherit from the Evaluator base class and implement the evaluate() method to compute
-- Modules are lazy-evaluated; computation happens only when evaluate() is called.
-- Modules can either recompute DTOF from partial path data (if measurand is a string) or
+- All classes here inherit from the Evaluator base class and implement the evaluate() method to compute
+  the sensitivity metric for a given window.
+- Evaluators are lazy-evaluated; computation happens only when evaluate() is called.
+- Evaluators can either recompute DTOF from partial path data (if measurand is a string) or
 use internal data (if measurand is a custom module) - in which case the DTOF computations must be done beforehand
 """
 
@@ -13,15 +14,11 @@ from pathlib import Path
 import torch
 from typing_extensions import override
 
-from joint_tof_opt import (
-    CombSeparator,
-    Evaluator,
-    NoiseCalculator,
-    PSAFESeparator,
-    ToFConfig,
-    generate_tof,
-    get_named_moment_module,
-)
+from joint_tof_opt.compact_stat_process import get_named_moment_module
+from joint_tof_opt.config_loader import ToFConfig
+from joint_tof_opt.core import Evaluator, NoiseCalculator
+from joint_tof_opt.signal_process import CombSeparator, PSAFESeparator
+from joint_tof_opt.tof_batch_process import generate_tof
 
 __all__ = [
     "PaperEvaluator",

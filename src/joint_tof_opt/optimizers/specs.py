@@ -1,9 +1,11 @@
 """
-Single source of truth for the tunable-hyperparameter defaults of the optimize_*.py experiments
+Single source of truth for the tunable-hyperparameter defaults of the optimizer classes in this package
 (DIGSSOptimizer/BoxCarOptimizer, LiuOptimizer, AltLiuOptimizer, DummyOptimizationExperiment).
 
 Use load_optimizer_specs() to load experiments/optimizer_specs.yaml, then wire each field straight into
-the corresponding __init__'s parameter defaults - see optimize_loop_paper.py for the pattern.
+the corresponding __init__'s parameter defaults - see digss.py for the pattern. DEFAULT_SPECS_PATH points
+at that yaml file (it lives in experiments/, alongside the other experiment-tunable config, not next to
+this package) so each optimizer module can just do `load_optimizer_specs(DEFAULT_SPECS_PATH).digss`.
 """
 
 from pathlib import Path
@@ -16,6 +18,9 @@ RegType = Literal["l1", "l2"]
 FilterType = Literal["comb", "fourier", "psafe_same_width", "psafe_true_width", "comb_psafe_hybrid"]
 NormalizationScheme = Literal["unit_sum", "unit_max"]
 DtofSelection = Literal["mean", "median", "first"]
+
+# src/joint_tof_opt/optimizers/specs.py -> parents[3] is the repo root.
+DEFAULT_SPECS_PATH: Path = Path(__file__).resolve().parents[3] / "experiments" / "optimizer_specs.yaml"
 
 
 class DIGSSOptimizerSpec(BaseModel):

@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from experiments.optimize_loop_paper import DIGSSOptimizer
 from joint_tof_opt import (
     AdditiveGaussianToFModifier,
+    DIGSSOptimizer,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     generate_tof,
     load_tof_config,
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_experiment(file_idx: int = 5) -> tuple[DIGSSOptimizer, np.ndarray]:
-    """Reproduce the single-experiment setup from optimize_loop_paper.main() and return the fitted experiment."""
+    """Run a single DIGSSOptimizer experiment and return the fitted experiment."""
     measurand = "abs"
     ppath_file = Path(f"./data/experiment_{file_idx:04d}.npz")
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))

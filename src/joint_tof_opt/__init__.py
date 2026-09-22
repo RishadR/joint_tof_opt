@@ -14,6 +14,17 @@ from joint_tof_opt.core import (
     ToFData,
     ToFModifier,
 )
+from joint_tof_opt.evaluators import (
+    AltPaperEvaluator2,
+    AltPaperEvaluator2Spec,
+    AltPaperEvaluator3,
+    AltPaperEvaluator3Spec,
+    EvaluatorSpecs,
+    EvaluatorType,
+    PaperEvaluator,
+    PaperEvaluatorSpec,
+    load_evaluator_specs,
+)
 from joint_tof_opt.metric_process import (
     ContrastToNoiseMetric,
     EnergyRatioMetric,
@@ -32,13 +43,18 @@ from joint_tof_opt.noise_calc import (
     WindowSumWithAdditiveGaussianNoiseCalculator,
     get_noise_calculator,
 )
-from joint_tof_opt.optimizer_specs import (
+from joint_tof_opt.optimizers import (
+    AltLiuOptimizer,
     AltLiuOptimizerSpec,
+    BoxCarOptimizer,
     BoxCarOptimizerSpec,
+    DIGSSOptimizer,
     DIGSSOptimizerSpec,
     DtofSelection,
+    DummyOptimizationExperiment,
     DummyOptimizerSpec,
     FilterType,
+    LiuOptimizer,
     LiuOptimizerSpec,
     NormalizationScheme,
     OptimizerSpecs,
@@ -108,4 +124,18 @@ __all__ = [
     "FilterType",
     "NormalizationScheme",
     "DtofSelection",
+    "DIGSSOptimizer",
+    "BoxCarOptimizer",
+    "LiuOptimizer",
+    "AltLiuOptimizer",
+    "DummyOptimizationExperiment",
+    "PaperEvaluator",
+    "AltPaperEvaluator2",
+    "AltPaperEvaluator3",
+    "load_evaluator_specs",
+    "EvaluatorSpecs",
+    "EvaluatorType",
+    "PaperEvaluatorSpec",
+    "AltPaperEvaluator2Spec",
+    "AltPaperEvaluator3Spec",
 ]
