@@ -236,58 +236,6 @@ class NoiseCalculator(ABC):
         pass
 
 
-class Evaluator(ABC):
-    """
-    Base class for evaluating any given window on some partial path data.
-
-    Modifiable Attributes:
-    -----------------------
-    - ppath_file : Path to the partial path file (.json or similar).
-    - window : Torch tensor representing the time-gating window.
-    - measurand : The measurand to evaluate. Can be a string (named moment) or a custom nn.Module.
-    - gen_config : ToFConfig. DTOF generation configs. This will be used on the ppath file to generate the ToF data.
-    - noise_calc : NoiseCalculator used to compute the noise for the evaluation.
-
-    Stored Attributes:
-    -----------------------
-    - final_metric : Float to store the final evaluation metric after calling evaluate().
-
-    Things to Implement in Subclasses:
-    -----------------------
-    - self.evaluate() : Method to perform the evaluation and populate self.final_metric and return a float
-    - __str__() : String representation of the evaluator for easy identification.
-    - self.get_log() : Method to return a dictionary of relevant evaluation metrics and their corresponding values.
-    """
-
-    def __init__(
-        self,
-        ppath_file: Path,
-        window: torch.Tensor,
-        measurand: str,
-        gen_config: ToFConfig,
-        noise_calc: NoiseCalculator,
-    ):
-        self.ppath_file: Path = ppath_file
-        self.window: torch.Tensor = window
-        self.measurand: str = measurand
-        self.final_metric: float = 0.0
-        self.gen_config: ToFConfig = gen_config
-        self.noise_calc: NoiseCalculator = noise_calc
-
-    @abstractmethod
-    def evaluate(self) -> float:
-        pass
-
-    @override
-    @abstractmethod
-    def __str__(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_log(self) -> dict[str, Any]:
-        pass
-
-
 class ToFModifier(ABC):
     """
     Base class for ToF modifiers that can be applied to ToFData instances.
@@ -309,4 +257,60 @@ class ToFModifier(ABC):
     @override
     @abstractmethod
     def __str__(self) -> str:
+        pass
+
+
+class Evaluator(ABC):
+    """
+    Base class for evaluating any given window on some partial path data.
+
+    Modifiable Attributes:
+    -----------------------
+    - ppath_file : Path to the partial path file (.json or similar).
+    - window : Torch tensor representing the time-gating window.
+    - measurand : The measurand to evaluate. Can be a string (named moment) or a custom nn.Module.
+    - gen_config : ToFConfig. DTOF generation configs. This will be used on the ppath file to generate the ToF data.
+    - noise_calc : NoiseCalculator used to compute the noise for the evaluation.
+    - tof_modifier : Optional ToFModifier applied to the freshly generated ToFData before evaluation (e.g. to
+        inject instrument/shot noise). None (the default) means no modification.
+
+    Stored Attributes:
+    -----------------------
+    - final_metric : Float to store the final evaluation metric after calling evaluate().
+
+    Things to Implement in Subclasses:
+    -----------------------
+    - self.evaluate() : Method to perform the evaluation and populate self.final_metric and return a float
+    - __str__() : String representation of the evaluator for easy identification.
+    - self.get_log() : Method to return a dictionary of relevant evaluation metrics and their corresponding values.
+    """
+
+    def __init__(
+        self,
+        ppath_file: Path,
+        window: torch.Tensor,
+        measurand: str,
+        gen_config: ToFConfig,
+        noise_calc: NoiseCalculator,
+        tof_modifier: ToFModifier | None = None,
+    ):
+        self.ppath_file: Path = ppath_file
+        self.window: torch.Tensor = window
+        self.measurand: str = measurand
+        self.final_metric: float = 0.0
+        self.gen_config: ToFConfig = gen_config
+        self.noise_calc: NoiseCalculator = noise_calc
+        self.tof_modifier: ToFModifier | None = tof_modifier
+
+    @abstractmethod
+    def evaluate(self) -> float:
+        pass
+
+    @override
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_log(self) -> dict[str, Any]:
         pass

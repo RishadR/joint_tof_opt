@@ -1,10 +1,13 @@
 """Plot FoM vs. fetal frequency error for comb filter_hw=0.01."""
 
-from pathlib import Path
 import re
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import yaml
+
 from joint_tof_opt.plotting import load_plot_config
+
 
 def main(depth=10):
     """Generate false fetal frequency comparison plot for a given depth."""
@@ -13,7 +16,7 @@ def main(depth=10):
 
     # Load false fetal frequency results
     results_path = Path(__file__).parent.parent / 'results' / 'false_fetal_f_results2.yaml'
-    with open(results_path, 'r') as f:
+    with open(results_path) as f:
         results = yaml.safe_load(f)
 
     # Collect FoM by error level (Hz) for comb filter with filter_hw=0.01.
@@ -72,7 +75,7 @@ def main(depth=10):
     ax.set_xlabel('Fetal Frequency Error (Hz)')
     # ax.set_ylabel('FoM = Sensitivity $\\times$ Selectivity')
     ax.set_ylabel('Normalized FoM')
-    
+
     ax.grid(True)
 
     ax.text(

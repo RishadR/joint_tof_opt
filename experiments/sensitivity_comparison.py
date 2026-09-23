@@ -30,7 +30,6 @@ import torch
 
 from joint_tof_opt import (
     AltLiuOptimizer,
-    AltPaperEvaluator3,
     BoxCarOptimizer,
     CompactStatProcess,
     DIGSSOptimizer,
@@ -42,11 +41,18 @@ from joint_tof_opt import (
     ToFData,
     UnityTofModifier,
     WindowSumWithAdditiveGaussianNoiseCalculator,
+    build_noise_tof_modifier,
     clear_results,
+    evaluate_repeats,
+    format_sensitivity,
     generate_tof,
+    get_evaluator_class,
+    get_evaluator_filter_hw,
+    load_evaluator_specs,
     load_parameter_mapping,
     load_tof_config,
-    pretty_print_log,
+    noisy_results_path,
+    print_evaluator_log,
     write_results_to_yaml,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
@@ -57,6 +63,7 @@ def run_sensitivity_comparison(
     optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]],
     measurands_to_test: list[str],
     noise_variance: float,
+    repeats: int = 1,
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -101,7 +108,7 @@ def run_sensitivity_comparison(
                 window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
                 evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
-                optimized_sensitivity = evaluator.evaluate()
+                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 if epochs > 0:
@@ -125,7 +132,7 @@ def run_sensitivity_comparison(
                         "Bin_Edges": bin_edges.tolist(),
                         "Optimized_Window": window.numpy().tolist(),
                         "fetal_hb_series": tof_data.meta_data["fetal_hb_series"].tolist(),
-                        "evaluator_log": evaluator.get_log(),
+                        "evaluator_log": evaluator_log,
                         "final_optimizer_loss": final_optimizer_loss,
                         "measurand_time_series": measurand_time_series.numpy().tolist(),
                         "noise_variance": noise_variance,
@@ -134,23 +141,27 @@ def run_sensitivity_comparison(
                 print(
                     f"Depth: {depth} mm |",
                     f"Optimizer: {optimizer_name} |",
-                    f"Sensitivity: {optimized_sensitivity:.4e} |",
+                    f"Sensitivity: {format_sensitivity(optimized_sensitivity)} |",
                     f"Epochs: {epochs} |",
                 )
                 if print_log:
-                    log_dict = evaluator.get_log()
-                    print("Log Details:")
-                    pretty_print_log(log_dict)
+                    print_evaluator_log(evaluator_log)
     return results
 
 
-def main() -> list[dict[str, Any]]:
-    filter_hw = 0.01  # Hz
-    noise_var = 1000.0
-    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
+eval_spec = load_evaluator_specs(Path("./experiments/evaluator_specs.yaml"))
+
+
+def main(inject_noise: bool = eval_spec.inject_noise):
+    repeats = eval_spec.repeats_if_noisy if inject_noise else 1
+    evaluator_cls = get_evaluator_class(eval_spec.evaluator_to_use)
+    filter_hw = get_evaluator_filter_hw(eval_spec)
+    tof_modifier = build_noise_tof_modifier(eval_spec) if inject_noise else None
+    instrument_noise_var = eval_spec.instrument_noise_variance
+    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(instrument_noise_var)
 
     def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-        return AltPaperEvaluator3(ppath, win, meas, conf, noise_calc, filter_hw)
+        return evaluator_cls(ppath, win, meas, conf, noise_calc, filter_hw, tof_modifier)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand, noise_calc=noise_calc),
@@ -160,16 +171,15 @@ def main() -> list[dict[str, Any]]:
         lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand),
     ]
 
-    return run_sensitivity_comparison(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, print_log=True)
+    exp_results = run_sensitivity_comparison(
+        eval_func, optimizer_funcs_to_test, ["abs"], instrument_noise_var, repeats=repeats, print_log=True
+    )
 
-
-def run_full_sweep() -> None:
-    """Run main() and write its results (main() alone only computes results, it does not persist them)."""
-    results_path = Path("./results/sensitivity_comparison_results.yaml")
-    clear_results(results_path)  # Clears older results - otherwise appends to the existing results file
-    exp_results = main()
+    # Store results
+    results_path = noisy_results_path(Path("./results/sensitivity_comparison_results.yaml"), inject_noise)
+    clear_results(results_path)  # Clears older results - comment this to appends
     write_results_to_yaml(exp_results, results_path, append=True)
 
 
 if __name__ == "__main__":
-    run_full_sweep()
+    main()

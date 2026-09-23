@@ -34,10 +34,22 @@ class AltPaperEvaluator3Spec(BaseModel):
 
 
 class EvaluatorSpecs(BaseModel):
+    """
+    How is the system evaluated? Contains
+    evaluator_to_use : ['paper', 'alt_paper2', 'alt_paper3']
+    inject_noise: bool
+    shot_noise_multiplier: float
+    instrument_noise_variance: float
+    repeats_if_noisy: int
+    paper: PaperEvaluatorSpec
+    alt_paper2: AltPaperEvaluator2Spec
+    alt_paper3: AltPaperEvaluator3Spec
+    """
     evaluator_to_use: EvaluatorType
     inject_noise: bool
     shot_noise_multiplier: float
     instrument_noise_variance: float
+    repeats_if_noisy: int
     paper: PaperEvaluatorSpec
     alt_paper2: AltPaperEvaluator2Spec
     alt_paper3: AltPaperEvaluator3Spec

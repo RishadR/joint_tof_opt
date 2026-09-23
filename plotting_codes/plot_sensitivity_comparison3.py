@@ -2,6 +2,7 @@
 Plot DIGSS sensitivity vs. fetal depth for unit_sum and unit_max normalization,
 and percent improvement of unit_max over unit_sum.
 Plots mean values with standard deviation error bars.
+(Deprecated - unit_max is *always* better)
 """
 
 from pathlib import Path

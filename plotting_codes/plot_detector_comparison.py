@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Plot Optimized Sensitivity vs. Fetal Depth for different SDD indices.
-Only for DIGSS optimizer.
+Plot Optimized Sensitivity vs. Fetal Depth for different SDD indices (Only for DIGSS)
 """
 
 from pathlib import Path

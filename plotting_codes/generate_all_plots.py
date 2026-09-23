@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Master script to generate all paper figures.
 Calls all individual plotting scripts.
@@ -8,19 +7,19 @@ import matplotlib
 
 matplotlib.use("Agg")  # Use non-interactive backend for batch processing
 
-from plot_ablation_study import main as plot_ablation_study
-from plot_ablation_study2 import main as plot_ablation_study2
-from plot_detector_comparison import main as plot_detector
-from plot_detector_comparison2 import main as plot_detector_comparison2
-from plot_false_fetal_f import main as plot_false_f
-from plot_noise_sensitivity_comparison import main as plot_noise_sensitivity
-from plot_noise_sensitivity_comparison2 import main as plot_noise_sensitivity2
-from plot_overlap_compare import main as plot_overlap_compare
-from plot_overlap_compare2 import main as plot_overlap_compare2
-from plot_sample_tof import main as plot_sample_tof
-from plot_sensitivity_comparison import main as plot_sensitivity
-from plot_sensitivity_comparison2 import main as plot_sensitivity2
-from plot_sensitivity_comparison4 import main as plot_sensitivity4
+from .plot_ablation_study import main as plot_ablation_study
+from .plot_ablation_study2 import main as plot_ablation_study2
+from .plot_detector_comparison import main as plot_detector
+from .plot_detector_comparison2 import main as plot_detector_comparison2
+from .plot_false_fetal_f import main as plot_false_f
+from .plot_noise_sensitivity_comparison import main as plot_noise_sensitivity
+from .plot_noise_sensitivity_comparison2 import main as plot_noise_sensitivity2
+from .plot_overlap_compare import main as plot_overlap_compare
+from .plot_overlap_compare2 import main as plot_overlap_compare2
+from .plot_sample_tof import main as plot_sample_tof
+from .plot_sensitivity_comparison import main as plot_sensitivity
+from .plot_sensitivity_comparison2 import main as plot_sensitivity2
+from .plot_sensitivity_comparison4 import main as plot_sensitivity4
 
 
 def main():

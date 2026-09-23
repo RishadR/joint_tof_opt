@@ -1,6 +1,5 @@
 """
 Plot Selectivity vs. SNR for different optimizers at various fetal depths.
-Compares DIGSS, Liu et al., and CW methods.
 Plots mean values with shaded "error balls" (ellipses) representing uncertainty.
 """
 

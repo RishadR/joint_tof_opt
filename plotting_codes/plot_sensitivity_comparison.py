@@ -1,6 +1,5 @@
 """
-Plot Optimized Sensitivity vs. Fetal Depth for different optimizers.
-Compares DIGSS, Liu et al., and CW methods.
+Plot FoM vs. Fetal Depth for different optimizers. (Check src/optimizers)
 """
 
 from pathlib import Path

@@ -1,19 +1,22 @@
 """Plot separated fetal energy vs. fetal frequency error for comb filter_hw=0.01."""
 
-from pathlib import Path
 import re
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import yaml
+
 from joint_tof_opt.plotting import load_plot_config
 
-def main(depth=6):
+
+def main(depth: int = 6):
     """Generate false fetal frequency comparison plot for a given depth."""
     # Load matplotlib configuration
     load_plot_config()
 
     # Load false fetal frequency results
     results_path = Path(__file__).parent.parent / 'results' / 'false_fetal_f_results.yaml'
-    with open(results_path, 'r') as f:
+    with open(results_path) as f:
         results = yaml.safe_load(f)
 
     # Collect fetal energy by error level (Hz) for comb filter with filter_hw=0.01.

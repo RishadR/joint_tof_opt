@@ -23,6 +23,9 @@ from joint_tof_opt.evaluators import (
     EvaluatorType,
     PaperEvaluator,
     PaperEvaluatorSpec,
+    build_noise_tof_modifier,
+    get_evaluator_class,
+    get_evaluator_filter_hw,
     load_evaluator_specs,
 )
 from joint_tof_opt.metric_process import (
@@ -31,7 +34,13 @@ from joint_tof_opt.metric_process import (
     FilteredContrastToNoiseMetric,
     RevisedContrastToNoiseMetric,
 )
-from joint_tof_opt.misc import pretty_print_log
+from joint_tof_opt.misc import (
+    evaluate_repeats,
+    format_sensitivity,
+    noisy_results_path,
+    pretty_print_log,
+    print_evaluator_log,
+)
 from joint_tof_opt.noise_calc import (
     AdditiveGaussianToFModifier,
     FirstMomentNoiseCalculator,
@@ -41,7 +50,6 @@ from joint_tof_opt.noise_calc import (
     VarianceNoiseCalculator,
     WindowSumNoiseCalculator,
     WindowSumWithAdditiveGaussianNoiseCalculator,
-    get_noise_calculator,
 )
 from joint_tof_opt.optimizers import (
     AltLiuOptimizer,
@@ -95,7 +103,6 @@ __all__ = [
     "FirstMomentNoiseCalculator",
     "VarianceNoiseCalculator",
     "named_moment_types",
-    "get_noise_calculator",
     "AdditiveGaussianToFModifier",
     "ShotNoiseToFModifier",
     "SumToFModifier",
@@ -104,6 +111,10 @@ __all__ = [
     "Evaluator",
     "generate_tof",
     "pretty_print_log",
+    "noisy_results_path",
+    "evaluate_repeats",
+    "format_sensitivity",
+    "print_evaluator_log",
     "FirstMomentNoiseCalculator",
     "get_named_moment_module",
     "clear_results",
@@ -132,6 +143,9 @@ __all__ = [
     "PaperEvaluator",
     "AltPaperEvaluator2",
     "AltPaperEvaluator3",
+    "get_evaluator_class",
+    "get_evaluator_filter_hw",
+    "build_noise_tof_modifier",
     "load_evaluator_specs",
     "EvaluatorSpecs",
     "EvaluatorType",

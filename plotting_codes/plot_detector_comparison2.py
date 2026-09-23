@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Plot selectivity vs. fetal SNR for different SDD indices.
+Plot selectivity vs. fetal SNR for different SDD indices. (Only  for DIGSS)
 """
 
 from pathlib import Path

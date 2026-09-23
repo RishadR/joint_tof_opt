@@ -140,25 +140,6 @@ class AdditiveNoiseCalculator(NoiseCalculator):
         return f"Baseline of '{self.noise_calc} with an additional noise of {self.noise_variance}"
 
 
-def get_noise_calculator(moment_type: str) -> NoiseCalculator:
-    """
-    Factory function to get the appropriate noise calculator for a given moment type.
-
-    :param moment_type: The type of moment ("abs", "m1", or "V")
-    :param tof_series_tensor: 2D tensor of TOF series data
-    :param bin_edges_tensor: 1D tensor of bin edges
-    :return: An instance of the appropriate NoiseCalculator subclass
-    """
-    if moment_type == "abs":
-        return WindowSumNoiseCalculator()
-    elif moment_type == "m1":
-        return FirstMomentNoiseCalculator()
-    elif moment_type == "V":
-        return VarianceNoiseCalculator()
-    else:
-        raise ValueError(f"Invalid moment type: {moment_type}")
-
-
 class UnityTofModifier(ToFModifier):
     """
     ToFModifier that does nothing. Useful as a dummy replacement when a modifier is expected
@@ -215,14 +196,18 @@ class AdditiveGaussianToFModifier(ToFModifier):
 
 class ShotNoiseToFModifier(ToFModifier):
     """
-    ToFModifier that emulates shot noise: each bin's value N is used as the expected value of a Poisson draw, and
-    that draw is added on top of N (so the noise variance equals N, matching WindowSumNoiseCalculator's analytical
-    assumption). Note the draw is not mean-subtracted, so each bin's mean roughly doubles to 2N.
+    ToFModifier that emulates shot noise via Gaussian: each bin's value N is both the mean and variance for draw,
+    and that draw is added on top of N.
     """
+
+    def __init__(self, mean_multiplier: float = 1.0) -> None:
+        super().__init__()
+        self.mean_multiplier: float = mean_multiplier
 
     @override
     def modify(self, tof_data: ToFData) -> ToFData:
-        noise = torch.poisson(tof_data.tof_series.clamp(min=0.0))
+        noise = torch.normal(tof_data.tof_series * self.mean_multiplier, torch.sqrt(tof_data.tof_series))
+        # copy metadata by value rather than by reference!
         meta_data = tof_data.meta_data.copy() if tof_data.meta_data is not None else None
         return replace(tof_data, tof_series=tof_data.tof_series + noise, meta_data=meta_data)
 

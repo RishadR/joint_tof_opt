@@ -28,18 +28,24 @@ from typing import Any
 import torch
 
 from joint_tof_opt import (
-    AltPaperEvaluator3,
     CompactStatProcess,
     DIGSSOptimizer,
     Evaluator,
     ToFConfig,
     ToFData,
-    WindowSumNoiseCalculator,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
+    build_noise_tof_modifier,
     clear_results,
+    evaluate_repeats,
+    format_sensitivity,
     generate_tof,
+    get_evaluator_class,
+    get_evaluator_filter_hw,
+    load_evaluator_specs,
     load_parameter_mapping,
     load_tof_config,
-    pretty_print_log,
+    noisy_results_path,
+    print_evaluator_log,
     write_results_to_yaml,
 )
 
@@ -48,6 +54,7 @@ def run_detector_comparison(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
     optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]],
     sdd_indices_to_test: list[int],
+    repeats: int = 1,
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -90,7 +97,7 @@ def run_detector_comparison(
                 window = optimizer_experiment.window
                 loss_history = optimizer_experiment.training_curves
                 evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
-                optimized_sensitivity = evaluator.evaluate()
+                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 results.append(
@@ -106,32 +113,42 @@ def run_detector_comparison(
                         # "Optimized_Window": window.detach().cpu().numpy().tolist(),
                         # "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
                         # "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
-                        "evaluator_log": evaluator.get_log(),
+                        "evaluator_log": evaluator_log,
                     }
                 )
                 print(
                     f"Depth: {depth} mm |",
                     f"Optimizer: {optimizer_name} |",
-                    f"Sensitivity: {optimized_sensitivity:.4e} |",
+                    f"Sensitivity: {format_sensitivity(optimized_sensitivity)} |",
                     f"Epochs: {epochs} |",
                 )
                 if print_log:
-                    log_dict = evaluator.get_log()
-                    print("Log Details:")
-                    pretty_print_log(log_dict)
+                    print_evaluator_log(evaluator_log)
     return results
 
 
-def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-    return AltPaperEvaluator3(ppath, win, meas, conf, WindowSumNoiseCalculator())
+eval_spec = load_evaluator_specs(Path("./experiments/evaluator_specs.yaml"))
 
 
-def main() -> None:
+def main(inject_noise: bool = eval_spec.inject_noise) -> None:
+    repeats = eval_spec.repeats_if_noisy if inject_noise else 1
+    evaluator_cls = get_evaluator_class(eval_spec.evaluator_to_use)
+    filter_hw = get_evaluator_filter_hw(eval_spec)
+    tof_modifier = build_noise_tof_modifier(eval_spec) if inject_noise else None
+    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(eval_spec.instrument_noise_variance)
+
+    def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
+        return evaluator_cls(ppath, win, meas, conf, noise_calc, filter_hw, tof_modifier)
+
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand)
     ]
-    exp_results = run_detector_comparison(eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6], print_log=False)
-    result_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
+    exp_results = run_detector_comparison(
+        eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6], repeats=repeats, print_log=False
+    )
+    result_path = noisy_results_path(
+        Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml", inject_noise
+    )
     clear_results(result_path)
     write_results_to_yaml(exp_results, result_path)
 

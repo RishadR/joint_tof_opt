@@ -16,7 +16,9 @@ from typing_extensions import override
 
 from joint_tof_opt.compact_stat_process import get_named_moment_module
 from joint_tof_opt.config_loader import ToFConfig
-from joint_tof_opt.core import Evaluator, NoiseCalculator
+from joint_tof_opt.core import Evaluator, NoiseCalculator, ToFModifier
+from joint_tof_opt.evaluators.specs import EvaluatorSpecs, EvaluatorType
+from joint_tof_opt.noise_calc import AdditiveGaussianToFModifier, ShotNoiseToFModifier, SumToFModifier
 from joint_tof_opt.signal_process import CombSeparator, PSAFESeparator
 from joint_tof_opt.tof_batch_process import generate_tof
 
@@ -24,6 +26,9 @@ __all__ = [
     "PaperEvaluator",
     "AltPaperEvaluator2",
     "AltPaperEvaluator3",
+    "get_evaluator_class",
+    "get_evaluator_filter_hw",
+    "build_noise_tof_modifier",
 ]
 
 
@@ -38,8 +43,9 @@ class PaperEvaluator(Evaluator):
         gen_config: ToFConfig,
         noise_calc: NoiseCalculator,
         filter_hw: float = 0.3,
+        tof_modifier: ToFModifier | None = None,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config, noise_calc)
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, tof_modifier)
         self.measurand: str = measurand
         self.fetal_ac_energy: float = 0.0  # Reflects the (M2 - M0)^2 term
         self.maternal_ac_energy: float = 0.0  # For selectivity calculation
@@ -71,6 +77,8 @@ class PaperEvaluator(Evaluator):
     @override
     def evaluate(self) -> float:
         tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
+        if self.tof_modifier is not None:
+            tof_data = self.tof_modifier.modify(tof_data)
         self.baseline_noise_std = sqrt(self.noise_calc.compute_noise(tof_data, self.window).mean().item())
         moment_module = get_named_moment_module(self.measurand, tof_data)
         compact_stats = moment_module.forward(self.window)  # Shape: (num_timepoints,)
@@ -119,8 +127,9 @@ class AltPaperEvaluator2(PaperEvaluator):
         gen_config: ToFConfig,
         noise_calc: NoiseCalculator,
         filter_hw: float = 0.3,
+        tof_modifier: ToFModifier | None = None,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_hw)
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_hw, tof_modifier)
 
     @override
     def __str__(self) -> str:
@@ -129,12 +138,17 @@ class AltPaperEvaluator2(PaperEvaluator):
     @override
     def evaluate(self) -> float:
         baseline_tof_data = generate_tof(self.ppath_file, self.gen_config, True, True)
+        if self.tof_modifier is not None:
+            baseline_tof_data = self.tof_modifier.modify(baseline_tof_data)
         self.baseline_noise_std: float = sqrt(
             self.noise_calc.compute_noise(baseline_tof_data, self.window).mean().item()
         )
 
         only_maternal_tof_data = generate_tof(self.ppath_file, self.gen_config, True, False)
         only_fetal_tof_data = generate_tof(self.ppath_file, self.gen_config, False, True)
+        if self.tof_modifier is not None:
+            only_maternal_tof_data = self.tof_modifier.modify(only_maternal_tof_data)
+            only_fetal_tof_data = self.tof_modifier.modify(only_fetal_tof_data)
         pure_maternal_measurand = get_named_moment_module(self.measurand, only_maternal_tof_data).forward(self.window)
         pure_fetal_measurand = get_named_moment_module(self.measurand, only_fetal_tof_data).forward(self.window)
         pure_maternal_measurand = pure_maternal_measurand - pure_maternal_measurand.mean()
@@ -177,11 +191,53 @@ class AltPaperEvaluator3(AltPaperEvaluator2):
         gen_config: ToFConfig,
         noise_calc: NoiseCalculator,
         filter_hw: float = 0.3,
+        tof_modifier: ToFModifier | None = None,
     ):
-        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_hw)
+        super().__init__(ppath_file, window, measurand, gen_config, noise_calc, filter_hw, tof_modifier)
         self.fetal_comb_filter: CombSeparator | PSAFESeparator = PSAFESeparator(
             gen_config.sampling_rate, gen_config.fetal_f, True
         )
         self.maternal_comb_filter: CombSeparator | PSAFESeparator = PSAFESeparator(
             gen_config.sampling_rate, gen_config.maternal_f, True
         )
+
+
+def get_evaluator_class(evaluator_to_use: EvaluatorType) -> type[PaperEvaluator]:
+    """
+    Factory function to get the Evaluator subclass for a given evaluator_to_use name (see EvaluatorSpecs).
+
+    :param evaluator_to_use: One of "paper", "alt_paper2", "alt_paper3".
+    :return: The corresponding Evaluator subclass (not yet instantiated).
+    """
+    if evaluator_to_use == "paper":
+        return PaperEvaluator
+    elif evaluator_to_use == "alt_paper2":
+        return AltPaperEvaluator2
+    elif evaluator_to_use == "alt_paper3":
+        return AltPaperEvaluator3
+    else:
+        raise ValueError(f"Unknown evaluator_to_use: {evaluator_to_use}")
+
+
+def get_evaluator_filter_hw(spec: EvaluatorSpecs) -> float:
+    """Return the filter_hw configured for whichever evaluator spec.evaluator_to_use selects."""
+    if spec.evaluator_to_use == "paper":
+        return spec.paper.filter_hw
+    elif spec.evaluator_to_use == "alt_paper2":
+        return spec.alt_paper2.filter_hw
+    else:
+        return spec.alt_paper3.filter_hw
+
+
+def build_noise_tof_modifier(spec: EvaluatorSpecs) -> ToFModifier:
+    """
+    Build the combined instrument + shot noise modifier described by an EvaluatorSpecs: instrument noise via
+    AdditiveGaussianToFModifier(spec.instrument_noise_variance), then shot noise via
+    ShotNoiseToFModifier(spec.shot_noise_multiplier).
+
+    Whether to actually use this (spec.inject_noise) is left to the caller - this always builds the modifier.
+    """
+    return SumToFModifier(
+        AdditiveGaussianToFModifier(spec.instrument_noise_variance),
+        ShotNoiseToFModifier(spec.shot_noise_multiplier),
+    )

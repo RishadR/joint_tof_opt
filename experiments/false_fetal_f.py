@@ -30,17 +30,23 @@ import numpy as np
 import torch
 
 from joint_tof_opt import (
-    AltPaperEvaluator3,
     CompactStatProcess,
     DIGSSOptimizer,
     Evaluator,
     ToFConfig,
     ToFData,
-    WindowSumNoiseCalculator,
+    WindowSumWithAdditiveGaussianNoiseCalculator,
+    build_noise_tof_modifier,
+    evaluate_repeats,
+    format_sensitivity,
     generate_tof,
+    get_evaluator_class,
+    get_evaluator_filter_hw,
+    load_evaluator_specs,
     load_parameter_mapping,
     load_tof_config,
-    pretty_print_log,
+    noisy_results_path,
+    print_evaluator_log,
     write_results_to_yaml,
 )
 
@@ -49,6 +55,7 @@ def run_false_fetal_frequency_experiment(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
     optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]],
     error_hzs: list[float],
+    repeats: int = 1,
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -91,7 +98,7 @@ def run_false_fetal_frequency_experiment(
                 window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
                 evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true)
-                optimized_sensitivity = evaluator.evaluate()
+                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
                 fetal_energy = optimizer_experiment.training_curves_extra[-1, 0]
                 maternal_energy = optimizer_experiment.training_curves_extra[-1, 1]
                 noise_std = optimizer_experiment.training_curves_extra[-1, 2]
@@ -108,7 +115,7 @@ def run_false_fetal_frequency_experiment(
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
                         "Optimized_Window": window.numpy().tolist(),
-                        "evaluator_log": evaluator.get_log(),
+                        "evaluator_log": evaluator_log,
                         "Optimizer(Fetal Energy)": float(fetal_energy),
                         "Optimizer(Maternal Energy)": float(maternal_energy),
                         "Optimizer(Noise Std)": float(noise_std),
@@ -117,22 +124,27 @@ def run_false_fetal_frequency_experiment(
                 print(
                     f"Depth: {depth} mm |",
                     f"Optimizer: {optimizer_name} |",
-                    f"Sensitivity: {optimized_sensitivity:.4f} |",
+                    f"Sensitivity: {format_sensitivity(optimized_sensitivity)} |",
                     f"Epochs: {epochs} |",
                 )
                 if print_log:
-                    log_dict = evaluator.get_log()
-                    print("Log Details:")
-                    pretty_print_log(log_dict)
+                    print_evaluator_log(evaluator_log)
     return results
 
 
-def main() -> None:
-    results_path = Path("./results/false_fetal_f_results2.yaml")
-    filter_hw = 0.01  # Hz
+eval_spec = load_evaluator_specs(Path("./experiments/evaluator_specs.yaml"))
+
+
+def main(inject_noise: bool = eval_spec.inject_noise) -> None:
+    repeats = eval_spec.repeats_if_noisy if inject_noise else 1
+    results_path = noisy_results_path(Path("./results/false_fetal_f_results2.yaml"), inject_noise)
+    evaluator_cls = get_evaluator_class(eval_spec.evaluator_to_use)
+    filter_hw = get_evaluator_filter_hw(eval_spec)
+    tof_modifier = build_noise_tof_modifier(eval_spec) if inject_noise else None
+    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(eval_spec.instrument_noise_variance)
 
     def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-        return AltPaperEvaluator3(ppath, win, meas, conf, WindowSumNoiseCalculator(), filter_hw)
+        return evaluator_cls(ppath, win, meas, conf, noise_calc, filter_hw, tof_modifier)
 
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]] = [
         lambda tof_data, measurand, new_fetal_f: DIGSSOptimizer(
@@ -148,7 +160,9 @@ def main() -> None:
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
     error_rates_np = np.arange(0.0, 1.01, 0.05)
     error_rates = [float(x) for x in error_rates_np]
-    exp_results = run_false_fetal_frequency_experiment(eval_func, optimizer_funcs_to_test, error_rates, print_log=False)
+    exp_results = run_false_fetal_frequency_experiment(
+        eval_func, optimizer_funcs_to_test, error_rates, repeats=repeats, print_log=False
+    )
     write_results_to_yaml(exp_results, results_path, append=False)
 
 

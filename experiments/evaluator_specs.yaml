@@ -1,23 +1,28 @@
 # Default hyperparameters for the joint_tof_opt.evaluators classes.
 # Loaded by src/joint_tof_opt/evaluators/specs.py and wired directly into each __init__'s parameter
 # defaults - edit values here rather than in the Python files.
+#
+# filter_hw below (0.01 Hz for every evaluator) is drawn from experiments/sensitivity_comparison.py's
+# main(), which represents the current tuned/preferred configuration.
 
 # Which evaluator experiments/*.py scripts should use: paper (PaperEvaluator), alt_paper2
 # (AltPaperEvaluator2), or alt_paper3 (AltPaperEvaluator3).
 evaluator_to_use: alt_paper3
 
-# Whether to inject noise into the ToF data before evaluation.
+# Whether to inject noise into the ToF data before evaluation (Analytical vs. Numerical)
+# Note that these noises are *always* considered in SNR computation regardless of whether they are injected or not
 inject_noise: false
-# Multiplier on the shot noise (Poisson draw on the photon counts). Typically 1.
-shot_noise_multiplier: 1.0
-# Variance of the additive instrument (Gaussian) noise.
-instrument_noise_variance: 0.0
+# Multiplier on the shot noise - set this to 1.0 to have Poisson noise (modeled via a Gaussian)
+shot_noise_multiplier: 1.0  # DONT MODIFY THIS! 
+# Variance of the additive instrument (Gaussian) noise per bin (in weighted photon counts)
+instrument_noise_variance: 100.0
+repeats_if_noisy: 20
 
 paper:
-  filter_hw: 0.3
+  filter_hw: 0.01
 
 alt_paper2:
-  filter_hw: 0.3
+  filter_hw: 0.01
 
 alt_paper3:
-  filter_hw: 0.3
+  filter_hw: 0.01

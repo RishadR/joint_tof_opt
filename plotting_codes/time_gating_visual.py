@@ -1,10 +1,14 @@
 """
-Visualize photon paths through a slab with varying numbers of sections and depths - figure for time gating paper.
+Cartoon of photon paths through a slab with varying numbers of sections and depths - figure for time gating paper.
 """
 
-import numpy as np
+from typing import cast
+
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.patches import FancyBboxPatch, Rectangle
+
 from joint_tof_opt.plotting import load_plot_config
 
 
@@ -84,6 +88,8 @@ def main():
             colors.append((t, 0.1, 1.0 - t))
 
     fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(8, 3), facecolor="white")
+    ax_left = cast(Axes, ax_left)
+    ax_right = cast(Axes, ax_right)
     ax_left.set_facecolor("white")
     ax_right.set_facecolor("white")
 
