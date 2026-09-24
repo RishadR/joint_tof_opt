@@ -6,46 +6,45 @@ exp 000:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 155
-  Optimizer Best Metric: 0.020686201751232147
-  Optimizer Best Selectivity: 0.29564908146858215
-  Optimizer Best SNR: 0.06996876746416092
-  Sensitivity1: 3.807520020593117
-  Sensitivity2: 3.6854867330167735
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 34.27091979980469
+  Optimizer Best Selectivity: 0.5222517251968384
+  Optimizer Best SNR: 65.6214599609375
+  Sensitivity1: 258.94690604853065
+  Sensitivity2: 251.46223370255908
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9874270558357239
-  - 0.01257301401346922
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.9594247078202898e-06
+  - 1.961013595064287e-06
+  - 1.9646770397230284e-06
+  - 1.9772028281295206e-06
+  - 0.717930793762207
+  - 1.0
+  - 0.9916124939918518
+  - 0.9951871633529663
+  - 0.8708173632621765
+  - 0.8566856980323792
+  - 0.9490494132041931
+  - 0.8802101612091064
+  - 0.4972091317176819
+  - 0.6978288888931274
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
+  - 6.448004569392651e-05
 exp 001:
   File_Idx: 0
   Depth_mm: 6.0
@@ -54,46 +53,45 @@ exp 001:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 140
-  Optimizer Best Metric: 0.020920122042298317
-  Optimizer Best Selectivity: 0.3001309037208557
-  Optimizer Best SNR: 0.06970332562923431
-  Sensitivity1: 3.8071517552727334
-  Sensitivity2: 3.685149566273919
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 14.593574523925781
+  Optimizer Best Selectivity: 0.5099216103553772
+  Optimizer Best SNR: 28.619251251220703
+  Sensitivity1: 266.25980758407076
+  Sensitivity2: 258.4755822539457
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9855380058288574
-  - 0.014461985789239407
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 2.02073738364561e-06
+  - 2.0235338524798863e-06
+  - 2.0299971765780356e-06
+  - 2.0520956240943633e-06
+  - 0.9661075472831726
+  - 0.9881905913352966
+  - 1.0
+  - 0.9725573062896729
+  - 0.802578330039978
+  - 0.8915315866470337
+  - 0.9854694604873657
+  - 0.839389979839325
+  - 0.5115877985954285
+  - 0.7776160836219788
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
+  - 6.63771279505454e-05
 exp 002:
   File_Idx: 0
   Depth_mm: 6.0
@@ -102,46 +100,45 @@ exp 002:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 138
-  Optimizer Best Metric: 0.033219195902347565
-  Optimizer Best Selectivity: 0.45272916555404663
-  Optimizer Best SNR: 0.07337542623281479
-  Sensitivity1: 3.805164628592836
-  Sensitivity2: 3.68330881210577
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 1.9300450086593628
+  Optimizer Best Selectivity: 0.42756277322769165
+  Optimizer Best SNR: 4.514062404632568
+  Sensitivity1: 266.5743668180313
+  Sensitivity2: 258.79977810184903
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9750744700431824
-  - 0.02492556720972061
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.9626677385531366e-06
+  - 1.962040641956264e-06
+  - 1.9605797660915414e-06
+  - 1.955728293978609e-06
+  - 0.9260662794113159
+  - 0.9958142042160034
+  - 1.0
+  - 0.9887765645980835
+  - 0.9755294322967529
+  - 0.9085272550582886
+  - 0.7967395186424255
+  - 0.7615774869918823
+  - 0.4895339906215668
+  - 0.9085280299186707
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
+  - 6.71572342980653e-05
 exp 003:
   File_Idx: 1
   Depth_mm: 8.0
@@ -150,46 +147,45 @@ exp 003:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 156
-  Optimizer Best Metric: 0.016430281102657318
-  Optimizer Best Selectivity: 0.25944486260414124
-  Optimizer Best SNR: 0.06332860141992569
-  Sensitivity1: 1.6238280568783083
-  Sensitivity2: 1.5594897914301211
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 188
+  Optimizer Best Metric: 5.667108535766602
+  Optimizer Best Selectivity: 0.2941194176673889
+  Optimizer Best SNR: 19.26805305480957
+  Sensitivity1: 113.86589435589302
+  Sensitivity2: 110.30837572924098
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 4.1383833604413667e-07
+  - 4.0870813222682045e-07
+  - 3.97218087755391e-07
+  - 3.750366488475265e-07
+  - 3.257038940773782e-07
+  - 0.001855722046457231
+  - 0.9861544966697693
   - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9718242883682251
+  - 0.9460546970367432
+  - 0.9534791111946106
+  - 0.937717080116272
+  - 0.8312267661094666
+  - 0.8125609755516052
+  - 0.5419274568557739
+  - 0.642795205116272
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
+  - 5.018727824790403e-05
 exp 004:
   File_Idx: 1
   Depth_mm: 8.0
@@ -198,46 +194,45 @@ exp 004:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 191
-  Optimizer Best Metric: 0.016446974128484726
-  Optimizer Best Selectivity: 0.2632250487804413
-  Optimizer Best SNR: 0.0624825544655323
-  Sensitivity1: 1.6238280568783083
-  Sensitivity2: 1.5594897914301211
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 148
+  Optimizer Best Metric: 2.364854574203491
+  Optimizer Best Selectivity: 0.3182601034641266
+  Optimizer Best SNR: 7.430572032928467
+  Sensitivity1: 112.15291664067112
+  Sensitivity2: 108.65310316115001
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 5.626382630907756e-07
+  - 5.55931649159902e-07
+  - 5.408853098742838e-07
+  - 5.116913257552369e-07
+  - 4.4608381699617894e-07
+  - 0.002559937071055174
+  - 0.9253577589988708
   - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9352803230285645
+  - 0.9829892516136169
+  - 0.9317492842674255
+  - 0.66855388879776
+  - 0.9362936019897461
+  - 0.650497555732727
+  - 0.903042197227478
+  - 0.5329406261444092
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
+  - 4.7762841859366745e-05
 exp 005:
   File_Idx: 1
   Depth_mm: 8.0
@@ -246,46 +241,45 @@ exp 005:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 135
-  Optimizer Best Metric: 0.030227143317461014
-  Optimizer Best Selectivity: 0.439291775226593
-  Optimizer Best SNR: 0.06880880892276764
-  Sensitivity1: 1.7997700348091148
-  Sensitivity2: 1.7387372342336103
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 175
+  Optimizer Best Metric: 0.33847615122795105
+  Optimizer Best Selectivity: 0.28083112835884094
+  Optimizer Best SNR: 1.205265760421753
+  Sensitivity1: 114.23788895351694
+  Sensitivity2: 110.66100238573422
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 4.812267775378132e-07
+  - 4.7532375901937485e-07
+  - 4.6182438495634415e-07
+  - 4.3514037884051504e-07
+  - 3.729265074525756e-07
+  - 0.0018448232440277934
   - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9621714353561401
+  - 0.9582039713859558
+  - 0.9908193945884705
+  - 0.9576983451843262
+  - 0.7056502103805542
+  - 0.739446759223938
+  - 0.6167498230934143
+  - 0.48654669523239136
+  - 0.5000796318054199
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
+  - 4.951630035066046e-05
 exp 006:
   File_Idx: 2
   Depth_mm: 10.0
@@ -294,46 +288,45 @@ exp 006:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 135
-  Optimizer Best Metric: 0.010832398198544979
-  Optimizer Best Selectivity: 0.1336638629436493
-  Optimizer Best SNR: 0.0810420885682106
-  Sensitivity1: 0.00011395394521563246
-  Sensitivity2: 0.0027090541099412968
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 148
+  Optimizer Best Metric: 0.7239983081817627
+  Optimizer Best Selectivity: 0.16495031118392944
+  Optimizer Best SNR: 4.389190196990967
+  Sensitivity1: 38.961396003829734
+  Sensitivity2: 37.62840973334466
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9382739663124084
-  - 0.06172598525881767
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 5.864881700290425e-07
+  - 5.848661430718494e-07
+  - 5.794569233330549e-07
+  - 5.684611323886202e-07
+  - 5.489160344041011e-07
+  - 5.142288159731834e-07
+  - 4.397627435537288e-07
+  - 0.0022603352554142475
+  - 0.681744396686554
+  - 0.990797758102417
+  - 1.0
+  - 0.923504650592804
+  - 0.9871596097946167
+  - 0.7536085844039917
+  - 0.8993489742279053
+  - 0.869147777557373
+  - 0.7061523199081421
+  - 0.876672625541687
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
+  - 5.225386121310294e-05
 exp 007:
   File_Idx: 2
   Depth_mm: 10.0
@@ -342,46 +335,45 @@ exp 007:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 135
-  Optimizer Best Metric: 0.011110873892903328
-  Optimizer Best Selectivity: 0.13710586726665497
-  Optimizer Best SNR: 0.08103864639997482
-  Sensitivity1: 0.00011523894245907278
-  Sensitivity2: 0.0027055747418148718
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 413
+  Optimizer Best Metric: 0.3511578440666199
+  Optimizer Best Selectivity: 0.2651694416999817
+  Optimizer Best SNR: 1.3242771625518799
+  Sensitivity1: 33.11631940777923
+  Sensitivity2: 32.05399347352007
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9371546506881714
-  - 0.06284536421298981
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 7.980727190215475e-08
+  - 7.942777813241264e-08
+  - 7.817809688503985e-08
+  - 7.568765880705541e-08
+  - 7.141812119471069e-08
+  - 6.430239807286853e-08
+  - 5.0743441448730664e-08
+  - 0.00020279453019611537
+  - 0.010765677317976952
+  - 0.9678189754486084
+  - 0.9247233867645264
+  - 1.0
+  - 0.9974762201309204
+  - 0.9871300458908081
+  - 0.824560284614563
+  - 0.8406660556793213
+  - 0.891106128692627
+  - 0.4870642125606537
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
+  - 3.7520840123761445e-05
 exp 008:
   File_Idx: 2
   Depth_mm: 10.0
@@ -390,46 +382,45 @@ exp 008:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 152
-  Optimizer Best Metric: 0.025631673634052277
-  Optimizer Best Selectivity: 0.35134655237197876
-  Optimizer Best SNR: 0.07295268028974533
-  Sensitivity1: 0.7351261537618429
-  Sensitivity2: 0.7033295544220877
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 239
+  Optimizer Best Metric: 0.04909306764602661
+  Optimizer Best Selectivity: 0.15929211676120758
+  Optimizer Best SNR: 0.30819520354270935
+  Sensitivity1: 41.48767434574189
+  Sensitivity2: 40.04326105701951
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9785481095314026
-  - 0.021451879292726517
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 3.374937023181701e-07
+  - 3.3657059361758e-07
+  - 3.3330360338368337e-07
+  - 3.2659144721947087e-07
+  - 3.1454604254577134e-07
+  - 2.928627225173841e-07
+  - 2.445574125431449e-07
+  - 0.0012602474307641387
+  - 0.9994892477989197
+  - 0.9435052871704102
+  - 1.0
+  - 0.8822524547576904
+  - 0.8882727026939392
+  - 0.9498775601387024
+  - 0.8786964416503906
+  - 0.7739736437797546
+  - 0.6333726048469543
+  - 0.5604148507118225
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
+  - 5.5361088016070426e-05
 exp 009:
   File_Idx: 3
   Depth_mm: 12.0
@@ -438,46 +429,45 @@ exp 009:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 134
-  Optimizer Best Metric: 0.014736338518559933
-  Optimizer Best Selectivity: 0.18204542994499207
-  Optimizer Best SNR: 0.08094868808984756
-  Sensitivity1: 1.6580387798414487e-06
-  Sensitivity2: 0.0033452441195258526
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 171
+  Optimizer Best Metric: 0.09324833750724792
+  Optimizer Best Selectivity: 0.09445904940366745
+  Optimizer Best SNR: 0.9871826767921448
+  Sensitivity1: 11.592712552516574
+  Sensitivity2: 11.1556776119596
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9126248359680176
-  - 0.08737517893314362
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 4.494043821523519e-07
+  - 4.4926429154656944e-07
+  - 4.4801623744206154e-07
+  - 4.447158801212936e-07
+  - 4.384910425869748e-07
+  - 4.2820352064154577e-07
+  - 4.102149659956922e-07
+  - 3.8063566876189725e-07
+  - 3.182329635365022e-07
+  - 0.0017138574039563537
+  - 0.3334103226661682
+  - 0.9595615267753601
+  - 0.925248920917511
+  - 0.9732385873794556
+  - 0.9899506568908691
+  - 1.0
+  - 0.9140864610671997
+  - 0.9004957675933838
+  - 0.7989285588264465
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
+  - 5.105320451548323e-05
 exp 010:
   File_Idx: 3
   Depth_mm: 12.0
@@ -486,46 +476,45 @@ exp 010:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 134
-  Optimizer Best Metric: 0.015053752809762955
-  Optimizer Best Selectivity: 0.18596790730953217
-  Optimizer Best SNR: 0.0809481218457222
-  Sensitivity1: 1.6745902339262126e-06
-  Sensitivity2: 0.003345112732743858
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 232
+  Optimizer Best Metric: 0.03937253728508949
+  Optimizer Best Selectivity: 0.07942447066307068
+  Optimizer Best SNR: 0.49572300910949707
+  Sensitivity1: 13.553266024167378
+  Sensitivity2: 13.017374918418723
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9124075174331665
-  - 0.0875924751162529
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 3.3568591106813983e-07
+  - 3.3557805068085145e-07
+  - 3.347160202338273e-07
+  - 3.3243861707887845e-07
+  - 3.2814253358992573e-07
+  - 3.210495833627647e-07
+  - 3.086478841396456e-07
+  - 2.882800345105352e-07
+  - 2.4512556251465867e-07
+  - 0.0013695339439436793
+  - 1.0
+  - 0.9651010632514954
+  - 0.8793162107467651
+  - 0.9868295788764954
+  - 0.9990056753158569
+  - 0.7824751138687134
+  - 0.9939906597137451
+  - 0.8825343251228333
+  - 0.764797568321228
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
+  - 5.3696003305958584e-05
 exp 011:
   File_Idx: 3
   Depth_mm: 12.0
@@ -534,46 +523,45 @@ exp 011:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 157
-  Optimizer Best Metric: 0.02389688231050968
-  Optimizer Best Selectivity: 0.3480324149131775
-  Optimizer Best SNR: 0.06866280734539032
-  Sensitivity1: 0.2925105100742242
-  Sensitivity2: 0.2776249453817626
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 272
+  Optimizer Best Metric: 0.00674542086198926
+  Optimizer Best Selectivity: 0.0852808952331543
+  Optimizer Best SNR: 0.07909650355577469
+  Sensitivity1: 13.750553393844825
+  Sensitivity2: 13.206958471290113
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9806317687034607
-  - 0.019368276000022888
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.3618557659356156e-07
+  - 1.3614193505873118e-07
+  - 1.3548203980917606e-07
+  - 1.3366019402383245e-07
+  - 1.3023415590396326e-07
+  - 1.2472266064378346e-07
+  - 1.155038305000744e-07
+  - 1.0199555333656463e-07
+  - 0.00047591861221008003
+  - 0.010426471941173077
+  - 0.9534683227539062
+  - 0.9385043978691101
+  - 1.0
+  - 0.9378325939178467
+  - 0.9957597255706787
+  - 0.7475362420082092
+  - 0.9424517750740051
+  - 0.7918220162391663
+  - 0.634441614151001
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
+  - 3.3535809052409604e-05
 exp 012:
   File_Idx: 4
   Depth_mm: 14.0
@@ -582,46 +570,45 @@ exp 012:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 134
-  Optimizer Best Metric: 0.018199877813458443
-  Optimizer Best Selectivity: 0.22484803199768066
-  Optimizer Best SNR: 0.0809430181980133
-  Sensitivity1: 4.4859178701994e-09
-  Sensitivity2: 0.0034469897856330076
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 287
+  Optimizer Best Metric: 0.010949639603495598
+  Optimizer Best Selectivity: 0.03432182967662811
+  Optimizer Best SNR: 0.31902843713760376
+  Sensitivity1: 4.118927175504461
+  Sensitivity2: 3.93026931631306
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9157747626304626
-  - 0.08422522246837616
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 2.1310215458925086e-07
+  - 2.1314095022262336e-07
+  - 2.1303915787029837e-07
+  - 2.1248804671358812e-07
+  - 2.1122124849171087e-07
+  - 2.0887317475626332e-07
+  - 2.0507322062712774e-07
+  - 1.991556075608969e-07
+  - 1.9021238983896183e-07
+  - 1.7513178818262531e-07
+  - 1.453726525824095e-07
+  - 0.0059313601814210415
+  - 0.9627415537834167
+  - 0.9840183854103088
+  - 0.9873129725456238
+  - 0.9283217191696167
+  - 0.9999074339866638
+  - 1.0
+  - 0.9041345119476318
+  - 0.8836365342140198
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
+  - 4.0489816456101835e-05
 exp 013:
   File_Idx: 4
   Depth_mm: 14.0
@@ -630,46 +617,45 @@ exp 013:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 134
-  Optimizer Best Metric: 0.01855728030204773
-  Optimizer Best Selectivity: 0.22926394641399384
-  Optimizer Best SNR: 0.08094286173582077
-  Sensitivity1: 4.485913147643194e-09
-  Sensitivity2: 0.0034469667728295825
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 335
+  Optimizer Best Metric: 0.004909711889922619
+  Optimizer Best Selectivity: 0.03750615939497948
+  Optimizer Best SNR: 0.1309041529893875
+  Sensitivity1: 4.143089955294861
+  Sensitivity2: 3.953089950949867
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9157793521881104
-  - 0.08422061055898666
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 9.82650689707043e-08
+  - 9.827903824088935e-08
+  - 9.821091140338467e-08
+  - 9.781552989807096e-08
+  - 9.689701130355388e-08
+  - 9.521642851950674e-08
+  - 9.258295108338643e-08
+  - 8.875917956174817e-08
+  - 8.373725535193444e-08
+  - 7.742554686274161e-08
+  - 0.00032487791031599045
+  - 0.007948516868054867
+  - 0.9895933270454407
+  - 0.9941198229789734
+  - 1.0
+  - 0.9663069248199463
+  - 0.9715542793273926
+  - 0.9770062565803528
+  - 0.9740879535675049
+  - 0.8671101927757263
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
+  - 3.354634463903494e-05
 exp 014:
   File_Idx: 4
   Depth_mm: 14.0
@@ -678,46 +664,45 @@ exp 014:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 144
-  Optimizer Best Metric: 0.023252228274941444
-  Optimizer Best Selectivity: 0.3451828360557556
-  Optimizer Best SNR: 0.06736206263303757
-  Sensitivity1: 0.12547522395137461
-  Sensitivity2: 0.1181073539018707
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 460
+  Optimizer Best Metric: 0.0008898217929527164
+  Optimizer Best Selectivity: 0.04434501752257347
+  Optimizer Best SNR: 0.020065879449248314
+  Sensitivity1: 4.086189724193736
+  Sensitivity2: 3.9002208847969246
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9851544499397278
-  - 0.014845531433820724
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 7.01978848383078e-08
+  - 7.025521142622893e-08
+  - 7.037154858835493e-08
+  - 7.043352923119528e-08
+  - 7.045052541343466e-08
+  - 7.060252471546846e-08
+  - 7.145929714624799e-08
+  - 7.46877830692938e-08
+  - 8.487684510782856e-08
+  - 1.1653528986244055e-07
+  - 0.00023228197824209929
+  - 0.010733339935541153
+  - 0.826522171497345
+  - 0.9819744825363159
+  - 1.0
+  - 0.9881250858306885
+  - 0.986110270023346
+  - 0.9659937620162964
+  - 0.9359222650527954
+  - 0.6768977642059326
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
+  - 3.5478933568811044e-05
 exp 015:
   File_Idx: 5
   Depth_mm: 16.0
@@ -726,46 +711,45 @@ exp 015:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 173
-  Optimizer Best Metric: 0.023523250594735146
-  Optimizer Best Selectivity: 0.28994959592819214
-  Optimizer Best SNR: 0.08112876117229462
-  Sensitivity1: 5.593614160111167e-11
-  Sensitivity2: 0.003470383860989165
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 461
+  Optimizer Best Metric: 0.0010597000364214182
+  Optimizer Best Selectivity: 0.014746064320206642
+  Optimizer Best SNR: 0.07186324149370193
+  Sensitivity1: 1.1798465645814635
+  Sensitivity2: 1.1155439410099532
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9632651805877686
-  - 0.03673487901687622
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 5.3338450101136914e-08
+  - 5.336145036949347e-08
+  - 5.340650233165434e-08
+  - 5.343116171729889e-08
+  - 5.339453679198414e-08
+  - 5.321676255221064e-08
+  - 5.303027350578304e-08
+  - 5.28893586704271e-08
+  - 5.3365315721976e-08
+  - 5.566175786952954e-08
+  - 6.306552080559413e-08
+  - 8.692772013318972e-08
+  - 0.00016376411076635122
+  - 0.00646072207018733
+  - 0.7699182033538818
+  - 1.0
+  - 0.9083335399627686
+  - 0.9681987762451172
+  - 0.988933265209198
+  - 0.9698401689529419
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
+  - 3.106919029960409e-05
 exp 016:
   File_Idx: 5
   Depth_mm: 16.0
@@ -774,46 +758,45 @@ exp 016:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 173
-  Optimizer Best Metric: 0.023942455649375916
-  Optimizer Best Selectivity: 0.2951166033744812
-  Optimizer Best SNR: 0.0811287984251976
-  Sensitivity1: 0.0
-  Sensitivity2: 0.003470354620953003
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 6.407704495359212e-05
+  Optimizer Best Selectivity: 3.154416845063679e-05
+  Optimizer Best SNR: 2.031343698501587
+  Sensitivity1: 0.0055305294933350405
+  Sensitivity2: 0.19687686876975025
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9632678627967834
-  - 0.036732155829668045
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9137269854545593
+  - 0.9807829856872559
+  - 0.9724806547164917
+  - 0.8837347030639648
+  - 0.9734617471694946
+  - 1.0
+  - 0.6481823921203613
+  - 0.39054036140441895
+  - 0.20254692435264587
+  - 6.540447793668136e-05
+  - 6.55024778097868e-05
+  - 6.569773540832102e-05
+  - 6.596197636099532e-05
+  - 6.61698286421597e-05
+  - 6.633486191276461e-05
+  - 6.64537146803923e-05
+  - 6.65385668980889e-05
+  - 6.65963307255879e-05
+  - 6.663420208496973e-05
+  - 6.665816181339324e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
+  - 6.670312723144889e-05
 exp 017:
   File_Idx: 5
   Depth_mm: 16.0
@@ -822,46 +805,45 @@ exp 017:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 139
-  Optimizer Best Metric: 0.022563409060239792
-  Optimizer Best Selectivity: 0.35326308012008667
-  Optimizer Best SNR: 0.06387140601873398
-  Sensitivity1: 0.051245957849894136
-  Sensitivity2: 0.04767928308079611
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 253
+  Optimizer Best Metric: 8.959529077401385e-05
+  Optimizer Best Selectivity: 0.012542927637696266
+  Optimizer Best SNR: 0.007143092341721058
+  Sensitivity1: 1.5565983802627523
+  Sensitivity2: 1.4624055291849358
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.9169400930404663
-  - 0.08305993676185608
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 2.4223709260695614e-07
+  - 2.426484400075424e-07
+  - 2.4444287305414036e-07
+  - 2.4787283336991095e-07
+  - 2.5395382863280247e-07
+  - 2.6517253104429983e-07
+  - 2.8782972094631987e-07
+  - 3.332263247557421e-07
+  - 4.2980838088624296e-07
+  - 6.484746677415387e-07
+  - 1.17802926524746e-06
+  - 2.773264213828952e-06
+  - 0.005498523823916912
+  - 0.9780580401420593
+  - 0.9598909020423889
+  - 0.950474739074707
+  - 1.0
+  - 0.9703182578086853
+  - 0.9726211428642273
+  - 0.9601209163665771
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
+  - 4.207297388347797e-05
 exp 018:
   File_Idx: 6
   Depth_mm: 18.0
@@ -870,46 +852,45 @@ exp 018:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 133
-  Optimizer Best Metric: 0.02804233320057392
-  Optimizer Best Selectivity: 0.3464379906654358
-  Optimizer Best SNR: 0.0809447392821312
-  Sensitivity1: 6.38644070320218e-30
-  Sensitivity2: 0.0034670789643629282
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 1.1918240488739684e-05
+  Optimizer Best Selectivity: 5.434811100712977e-06
+  Optimizer Best SNR: 2.1929447650909424
+  Sensitivity1: 0.00035994107169903187
+  Sensitivity2: 0.2289365811707093
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9198381900787354
-  - 0.08016186952590942
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.0
+  - 0.9178391695022583
+  - 0.9280076026916504
+  - 0.9555890560150146
+  - 0.9701288938522339
+  - 0.8239133954048157
+  - 0.7014197111129761
+  - 0.41147828102111816
+  - 7.081886724336073e-05
+  - 7.072680455166847e-05
+  - 7.072275911923498e-05
+  - 7.077984628267586e-05
+  - 7.085899414960295e-05
+  - 7.092497980920598e-05
+  - 7.098216156009585e-05
+  - 7.102644303813577e-05
+  - 7.106296106940135e-05
+  - 7.108445424819365e-05
+  - 7.109970465535298e-05
+  - 7.111312879715115e-05
+  - 7.112012099241838e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
+  - 7.113389438018203e-05
 exp 019:
   File_Idx: 6
   Depth_mm: 18.0
@@ -918,46 +899,45 @@ exp 019:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 133
-  Optimizer Best Metric: 0.028508171439170837
-  Optimizer Best Selectivity: 0.35219284892082214
-  Optimizer Best SNR: 0.08094477653503418
-  Sensitivity1: 6.386423208060958e-30
-  Sensitivity2: 0.003467134971875144
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 6.898218998685479e-05
+  Optimizer Best Selectivity: 3.2080697565106675e-05
+  Optimizer Best SNR: 2.150270938873291
+  Sensitivity1: 0.0009698850359023355
+  Sensitivity2: 0.22668006566642146
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.919838547706604
-  - 0.08016140013933182
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.0
+  - 0.9918691515922546
+  - 0.9977800250053406
+  - 0.9924166202545166
+  - 0.8567004203796387
+  - 0.9218788743019104
+  - 0.6714258193969727
+  - 0.6228576898574829
+  - 0.8285573124885559
+  - 0.3429652452468872
+  - 0.2665462791919708
+  - 6.162536010378972e-05
+  - 6.166328239487484e-05
+  - 6.171622953843325e-05
+  - 6.177953036967665e-05
+  - 6.183618097566068e-05
+  - 6.188207771629095e-05
+  - 6.191294960444793e-05
+  - 6.193722219904885e-05
+  - 6.195523747010157e-05
+  - 6.196380854817107e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
+  - 6.198692426551133e-05
 exp 020:
   File_Idx: 6
   Depth_mm: 18.0
@@ -966,46 +946,45 @@ exp 020:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 136
-  Optimizer Best Metric: 0.023365724831819534
-  Optimizer Best Selectivity: 0.3990018367767334
-  Optimizer Best SNR: 0.05856044590473175
-  Sensitivity1: 0.02266004314697417
-  Sensitivity2: 0.021016764161398614
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 313
+  Optimizer Best Metric: 9.98207542579621e-06
+  Optimizer Best Selectivity: 0.005584845785051584
+  Optimizer Best SNR: 0.001787350163795054
+  Sensitivity1: 0.44143393265522024
+  Sensitivity2: 0.40923187860496796
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.29122241787627e-07
+  - 1.3016897071338462e-07
+  - 1.3524346798021725e-07
+  - 1.452293503234614e-07
+  - 1.63452924084595e-07
+  - 1.962542768296771e-07
+  - 2.5552529336891894e-07
+  - 3.644994706064608e-07
+  - 5.709982815460535e-07
+  - 9.656861266194028e-07
+  - 1.769063374013058e-06
+  - 3.4039674119412666e-06
+  - 6.5335016188328154e-06
+  - 1.3346544619707856e-05
+  - 0.0031181902159005404
+  - 0.988764226436615
+  - 0.976807177066803
+  - 0.9819290041923523
+  - 0.953746497631073
   - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9159314632415771
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
+  - 3.263366670580581e-05
 exp 021:
   File_Idx: 7
   Depth_mm: 20.0
@@ -1014,46 +993,45 @@ exp 021:
   Filter_HW: 0.1
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 147
-  Optimizer Best Metric: 0.03545709699392319
-  Optimizer Best Selectivity: 0.4377889633178711
-  Optimizer Best SNR: 0.08099129796028137
-  Sensitivity1: 0.0
-  Sensitivity2: 0.003453499694939497
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.1, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 1.231867827300448e-05
+  Optimizer Best Selectivity: 5.485665496962611e-06
+  Optimizer Best SNR: 2.245612382888794
+  Sensitivity1: 9.248082192803821e-05
+  Sensitivity2: 0.23706123512300556
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9056395292282104
-  - 0.09436041861772537
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1.0
+  - 0.9432861804962158
+  - 0.9809267520904541
+  - 0.87320476770401
+  - 0.9261534810066223
+  - 0.9470927715301514
+  - 0.6771793961524963
+  - 0.6427223682403564
+  - 0.9680488109588623
+  - 0.33950769901275635
+  - 6.60696896375157e-05
+  - 6.604612281080335e-05
+  - 6.605318048968911e-05
+  - 6.607245450140908e-05
+  - 6.608928379137069e-05
+  - 6.611103162867948e-05
+  - 6.612465222133324e-05
+  - 6.613726145587862e-05
+  - 6.614609446842223e-05
+  - 6.615290476474911e-05
+  - 6.615688471356407e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
+  - 6.616597238462418e-05
 exp 022:
   File_Idx: 7
   Depth_mm: 20.0
@@ -1062,46 +1040,45 @@ exp 022:
   Filter_HW: 0.3
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 147
-  Optimizer Best Metric: 0.035982441157102585
-  Optimizer Best Selectivity: 0.444275438785553
-  Optimizer Best SNR: 0.08099129050970078
-  Sensitivity1: 6.479597180847243e-30
-  Sensitivity2: 0.0034535133255820228
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.3, patience=50,
-    grad_clip=False,fetal_f=2.5), type=comb, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 101
+  Optimizer Best Metric: 6.906697672093287e-05
+  Optimizer Best Selectivity: 3.230301808798686e-05
+  Optimizer Best SNR: 2.138096809387207
+  Sensitivity1: 0.00018989731270146318
+  Sensitivity2: 0.23632254288173535
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.9056320190429688
-  - 0.09436801075935364
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9409284591674805
+  - 0.9840804934501648
+  - 1.0
+  - 0.9601072669029236
+  - 0.9355056285858154
+  - 0.9510553479194641
+  - 0.8790841102600098
+  - 0.9208601117134094
+  - 0.5265328288078308
+  - 0.9302830100059509
+  - 0.42784762382507324
+  - 0.3322727084159851
+  - 0.305644690990448
+  - 5.975539534119889e-05
+  - 5.975459862384014e-05
+  - 5.9772952226921916e-05
+  - 5.978822446195409e-05
+  - 5.980299465591088e-05
+  - 5.981457798043266e-05
+  - 5.9821988543262705e-05
+  - 5.9832145780092105e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
+  - 5.9845391660928726e-05
 exp 023:
   File_Idx: 7
   Depth_mm: 20.0
@@ -1110,43 +1087,42 @@ exp 023:
   Filter_HW: 0.0
   Maternal_F_Hz: 1.0
   Fetal_F_Hz: 2.5
-  Epochs: 146
-  Optimizer Best Metric: 0.023267904296517372
-  Optimizer Best Selectivity: 0.36731070280075073
-  Optimizer Best SNR: 0.06334665417671204
-  Sensitivity1: 0.009330323253210978
-  Sensitivity2: 0.008416783694216806
-  Experiment: DIGSSOptimizer(measurand=WindowedSum, lr=0.1, filter_hw=0.0, patience=50,
-    grad_clip=False,fetal_f=2.5), type=psafe_same_width, filter_smoothening=True,reg_type=l2,
-    reg_weight=0.001, normalize_reward=True,normalization_scheme=unit_sum
+  Epochs: 456
+  Optimizer Best Metric: 8.536626978639106e-07
+  Optimizer Best Selectivity: 0.002159403869882226
+  Optimizer Best SNR: 0.000395323324482888
+  Sensitivity1: 0.12208091338418477
+  Sensitivity2: 0.11097652117503942
+  Experiment: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   Optimized_Window:
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 4.5318870434130076e-08
+  - 4.798843988851331e-08
+  - 6.093675608553895e-08
+  - 8.681632124307725e-08
+  - 1.327115199956097e-07
+  - 2.1346356504636788e-07
+  - 3.5390652897149266e-07
+  - 5.970040319880354e-07
+  - 1.0044899454442202e-06
+  - 1.6963471125563956e-06
+  - 2.8091158128518146e-06
+  - 4.48284117737785e-06
+  - 6.572404345206451e-06
+  - 8.722247002879158e-06
+  - 1.0595873391139321e-05
+  - 0.0009001675061881542
+  - 0.016031118109822273
   - 1.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
-  - 0.0
+  - 0.9783156514167786
+  - 0.960465133190155
+  - 0.9677189588546753
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05
+  - 1.2297443390707485e-05

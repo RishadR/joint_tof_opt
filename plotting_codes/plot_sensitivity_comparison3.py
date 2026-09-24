@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 
 def main():
@@ -19,8 +20,9 @@ def main():
     # Load matplotlib configuration
     load_plot_config()
 
-    # Load sensitivity comparison results
-    results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
+    # Load sensitivity comparison results (noisy/noiseless file picked via evaluator_specs.yaml)
+    base_results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
+    results_path, inject_noise = resolve_results_path(base_results_path)
     with open(results_path, "r") as f:
         results = yaml.safe_load(f)
 
@@ -45,9 +47,9 @@ def main():
 
         if optimizer_str.startswith("DIGSSOptimizer"):
             if "normalization_scheme=unit_sum" in optimizer_str:
-                grouped_data[depth_cm]["unit_sum"].append(float(sensitivity))
+                grouped_data[depth_cm]["unit_sum"].extend(as_samples(sensitivity))
             elif "normalization_scheme=unit_max" in optimizer_str:
-                grouped_data[depth_cm]["unit_max"].append(float(sensitivity))
+                grouped_data[depth_cm]["unit_max"].extend(as_samples(sensitivity))
 
     # Depths where both schemes are available
     common_depths = sorted([d for d in grouped_data if grouped_data[d]["unit_sum"] and grouped_data[d]["unit_max"]])
@@ -111,14 +113,14 @@ def main():
     # Combined legend
     lines = [eb1, eb2, line3]
     labels = [str(ln.get_label()) for ln in lines]
-    ax1.legend(lines, labels, loc="best")
+    legend_no_overlap(ax1, "upper right", handles=lines, labels=labels)
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(figures_dir / "sensitivity_comparison3.pdf", format="pdf")
-    fig.savefig(figures_dir / "sensitivity_comparison3.svg", format="svg")
+    fig.savefig(noisy_results_path(figures_dir / "sensitivity_comparison3.pdf", inject_noise), format="pdf")
+    fig.savefig(noisy_results_path(figures_dir / "sensitivity_comparison3.svg", inject_noise), format="svg")
 
     print(f"Sensitivity comparison 3 plots saved to {figures_dir}")
 

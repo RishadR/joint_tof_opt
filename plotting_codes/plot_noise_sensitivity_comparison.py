@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 
 def main():
@@ -23,8 +24,9 @@ def main():
         total_photon_count = config.get("total_photon_count", 1e6)  # Default to 1e6 if not specified
 
 
-    # Load sensitivity comparison results
-    results_path = Path(__file__).parent.parent / "results" / "noise_sensitivity_comparison_results.yaml"
+    # Load sensitivity comparison results (noisy/noiseless file picked via evaluator_specs.yaml)
+    base_results_path = Path(__file__).parent.parent / "results" / "noise_sensitivity_comparison_results.yaml"
+    results_path, inject_noise = resolve_results_path(base_results_path)
     if not results_path.exists():
         print(f"Results file not found: {results_path}")
         return
@@ -58,11 +60,7 @@ def main():
 
         depth_cm = round(float(depth_mm) / 10.0, 1)
 
-        if noise_var not in grouped_data:
-            grouped_data[noise_var] = {}
-        if depth_cm not in grouped_data[noise_var]:
-            grouped_data[noise_var][depth_cm] = []
-        grouped_data[noise_var][depth_cm].append(float(sensitivity))
+        grouped_data.setdefault(noise_var, {}).setdefault(depth_cm, []).extend(as_samples(sensitivity))
 
     # Create figure
     fig, ax = plt.subplots()
@@ -95,15 +93,15 @@ def main():
     ax.set_xlabel("Fetal Depth (cm)")
     ax.set_ylabel("Selectivity $\\times$ SNR")
     ax.set_yscale("log")
-    ax.legend(loc="lower left")
+    legend_no_overlap(ax, "upper right")
     ax.grid(True, which="both", ls="-", alpha=0.5)
 
     # Save figure
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(figures_dir / "noise_sensitivity_comparison.pdf", format="pdf")
-    fig.savefig(figures_dir / "noise_sensitivity_comparison.svg", format="svg")
+    fig.savefig(noisy_results_path(figures_dir / "noise_sensitivity_comparison.pdf", inject_noise), format="pdf")
+    fig.savefig(noisy_results_path(figures_dir / "noise_sensitivity_comparison.svg", inject_noise), format="svg")
 
     print(f"Noise sensitivity comparison plots saved to {figures_dir}")
 

@@ -23,21 +23,19 @@ See the Outputs section of each experiment listed in Purpose above.
 
 from collections.abc import Callable
 
-from .ablation_study import run_full_sweep as ablation_study_main
+from .ablation_study import main as ablation_study_main
 from .best_detector import main as best_detector_main
-from .datalength_compare import main as datalength_compare_main
 from .false_fetal_f import main as false_fetal_f_main
-from .noise_sensitivity_comparison import run_full_sweep as noise_sensitivity_comparison_main
+from .noise_sensitivity_comparison import main as noise_sensitivity_comparison_main
 from .overlap_compare import main as overlap_compare_main
 from .overlap_compare2 import main as overlap_compare2_main
-from .sensitivity_comparison import run_full_sweep as sensitivity_comparison_main
+from .sensitivity_comparison import main as sensitivity_comparison_main
 
 
 def run_all_experiments() -> None:
     experiment_mains: list[tuple[str, Callable[[], None]]] = [
         ("ablation_study", ablation_study_main),
         ("best_detector", best_detector_main),
-        ("datalength_compare", datalength_compare_main),
         ("false_fetal_f", false_fetal_f_main),
         ("noise_sensitivity_comparison", noise_sensitivity_comparison_main),
         ("overlap_compare", overlap_compare_main),

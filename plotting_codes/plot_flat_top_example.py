@@ -16,7 +16,7 @@ from joint_tof_opt import (
     generate_tof,
     load_tof_config,
 )
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.plotting import legend_no_overlap, load_plot_config
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ def plot_flat_top_example(
     ax.set_xlabel("Bin Center (ns)")
     ax.set_ylabel("Bin Weight\n($W_b$)")
     ax.set_title("Flat-Top Window Post-Processing")
-    ax.legend()
+    legend_no_overlap(ax, "upper right")
     plt.tight_layout()
 
     output_dir = Path("./figures/")

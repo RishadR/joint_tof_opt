@@ -38,13 +38,14 @@ from joint_tof_opt import (
     PaperEvaluator,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     build_noise_tof_modifier,
-    evaluate_repeats,
     format_sensitivity,
     generate_tof,
     load_evaluator_specs,
     load_tof_config,
     noisy_results_path,
 )
+
+from .experiments_core import run_noisy_repeats
 
 
 def _to_builtin(obj: Any) -> Any:
@@ -81,6 +82,8 @@ def main(inject_noise: bool = eval_spec.inject_noise) -> None:
     repeats = eval_spec.repeats_if_noisy if inject_noise else 1
     tof_modifier = build_noise_tof_modifier(eval_spec) if inject_noise else None
     noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(eval_spec.instrument_noise_variance)
+    # Training-data noise is gated on inject_noise - separation/filter setup is the swept variable here.
+    train_noise_variance = eval_spec.instrument_noise_variance if inject_noise else 0.0
 
     for separation in separations_hz:
         for filter_type, filter_hw in filter_setups:
@@ -89,41 +92,38 @@ def main(inject_noise: bool = eval_spec.inject_noise) -> None:
             fetal_f = 2 * maternal_f + float(separation)
             gen_config = base_gen_config.model_copy(update={"fetal_f": fetal_f})
 
-            tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
+            base_tof_data = generate_tof(ppath_file, deepcopy(gen_config), True, True)
 
-            experiment = DIGSSOptimizer(
-                tof_data=tof_data, measurand=measurand, filter_hw=float(filter_hw), filter_type=filter_type
+            # Repeat the full noisy-training + eval cycle `repeats` times (matching repeats_if_noisy) - see
+            # experiments/experiments_core.py.
+            experiment, [eval_results1, eval_results2], _ = run_noisy_repeats(
+                base_tof_data,
+                build_optimizer=lambda tof_data: DIGSSOptimizer(
+                    tof_data=tof_data, measurand=measurand, filter_hw=float(filter_hw), filter_type=filter_type
+                ),
+                evaluators_gen=lambda window: [
+                    AltPaperEvaluator2(
+                        ppath_file,
+                        window,
+                        measurand,
+                        gen_config,
+                        noise_calc,
+                        eval_spec.alt_paper2.filter_hw,
+                        tof_modifier,
+                    ),
+                    PaperEvaluator(
+                        ppath_file, window, measurand, gen_config, noise_calc, eval_spec.paper.filter_hw, tof_modifier
+                    ),
+                ],
+                noise_variance=train_noise_variance,
+                repeats=repeats,
             )
-            experiment.optimize()
 
             training_curves = experiment.training_curves
             best_final_metric = float(training_curves[-1, 2])
             best_selectivity = float(training_curves[-1, 0])
             best_snr = float(training_curves[-1, 1])
             epochs = int(training_curves.shape[0])
-
-            evaluator1 = AltPaperEvaluator2(
-                ppath_file,
-                experiment.window,
-                measurand,
-                gen_config,
-                noise_calc,
-                eval_spec.alt_paper2.filter_hw,
-                tof_modifier,
-            )
-            eval_results1, _ = evaluate_repeats(evaluator1, repeats)
-            # eval_results1 = float(eval_log1["fetal_ac_energy"] / eval_log1["maternal_ac_energy"])
-            evaluator2 = PaperEvaluator(
-                ppath_file,
-                experiment.window,
-                measurand,
-                gen_config,
-                noise_calc,
-                eval_spec.paper.filter_hw,
-                tof_modifier,
-            )
-            eval_results2, _ = evaluate_repeats(evaluator2, repeats)
-            # eval_results2 = float(eval_log2["fetal_ac_energy"] / eval_log2["maternal_ac_amp"] ** 2)
 
             exp_key = f"exp {exp_idx:03d}"
             results[exp_key] = {

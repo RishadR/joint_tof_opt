@@ -1,5 +1,5 @@
 """
-Plot Sensitivity vs. Noise Variance for the four ablation variants at a fixed fetal depth.
+Plot Sensitivity vs. Noise Standard Deviation for the four ablation variants at a fixed fetal depth.
 """
 
 from pathlib import Path
@@ -8,26 +8,32 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 VARIANTS = [
-    (True, True, "Flat-Top Projection + SNR bound", 4, +0.02),
-    (False, True, "No Flat-Top Projection", 5, +0.01),
-    (True, False, "No SNR left bound", 3, -0.01),
-    (False, False, "Neither", 3, -0.02),
+    (True,  True,  "Flat-Top Projection + Window Smoothen", 10, +0.02),
+    (False, True,  "No Flat-Top Projection",           3, +0.01),
+    (True,  False, "No Window Smoothen",                3, -0.01),
+    (False, False, "Neither",                          3, -0.02),
 ]
 
 FIXED_DEPTH_MM = 14.0
 
+# ablation_study.py sweeps these noise standard deviations (results are stored as variance = std**2).
+NOISE_STDS = [0.0, 5.0, 10.0, 15.0]
+CANONICAL_VARIANCES = {std**2 for std in NOISE_STDS}
+
 
 def _matches(optimizer_str: str, wpp: bool, slb: bool) -> bool:
-    return f"use_window_post_process={wpp}" in optimizer_str and f"use_snr_left_bound={slb}" in optimizer_str
+    return f"use_window_post_process={wpp}" in optimizer_str and f"window_smoothening={slb}" in optimizer_str
 
 
 def main():
     load_plot_config()
 
-    results_path = Path(__file__).parent.parent / "results" / "ablation_results.yaml"
+    base_results_path = Path(__file__).parent.parent / "results" / "ablation_results.yaml"
+    results_path, inject_noise = resolve_results_path(base_results_path)
     if not results_path.exists():
         print(f"Results file not found: {results_path}")
         return
@@ -35,7 +41,7 @@ def main():
     with open(results_path) as f:
         results = yaml.safe_load(f)
 
-    # grouped_data[variant_idx][noise_var] = [sensitivity, ...]
+    # grouped_data[variant_idx][noise_std] = [sensitivity, ...]
     grouped_data: list[dict[float, list[float]]] = [{} for _ in VARIANTS]
 
     for _, exp_data in results.items():
@@ -46,11 +52,12 @@ def main():
         noise_var = exp_data.get("noise_variance")
         sensitivity = exp_data.get("Optimized_Sensitivity")
         optimizer = str(exp_data.get("Optimizer", ""))
-        if noise_var is None or sensitivity is None:
+        if noise_var is None or sensitivity is None or noise_var not in CANONICAL_VARIANCES:
             continue
+        noise_std = float(noise_var) ** 0.5
         for idx, (wpp, slb, _, _, _) in enumerate(VARIANTS):
             if _matches(optimizer, wpp, slb):
-                grouped_data[idx].setdefault(float(noise_var), []).append(float(sensitivity))
+                grouped_data[idx].setdefault(noise_std, []).extend(as_samples(sensitivity))
                 break
 
     # Split layout: narrow left panel for noiseless, wide right panel for log noise axis
@@ -64,9 +71,9 @@ def main():
 
     log_ticks = set()
     for (_, _, label, zorder, _), data in zip(VARIANTS, grouped_data, strict=True):
-        noise_vars = sorted(data.keys())
+        noise_stds = sorted(data.keys())
         noiseless_vals, log_x_vals, log_noise_vars = [], [], []
-        for v in noise_vars:
+        for v in noise_stds:
             if v == 0.0:
                 noiseless_vals.append(v)
             else:
@@ -105,19 +112,21 @@ def main():
     sorted_ticks = sorted(log_ticks)
     ax_log.set_xticks(sorted_ticks)
     ax_log.set_xticklabels([f"{t:.4g}" for t in sorted_ticks])
-    ax_log.set_xlabel("Noise Variance")
+    ax_log.set_xlabel("Noise Standard Deviation")
     ax_log.grid(True, which="both", ls="-", alpha=0.5)
     ax_log.spines["left"].set_visible(False)
     ax_log.tick_params(left=False)
-    ax_log.legend(loc="best")
+    legend_no_overlap(ax_log, "upper right")
     fig.tight_layout()
 
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
-    fig.savefig(figures_dir / "ablation_study2.pdf", format="pdf")
-    fig.savefig(figures_dir / "ablation_study2.svg", format="svg")
-    print(f"Ablation study plot saved to {figures_dir / 'ablation_study2.pdf'}")
-    print(f"Ablation study plot saved to {figures_dir / 'ablation_study2.svg'}")
+    pdf_path = noisy_results_path(figures_dir / "ablation_study2.pdf", inject_noise)
+    svg_path = noisy_results_path(figures_dir / "ablation_study2.svg", inject_noise)
+    fig.savefig(pdf_path, format="pdf")
+    fig.savefig(svg_path, format="svg")
+    print(f"Ablation study plot saved to {pdf_path}")
+    print(f"Ablation study plot saved to {svg_path}")
 
 
 if __name__ == "__main__":

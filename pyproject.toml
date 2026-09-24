@@ -42,6 +42,7 @@ joint_tof_opt = ["*.yaml", "*.yml"]
 extraPaths = ["experiments", "src"]
 include = ["src", "experiments"]
 reportMissingTypeStubs = false
+typeCheckingMode = "standard"
 
 [tool.ruff]
 target-version = "py310"

@@ -20,7 +20,7 @@ digss:
   filter_type: psafe_same_width # comb, fourier, psafe_same_width, psafe_true_width, comb_psafe_hybrid
   normalization_scheme: unit_max  # unit_max, unit_sum
   use_window_post_process: false
-  use_snr_left_bound: true
+  use_snr_left_bound: false
 
 # boxcar ignores everything except filter_hw and filter_type. Keeping the rest to maintain consistency with digss
 boxcar:

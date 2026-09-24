@@ -37,7 +37,6 @@ from joint_tof_opt import (
     ToFData,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     build_noise_tof_modifier,
-    evaluate_repeats,
     format_sensitivity,
     generate_tof,
     get_evaluator_class,
@@ -50,11 +49,14 @@ from joint_tof_opt import (
     write_results_to_yaml,
 )
 
+from .experiments_core import run_noisy_repeats
+
 
 def run_false_fetal_frequency_experiment(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
     optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess, float], DIGSSOptimizer]],
     error_hzs: list[float],
+    noise_variance: float = 0.0,
     repeats: int = 1,
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
@@ -87,18 +89,25 @@ def run_false_fetal_frequency_experiment(
         for ppath_filename, sweep_params in list(file_sweep_params.items())[:2]:
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_data = generate_tof(ppath_file, gen_config_true)
-            # Run Optimizers
+            base_tof_data = generate_tof(ppath_file, gen_config_true)
+            # Run Optimizers - repeat the full noisy-training + eval cycle `repeats` times (matching
+            # repeats_if_noisy) - see experiments/experiments_core.py.
 
             for optimizer_func in optimizers_to_compare:
                 # Optimize with the new (errored) fetal F as the BPF Center Freq
-                optimizer_experiment = optimizer_func(tof_data, measurand, new_fetal_f)
-                optimizer_experiment.optimize()
-                optimizer_name = str(optimizer_experiment)
+                optimizer_experiment, [optimized_sensitivity], [evaluator_log] = run_noisy_repeats(
+                    base_tof_data,
+                    build_optimizer=lambda tof_data: optimizer_func(tof_data, measurand, new_fetal_f),
+                    evaluators_gen=lambda window: [
+                        evaluator_gen_func(ppath_file, window, measurand, gen_config_true)
+                    ],
+                    noise_variance=noise_variance,
+                    repeats=repeats,
+                )
                 window = optimizer_experiment.window.detach().cpu()
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config_true)
-                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
+
+                optimizer_name = str(optimizer_experiment)
                 fetal_energy = optimizer_experiment.training_curves_extra[-1, 0]
                 maternal_energy = optimizer_experiment.training_curves_extra[-1, 1]
                 noise_std = optimizer_experiment.training_curves_extra[-1, 2]
@@ -160,8 +169,15 @@ def main(inject_noise: bool = eval_spec.inject_noise) -> None:
     # error_rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]  # 5%, 10%, 15%, 20% error in fetal F
     error_rates_np = np.arange(0.0, 1.01, 0.05)
     error_rates = [float(x) for x in error_rates_np]
+    # Training-data noise is gated on inject_noise - fetal_f error is the swept variable here, not noise level.
+    train_noise_variance = eval_spec.instrument_noise_variance if inject_noise else 0.0
     exp_results = run_false_fetal_frequency_experiment(
-        eval_func, optimizer_funcs_to_test, error_rates, repeats=repeats, print_log=False
+        eval_func,
+        optimizer_funcs_to_test,
+        error_rates,
+        noise_variance=train_noise_variance,
+        repeats=repeats,
+        print_log=False,
     )
     write_results_to_yaml(exp_results, results_path, append=False)
 

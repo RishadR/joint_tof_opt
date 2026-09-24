@@ -22,12 +22,16 @@ def evaluate_repeats(
     """
     Call evaluator.evaluate() `repeats` times. Each call re-generates ToFData and re-applies
     evaluator.tof_modifier, so every repeat gets an independent noise draw when tof_modifier is set (see
-    EvaluatorSpecs.repeats_if_noisy). Returns (sensitivity, log) directly when repeats == 1, else
-    (list of sensitivities, list of logs) - one entry per repeat.
+    EvaluatorSpecs.repeats_if_noisy) - evaluator.tof_modifier is reseeded with the repeat index (0..repeats-1)
+    before each call, so repeats are reproducible yet distinct instead of all drawing identical noise.
+    Returns (sensitivity, log) directly when repeats == 1, else (list of sensitivities, list of logs) - one
+    entry per repeat.
     """
     sensitivities: list[float] = []
     logs: list[dict[str, Any]] = []
-    for _ in range(repeats):
+    for i in range(repeats):
+        if evaluator.tof_modifier is not None:
+            evaluator.tof_modifier.reseed(i)
         sensitivities.append(evaluator.evaluate())
         logs.append(evaluator.get_log())
     if repeats == 1:

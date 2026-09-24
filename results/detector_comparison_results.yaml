@@ -1,1014 +1,910 @@
 exp 000:
   Depth_mm: 6
-  Epochs: 166
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 3.66692123933347
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 13.780097320689725
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 1
   evaluator_log:
-    baseline_noise_std: 687.5792681574976
-    fetal_ac_energy: 185523184.0
-    final_metric: 3.66692123933347
-    maternal_ac_amp: 73582.38049968213
-    maternal_ac_energy: 5414366720.0
+    baseline_noise_std: 125.67926766301791
+    fetal_ac_energy: 5187520.0
+    final_metric: 13.780097320689725
+    maternal_ac_amp: 2995.32435639281
+    maternal_ac_energy: 8971968.0
 exp 001:
   Depth_mm: 8
-  Epochs: 304
-  Measurand: abs
-  Optimized_Sensitivity: 0.4528812832726299
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 703.872880035877
-    fetal_ac_energy: 24360680.0
-    final_metric: 0.4528812832726299
-    maternal_ac_amp: 76420.66317430123
-    maternal_ac_energy: 5840117760.0
-exp 002:
-  Depth_mm: 10
-  Epochs: 276
-  Measurand: abs
-  Optimized_Sensitivity: 0.020268906509592715
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 701.4833168009059
-    fetal_ac_energy: 1068923.75
-    final_metric: 0.020268906509592715
-    maternal_ac_amp: 75179.43548604232
-    maternal_ac_energy: 5651947520.0
-exp 003:
-  Depth_mm: 12
-  Epochs: 457
-  Measurand: abs
-  Optimized_Sensitivity: 0.002128476429084143
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 708.3375563599603
-    fetal_ac_energy: 115683.0
-    final_metric: 0.002128476429084143
-    maternal_ac_amp: 76729.1573262733
-    maternal_ac_energy: 5887363584.0
-exp 004:
-  Depth_mm: 14
-  Epochs: 608
-  Measurand: abs
-  Optimized_Sensitivity: 0.00024133447600573044
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 710.7685980683165
-    fetal_ac_energy: 13246.1171875
-    final_metric: 0.00024133447600573044
-    maternal_ac_amp: 77221.99065033224
-    maternal_ac_energy: 5963235840.0
-exp 005:
-  Depth_mm: 16
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 8.662006825699816e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 713.7810632469875
-    fetal_ac_energy: 4818.4619140625
-    final_metric: 8.662006825699816e-05
-    maternal_ac_amp: 77933.62673454893
-    maternal_ac_energy: 6073650176.0
-exp 006:
-  Depth_mm: 18
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 9.978259679405981e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 714.0108104923902
-    fetal_ac_energy: 555.7052001953125
-    final_metric: 9.978259679405981e-06
-    maternal_ac_amp: 77998.2522881122
-    maternal_ac_energy: 6083727360.0
-exp 007:
-  Depth_mm: 20
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 1.081827109230951e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 714.3826443160556
-    fetal_ac_energy: 60.38016891479492
-    final_metric: 1.081827109230951e-06
-    maternal_ac_amp: 78127.79520759561
-    maternal_ac_energy: 6103952384.0
-exp 008:
-  Depth_mm: 22
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 1.0012009502445073e-07
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 714.1992894143763
-    fetal_ac_energy: 5.579517364501953
-    final_metric: 1.0012009502445073e-07
-    maternal_ac_amp: 78028.98661395008
-    maternal_ac_energy: 6088522752.0
-exp 009:
-  Depth_mm: 24
-  Epochs: 53
-  Measurand: abs
-  Optimized_Sensitivity: 1.145714305333208e-08
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 713.8670000427251
-    fetal_ac_energy: 0.6380313634872437
-    final_metric: 1.145714305333208e-08
-    maternal_ac_amp: 78009.66011975697
-    maternal_ac_energy: 6085507072.0
-exp 010:
-  Depth_mm: 26
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 1.5463846452018535e-09
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 714.3595033314808
-    fetal_ac_energy: 0.08626454323530197
-    final_metric: 1.5463846452018535e-09
-    maternal_ac_amp: 78090.45831598122
-    maternal_ac_energy: 6098119680.0
-exp 011:
-  Depth_mm: 28
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 9.351076207649643e-10
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 714.0118827792714
-    fetal_ac_energy: 0.052087023854255676
-    final_metric: 9.351076207649643e-10
-    maternal_ac_amp: 78012.19678998919
-    maternal_ac_energy: 6085902848.0
-exp 012:
-  Depth_mm: 30
-  Epochs: 52
-  Measurand: abs
-  Optimized_Sensitivity: 0.0
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 1
-  evaluator_log:
-    baseline_noise_std: 714.2031617474121
-    fetal_ac_energy: 0.0
-    final_metric: 0.0
-    maternal_ac_amp: 78063.39167625245
-    maternal_ac_energy: 6093893120.0
-exp 013:
-  Depth_mm: 6
-  Epochs: 248
-  Measurand: abs
-  Optimized_Sensitivity: 4.823379538628062
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 605.1528216078976
-    fetal_ac_energy: 167210080.0
-    final_metric: 4.823379538628062
-    maternal_ac_amp: 57285.66452438167
-    maternal_ac_energy: 3281647360.0
-exp 014:
-  Depth_mm: 8
-  Epochs: 185
-  Measurand: abs
-  Optimized_Sensitivity: 0.7934442993043854
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 613.3554230623546
-    fetal_ac_energy: 28533058.0
-    final_metric: 0.7934442993043854
-    maternal_ac_amp: 58629.96912842442
-    maternal_ac_energy: 3437473280.0
-exp 015:
-  Depth_mm: 10
-  Epochs: 461
-  Measurand: abs
-  Optimized_Sensitivity: 0.07913117629112532
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 2
-  evaluator_log:
-    baseline_noise_std: 614.1985377302684
-    fetal_ac_energy: 2844229.0
-    final_metric: 0.07913117629112532
-    maternal_ac_amp: 58520.51783776353
-    maternal_ac_energy: 3424651008.0
-exp 016:
-  Depth_mm: 12
   Epochs: 386
   Measurand: abs
-  Optimized_Sensitivity: 0.0046802971226128694
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 4.724346600647762
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 49.95240410411945
+    fetal_ac_energy: 86809.640625
+    final_metric: 4.724346600647762
+    maternal_ac_amp: 367.8491963427404
+    maternal_ac_energy: 135313.03125
+exp 002:
+  Depth_mm: 10
+  Epochs: 193
+  Measurand: abs
+  Optimized_Sensitivity: 1.7259561922949829
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 42.30024431306884
+    fetal_ac_energy: 14969.0810546875
+    final_metric: 1.7259561922949829
+    maternal_ac_amp: 205.03240025969066
+    maternal_ac_energy: 42038.28515625
+exp 003:
+  Depth_mm: 12
+  Epochs: 281
+  Measurand: abs
+  Optimized_Sensitivity: 0.5559631143890401
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 33.75035807101719
+    fetal_ac_energy: 1442.283447265625
+    final_metric: 0.5559631143890401
+    maternal_ac_amp: 76.86457945125798
+    maternal_ac_energy: 5908.16357421875
+exp 004:
+  Depth_mm: 14
+  Epochs: 265
+  Measurand: abs
+  Optimized_Sensitivity: 0.15849670653924877
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 27.94832966134783
+    fetal_ac_energy: 120.29335021972656
+    final_metric: 0.15849670653924877
+    maternal_ac_amp: 27.155982539678295
+    maternal_ac_energy: 737.4473876953125
+exp 005:
+  Depth_mm: 16
+  Epochs: 342
+  Measurand: abs
+  Optimized_Sensitivity: 0.04309533844109553
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 24.280402876953822
+    fetal_ac_energy: 9.758872985839844
+    final_metric: 0.04309533844109553
+    maternal_ac_amp: 9.326388045596794
+    maternal_ac_energy: 86.98151397705078
+exp 006:
+  Depth_mm: 18
+  Epochs: 288
+  Measurand: abs
+  Optimized_Sensitivity: 0.014596464535451397
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 22.202701658525704
+    fetal_ac_energy: 1.899428129196167
+    final_metric: 0.014596464535451397
+    maternal_ac_amp: 5.860968207876599
+    maternal_ac_energy: 34.350948333740234
+exp 007:
+  Depth_mm: 20
+  Epochs: 398
+  Measurand: abs
+  Optimized_Sensitivity: 0.003727824236333621
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 19.47397539726898
+    fetal_ac_energy: 0.14859727025032043
+    final_metric: 0.003727824236333621
+    maternal_ac_amp: 2.046919611087986
+    maternal_ac_energy: 4.189879894256592
+exp 008:
+  Depth_mm: 22
+  Epochs: 2000
+  Measurand: abs
+  Optimized_Sensitivity: 0.0014157152097941813
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 20.070802865992853
+    fetal_ac_energy: 0.06415357440710068
+    final_metric: 0.0014157152097941813
+    maternal_ac_amp: 2.257772689521159
+    maternal_ac_energy: 5.097537517547607
+exp 009:
+  Depth_mm: 24
+  Epochs: 101
+  Measurand: abs
+  Optimized_Sensitivity: 0.00010797489617163983
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 21.539667485609545
+    fetal_ac_energy: 0.023542363196611404
+    final_metric: 0.00010797489617163983
+    maternal_ac_amp: 10.12251119283753
+    maternal_ac_energy: 102.4652328491211
+exp 010:
+  Depth_mm: 26
+  Epochs: 101
+  Measurand: abs
+  Optimized_Sensitivity: 7.433603451987545e-06
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 15.956783103180701
+    fetal_ac_energy: 0.0010025287047028542
+    final_metric: 7.433603451987545e-06
+    maternal_ac_amp: 8.45185591501672
+    maternal_ac_energy: 71.43386840820312
+exp 011:
+  Depth_mm: 28
+  Epochs: 101
+  Measurand: abs
+  Optimized_Sensitivity: 1.93363818553305e-06
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 15.95459742761153
+    fetal_ac_energy: 0.00026040669763460755
+    final_metric: 1.93363818553305e-06
+    maternal_ac_amp: 8.440945296299295
+    maternal_ac_energy: 71.24955749511719
+exp 012:
+  Depth_mm: 30
+  Epochs: 101
+  Measurand: abs
+  Optimized_Sensitivity: 5.001171410196144e-07
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 1
+  evaluator_log:
+    baseline_noise_std: 15.956230855079339
+    fetal_ac_energy: 6.74504553899169e-05
+    final_metric: 5.001171410196144e-07
+    maternal_ac_amp: 8.45245437641349
+    maternal_ac_energy: 71.44398498535156
+exp 013:
+  Depth_mm: 6
+  Epochs: 263
+  Measurand: abs
+  Optimized_Sensitivity: 15.715382309098912
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 611.4444731535317
-    fetal_ac_energy: 165749.328125
-    final_metric: 0.0046802971226128694
-    maternal_ac_amp: 57919.03645607375
-    maternal_ac_energy: 3354614784.0
+    baseline_noise_std: 96.64233148250823
+    fetal_ac_energy: 2764734.5
+    final_metric: 15.715382309098912
+    maternal_ac_amp: 1820.375922714866
+    maternal_ac_energy: 3313768.5
+exp 014:
+  Depth_mm: 8
+  Epochs: 216
+  Measurand: abs
+  Optimized_Sensitivity: 6.2095755698699735
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 2
+  evaluator_log:
+    baseline_noise_std: 59.609524491948854
+    fetal_ac_energy: 215380.28125
+    final_metric: 6.2095755698699735
+    maternal_ac_amp: 581.8732142829742
+    maternal_ac_energy: 338576.4375
+exp 015:
+  Depth_mm: 10
+  Epochs: 237
+  Measurand: abs
+  Optimized_Sensitivity: 2.1563166015400506
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 2
+  evaluator_log:
+    baseline_noise_std: 41.4249353476223
+    fetal_ac_energy: 17386.7890625
+    final_metric: 2.1563166015400506
+    maternal_ac_amp: 194.64579208141132
+    maternal_ac_energy: 37886.984375
+exp 016:
+  Depth_mm: 12
+  Epochs: 463
+  Measurand: abs
+  Optimized_Sensitivity: 0.6624516602658873
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
+  SDD_Index: 2
+  evaluator_log:
+    baseline_noise_std: 32.216243613107075
+    fetal_ac_energy: 1434.4493408203125
+    final_metric: 0.6624516602658873
+    maternal_ac_amp: 67.21343976002865
+    maternal_ac_energy: 4517.646484375
 exp 017:
   Depth_mm: 14
-  Epochs: 653
+  Epochs: 218
   Measurand: abs
-  Optimized_Sensitivity: 0.0006144502176569344
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.2496924058504324
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 615.6682852803123
-    fetal_ac_energy: 22224.388671875
-    final_metric: 0.0006144502176569344
-    maternal_ac_amp: 58748.43997928796
-    maternal_ac_energy: 3451379200.0
+    baseline_noise_std: 30.768069037000437
+    fetal_ac_energy: 349.6495056152344
+    final_metric: 0.2496924058504324
+    maternal_ac_amp: 45.51214906912906
+    maternal_ac_energy: 2071.355712890625
 exp 018:
   Depth_mm: 16
-  Epochs: 267
+  Epochs: 256
   Measurand: abs
-  Optimized_Sensitivity: 0.000172988214177041
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.07167000212225018
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 619.7806819754871
-    fetal_ac_energy: 6392.9443359375
-    final_metric: 0.000172988214177041
-    maternal_ac_amp: 59627.46856944373
-    maternal_ac_energy: 3555435008.0
+    baseline_noise_std: 27.62996963747823
+    fetal_ac_energy: 34.174591064453125
+    final_metric: 0.07167000212225018
+    maternal_ac_amp: 17.257802774159778
+    maternal_ac_energy: 297.8317565917969
 exp 019:
   Depth_mm: 18
-  Epochs: 561
+  Epochs: 409
   Measurand: abs
-  Optimized_Sensitivity: 1.62646354434572e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.01724241094323791
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 619.4522025548057
-    fetal_ac_energy: 600.4390869140625
-    final_metric: 1.62646354434572e-05
-    maternal_ac_amp: 59595.96013153912
-    maternal_ac_energy: 3551678464.0
+    baseline_noise_std: 23.07649976293185
+    fetal_ac_energy: 1.9473786354064941
+    final_metric: 0.01724241094323791
+    maternal_ac_amp: 4.894208576255269
+    maternal_ac_energy: 23.953277587890625
 exp 020:
   Depth_mm: 20
-  Epochs: 762
+  Epochs: 372
   Measurand: abs
-  Optimized_Sensitivity: 2.1398904906852235e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.006531407897860225
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 620.4728791413852
-    fetal_ac_energy: 79.3697280883789
-    final_metric: 2.1398904906852235e-06
-    maternal_ac_amp: 59777.88433860803
-    maternal_ac_energy: 3573395456.0
+    baseline_noise_std: 21.98765217444853
+    fetal_ac_energy: 0.5531697273254395
+    final_metric: 0.006531407897860225
+    maternal_ac_amp: 3.8518799192541704
+    maternal_ac_energy: 14.836978912353516
 exp 021:
   Depth_mm: 22
-  Epochs: 962
+  Epochs: 549
   Measurand: abs
-  Optimized_Sensitivity: 2.9029130756958595e-07
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0022067369404668983
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 620.1105748171047
-    fetal_ac_energy: 10.750497817993164
-    final_metric: 2.9029130756958595e-07
-    maternal_ac_amp: 59720.771059992185
-    maternal_ac_energy: 3566570496.0
+    baseline_noise_std: 19.809103304553407
+    fetal_ac_energy: 0.10383325815200806
+    final_metric: 0.0022067369404668983
+    maternal_ac_amp: 2.3753143905553835
+    maternal_ac_energy: 5.642118453979492
 exp 022:
   Depth_mm: 24
-  Epochs: 1373
+  Epochs: 2000
   Measurand: abs
-  Optimized_Sensitivity: 2.303778367322471e-08
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0002401596093032846
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 620.6081946365194
-    fetal_ac_energy: 0.8545070886611938
-    final_metric: 2.303778367322471e-08
-    maternal_ac_amp: 59766.45105742853
-    maternal_ac_energy: 3572028672.0
+    baseline_noise_std: 21.010474363016755
+    fetal_ac_energy: 0.03747444972395897
+    final_metric: 0.0002401596093032846
+    maternal_ac_amp: 7.426760830148138
+    maternal_ac_energy: 55.156776428222656
 exp 023:
   Depth_mm: 26
-  Epochs: 1133
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 5.610614907014011e-09
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 3.6715052817512743e-05
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 620.8137301155638
-    fetal_ac_energy: 0.20833948254585266
-    final_metric: 5.610614907014011e-09
-    maternal_ac_amp: 59813.58133400808
-    maternal_ac_energy: 3577664512.0
+    baseline_noise_std: 18.608919101258607
+    fetal_ac_energy: 0.0050377389416098595
+    final_metric: 3.6715052817512743e-05
+    maternal_ac_amp: 7.3734434392524815
+    maternal_ac_energy: 54.36766815185547
 exp 024:
   Depth_mm: 28
-  Epochs: 68
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 2.1902812811162445e-10
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 4.689413666900587e-06
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 620.8999768481233
-    fetal_ac_energy: 0.00813833624124527
-    final_metric: 2.1902812811162445e-10
-    maternal_ac_amp: 59843.10152390165
-    maternal_ac_energy: 3581196800.0
+    baseline_noise_std: 15.570828457488672
+    fetal_ac_energy: 0.00048797769704833627
+    final_metric: 4.689413666900587e-06
+    maternal_ac_amp: 6.682973024671455
+    maternal_ac_energy: 44.66212844848633
 exp 025:
   Depth_mm: 30
-  Epochs: 55
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 0.0
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 1.289646521784445e-06
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 2
   evaluator_log:
-    baseline_noise_std: 620.8193930202245
-    fetal_ac_energy: 0.0
-    final_metric: 0.0
-    maternal_ac_amp: 59837.76680324893
-    maternal_ac_energy: 3580558336.0
+    baseline_noise_std: 15.571756941906475
+    fetal_ac_energy: 0.00013428571401163936
+    final_metric: 1.289646521784445e-06
+    maternal_ac_amp: 6.686848831560542
+    maternal_ac_energy: 44.71394729614258
 exp 026:
   Depth_mm: 6
-  Epochs: 196
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 5.782537372885674
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 14.223323859935133
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 367.9258162320225
-    fetal_ac_energy: 45327304.0
-    final_metric: 5.782537372885674
-    maternal_ac_amp: 21304.98232808467
-    maternal_ac_energy: 453902272.0
+    baseline_noise_std: 91.98066840034922
+    fetal_ac_energy: 2090654.25
+    final_metric: 14.223323859935133
+    maternal_ac_amp: 1598.0286292804644
+    maternal_ac_energy: 2553695.5
 exp 027:
   Depth_mm: 8
   Epochs: 175
   Measurand: abs
-  Optimized_Sensitivity: 1.3941498463198128
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 6.095225242549861
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 364.71332920528147
-    fetal_ac_energy: 10734202.0
-    final_metric: 1.3941498463198128
-    maternal_ac_amp: 21110.993534175504
-    maternal_ac_energy: 445674048.0
+    baseline_noise_std: 58.621980699169065
+    fetal_ac_energy: 201628.59375
+    final_metric: 6.095225242549861
+    maternal_ac_amp: 564.2893761183175
+    maternal_ac_energy: 318422.5
 exp 028:
   Depth_mm: 10
-  Epochs: 263
+  Epochs: 239
   Measurand: abs
-  Optimized_Sensitivity: 0.27356488016491537
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 2.2135698270764728
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 364.9711247139971
-    fetal_ac_energy: 2120091.5
-    final_metric: 0.27356488016491537
-    maternal_ac_amp: 21234.192803118276
-    maternal_ac_energy: 450890944.0
+    baseline_noise_std: 42.04323858996607
+    fetal_ac_energy: 19036.65234375
+    final_metric: 2.2135698270764728
+    maternal_ac_amp: 204.550803591675
+    maternal_ac_energy: 41841.03125
 exp 029:
   Depth_mm: 12
-  Epochs: 280
+  Epochs: 272
   Measurand: abs
-  Optimized_Sensitivity: 0.047343533213158616
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.7336467453258488
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 365.9181303584177
-    fetal_ac_energy: 369817.0625
-    final_metric: 0.047343533213158616
-    maternal_ac_amp: 21347.27036414726
-    maternal_ac_energy: 455705952.0
+    baseline_noise_std: 33.1706274788969
+    fetal_ac_energy: 1845.87841796875
+    final_metric: 0.7336467453258488
+    maternal_ac_amp: 75.85119195050596
+    maternal_ac_energy: 5753.4033203125
 exp 030:
   Depth_mm: 14
-  Epochs: 344
+  Epochs: 460
   Measurand: abs
-  Optimized_Sensitivity: 0.002817315746277523
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.2180112152985919
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 362.27029359995834
-    fetal_ac_energy: 21281.216796875
-    final_metric: 0.002817315746277523
-    maternal_ac_amp: 20851.063474077288
-    maternal_ac_energy: 434766848.0
+    baseline_noise_std: 28.830325754411252
+    fetal_ac_energy: 175.4639892578125
+    final_metric: 0.2180112152985919
+    maternal_ac_amp: 27.91641292931174
+    maternal_ac_energy: 779.3261108398438
 exp 031:
   Depth_mm: 16
-  Epochs: 502
+  Epochs: 253
   Measurand: abs
-  Optimized_Sensitivity: 0.0004315868614360634
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.08304584200628971
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 364.2555764844239
-    fetal_ac_energy: 3319.508056640625
-    final_metric: 0.0004315868614360634
-    maternal_ac_amp: 21115.399498943894
-    maternal_ac_energy: 445860096.0
+    baseline_noise_std: 27.648902184213163
+    fetal_ac_energy: 45.45732116699219
+    final_metric: 0.08304584200628971
+    maternal_ac_amp: 19.797395261267564
+    maternal_ac_energy: 391.9368591308594
 exp 032:
   Depth_mm: 18
-  Epochs: 592
+  Epochs: 313
   Measurand: abs
-  Optimized_Sensitivity: 6.391150114426151e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.023550655451343987
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 365.71347220194116
-    fetal_ac_energy: 497.8039855957031
-    final_metric: 6.391150114426151e-05
-    maternal_ac_amp: 21297.978871245035
-    maternal_ac_energy: 453603904.0
+    baseline_noise_std: 24.5989238720734
+    fetal_ac_energy: 4.387835502624512
+    final_metric: 0.023550655451343987
+    maternal_ac_amp: 7.574103415025696
+    maternal_ac_energy: 57.367042541503906
 exp 033:
   Depth_mm: 20
-  Epochs: 552
+  Epochs: 456
   Measurand: abs
-  Optimized_Sensitivity: 9.293246662081526e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.006512967727770151
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 365.9345484509491
-    fetal_ac_energy: 72.54873657226562
-    final_metric: 9.293246662081526e-06
-    maternal_ac_amp: 21333.345916662955
-    maternal_ac_energy: 455111648.0
+    baseline_noise_std: 19.914252524593568
+    fetal_ac_energy: 0.35681888461112976
+    final_metric: 0.006512967727770151
+    maternal_ac_amp: 2.7510906137611157
+    maternal_ac_energy: 7.568499565124512
 exp 034:
   Depth_mm: 22
-  Epochs: 546
+  Epochs: 548
   Measurand: abs
-  Optimized_Sensitivity: 2.0252699097808995e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.002560589001060256
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 366.69058397373664
-    fetal_ac_energy: 15.90682315826416
-    final_metric: 2.0252699097808995e-06
-    maternal_ac_amp: 21419.078598296426
-    maternal_ac_energy: 458776928.0
+    baseline_noise_std: 20.1719188734031
+    fetal_ac_energy: 0.1507229208946228
+    final_metric: 0.002560589001060256
+    maternal_ac_amp: 2.9180465340619866
+    maternal_ac_energy: 8.514995574951172
 exp 035:
   Depth_mm: 24
-  Epochs: 729
+  Epochs: 1620
   Measurand: abs
-  Optimized_Sensitivity: 3.002007064654025e-07
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0008109383007770705
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 366.59804282074396
-    fetal_ac_energy: 2.3568077087402344
-    final_metric: 3.002007064654025e-07
-    maternal_ac_amp: 21415.208054090905
-    maternal_ac_energy: 458611136.0
+    baseline_noise_std: 20.17935706151253
+    fetal_ac_energy: 0.0306482445448637
+    final_metric: 0.0008109383007770705
+    maternal_ac_amp: 1.8728822192233898
+    maternal_ac_energy: 3.50768780708313
 exp 036:
   Depth_mm: 26
-  Epochs: 881
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 2.7716277106526848e-08
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.00012263403863522156
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 366.977817790122
-    fetal_ac_energy: 0.21810251474380493
-    final_metric: 2.7716277106526848e-08
-    maternal_ac_amp: 21443.02068273031
-    maternal_ac_energy: 459803136.0
+    baseline_noise_std: 20.59237995134479
+    fetal_ac_energy: 0.010227527469396591
+    final_metric: 0.00012263403863522156
+    maternal_ac_amp: 4.0499818872117395
+    maternal_ac_energy: 16.402353286743164
 exp 037:
   Depth_mm: 28
-  Epochs: 971
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 2.4794422287932205e-09
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 2.3072085706496152e-05
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 367.1155514616617
-    fetal_ac_energy: 0.019531551748514175
-    final_metric: 2.4794422287932205e-09
-    maternal_ac_amp: 21457.542077320973
-    maternal_ac_energy: 460426112.0
+    baseline_noise_std: 17.873184218580867
+    fetal_ac_energy: 0.0013256827369332314
+    final_metric: 2.3072085706496152e-05
+    maternal_ac_amp: 3.2147767070393938
+    maternal_ac_energy: 10.334789276123047
 exp 038:
   Depth_mm: 30
-  Epochs: 68
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 1.0366850155015189e-09
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 3.5667531991114865e-06
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 3
   evaluator_log:
-    baseline_noise_std: 366.7257575491528
-    fetal_ac_energy: 0.008138309232890606
-    final_metric: 1.0366850155015189e-09
-    maternal_ac_amp: 21406.514148735194
-    maternal_ac_energy: 458238848.0
+    baseline_noise_std: 14.713004576296079
+    fetal_ac_energy: 0.00014059798559173942
+    final_metric: 3.5667531991114865e-06
+    maternal_ac_amp: 2.6791971275136497
+    maternal_ac_energy: 7.178097248077393
 exp 039:
   Depth_mm: 6
-  Epochs: 151
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 6.253626205723906
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 10.983159371362435
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 196.27031144890458
-    fetal_ac_energy: 7453590.0
-    final_metric: 6.253626205723906
-    maternal_ac_amp: 6072.660043177125
-    maternal_ac_energy: 36877200.0
+    baseline_noise_std: 76.32572763635307
+    fetal_ac_energy: 884952.25
+    final_metric: 10.983159371362435
+    maternal_ac_amp: 1055.654003449994
+    maternal_ac_energy: 1114405.375
 exp 040:
   Depth_mm: 8
-  Epochs: 138
+  Epochs: 281
   Measurand: abs
-  Optimized_Sensitivity: 2.174477044799596
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 5.045563672925323
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 188.08764163947615
-    fetal_ac_energy: 2336135.0
-    final_metric: 2.174477044799596
-    maternal_ac_amp: 5711.9296214151655
-    maternal_ac_energy: 32626140.0
+    baseline_noise_std: 52.538748256495175
+    fetal_ac_energy: 106997.578125
+    final_metric: 5.045563672925323
+    maternal_ac_amp: 403.63101962064314
+    maternal_ac_energy: 162918.0
 exp 041:
   Depth_mm: 10
-  Epochs: 187
+  Epochs: 156
   Measurand: abs
-  Optimized_Sensitivity: 0.569919288679737
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 1.9017274056397477
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 185.74090447112073
-    fetal_ac_energy: 596055.8125
-    final_metric: 0.569919288679737
-    maternal_ac_amp: 5630.747019712393
-    maternal_ac_energy: 31705312.0
+    baseline_noise_std: 39.569700914572884
+    fetal_ac_energy: 11832.5615234375
+    final_metric: 1.9017274056397477
+    maternal_ac_amp: 157.24170288126493
+    maternal_ac_energy: 24724.953125
 exp 042:
   Depth_mm: 12
-  Epochs: 184
+  Epochs: 166
   Measurand: abs
-  Optimized_Sensitivity: 0.12495028469749936
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.6640409044642638
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 185.50164251294382
-    fetal_ac_energy: 130602.53125
-    final_metric: 0.12495028469749936
-    maternal_ac_amp: 5634.6453304533725
-    maternal_ac_energy: 31749228.0
+    baseline_noise_std: 33.7003595440529
+    fetal_ac_energy: 1488.169921875
+    final_metric: 0.6640409044642638
+    maternal_ac_amp: 66.5002312907162
+    maternal_ac_energy: 4422.28076171875
 exp 043:
   Depth_mm: 14
-  Epochs: 499
+  Epochs: 288
   Measurand: abs
-  Optimized_Sensitivity: 0.014912895724924114
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.2027377886712718
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 184.04108534169754
-    fetal_ac_energy: 15233.1943359375
-    final_metric: 0.014912895724924114
-    maternal_ac_amp: 5550.271344718202
-    maternal_ac_energy: 30805512.0
+    baseline_noise_std: 29.200653445104507
+    fetal_ac_energy: 152.19512939453125
+    final_metric: 0.2027377886712718
+    maternal_ac_amp: 25.708307085894557
+    maternal_ac_energy: 660.9170532226562
 exp 044:
   Depth_mm: 16
-  Epochs: 447
+  Epochs: 416
   Measurand: abs
-  Optimized_Sensitivity: 0.0012835598682132453
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.06060649651451398
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 182.11456516091732
-    fetal_ac_energy: 1266.504150390625
-    final_metric: 0.0012835598682132453
-    maternal_ac_amp: 5418.0849015127105
-    maternal_ac_energy: 29355644.0
+    baseline_noise_std: 26.156981536589207
+    fetal_ac_energy: 16.59920883178711
+    final_metric: 0.06060649651451398
+    maternal_ac_amp: 10.470817339017538
+    maternal_ac_energy: 109.63801574707031
 exp 045:
   Depth_mm: 18
-  Epochs: 676
+  Epochs: 182
   Measurand: abs
-  Optimized_Sensitivity: 0.00021178131119579575
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.02267773838360473
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 183.8102473510386
-    fetal_ac_energy: 215.4920654296875
-    final_metric: 0.00021178131119579575
-    maternal_ac_amp: 5535.717658985147
-    maternal_ac_energy: 30644170.0
+    baseline_noise_std: 23.58713949197873
+    fetal_ac_energy: 3.483639717102051
+    final_metric: 0.02267773838360473
+    maternal_ac_amp: 6.512657166559639
+    maternal_ac_energy: 42.414703369140625
 exp 046:
   Depth_mm: 20
-  Epochs: 432
+  Epochs: 387
   Measurand: abs
-  Optimized_Sensitivity: 5.40254341293874e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.006631425214643531
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 185.51821423380508
-    fetal_ac_energy: 56.5324821472168
-    final_metric: 5.40254341293874e-05
-    maternal_ac_amp: 5640.443244994138
-    maternal_ac_energy: 31814600.0
+    baseline_noise_std: 20.04248417424846
+    fetal_ac_energy: 0.36050158739089966
+    final_metric: 0.006631425214643531
+    maternal_ac_amp: 2.712368897816408
+    maternal_ac_energy: 7.356945037841797
 exp 047:
   Depth_mm: 22
-  Epochs: 540
+  Epochs: 582
   Measurand: abs
-  Optimized_Sensitivity: 8.746593598124157e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0022331218735719646
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 185.62539983121923
-    fetal_ac_energy: 9.173320770263672
-    final_metric: 8.746593598124157e-06
-    maternal_ac_amp: 5650.023185793135
-    maternal_ac_energy: 31922762.0
+    baseline_noise_std: 19.987096056932895
+    fetal_ac_energy: 0.08002050966024399
+    final_metric: 0.0022331218735719646
+    maternal_ac_amp: 1.7928303185173082
+    maternal_ac_energy: 3.214240550994873
 exp 048:
   Depth_mm: 24
-  Epochs: 654
+  Epochs: 1693
   Measurand: abs
-  Optimized_Sensitivity: 1.474488232816927e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0008389712394553033
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 185.898336211624
-    fetal_ac_energy: 1.555403470993042
-    final_metric: 1.474488232816927e-06
-    maternal_ac_amp: 5674.482355246159
-    maternal_ac_energy: 32199750.0
+    baseline_noise_std: 20.208727562064226
+    fetal_ac_energy: 0.033040840178728104
+    final_metric: 0.0008389712394553033
+    maternal_ac_amp: 1.9487899889706075
+    maternal_ac_energy: 3.7977824211120605
 exp 049:
   Depth_mm: 26
-  Epochs: 770
+  Epochs: 2000
   Measurand: abs
-  Optimized_Sensitivity: 1.3823878232518715e-07
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0002310962106437479
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 186.07671259120525
-    fetal_ac_energy: 0.14600342512130737
-    final_metric: 1.3823878232518715e-07
-    maternal_ac_amp: 5675.983439017418
-    maternal_ac_energy: 32216788.0
+    baseline_noise_std: 20.321791744985543
+    fetal_ac_energy: 0.010806558653712273
+    final_metric: 0.0002310962106437479
+    maternal_ac_amp: 2.3010846441517057
+    maternal_ac_energy: 5.294990539550781
 exp 050:
   Depth_mm: 28
-  Epochs: 914
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 1.2503387835325738e-08
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 4.973599296509212e-05
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 186.2602241321265
-    fetal_ac_energy: 0.013249925337731838
-    final_metric: 1.2503387835325738e-08
-    maternal_ac_amp: 5689.388719361686
-    maternal_ac_energy: 32369144.0
+    baseline_noise_std: 17.595598086495507
+    fetal_ac_energy: 0.0014520683325827122
+    final_metric: 4.973599296509212e-05
+    maternal_ac_amp: 1.6592515342743244
+    maternal_ac_energy: 2.753115653991699
 exp 051:
   Depth_mm: 30
-  Epochs: 53
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 1.2719213878752469e-09
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 8.55177283198455e-06
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 4
   evaluator_log:
-    baseline_noise_std: 186.2930633940781
-    fetal_ac_energy: 0.0013478834880515933
-    final_metric: 1.2719213878752469e-09
-    maternal_ac_amp: 5688.469038326569
-    maternal_ac_energy: 32358680.0
+    baseline_noise_std: 14.371810957402428
+    fetal_ac_energy: 0.00013730610953643918
+    final_metric: 8.55177283198455e-06
+    maternal_ac_amp: 1.1171775764077945
+    maternal_ac_energy: 1.2480857372283936
 exp 052:
   Depth_mm: 6
-  Epochs: 125
+  Epochs: 191
   Measurand: abs
-  Optimized_Sensitivity: 5.541364667376956
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 6.973209374873956
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 108.44955804716311
-    fetal_ac_energy: 1088034.25
-    final_metric: 5.541364667376956
-    maternal_ac_amp: 1810.4979977895584
-    maternal_ac_energy: 3277903.0
+    baseline_noise_std: 47.03249063978273
+    fetal_ac_energy: 101884.78125
+    final_metric: 6.973209374873956
+    maternal_ac_amp: 310.65520476888844
+    maternal_ac_energy: 96506.65625
 exp 053:
   Depth_mm: 8
-  Epochs: 246
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 2.566634418817095
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 3.7393801025687154
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 99.19778321773376
-    fetal_ac_energy: 402703.875
-    final_metric: 2.566634418817095
-    maternal_ac_amp: 1581.6843869748477
-    maternal_ac_energy: 2501725.5
+    baseline_noise_std: 44.874908872209005
+    fetal_ac_energy: 41902.9765625
+    final_metric: 3.7393801025687154
+    maternal_ac_amp: 249.71330436122142
+    maternal_ac_energy: 62356.734375
 exp 054:
   Depth_mm: 10
-  Epochs: 192
+  Epochs: 199
   Measurand: abs
-  Optimized_Sensitivity: 0.8686144631106539
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 1.4591676449435915
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 95.00961094476179
-    fetal_ac_energy: 122713.59375
-    final_metric: 0.8686144631106539
-    maternal_ac_amp: 1486.955866863573
-    maternal_ac_energy: 2211037.75
+    baseline_noise_std: 37.27280132683885
+    fetal_ac_energy: 5724.50244140625
+    final_metric: 1.4591676449435915
+    maternal_ac_amp: 105.2544628655954
+    maternal_ac_energy: 11078.501953125
 exp 055:
   Depth_mm: 12
-  Epochs: 256
+  Epochs: 159
   Measurand: abs
-  Optimized_Sensitivity: 0.21847023948759098
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.5401525179540071
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 93.28915900306959
-    fetal_ac_energy: 29489.32421875
-    final_metric: 0.21847023948759098
-    maternal_ac_amp: 1446.9094650322804
-    maternal_ac_energy: 2093547.0
+    baseline_noise_std: 32.284144579203854
+    fetal_ac_energy: 874.642333984375
+    final_metric: 0.5401525179540071
+    maternal_ac_amp: 50.15622079438402
+    maternal_ac_energy: 2515.646484375
 exp 056:
   Depth_mm: 14
-  Epochs: 219
+  Epochs: 243
   Measurand: abs
-  Optimized_Sensitivity: 0.050988077484215036
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.17297285441080054
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 93.43923493372579
-    fetal_ac_energy: 6952.67822265625
-    final_metric: 0.050988077484215036
-    maternal_ac_amp: 1459.3323816046843
-    maternal_ac_energy: 2129651.0
+    baseline_noise_std: 28.296608614497096
+    fetal_ac_energy: 101.04844665527344
+    final_metric: 0.17297285441080054
+    maternal_ac_amp: 20.645114777112678
+    maternal_ac_energy: 426.22076416015625
 exp 057:
   Depth_mm: 16
-  Epochs: 235
+  Epochs: 247
   Measurand: abs
-  Optimized_Sensitivity: 0.009297387045932857
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.05576496014643857
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 92.91528399569147
-    fetal_ac_energy: 1250.1263427734375
-    final_metric: 0.009297387045932857
-    maternal_ac_amp: 1447.1243035758885
-    maternal_ac_energy: 2094168.75
+    baseline_noise_std: 24.65597522422937
+    fetal_ac_energy: 12.285161972045898
+    final_metric: 0.05576496014643857
+    maternal_ac_amp: 8.935056552462504
+    maternal_ac_energy: 79.83523559570312
 exp 058:
   Depth_mm: 18
-  Epochs: 371
+  Epochs: 288
   Measurand: abs
-  Optimized_Sensitivity: 0.00080023657905997
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.016550578764660553
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 91.5450708667594
-    fetal_ac_energy: 102.76655578613281
-    final_metric: 0.00080023657905997
-    maternal_ac_amp: 1402.8086558757755
-    maternal_ac_energy: 1967872.125
+    baseline_noise_std: 21.904190206076652
+    fetal_ac_energy: 1.3069936037063599
+    final_metric: 0.016550578764660553
+    maternal_ac_amp: 3.6052308174555687
+    maternal_ac_energy: 12.997689247131348
 exp 059:
   Depth_mm: 20
-  Epochs: 704
+  Epochs: 263
   Measurand: abs
-  Optimized_Sensitivity: 9.816756016413671e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.007256717169197325
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 91.62412601902405
-    fetal_ac_energy: 12.648067474365234
-    final_metric: 9.816756016413671e-05
-    maternal_ac_amp: 1406.197532354541
-    maternal_ac_energy: 1977391.5
+    baseline_noise_std: 22.04493009449324
+    fetal_ac_energy: 0.6143772602081299
+    final_metric: 0.007256717169197325
+    maternal_ac_amp: 3.8404862107976836
+    maternal_ac_energy: 14.749334335327148
 exp 060:
   Depth_mm: 22
-  Epochs: 533
+  Epochs: 347
   Measurand: abs
-  Optimized_Sensitivity: 2.5352331017896067e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0027598134236053395
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 92.97941115342418
-    fetal_ac_energy: 3.416839361190796
-    final_metric: 2.5352331017896067e-05
-    maternal_ac_amp: 1449.5055191340252
-    maternal_ac_energy: 2101066.25
+    baseline_noise_std: 22.312382374514886
+    fetal_ac_energy: 0.2517448365688324
+    final_metric: 0.0027598134236053395
+    maternal_ac_amp: 4.088226085883323
+    maternal_ac_energy: 16.713592529296875
 exp 061:
   Depth_mm: 24
-  Epochs: 57
+  Epochs: 810
   Measurand: abs
-  Optimized_Sensitivity: 2.845895087095819e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.0008348881272817886
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 92.99873991081814
-    fetal_ac_energy: 0.38301587104797363
-    final_metric: 2.845895087095819e-06
-    maternal_ac_amp: 1447.174229317258
-    maternal_ac_energy: 2094313.25
+    baseline_noise_std: 20.264858493117927
+    fetal_ac_energy: 0.04427437484264374
+    final_metric: 0.0008348881272817886
+    maternal_ac_amp: 2.616860531552161
+    maternal_ac_energy: 6.847959041595459
 exp 062:
   Depth_mm: 26
-  Epochs: 70
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 2.245107989401627e-07
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 0.00022838875898121568
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 93.01185450320298
-    fetal_ac_energy: 0.03024466335773468
-    final_metric: 2.245107989401627e-07
-    maternal_ac_amp: 1448.3489738319283
-    maternal_ac_energy: 2097714.75
+    baseline_noise_std: 20.25120107597402
+    fetal_ac_energy: 0.00841054692864418
+    final_metric: 0.00022838875898121568
+    maternal_ac_amp: 1.818438961528657
+    maternal_ac_energy: 3.30672025680542
 exp 063:
   Depth_mm: 28
-  Epochs: 56
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 1.9687361308132284e-08
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 6.9286808261585e-05
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 92.94888443218402
-    fetal_ac_energy: 0.0026512560434639454
-    final_metric: 1.9687361308132284e-08
-    maternal_ac_amp: 1448.8385003167193
-    maternal_ac_energy: 2099133.0
+    baseline_noise_std: 20.259328694947467
+    fetal_ac_energy: 0.002596565755084157
+    final_metric: 6.9286808261585e-05
+    maternal_ac_amp: 1.8497955003038407
+    maternal_ac_energy: 3.421743392944336
 exp 064:
   Depth_mm: 30
-  Epochs: 53
+  Epochs: 101
   Measurand: abs
-  Optimized_Sensitivity: 9.414977259045263e-10
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
+  Optimized_Sensitivity: 1.577325089466365e-05
+  Optimizer: DIGSSOptimizer(normalization_scheme=unit_max, use_window_post_process=False,
+    use_snr_left_bound=False),window_smoothening=False
   SDD_Index: 5
   evaluator_log:
-    baseline_noise_std: 93.04094360817714
-    fetal_ac_energy: 0.0001271591754630208
-    final_metric: 9.414977259045263e-10
-    maternal_ac_amp: 1451.6246071212763
-    maternal_ac_energy: 2107214.0
-exp 065:
-  Depth_mm: 6
-  Epochs: 123
-  Measurand: abs
-  Optimized_Sensitivity: 3.8750693155533678
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 65.35798729999456
-    fetal_ac_energy: 157355.078125
-    final_metric: 3.8750693155533678
-    maternal_ac_amp: 621.301808704916
-    maternal_ac_energy: 386015.9375
-exp 066:
-  Depth_mm: 8
-  Epochs: 197
-  Measurand: abs
-  Optimized_Sensitivity: 2.217013365389422
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 55.336391379791834
-    fetal_ac_energy: 57927.34375
-    final_metric: 2.217013365389422
-    maternal_ac_amp: 472.17660890814994
-    maternal_ac_energy: 222950.75
-exp 067:
-  Depth_mm: 10
-  Epochs: 206
-  Measurand: abs
-  Optimized_Sensitivity: 0.9165951891193036
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 50.28777779643007
-    fetal_ac_energy: 18804.92578125
-    final_metric: 0.9165951891193036
-    maternal_ac_amp: 407.97317237166465
-    maternal_ac_energy: 166442.109375
-exp 068:
-  Depth_mm: 12
-  Epochs: 141
-  Measurand: abs
-  Optimized_Sensitivity: 0.2583951545498159
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 47.648093564302236
-    fetal_ac_energy: 4622.115234375
-    final_metric: 0.2583951545498159
-    maternal_ac_amp: 375.4143544138929
-    maternal_ac_energy: 140935.9375
-exp 069:
-  Depth_mm: 14
-  Epochs: 208
-  Measurand: abs
-  Optimized_Sensitivity: 0.07015296678089532
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 47.05401494310156
-    fetal_ac_energy: 1233.3978271484375
-    final_metric: 0.07015296678089532
-    maternal_ac_amp: 373.64609759771344
-    maternal_ac_energy: 139611.40625
-exp 070:
-  Depth_mm: 16
-  Epochs: 114
-  Measurand: abs
-  Optimized_Sensitivity: 0.01367512782845943
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.73923307247483
-    fetal_ac_energy: 235.81607055664062
-    final_metric: 0.01367512782845943
-    maternal_ac_amp: 368.9439744053289
-    maternal_ac_energy: 136119.65625
-exp 071:
-  Depth_mm: 18
-  Epochs: 287
-  Measurand: abs
-  Optimized_Sensitivity: 0.0013820295589302414
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 45.64598457918424
-    fetal_ac_energy: 22.228599548339844
-    final_metric: 0.0013820295589302414
-    maternal_ac_amp: 352.36453514081126
-    maternal_ac_energy: 124160.765625
-exp 072:
-  Depth_mm: 20
-  Epochs: 466
-  Measurand: abs
-  Optimized_Sensitivity: 0.00028496157097525457
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.5960240055415
-    fetal_ac_energy: 4.87807559967041
-    final_metric: 0.00028496157097525457
-    maternal_ac_amp: 367.37818984664835
-    maternal_ac_energy: 134966.734375
-exp 073:
-  Depth_mm: 22
-  Epochs: 655
-  Measurand: abs
-  Optimized_Sensitivity: 2.9471462307241642e-05
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.5236519988758
-    fetal_ac_energy: 0.5031553506851196
-    final_metric: 2.9471462307241642e-05
-    maternal_ac_amp: 366.9666623141672
-    maternal_ac_energy: 134664.53125
-exp 074:
-  Depth_mm: 24
-  Epochs: 51
-  Measurand: abs
-  Optimized_Sensitivity: 3.3233956271179313e-06
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.584548051768195
-    fetal_ac_energy: 0.056803710758686066
-    final_metric: 3.3233956271179313e-06
-    maternal_ac_amp: 366.9042790701684
-    maternal_ac_energy: 134618.75
-exp 075:
-  Depth_mm: 26
-  Epochs: 53
-  Measurand: abs
-  Optimized_Sensitivity: 3.0249385700565253e-07
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.52044556395338
-    fetal_ac_energy: 0.005161147098988295
-    final_metric: 3.0249385700565253e-07
-    maternal_ac_amp: 366.76324959025
-    maternal_ac_energy: 134515.28125
-exp 076:
-  Depth_mm: 28
-  Epochs: 58
-  Measurand: abs
-  Optimized_Sensitivity: 1.63280297819224e-08
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.52482483762701
-    fetal_ac_energy: 0.0002789540740195662
-    final_metric: 1.63280297819224e-08
-    maternal_ac_amp: 367.209728050606
-    maternal_ac_energy: 134842.984375
-exp 077:
-  Depth_mm: 30
-  Epochs: 65
-  Measurand: abs
-  Optimized_Sensitivity: 4.6361908252860045e-09
-  Optimizer: DIGSSOptimizer(unit_max, use_window_post_process=True, use_snr_left_bound=False)
-  SDD_Index: 6
-  evaluator_log:
-    baseline_noise_std: 46.53120802550155
-    fetal_ac_energy: 7.917608309071511e-05
-    final_metric: 4.6361908252860045e-09
-    maternal_ac_amp: 367.0188602102077
-    maternal_ac_energy: 134702.84375
+    baseline_noise_std: 17.500880627954306
+    fetal_ac_energy: 0.0003067858051508665
+    final_metric: 1.577325089466365e-05
+    maternal_ac_amp: 1.1113584276301736
+    maternal_ac_energy: 1.2351175546646118

@@ -36,7 +36,6 @@ from joint_tof_opt import (
     WindowSumWithAdditiveGaussianNoiseCalculator,
     build_noise_tof_modifier,
     clear_results,
-    evaluate_repeats,
     format_sensitivity,
     generate_tof,
     get_evaluator_class,
@@ -49,11 +48,14 @@ from joint_tof_opt import (
     write_results_to_yaml,
 )
 
+from .experiments_core import run_noisy_repeats
+
 
 def run_detector_comparison(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
     optimizers_to_compare: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]],
     sdd_indices_to_test: list[int],
+    noise_variance: float = 0.0,
     repeats: int = 1,
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
@@ -87,17 +89,20 @@ def run_detector_comparison(
             print(f"Running experiment: {ppath_filename} with SDD index: {sdd_index}")
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_data = generate_tof(ppath_file, gen_config)
-            # Run Optimizers
-            # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
+            base_tof_data = generate_tof(ppath_file, gen_config)
+            # Run Optimizers - repeat the full noisy-training + eval cycle `repeats` times (matching
+            # repeats_if_noisy) - see experiments/experiments_core.py.
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(tof_data, measurand)
-                optimizer_experiment.optimize()
-                optimizer_name = str(optimizer_experiment)
-                window = optimizer_experiment.window
+                optimizer_experiment, [optimized_sensitivity], [evaluator_log] = run_noisy_repeats(
+                    base_tof_data,
+                    build_optimizer=lambda tof_data: optimizer_func(tof_data, measurand),
+                    evaluators_gen=lambda window: [evaluator_gen_func(ppath_file, window, measurand, gen_config)],
+                    noise_variance=noise_variance,
+                    repeats=repeats,
+                )
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
-                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
+
+                optimizer_name = str(optimizer_experiment)
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 results.append(
@@ -108,11 +113,6 @@ def run_detector_comparison(
                         "Optimizer": optimizer_name,
                         "Optimized_Sensitivity": optimized_sensitivity,
                         "Epochs": epochs,
-                        # Not exactly needed right now - maybe useful later
-                        # "Bin_Edges": bin_edges.tolist(),
-                        # "Optimized_Window": window.detach().cpu().numpy().tolist(),
-                        # "fetal_hb_series": meta_data["fetal_hb_series"].tolist(),
-                        # "filtered_signal": optimizer_experiment.final_signal.numpy().tolist(),
                         "evaluator_log": evaluator_log,
                     }
                 )
@@ -143,8 +143,15 @@ def main(inject_noise: bool = eval_spec.inject_noise) -> None:
     optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], DIGSSOptimizer]] = [
         lambda tof_data, measurand: DIGSSOptimizer(tof_data, measurand)
     ]
+    # Training-data noise is gated on inject_noise - SDD index is the swept variable here, not noise level.
+    train_noise_variance = eval_spec.instrument_noise_variance if inject_noise else 0.0
     exp_results = run_detector_comparison(
-        eval_func, optimizer_funcs_to_test, [1, 2, 3, 4, 5, 6], repeats=repeats, print_log=False
+        eval_func,
+        optimizer_funcs_to_test,
+        [1, 2, 3, 4, 5],
+        noise_variance=train_noise_variance,
+        repeats=repeats,
+        print_log=False,
     )
     result_path = noisy_results_path(
         Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml", inject_noise

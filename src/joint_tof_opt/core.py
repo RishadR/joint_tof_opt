@@ -242,7 +242,7 @@ class ToFModifier(ABC):
 
     Things to Implement in Subclasses:
     -----------------------
-    - self.modify() : Method to take in a ToFData instance and return a modified ToFData instance.
+    - self.modify() : Method to take in a ToFData instance and return a *new* modified ToFData instance.
     - __str__() : String representation of the modifier for easy identification.
 
     Extra:
@@ -252,6 +252,10 @@ class ToFModifier(ABC):
 
     @abstractmethod
     def modify(self, tof_data: ToFData) -> ToFData:
+        pass
+
+    def reseed(self, seed: int) -> None:
+        """Update the RNG seed used by this modifier, if any. Default: no-op (stateless modifiers)."""
         pass
 
     @override

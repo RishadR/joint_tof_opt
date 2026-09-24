@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import legend_no_overlap, load_plot_config, log_samples, resolve_results_path
 
 
 def main():
@@ -20,8 +21,9 @@ def main():
     # Load matplotlib configuration
     load_plot_config()
 
-    # Load sensitivity comparison results
-    results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
+    # Load sensitivity comparison results (noisy/noiseless file picked via evaluator_specs.yaml)
+    base_results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
+    results_path, inject_noise = resolve_results_path(base_results_path)
     with open(results_path) as f:
         results = yaml.safe_load(f)
 
@@ -34,19 +36,10 @@ def main():
 
         depth = exp_data.get("Depth_mm")
         optimizer = exp_data.get("Optimizer", "")
-        evaluator_log = exp_data.get("evaluator_log", {})
+        evaluator_log = exp_data.get("evaluator_log")
 
-        # Extract required values from evaluator_log
-        fetal_ac_energy = evaluator_log.get("fetal_ac_energy")
-        maternal_ac_energy = evaluator_log.get("maternal_ac_energy")
-        baseline_noise_std = evaluator_log.get("baseline_noise_std")
-
-        if depth is None or fetal_ac_energy is None or maternal_ac_energy is None or baseline_noise_std is None:
+        if depth is None or evaluator_log is None:
             continue
-
-        # Compute Selectivity and SNR
-        selectivity = np.sqrt(fetal_ac_energy / maternal_ac_energy)
-        snr = np.sqrt(fetal_ac_energy) / baseline_noise_std
 
         # Determine label
         optimizer_str = str(optimizer)
@@ -64,13 +57,22 @@ def main():
             label = "CW"
         elif optimizer_str.startswith("BoxCarOptimizer"):
             label = "Brute Force Boxcar"
-        if label:
-            if label not in grouped_data:
-                grouped_data[label] = {}
-            if depth not in grouped_data[label]:
-                grouped_data[label][depth] = {"snr": [], "selectivity": []}
-            grouped_data[label][depth]["snr"].append(snr)
-            grouped_data[label][depth]["selectivity"].append(selectivity)
+        if not label:
+            continue
+
+        for log in log_samples(evaluator_log):
+            fetal_ac_energy = log.get("fetal_ac_energy")
+            maternal_ac_energy = log.get("maternal_ac_energy")
+            baseline_noise_std = log.get("baseline_noise_std")
+            if fetal_ac_energy is None or maternal_ac_energy is None or baseline_noise_std is None:
+                continue
+
+            selectivity = np.sqrt(fetal_ac_energy / maternal_ac_energy)
+            snr = np.sqrt(fetal_ac_energy) / baseline_noise_std
+
+            depth_data = grouped_data.setdefault(label, {}).setdefault(depth, {"snr": [], "selectivity": []})
+            depth_data["snr"].append(snr)
+            depth_data["selectivity"].append(selectivity)
 
     # Create figure
     fig, ax = plt.subplots()
@@ -134,7 +136,7 @@ def main():
     ax.set_ylabel("Fetal Selectivity")
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.legend(loc="best")
+    legend_no_overlap(ax, "lower right")
     ax.grid(True, which="major")
     ax.grid(True, which="minor", alpha=0.3)
     ax.minorticks_on()
@@ -143,8 +145,8 @@ def main():
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(figures_dir / "sensitivity_comparison2.pdf", format="pdf")
-    fig.savefig(figures_dir / "sensitivity_comparison2.svg", format="svg")
+    fig.savefig(noisy_results_path(figures_dir / "sensitivity_comparison2.pdf", inject_noise), format="pdf")
+    fig.savefig(noisy_results_path(figures_dir / "sensitivity_comparison2.svg", inject_noise), format="svg")
 
     print(f"Selectivity vs. SNR plot saved to {figures_dir}")
     # plt.show()

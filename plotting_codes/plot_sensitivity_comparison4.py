@@ -6,12 +6,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import legend_no_overlap, load_plot_config, resolve_results_path
 
 
 def main():
     load_plot_config()
-    results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
+    base_results_path = Path(__file__).parent.parent / "results" / "sensitivity_comparison_results.yaml"
+    results_path, inject_noise = resolve_results_path(base_results_path)
     with open(results_path) as f:
         results = yaml.safe_load(f)
 
@@ -52,16 +54,18 @@ def main():
         ax.set_title(name)
         ax.set_xlabel("Bin Center (ns)")
         ax.grid(True)
-        ax.legend(title="Depth")
+        legend_no_overlap(ax, "lower right", title="Depth")
 
     axes[0].set_ylabel("Optimized Window")
     fig.tight_layout()
 
     out = Path(__file__).parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    fig.savefig(out / "sensitivity_comparison4.pdf", format="pdf")
-    fig.savefig(out / "sensitivity_comparison4.svg", format="svg")
-    print(f"Saved: {out / 'sensitivity_comparison4.pdf'} and {out / 'sensitivity_comparison4.svg'}")
+    pdf_path = noisy_results_path(out / "sensitivity_comparison4.pdf", inject_noise)
+    svg_path = noisy_results_path(out / "sensitivity_comparison4.svg", inject_noise)
+    fig.savefig(pdf_path, format="pdf")
+    fig.savefig(svg_path, format="svg")
+    print(f"Saved: {pdf_path} and {svg_path}")
 
 
 if __name__ == "__main__":

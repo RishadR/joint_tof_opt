@@ -10,7 +10,8 @@ import numpy as np
 import yaml
 from adjustText import adjust_text
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import legend_no_overlap, load_plot_config, log_samples, resolve_results_path
 
 
 def main():
@@ -18,16 +19,18 @@ def main():
     # Load matplotlib configuration
     load_plot_config()
 
-    # Load detector comparison results
-    results_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
+    # Load detector comparison results (noisy/noiseless file picked via evaluator_specs.yaml)
+    base_results_path = Path(__file__).parent.parent / "results" / "detector_comparison_results.yaml"
+    results_path, inject_noise = resolve_results_path(base_results_path)
     with open(results_path) as f:
         results = yaml.safe_load(f)
 
     # SDD distances in cm
     sdd_distances = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
 
-    # Extract data for each SDD index (only DIGSS optimizer)
-    sdd_data = {}
+    # Extract data for each SDD index (only DIGSS optimizer): {sdd_index: {depth_cm: {"snr": [], "selectivity": []}}}
+    # Repeats (under noise) land as multiple samples at the same depth, averaged below to one point/depth.
+    raw_data: dict[int, dict[float, dict[str, list[float]]]] = {}
 
     for _, exp_data in results.items():
         if not isinstance(exp_data, dict):
@@ -36,52 +39,52 @@ def main():
         depth = exp_data.get("Depth_mm")
         optimizer = exp_data.get("Optimizer", "")
         sdd_index = exp_data.get("SDD_Index")
-        evaluator_log = exp_data.get("evaluator_log", {})
+        evaluator_log = exp_data.get("evaluator_log")
 
-        if depth is None or sdd_index is None:
+        if depth is None or sdd_index is None or evaluator_log is None:
             continue
 
         # Only process DIGSS optimizer
         if not str(optimizer).startswith("DIGSS"):
             continue
 
-        if not isinstance(evaluator_log, dict):
-            continue
-
-        baseline_noise_std = evaluator_log.get("baseline_noise_std")
-        fetal_ac_energy = evaluator_log.get("fetal_ac_energy")
-        maternal_ac_amp = evaluator_log.get("maternal_ac_amp")
-
-        if baseline_noise_std is None or fetal_ac_energy is None or maternal_ac_amp is None:
-            continue
-
-        if baseline_noise_std <= 0 or maternal_ac_amp <= 0 or fetal_ac_energy < 0:
-            continue
-
-        fetal_ac_amp = np.sqrt(fetal_ac_energy)
-        selectivity = fetal_ac_amp / maternal_ac_amp
-        fetal_snr = fetal_ac_amp / baseline_noise_std
-
-        # Skip the NaNs - I dont want to deal with them right now
-        if np.isnan(selectivity) or np.isnan(fetal_snr) or np.isinf(selectivity) or np.isinf(fetal_snr):
-            continue
-
         fetal_depth_cm = round(depth / 10.0, 1)
 
-        if sdd_index not in sdd_data:
-            sdd_data[sdd_index] = {"fetal_snr": [], "selectivity": [], "depth_cm": []}
+        for log in log_samples(evaluator_log):
+            if not isinstance(log, dict):
+                continue
 
-        sdd_data[sdd_index]["fetal_snr"].append(fetal_snr)
-        sdd_data[sdd_index]["selectivity"].append(selectivity)
-        sdd_data[sdd_index]["depth_cm"].append(fetal_depth_cm)
+            baseline_noise_std = log.get("baseline_noise_std")
+            fetal_ac_energy = log.get("fetal_ac_energy")
+            maternal_ac_amp = log.get("maternal_ac_amp")
 
-    # Sort data by fetal depth (cm) and create arrays
-    for sdd_index in sdd_data:
-        if sdd_data[sdd_index]["depth_cm"]:
-            sorted_indices = np.argsort(sdd_data[sdd_index]["depth_cm"])
-            sdd_data[sdd_index]["fetal_snr"] = np.array(sdd_data[sdd_index]["fetal_snr"])[sorted_indices]
-            sdd_data[sdd_index]["selectivity"] = np.array(sdd_data[sdd_index]["selectivity"])[sorted_indices]
-            sdd_data[sdd_index]["depth_cm"] = np.array(sdd_data[sdd_index]["depth_cm"])[sorted_indices]
+            if baseline_noise_std is None or fetal_ac_energy is None or maternal_ac_amp is None:
+                continue
+
+            if baseline_noise_std <= 0 or maternal_ac_amp <= 0 or fetal_ac_energy < 0:
+                continue
+
+            fetal_ac_amp = np.sqrt(fetal_ac_energy)
+            selectivity = fetal_ac_amp / maternal_ac_amp
+            fetal_snr = fetal_ac_amp / baseline_noise_std
+
+            # Skip the NaNs - I dont want to deal with them right now
+            if np.isnan(selectivity) or np.isnan(fetal_snr) or np.isinf(selectivity) or np.isinf(fetal_snr):
+                continue
+
+            depth_data = raw_data.setdefault(sdd_index, {}).setdefault(fetal_depth_cm, {"snr": [], "selectivity": []})
+            depth_data["snr"].append(fetal_snr)
+            depth_data["selectivity"].append(selectivity)
+
+    # Reduce repeats to one (mean) point per depth, sorted by depth.
+    sdd_data = {}
+    for sdd_index, by_depth in raw_data.items():
+        depths = sorted(by_depth.keys())
+        sdd_data[sdd_index] = {
+            "depth_cm": np.array(depths),
+            "fetal_snr": np.array([np.mean(by_depth[d]["snr"]) for d in depths]),
+            "selectivity": np.array([np.mean(by_depth[d]["selectivity"]) for d in depths]),
+        }
 
     # Create figure
     fig, ax = plt.subplots()
@@ -158,7 +161,7 @@ def main():
         arrowprops={"arrowstyle": "-", "color": "0.5", "lw": 0.45, "alpha": 0.55},
     )
 
-    ax.legend(loc="lower right")
+    legend_no_overlap(ax, "lower right")
     ax.grid(True)
     # ax.set_ylim(top=1.3)
 
@@ -166,8 +169,8 @@ def main():
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(figures_dir / "detector_comparison2.pdf", format="pdf")
-    fig.savefig(figures_dir / "detector_comparison2.svg", format="svg")
+    fig.savefig(noisy_results_path(figures_dir / "detector_comparison2.pdf", inject_noise), format="pdf")
+    fig.savefig(noisy_results_path(figures_dir / "detector_comparison2.svg", inject_noise), format="svg")
 
     print(f"Detector comparison plots saved to {figures_dir}")
 

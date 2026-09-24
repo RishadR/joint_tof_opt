@@ -39,11 +39,9 @@ from joint_tof_opt import (
     OptimizationExperiment,
     ToFConfig,
     ToFData,
-    UnityTofModifier,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     build_noise_tof_modifier,
     clear_results,
-    evaluate_repeats,
     format_sensitivity,
     generate_tof,
     get_evaluator_class,
@@ -56,6 +54,8 @@ from joint_tof_opt import (
     write_results_to_yaml,
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
+
+from .experiments_core import run_noisy_repeats
 
 
 def run_sensitivity_comparison(
@@ -85,8 +85,6 @@ def run_sensitivity_comparison(
     """
     ## Params
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-    # tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
-    tof_modifier = UnityTofModifier()
 
     # Initialize results table and windows storage
     results = []
@@ -96,19 +94,24 @@ def run_sensitivity_comparison(
             print(f"Running Experiment: {ppath_filename} | Measurand: {measurand}")
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_data = generate_tof(ppath_file, gen_config, True, True)
-            tof_data = tof_modifier.modify(tof_data)
+            base_tof_data = generate_tof(ppath_file, gen_config, True, True)
 
             # Run Optimizers
-            # measurand_module = get_named_moment_module(measurand, tof_series_tensor, bin_edges_tensor, meta_data)
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(tof_data, measurand)
-                optimizer_experiment.optimize()
-                optimizer_name = str(optimizer_experiment)
+                # Repeat the full noisy-training + eval cycle `repeats` times (matching repeats_if_noisy) - see
+                # experiments/experiments_core.py.
+                optimizer_experiment, [optimized_sensitivity], [evaluator_log] = run_noisy_repeats(
+                    base_tof_data,
+                    build_optimizer=lambda tof_data: optimizer_func(tof_data, measurand),
+                    evaluators_gen=lambda window: [evaluator_gen_func(ppath_file, window, measurand, gen_config)],
+                    noise_variance=noise_variance,
+                    repeats=repeats,
+                )
                 window = optimizer_experiment.window.detach().cpu()
+                tof_data = optimizer_experiment.tof_data
+
+                optimizer_name = str(optimizer_experiment)
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
-                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
                 depth = derm_thickness_mm + 2  # Add 2 mm for epidermis
                 epochs = len(loss_history)
                 if epochs > 0:
@@ -171,8 +174,11 @@ def main(inject_noise: bool = eval_spec.inject_noise):
         lambda tof_data, measurand: DummyOptimizationExperiment(tof_data, measurand),
     ]
 
+    # Training-data noise is gated on inject_noise (unlike ablation_study.py/noise_sensitivity_comparison.py,
+    # noise level isn't the swept variable here - it's either on at the spec's variance, or off).
+    train_noise_variance = instrument_noise_var if inject_noise else 0.0
     exp_results = run_sensitivity_comparison(
-        eval_func, optimizer_funcs_to_test, ["abs"], instrument_noise_var, repeats=repeats, print_log=True
+        eval_func, optimizer_funcs_to_test, ["abs"], train_noise_variance, repeats=repeats, print_log=True
     )
 
     # Store results

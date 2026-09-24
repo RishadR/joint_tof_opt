@@ -6,7 +6,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import yaml
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import as_samples, load_plot_config, resolve_results_path
 
 
 def main(depth=10):
@@ -14,8 +15,9 @@ def main(depth=10):
     # Load matplotlib configuration
     load_plot_config()
 
-    # Load false fetal frequency results
-    results_path = Path(__file__).parent.parent / 'results' / 'false_fetal_f_results2.yaml'
+    # Load false fetal frequency results (noisy/noiseless file picked via evaluator_specs.yaml)
+    base_results_path = Path(__file__).parent.parent / 'results' / 'false_fetal_f_results2.yaml'
+    results_path, inject_noise = resolve_results_path(base_results_path)
     with open(results_path) as f:
         results = yaml.safe_load(f)
 
@@ -58,9 +60,7 @@ def main(depth=10):
         if optimizer_type != 'comb' or filter_hw is None or abs(filter_hw - 0.01) > 1e-12:
             continue
 
-        if error_hz not in error_data:
-            error_data[error_hz] = []
-        error_data[error_hz].append(fom)
+        error_data.setdefault(error_hz, []).extend(as_samples(fom))
 
     # Create figure
     fig, ax = plt.subplots()
@@ -98,8 +98,8 @@ def main(depth=10):
     figures_dir = Path(__file__).parent.parent / 'figures'
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(figures_dir / 'false_fetal_f_comparison2.pdf', format='pdf')
-    fig.savefig(figures_dir / 'false_fetal_f_comparison2.svg', format='svg')
+    fig.savefig(noisy_results_path(figures_dir / 'false_fetal_f_comparison2.pdf', inject_noise), format='pdf')
+    fig.savefig(noisy_results_path(figures_dir / 'false_fetal_f_comparison2.svg', inject_noise), format='svg')
 
     print(f"False fetal frequency comparison plots saved to {figures_dir}")
     # plt.show()

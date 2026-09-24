@@ -11,7 +11,6 @@ from .plot_ablation_study import main as plot_ablation_study
 from .plot_ablation_study2 import main as plot_ablation_study2
 from .plot_detector_comparison import main as plot_detector
 from .plot_detector_comparison2 import main as plot_detector_comparison2
-from .plot_false_fetal_f import main as plot_false_f
 from .plot_noise_sensitivity_comparison import main as plot_noise_sensitivity
 from .plot_noise_sensitivity_comparison2 import main as plot_noise_sensitivity2
 from .plot_overlap_compare import main as plot_overlap_compare
@@ -33,9 +32,6 @@ def main():
 
     print("\n[2/9] Generating detector comparison plot...")
     plot_detector()
-
-    print("\n[3/9] Generating false fetal frequency comparison plot...")
-    plot_false_f()
 
     print("\n[4/9] Generating sample time-of-flight plot...")
     plot_sample_tof(plot_type="distribution")

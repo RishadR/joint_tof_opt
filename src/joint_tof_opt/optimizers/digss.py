@@ -496,7 +496,8 @@ class DIGSSOptimizer(OptimizationExperiment):
         return (
             f"DIGSSOptimizer(normalization_scheme={self.normalization_scheme}, "
             f"use_window_post_process={self.use_window_post_process}, "
-            f"use_snr_left_bound={self.use_snr_left_bound})"
+            f"use_snr_left_bound={self.use_snr_left_bound}),"
+            f"window_smoothening={self.window_smoothening}"
         )
 
     def components(self) -> dict[str, nn.Module]:

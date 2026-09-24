@@ -5,10 +5,12 @@ from collections import defaultdict
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import yaml
 from matplotlib.ticker import PercentFormatter
 
-from joint_tof_opt.plotting import load_plot_config
+from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 
 def _combo_label(filter_type: str, filter_hw: float) -> str:
@@ -17,13 +19,22 @@ def _combo_label(filter_type: str, filter_hw: float) -> str:
     return f"{filter_type} (HW={filter_hw:g})"
 
 
+def _mean(value: float | list[float]) -> float:
+    return float(np.mean(as_samples(value)))
+
+
 def main(
-    input_yaml: Path = Path("./results/overlap_results.yaml"),
-    output_base: Path = Path("./figures/overlap_compare"),
+    input_yaml: Path | None = None,
+    output_base: Path | None = None,
 ) -> None:
     # Load matplotlib configuration (same implementation as plot_detector_comparison.py)
     load_plot_config()
-    with open(input_yaml, encoding="utf-8") as f:
+
+    # Resolve the noisy/noiseless input file (and matching output prefix) via evaluator_specs.yaml.
+    resolved_input, inject_noise = resolve_results_path(input_yaml or Path("./results/overlap_results.yaml"))
+    output_base = noisy_results_path(output_base or Path("./figures/overlap_compare"), inject_noise)
+
+    with open(resolved_input, encoding="utf-8") as f:
         data = yaml.safe_load(f)
     fig_size_x = plt.rcParams.get("figure.figsize", [6, 4])[0]
     fig_size_y = plt.rcParams.get("figure.figsize", [6, 4])[1]
@@ -36,8 +47,8 @@ def main(
         sep = float(entry["Separation_Hz"])
         hw = float(entry["Filter_HW"])
         ftype = str(entry["Filter_Type"])
-        s1 = float(entry["Sensitivity1"])   # FoM
-        s2 = float(entry["Sensitivity2"])   # Reward Metric
+        s1 = _mean(entry["Sensitivity1"])   # FoM
+        s2 = _mean(entry["Sensitivity2"])   # Reward Metric
         # s2 = float(entry["Optimizer Best Metric"])
         # s2 = float(entry["Optimizer Best Selectivity"])
         # s2 = float(entry["Optimizer Best SNR"])
@@ -62,12 +73,12 @@ def main(
 
     axes[0].set_xlabel("Fetal Fundemental &\nMaternal 2nd Harmonic\nSeparation (Hz)")
     axes[0].set_ylabel("Figure of Merit(FoM)")
-    axes[0].legend(title="Filter Setup")
+    legend_no_overlap(axes[0], "upper right", title="Filter Setup")
     axes[0].grid(True)
 
     axes[1].set_xlabel("Fetal Fundemental &\nMaternal 2nd Harmonic\nSeparation (Hz)")
     axes[1].set_ylabel("Reward Metric")
-    axes[1].legend(title="Filter Setup")
+    legend_no_overlap(axes[1], "upper right", title="Filter Setup")
     axes[1].grid(True)
 
     output_base.parent.mkdir(parents=True, exist_ok=True)
@@ -89,7 +100,7 @@ def main(
     ax_alt.set_xlabel("Fetal Fundemental & Maternal 2nd Harmonic Separation (Hz)")
     ax_alt.set_ylabel("FoM & Reward Metric Mismatch")
     ax_alt.yaxis.set_major_formatter(PercentFormatter(xmax=1.0))
-    ax_alt.legend(title="Filter Setup")
+    legend_no_overlap(ax_alt, "upper right", title="Filter Setup")
     ax_alt.grid(True)
 
     output_alt_base = output_base.with_name(f"{output_base.name}_alt")

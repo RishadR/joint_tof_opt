@@ -160,12 +160,14 @@ class AdditiveGaussianToFModifier(ToFModifier):
     Using this to emulate instrument noise
     """
 
-    def __init__(self, noise_var: float):
+    def __init__(self, noise_var: float, seed: int = 42):
         self.noise_var: float = noise_var
+        self.seed = seed
 
     @override
     def modify(self, tof_data: ToFData) -> ToFData:
         noise_std = math.sqrt(self.noise_var)
+        torch.manual_seed(self.seed)   # Not sure how this interacts with threading - avoid threading for now
         noise = torch.normal(
             mean=0.0,
             std=noise_std,
@@ -190,6 +192,10 @@ class AdditiveGaussianToFModifier(ToFModifier):
         )
 
     @override
+    def reseed(self, seed: int) -> None:
+        self.seed = seed
+
+    @override
     def __str__(self) -> str:
         return f"AdditiveGaussianToFModifier(noise_var={self.noise_var})"
 
@@ -200,16 +206,22 @@ class ShotNoiseToFModifier(ToFModifier):
     and that draw is added on top of N.
     """
 
-    def __init__(self, mean_multiplier: float = 1.0) -> None:
+    def __init__(self, mean_multiplier: float = 1.0, seed: int = 42) -> None:
         super().__init__()
         self.mean_multiplier: float = mean_multiplier
+        self.seed = seed
 
     @override
     def modify(self, tof_data: ToFData) -> ToFData:
+        torch.manual_seed(self.seed)    # Again - same issue - not sure how multi-threading interacts - avoid threading
         noise = torch.normal(tof_data.tof_series * self.mean_multiplier, torch.sqrt(tof_data.tof_series))
         # copy metadata by value rather than by reference!
         meta_data = tof_data.meta_data.copy() if tof_data.meta_data is not None else None
         return replace(tof_data, tof_series=tof_data.tof_series + noise, meta_data=meta_data)
+
+    @override
+    def reseed(self, seed: int) -> None:
+        self.seed = seed
 
     @override
     def __str__(self) -> str:
@@ -228,6 +240,11 @@ class SumToFModifier(ToFModifier):
     @override
     def modify(self, tof_data: ToFData) -> ToFData:
         return self.second.modify(self.first.modify(tof_data))
+
+    @override
+    def reseed(self, seed: int) -> None:
+        self.first.reseed(seed)
+        self.second.reseed(seed)
 
     @override
     def __str__(self) -> str:

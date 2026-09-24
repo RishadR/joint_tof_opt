@@ -5,14 +5,15 @@ Ablation study for DIGSSOptimizer for two ablations:
 
 Purpose
 -------
-Sweeps the 4 combinations of the two ablation flags above, at the instrument noise level from
-experiments/evaluator_specs.yaml (20 parallel iterations), to see how much each trick contributes to
-optimized-window sensitivity.
+Sweeps the 4 combinations of the two ablation flags above, at instrument noise standard deviations
+0, 100, 1000, 10000 plus the variance from experiments/evaluator_specs.yaml (20 parallel iterations
+each), to see how much each trick contributes to optimized-window sensitivity, and how that holds up
+under noise.
 
 Runtime
 -------
-Watch out, might take a while - 20 parallel iterations x 4 optimizer configs x every experiment in
-data/parameter_mapping.json.
+Watch out, might take a while - 5 noise levels x 20 parallel iterations x 4 optimizer configs x every
+experiment in data/parameter_mapping.json.
 
 Inputs
 ------
@@ -38,11 +39,9 @@ from joint_tof_opt import (
     OptimizationExperiment,
     ToFConfig,
     ToFData,
-    UnityTofModifier,
     WindowSumWithAdditiveGaussianNoiseCalculator,
     build_noise_tof_modifier,
     clear_results,
-    evaluate_repeats,
     format_sensitivity,
     generate_tof,
     get_evaluator_class,
@@ -56,6 +55,8 @@ from joint_tof_opt import (
 )
 from joint_tof_opt.compact_stat_process import get_named_moment_module
 
+from .experiments_core import run_noisy_repeats
+
 
 def run_ablation(
     evaluator_gen_func: Callable[[Path, torch.Tensor, str, ToFConfig], Evaluator],
@@ -66,9 +67,7 @@ def run_ablation(
     print_log: bool = False,
 ) -> list[dict[str, Any]]:
     gen_config = load_tof_config(Path("./experiments/tof_config.yaml"))
-    # tof_modifier = AdditiveGaussianToFModifier(noise_var=noise_variance)
-    tof_modifier = UnityTofModifier()
-
+    assert repeats > 0, "repeats_if_noisy count cannot be non-positive!"
     results = []
     for measurand in measurands_to_test:
         file_sweep_params = load_parameter_mapping(Path("./data/parameter_mapping.json"))
@@ -76,17 +75,24 @@ def run_ablation(
             print(f"Running Experiment: {ppath_filename} | Measurand: {measurand}")
             derm_thickness_mm = sweep_params["derm_thickness"]
             ppath_file: Path = Path("./data") / ppath_filename
-            tof_data = generate_tof(ppath_file, gen_config, True, True)
-            tof_data = tof_modifier.modify(tof_data)
+            base_tof_data = generate_tof(ppath_file, gen_config, True, True)
 
             for optimizer_func in optimizers_to_compare:
-                optimizer_experiment = optimizer_func(tof_data, measurand)
-                optimizer_experiment.optimize()
-                optimizer_name = str(optimizer_experiment)
+                # Repeat the full noisy-training + eval cycle `repeats` times (matching repeats_if_noisy) so
+                # both the training-data noise and the eval-time noise get `repeats` independent draws,
+                # regardless of which of the two carries the (currently swept) noise_variance.
+                optimizer_experiment, [optimized_sensitivity], [evaluator_log] = run_noisy_repeats(
+                    base_tof_data,
+                    build_optimizer=lambda tof_data: optimizer_func(tof_data, measurand),
+                    evaluators_gen=lambda window: [evaluator_gen_func(ppath_file, window, measurand, gen_config)],
+                    noise_variance=noise_variance,
+                    repeats=repeats,
+                )
                 window = optimizer_experiment.window.detach().cpu()
+                tof_data = optimizer_experiment.tof_data
+
+                optimizer_name = str(optimizer_experiment)
                 loss_history = optimizer_experiment.training_curves
-                evaluator = evaluator_gen_func(ppath_file, window, measurand, gen_config)
-                optimized_sensitivity, evaluator_log = evaluate_repeats(evaluator, repeats)
                 depth = derm_thickness_mm + 2
                 epochs = len(loss_history)
                 final_optimizer_loss = loss_history[-1, :].tolist() if epochs > 0 else []
@@ -110,6 +116,7 @@ def run_ablation(
                         "final_optimizer_loss": final_optimizer_loss,
                         "measurand_time_series": measurand_time_series.numpy().tolist(),
                         "noise_variance": noise_variance,
+                        "repeat_count": repeats,
                     }
                 )
                 print(
@@ -123,68 +130,76 @@ def run_ablation(
     return results
 
 
-def main(inject_noise: bool | None = None) -> None:
-    eval_spec = load_evaluator_specs(Path("./experiments/evaluator_specs.yaml"))
-    if inject_noise is None:
-        inject_noise = eval_spec.inject_noise
+eval_spec = load_evaluator_specs(Path("./experiments/evaluator_specs.yaml"))
+
+
+def main(inject_noise: bool = eval_spec.inject_noise) -> None:
     repeats = eval_spec.repeats_if_noisy if inject_noise else 1
     evaluator_cls = get_evaluator_class(eval_spec.evaluator_to_use)
     filter_hw = get_evaluator_filter_hw(eval_spec)
     tof_modifier = build_noise_tof_modifier(eval_spec) if inject_noise else None
-    noise_var = eval_spec.instrument_noise_variance
-    noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
-
-    def eval_func(ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig) -> Evaluator:
-        return evaluator_cls(ppath, win, meas, conf, noise_calc, filter_hw, tof_modifier)
-
-    base_kwargs: dict[str, Any] = {
-        "normalization_scheme": "unit_max",
-        "noise_calc": noise_calc,
-        "reg_weight": 0.0,
-        "lr": 0.1,
-        "window_smoothening": False,
-    }
-
-    optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
-        # Baseline: both ablations on
-        lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data,
-            measurand,
-            **base_kwargs,
-            use_window_post_process=True,
-            use_snr_left_bound=True,
-        ),
-        # No post-process
-        lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data,
-            measurand,
-            **base_kwargs,
-            use_window_post_process=False,
-            use_snr_left_bound=True,
-        ),
-        # No SNR left bound
-        lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data,
-            measurand,
-            **base_kwargs,
-            use_window_post_process=True,
-            use_snr_left_bound=False,
-        ),
-        # Neither
-        lambda tof_data, measurand: DIGSSOptimizer(
-            tof_data,
-            measurand,
-            **base_kwargs,
-            use_window_post_process=False,
-            use_snr_left_bound=False,
-        ),
-    ]
-
-    exp_results = run_ablation(eval_func, optimizer_funcs_to_test, ["abs"], noise_var, repeats=repeats, print_log=False)
 
     results_path = noisy_results_path(Path("./results/ablation_results.yaml"), inject_noise)
     clear_results(results_path)
-    write_results_to_yaml(exp_results, results_path, append=True)
+
+    # Noise standard deviations to sweep, plus the currently tuned variance from evaluator_specs.yaml.
+    # Everything is stored (and passed to the noise calculator) as a variance.
+    noise_stds = [0.0, 5.0, 10.0, 15.0]
+    noise_variances = [std**2 for std in noise_stds] + [eval_spec.instrument_noise_variance]
+
+    for noise_var in noise_variances:
+        print(f"Running noise_var={noise_var}...")
+        noise_calc = WindowSumWithAdditiveGaussianNoiseCalculator(noise_var)
+
+        def eval_func(
+            ppath: Path, win: torch.Tensor, meas: str, conf: ToFConfig, noise_calc=noise_calc
+        ) -> Evaluator:
+            return evaluator_cls(ppath, win, meas, conf, noise_calc, filter_hw, tof_modifier)
+
+        base_kwargs: dict[str, Any] = {
+            "normalization_scheme": "unit_max",
+            "noise_calc": noise_calc,
+        }
+
+        optimizer_funcs_to_test: list[Callable[[ToFData, str | CompactStatProcess], OptimizationExperiment]] = [
+            # Baseline: both ablations on
+            lambda tof_data, measurand: DIGSSOptimizer(
+                tof_data,
+                measurand,
+                **base_kwargs,
+                use_window_post_process=True,
+                window_smoothening=True,
+            ),
+            # No post-process
+            lambda tof_data, measurand: DIGSSOptimizer(
+                tof_data,
+                measurand,
+                **base_kwargs,
+                use_window_post_process=False,
+                window_smoothening=True,
+            ),
+            # No SNR left bound
+            lambda tof_data, measurand: DIGSSOptimizer(
+                tof_data,
+                measurand,
+                **base_kwargs,
+                use_window_post_process=True,
+                window_smoothening=False,
+            ),
+            # Neither
+            lambda tof_data, measurand: DIGSSOptimizer(
+                tof_data,
+                measurand,
+                **base_kwargs,
+                use_window_post_process=False,
+                window_smoothening=False,
+            ),
+        ]
+
+        exp_results = run_ablation(
+            eval_func, optimizer_funcs_to_test, ["abs"], noise_var, repeats=repeats, print_log=False
+        )
+        write_results_to_yaml(exp_results, results_path, append=True)
 
 
 if __name__ == "__main__":
