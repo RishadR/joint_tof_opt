@@ -16,6 +16,17 @@ def noisy_results_path(path: Path, inject_noise: bool) -> Path:
     return path.with_name(f"noisy_{path.name}") if inject_noise else path
 
 
+def figure_output_path(path: Path, inject_noise: bool) -> Path:
+    """
+    Route a figure save path into an "injected_noise" or "no_injected_noise" subfolder of its
+    parent directory, so noisy and noiseless figures land in separate folders instead of being
+    distinguished by filename prefix. Creates the subfolder if needed.
+    """
+    subdir = path.parent / ("injected_noise" if inject_noise else "no_injected_noise")
+    subdir.mkdir(parents=True, exist_ok=True)
+    return subdir / path.name
+
+
 def evaluate_repeats(
     evaluator: Evaluator, repeats: int
 ) -> tuple[float | list[float], dict[str, Any] | list[dict[str, Any]]]:

@@ -93,7 +93,7 @@ def plot_sample_tof(ppath: Path, plot_type: Literal["distribution", "density"]):
     # ax.legend()
 
     # Create output directory if it doesn't exist
-    output_dir = Path("./figures/")
+    output_dir = Path("./figures/others")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save figures

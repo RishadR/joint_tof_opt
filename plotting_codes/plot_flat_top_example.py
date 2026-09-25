@@ -77,7 +77,7 @@ def plot_flat_top_example(
     legend_no_overlap(ax, "upper right")
     plt.tight_layout()
 
-    output_dir = Path("./figures/")
+    output_dir = Path("./figures/others")
     output_dir.mkdir(parents=True, exist_ok=True)
     pdf_path = output_dir / f"{filename}.pdf"
     svg_path = output_dir / f"{filename}.svg"

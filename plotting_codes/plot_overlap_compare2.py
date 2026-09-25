@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.misc import figure_output_path
 from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 
@@ -30,7 +30,7 @@ def main(
 
     # Resolve the noisy/noiseless input file (and matching output prefix) via evaluator_specs.yaml.
     resolved_input, inject_noise = resolve_results_path(input_yaml or Path("./results/overlap_results2.yaml"))
-    output_base = noisy_results_path(output_base or Path("./figures/overlap_compare2"), inject_noise)
+    output_base = figure_output_path(output_base or Path("./figures/overlap_compare2"), inject_noise)
 
     with open(resolved_input, encoding="utf-8") as f:
         data = yaml.safe_load(f)

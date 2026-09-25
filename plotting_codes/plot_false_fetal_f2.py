@@ -6,7 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import yaml
 
-from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.misc import figure_output_path
 from joint_tof_opt.plotting import as_samples, load_plot_config, resolve_results_path
 
 
@@ -98,8 +98,8 @@ def main(depth=10):
     figures_dir = Path(__file__).parent.parent / 'figures'
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(noisy_results_path(figures_dir / 'false_fetal_f_comparison2.pdf', inject_noise), format='pdf')
-    fig.savefig(noisy_results_path(figures_dir / 'false_fetal_f_comparison2.svg', inject_noise), format='svg')
+    fig.savefig(figure_output_path(figures_dir / 'false_fetal_f_comparison2.pdf', inject_noise), format='pdf')
+    fig.savefig(figure_output_path(figures_dir / 'false_fetal_f_comparison2.svg', inject_noise), format='svg')
 
     print(f"False fetal frequency comparison plots saved to {figures_dir}")
     # plt.show()

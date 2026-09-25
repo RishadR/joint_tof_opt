@@ -2,6 +2,7 @@
 Cartoon of photon paths through a slab with varying numbers of sections and depths - figure for time gating paper.
 """
 
+from pathlib import Path
 from typing import cast
 
 import matplotlib.pyplot as plt
@@ -186,8 +187,9 @@ def main():
 
     plt.tight_layout()
 
-    plt.savefig("./figures/time_gating_visual.pdf", bbox_inches="tight")
-    plt.savefig("./figures/time_gating_visual.svg", bbox_inches="tight")
+    Path("./figures/others").mkdir(parents=True, exist_ok=True)
+    plt.savefig("./figures/others/time_gating_visual.pdf", bbox_inches="tight")
+    plt.savefig("./figures/others/time_gating_visual.svg", bbox_inches="tight")
     plt.close(fig)
 
 

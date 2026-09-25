@@ -101,7 +101,7 @@ def plot_impulse_bin_heatmaps(
     axes[1, 1].axis("off")
     plt.tight_layout()
 
-    output_dir = Path("./figures/")
+    output_dir = Path("./figures/others")
     output_dir.mkdir(parents=True, exist_ok=True)
     pdf_path = output_dir / f"{filename}.pdf"
     svg_path = output_dir / f"{filename}.svg"

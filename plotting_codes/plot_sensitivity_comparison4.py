@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.misc import figure_output_path
 from joint_tof_opt.plotting import legend_no_overlap, load_plot_config, resolve_results_path
 
 
@@ -61,8 +61,8 @@ def main():
 
     out = Path(__file__).parent.parent / "figures"
     out.mkdir(exist_ok=True)
-    pdf_path = noisy_results_path(out / "sensitivity_comparison4.pdf", inject_noise)
-    svg_path = noisy_results_path(out / "sensitivity_comparison4.svg", inject_noise)
+    pdf_path = figure_output_path(out / "sensitivity_comparison4.pdf", inject_noise)
+    svg_path = figure_output_path(out / "sensitivity_comparison4.svg", inject_noise)
     fig.savefig(pdf_path, format="pdf")
     fig.savefig(svg_path, format="svg")
     print(f"Saved: {pdf_path} and {svg_path}")

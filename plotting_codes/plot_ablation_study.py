@@ -10,7 +10,7 @@ import numpy as np
 import yaml
 
 from joint_tof_opt import load_evaluator_specs
-from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.misc import figure_output_path
 from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 # [is–flat_top?, has_snr_bound?, plot_z_oder, plot_horizontal_offset]
@@ -84,8 +84,8 @@ def main():
 
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
-    pdf_path = noisy_results_path(figures_dir / "ablation_study.pdf", inject_noise)
-    svg_path = noisy_results_path(figures_dir / "ablation_study.svg", inject_noise)
+    pdf_path = figure_output_path(figures_dir / "ablation_study.pdf", inject_noise)
+    svg_path = figure_output_path(figures_dir / "ablation_study.svg", inject_noise)
     fig.savefig(pdf_path, format="pdf")
     fig.savefig(svg_path, format="svg")
     print(f"Ablation study plot saved to {pdf_path}")

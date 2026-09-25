@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from joint_tof_opt.misc import noisy_results_path
+from joint_tof_opt.misc import figure_output_path
 from joint_tof_opt.plotting import as_samples, legend_no_overlap, load_plot_config, resolve_results_path
 
 
@@ -92,8 +92,8 @@ def main():
     figures_dir = Path(__file__).parent.parent / "figures"
     figures_dir.mkdir(exist_ok=True)
 
-    fig.savefig(noisy_results_path(figures_dir / "sensitivity_comparison.pdf", inject_noise), format="pdf")
-    fig.savefig(noisy_results_path(figures_dir / "sensitivity_comparison.svg", inject_noise), format="svg")
+    fig.savefig(figure_output_path(figures_dir / "sensitivity_comparison.pdf", inject_noise), format="pdf")
+    fig.savefig(figure_output_path(figures_dir / "sensitivity_comparison.svg", inject_noise), format="svg")
 
     print(f"Sensitivity comparison plots saved to {figures_dir}")
     # plt.show()
